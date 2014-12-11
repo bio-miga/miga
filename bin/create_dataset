@@ -1,0 +1,59 @@
+#!/usr/bin/ruby
+#
+# @package EGR (codename)
+# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @license artistic license 2.0
+# @update Dec-5-2014
+#
+
+require 'egr/project'
+require 'optparse'
+
+ARGV << '-h' if ARGV.size==0
+o = {:q=>false}
+OptionParser.new do |opt|
+   opt.banner = <<BAN
+Creates an empty dataset in a pre-existing EGR project.
+
+Usage: #{$0} [options]
+BAN
+   opt.separator ""
+   opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+   opt.on("-D", "--dataset PATH", "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
+   opt.on("-t", "--type STRING", "Type of dataset. Recognized types include:", *EGR::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}){ |v| o[:type]=v.to_sym }
+   opt.on("-d", "--description STRING", "Description of the dataset."){ |v| o[:description]=v }
+   opt.on("-u", "--user STRING", "Owner of the dataset."){ |v| o[:user]=v }
+   opt.on("-c", "--comments STRING", "Comments on the dataset."){ |v| o[:comments]=v }
+   opt.on("-q", "--quiet", "Run quietly (no STDERR output)."){ o[:q]=true }
+   opt.on("-h", "--help", "Display this screen.") do
+      puts opt
+      exit
+   end
+   opt.separator ""
+end.parse!
+
+
+### MAIN
+begin
+   raise "-P is mandatory." if o[:project].nil?
+   raise "-D is mandatory." if o[:dataset].nil?
+   
+   $stderr.puts "Loading project." unless o[:q]
+   p = EGR::Project.load(o[:project])
+   
+   $stderr.puts "Creating dataset." unless o[:q]
+   raise "Dataset already exists, aborting." if EGR::Dataset.exist?(p, o[:dataset])
+   d = p.add_dataset(o[:dataset])
+   [:type, :description, :user, :comments].each do |k|
+      d.metadata[k] = o[k] unless o[k].nil?
+   end
+   d.save
+
+   $stderr.puts "Done."
+rescue => err
+   $stderr.puts "Exception: #{err}\n\n"
+   err.backtrace.each { |l| $stderr.puts l + "\n" }
+   err
+end
+
+
