@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # @package EGR (codename)
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
