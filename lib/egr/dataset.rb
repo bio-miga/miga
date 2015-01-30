@@ -5,7 +5,7 @@
 # @update Dec-2-2014
 #
 
-require 'JSON'
+require 'json'
 require 'egr/metadata'
 require 'egr/project'
 require 'egr/result'

@@ -5,7 +5,7 @@
 # @update Dec-2-2014
 #
 
-require 'JSON'
+require 'json'
 
 module EGR
    class Result

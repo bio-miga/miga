@@ -6,7 +6,7 @@
 #
 
 require 'egr/project'
-require 'JSON'
+require 'json'
 
 module EGR
    class EGR
