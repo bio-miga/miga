@@ -6,6 +6,7 @@
 # @update Dec-5-2014
 #
 
+$:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
 require 'egr/project'
 require 'optparse'
 
