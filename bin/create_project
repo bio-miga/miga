@@ -3,7 +3,7 @@
 # @package EGR (codename)
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Dec-5-2014
+# @update Feb-23-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -11,7 +11,7 @@ require 'egr/project'
 require 'optparse'
 
 ARGV << '-h' if ARGV.size==0
-o = {:q=>false}
+o = {:q=>true, :update=>false}
 OptionParser.new do |opt|
    opt.banner = <<BAN
 Creates an empty EGR project.
@@ -24,7 +24,8 @@ BAN
    opt.on("-d", "--description STRING", "Description of the project."){ |v| o[:description]=v }
    opt.on("-u", "--user STRING", "Owner of the project."){ |v| o[:user]=v }
    opt.on("-c", "--comments STRING", "Comments on the project."){ |v| o[:comments]=v }
-   opt.on("-q", "--quiet", "Run quietly (no STDERR output)."){ o[:q]=true }
+   opt.on(      "--update", "Updates the project if it already exists."){ o[:update]=true }
+   opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
       exit
@@ -38,8 +39,9 @@ begin
    raise "-P is mandatory." if o[:project].nil?
    
    $stderr.puts "Creating project." unless o[:q]
-   raise "Project already exists, aborting." if EGR::Project.exist? o[:project]
+   raise "Project already exists, aborting." unless o[:update] or not EGR::Project.exist? o[:project]
    p = EGR::Project.new(o[:project])
+   o[:name] = File.basename(p.path) if o[:update] and o[:name].nil? # This line is redundant with EGR::Project#create, but allows upgrading projects from early code versions
    [:name, :description, :user, :comments].each do |k|
       p.metadata[k] = o[k] unless o[k].nil?
    end

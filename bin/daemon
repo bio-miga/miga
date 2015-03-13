@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+#
+# @package EGR (codename)
+# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @license artistic license 2.0
+# @update Feb-23-2015
+#
+
+$:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
+require 'egr/daemon'
+require 'optparse'
+
+if ARGV.size==0
+   ARGV << '-h'
+else
+   task = ARGV.shift
+end
+
+o = {:q=>true, :update=>false, :daemon_opts=>[]}
+OptionParser.new do |opt|
+   opt.banner = <<BAN
+Controls the daemon of an EGR project.
+
+Usage: #{$0} task [options]
+BAN
+   opt.separator "task:"
+   opt.separator "    start                            Start an instance of the application."
+   opt.separator "    stop                             Stop all instances of the application."
+   opt.separator "    restart                          Stop all instances and restart them afterwards."
+   opt.separator "    reload                           Send a SIGHUP to all instances of the application."
+   opt.separator "    run                              Start the application and stay on top."
+   opt.separator "    zap                              Set the application to a stopped state."
+   opt.separator "    status                           Show status (PID) of application instances."
+   opt.separator ""
+   opt.separator "EGR options:"
+   opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+   opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
+   opt.on("-h", "--help", "Display this screen.") do
+      puts opt
+      exit
+   end
+   opt.separator ""
+   opt.separator "Daemon options:"
+   opt.on("-t", "--ontop", "Stay on top (does not daemonize)"){ o[:daemon_opts] << '-t' }
+   opt.on("-f", "--force", "Force operation"){ o[:daemon_opts] << '-f' }
+   opt.on("-n", "--no_wait", "Do not wait for processes to stop"){ o[:daemon_opts] << '-n' }
+end.parse!
+
+### MAIN
+begin
+   raise "Project is mandatory." if o[:project].nil?
+   
+   raise "Project doesn't exist, aborting." unless EGR::Project.exist? o[:project]
+   p = EGR::Project.new(o[:project])
+   d = EGR::Daemon.new(p)
+   d.daemon(task)
+rescue => err
+   $stderr.puts "Exception: #{err}\n\n"
+   err.backtrace.each { |l| $stderr.puts l + "\n" }
+   err
+end
+
+

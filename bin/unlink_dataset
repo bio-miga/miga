@@ -3,7 +3,7 @@
 # @package EGR (codename)
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Dec-5-2014
+# @update Mar-12-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -11,20 +11,17 @@ require 'egr/project'
 require 'optparse'
 
 ARGV << '-h' if ARGV.size==0
-o = {:q=>true}
+o = {:q=>true, :remove=>false}
 OptionParser.new do |opt|
    opt.banner = <<BAN
-Creates an empty dataset in a pre-existing EGR project.
+Removes a dataset from an EGR project.
 
 Usage: #{$0} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
    opt.on("-D", "--dataset PATH", "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
-   opt.on("-t", "--type STRING", "Type of dataset. Recognized types include:", *EGR::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}){ |v| o[:type]=v.to_sym }
-   opt.on("-d", "--description STRING", "Description of the dataset."){ |v| o[:description]=v }
-   opt.on("-u", "--user STRING", "Owner of the dataset."){ |v| o[:user]=v }
-   opt.on("-c", "--comments STRING", "Comments on the dataset."){ |v| o[:comments]=v }
+   opt.on("-r", "--remove", "Also remove all associated files. By default, only unlinks from metadata."){ o[:remove]=true }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
@@ -43,12 +40,10 @@ begin
    p = EGR::Project.load(o[:project])
    raise "Impossible to load project: #{o[:project]}" if p.nil?
    
-   $stderr.puts "Creating dataset." unless o[:q]
-   d = p.add_dataset(o[:dataset])
-   [:type, :description, :user, :comments].each do |k|
-      d.metadata[k] = o[k] unless o[k].nil?
-   end
-   d.save
+   $stderr.puts "Unlinking dataset." unless o[:q]
+   raise "Dataset doesn't exist, aborting." unless EGR::Dataset.exist?(p, o[:dataset])
+   d = p.unlink_dataset(o[:dataset])
+   d.remove! if o[:remove]
 
    $stderr.puts "Done." unless o[:q]
 rescue => err

@@ -2,7 +2,7 @@
 # @package EGR (codename)
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Dec-2-2014
+# @update Mar-12-2015
 #
 
 require 'json'
@@ -18,7 +18,7 @@ module EGR
       # Instance
       attr_reader :path, :data
       def initialize(path, defaults={})
-	 @path = path
+	 @path = File.absolute_path(path)
 	 @data = defaults
 	 self.create unless File.exist? path
 	 self.load
@@ -30,12 +30,15 @@ module EGR
       def save
          self.data[:updated] = Time.now.to_s
 	 ofh = File.open(self.path, 'w')
-	 ofh.puts self.data.to_json
+	 ofh.puts JSON.pretty_generate(self.data)
 	 ofh.close
       end
       def load
 	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
+      end
+      def remove!
+	 File.unlink self.path
       end
       def [](k) self.data[k] end
       def []=(k,v) self.data[k]=v end

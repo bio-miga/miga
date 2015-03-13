@@ -2,7 +2,7 @@
 # @package EGR (codename)
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Dec-2-2014
+# @update Mar-12-2015
 #
 
 require 'json'
@@ -25,6 +25,9 @@ module EGR
 	    self.create
 	 end
       end
+      def dir
+	 File.dirname(self.path)
+      end
       def create
 	 @data = {:created=>Time.now.to_s, :results=>[], :stats=>{}, :files=>{}}
 	 self.save
@@ -32,13 +35,21 @@ module EGR
       def save
 	 self.data[:updated] = Time.now.to_s
 	 ofh = File.open(self.path, 'w')
-	 ofh.puts self.data.to_json
+	 ofh.puts JSON.pretty_generate(self.data)
 	 ofh.close
 	 self.load
       end
       def load
 	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
 	 @results = self.data[:results].map{ |rs| Result.new rs }
+      end
+      def remove!
+	 self.data[:files] = {} if self.data[:files].nil?
+	 self.data[:files].each do |k,files|
+	    files = [files] unless file.kind_of? Array
+	    files.each{|file| File.unlink_r(self.dir + file)}
+	 end
+	 File.unlink self.path
       end
       def add_result(result)
          self.data[:results] << result.path
