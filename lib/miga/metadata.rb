@@ -1,5 +1,5 @@
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Mar-12-2015
@@ -7,7 +7,7 @@
 
 require 'json'
 
-module EGR
+module MiGA
    class Metadata
       # Class
       def self.exist?(path) File.exist? path end

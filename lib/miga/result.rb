@@ -1,5 +1,5 @@
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Mar-12-2015
@@ -7,7 +7,7 @@
 
 require 'json'
 
-module EGR
+module MiGA
    class Result
       # Class
       def self.exist?(path) File.exist? path end
@@ -54,6 +54,12 @@ module EGR
       def add_result(result)
          self.data[:results] << result.path
 	 self.save
+      end
+      def file_path(file)
+	 f = self.data[:files][file.to_sym]
+	 return nil if f.nil?
+	 return self.path + '/' + f unless f.is_a?(Array)
+	 f.map{ |i| self.path + '/' + i }
       end
    end
 end

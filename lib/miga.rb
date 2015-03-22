@@ -1,13 +1,13 @@
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Mar-12-2015
 #
 
-require 'egr/egr'
+require 'miga/miga'
 
-module EGR
+module MiGA
    VERSION = "0.0.1"
 end
 

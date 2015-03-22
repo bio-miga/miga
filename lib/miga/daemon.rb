@@ -1,15 +1,15 @@
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Feb-23-2015
 #
 
-require 'egr/project'
+require 'miga/project'
 require 'json'
 require 'daemons'
 
-module EGR
+module MiGA
    class Daemon
       attr_reader :project
       def initialize(p)
@@ -26,9 +26,9 @@ module EGR
 	 options = self.default_options
 	 opts.unshift(task)
 	 options[:ARGV] = opts
-	 Daemons.run_proc("EGR:#{self.project.metadata[:name]}", options) do
+	 Daemons.run_proc("MiGA:#{self.project.metadata[:name]}", options) do
 	    p = self.project
-	    self.say "EGR:#{p.metadata[:name]} launched."
+	    self.say "MiGA:#{p.metadata[:name]} launched."
 	    loop do
 	       p.datasets.each do |ds|
 	          # Inspect preprocessing

@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Feb-23-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
-require 'egr/daemon'
+require 'miga/daemon'
 require 'optparse'
 
 if ARGV.size==0
@@ -19,7 +19,7 @@ end
 o = {:q=>true, :update=>false, :daemon_opts=>[]}
 OptionParser.new do |opt|
    opt.banner = <<BAN
-Controls the daemon of an EGR project.
+Controls the daemon of an MiGA project.
 
 Usage: #{$0} task [options]
 BAN
@@ -32,7 +32,7 @@ BAN
    opt.separator "    zap                              Set the application to a stopped state."
    opt.separator "    status                           Show status (PID) of application instances."
    opt.separator ""
-   opt.separator "EGR options:"
+   opt.separator "MiGA options:"
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-h", "--help", "Display this screen.") do
@@ -50,9 +50,9 @@ end.parse!
 begin
    raise "Project is mandatory." if o[:project].nil?
    
-   raise "Project doesn't exist, aborting." unless EGR::Project.exist? o[:project]
-   p = EGR::Project.new(o[:project])
-   d = EGR::Daemon.new(p)
+   raise "Project doesn't exist, aborting." unless MiGA::Project.exist? o[:project]
+   p = MiGA::Project.new(o[:project])
+   d = MiGA::Daemon.new(p)
    d.daemon(task)
 rescue => err
    $stderr.puts "Exception: #{err}\n\n"

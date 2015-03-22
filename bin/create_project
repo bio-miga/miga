@@ -1,20 +1,20 @@
 #!/usr/bin/env ruby
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Feb-23-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
-require 'egr/project'
+require 'miga/project'
 require 'optparse'
 
 ARGV << '-h' if ARGV.size==0
 o = {:q=>true, :update=>false}
 OptionParser.new do |opt|
    opt.banner = <<BAN
-Creates an empty EGR project.
+Creates an empty MiGA project.
 
 Usage: #{$0} [options]
 BAN
@@ -39,9 +39,9 @@ begin
    raise "-P is mandatory." if o[:project].nil?
    
    $stderr.puts "Creating project." unless o[:q]
-   raise "Project already exists, aborting." unless o[:update] or not EGR::Project.exist? o[:project]
-   p = EGR::Project.new(o[:project])
-   o[:name] = File.basename(p.path) if o[:update] and o[:name].nil? # This line is redundant with EGR::Project#create, but allows upgrading projects from early code versions
+   raise "Project already exists, aborting." unless o[:update] or not MiGA::Project.exist? o[:project]
+   p = MiGA::Project.new(o[:project])
+   o[:name] = File.basename(p.path) if o[:update] and o[:name].nil? # This line is redundant with MiGA::Project#create, but allows upgrading projects from early code versions
    [:name, :description, :user, :comments].each do |k|
       p.metadata[k] = o[k] unless o[k].nil?
    end

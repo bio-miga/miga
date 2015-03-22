@@ -1,16 +1,16 @@
 #
-# @package EGR (codename)
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
 # @update Mar-03-2015
 #
 
 require 'json'
-require 'egr/metadata'
-require 'egr/project'
-require 'egr/result'
+require 'miga/metadata'
+require 'miga/project'
+require 'miga/result'
 
-module EGR
+module MiGA
    class Dataset
       # Class
       @@RESULT_DIRS = {
@@ -33,14 +33,14 @@ module EGR
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.exist?(project, name) File.exist? project.path + '/metadata/' + name + '.json' end
-      def self.INFO_FIELDS() %w(name created updated type user description comments) end
+      def self.INFO_FIELDS() %w(name created updated type ref user description comments) end
       # Instance
       attr_reader :project, :name, :metadata
-      def initialize(project, name)
+      def initialize(project, name, is_ref=true)
 	 abort "Invalid name '#{name}', please use only alphanumerics and underscores." if name !~ /^[A-Za-z0-9_]+$/
 	 @project = project
 	 @name = name
-	 @metadata = Metadata.new self.project.path + '/metadata/' + self.name + '.json'
+	 @metadata = Metadata.new self.project.path + '/metadata/' + self.name + '.json', {:ref=>is_ref}
       end
       def save
 	 self.metadata.save
@@ -53,9 +53,8 @@ module EGR
          self.results.remove!
 	 self.metadata.remove!
       end
-      def info
-         EGR::Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] }
-      end
+      def info() MiGA::Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] } end
+      def is_ref?() self.metadata[:ref] end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
 	 Result.load self.project.path + '/data/' + @@RESULT_DIRS[name.to_sym] + '/' + self.name + '.json'
@@ -64,8 +63,8 @@ module EGR
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
 	 base = self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/' + self.name
-	 r = nil
 	 return nil unless File.exists? base + '.done'
+	 r = nil
 	 case result_type
 	 when :raw_reads
 	    return nil unless File.exist? base + '.1.fastq.gz'
@@ -111,12 +110,8 @@ module EGR
 	 r.save
 	 r
       end
-      def add_preprocessing
-	 @@PREPROCESSING_TASKS.all?{ |t| self.add_result t }
-      end
-      def first_preprocessing
-         @@PREPROCESSING_TASKS.find{ |t| not self.add_result(t).nil? }
-      end
+      def add_preprocessing() @@PREPROCESSING_TASKS.all?{ |t| self.add_result t } end
+      def first_preprocessing() @@PREPROCESSING_TASKS.find{ |t| not self.add_result(t).nil? } end
       def next_preprocessing
          after_first = false
 	 first = self.first_preprocessing
@@ -127,6 +122,7 @@ module EGR
 	 end
 	 nil
       end
+      def done_preprocessing?() (not self.first_preprocessing.nil?) and self.next_preprocessing.nil? end
    end
 end
 
