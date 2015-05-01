@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-03-2015
+# @update Apr-30-2015
 #
 
 require 'json'
@@ -77,10 +77,11 @@ module MiGA
 	 when :trimmed_reads
 	    return nil unless File.exist?(base + '.1.clipped.fastq') or File.exist?(base + '1.clipped.single.fastq')
 	    r = Result.new base + '.json'
-	    r.data[:files] = {:single=>self.name + '.1.clipped.single.fastq'}
 	    if File.exist? base + '.2.clipped.fastq'
-	       r.data[:files][:pair1] = self.name + '.1.clipped.fastq'
-	       r.data[:files][:pair2] = self.name + '.2.clipped.fastq'
+	       r.data[:files] = {:single1=>self.name + '.1.clipped.single.fastq', :single2=>self.name + '.2.clipped.single.fastq',
+		  :pair1=>self.name + '.1.clipped.fastq', :pair2=>self.name + '.2.clipped.fastq'}
+	    else
+	       r.data[:files] = {:single=>self.name + '.1.clipped.fastq'}
 	    end
 	 when :read_quality
 	    return nil unless Dir.exist? base

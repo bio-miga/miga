@@ -14,7 +14,7 @@ module MiGA
       # Instance
       attr_reader :project, :type, :result
       def initialize(project, type)
-	 abort "Unsupported distance: #{type}." unless [:ani, :aai, :ssu].include? type
+	 abort "Unsupported distance: #{type}." unless [:haai, :aai, :ani, :ssu].include? type
 	 @project = project
 	 @type = type
 	 self.load

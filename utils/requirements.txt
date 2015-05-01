@@ -1,0 +1,6 @@
+Software		Test executable		Website
+------------------	---------------		------------------------------------------------
+Enve-omics scripts	FastQ.tag.rb		http://github.com/lmrodriguezr/enveomics
+SolexaQA++		SolexaQA++		http://solexaqa.sourceforge.net
+Scythe			scythe			https://github.com/ucdavis-bioinformatics/scythe
+FastQC			fastqc			http://www.bioinformatics.babraham.ac.uk/projects/fastqc

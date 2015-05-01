@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Feb-23-2015
+# @update Apr-30-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -34,6 +34,9 @@ BAN
    opt.separator ""
    opt.separator "MiGA options:"
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+   opt.on(      "--latency INT", "Number of seconds the daemon will be sleeping."){ |v| o[:latency]=v.to_i }
+   opt.on(      "--max-jobs INT", "Maximum number of jobs to use simultaneously."){ |v| o[:maxjobs]=v.to_i }
+   opt.on(      "--ppn INT", "Maximum number of cores to use in a single job."){ |v| o[:ppn]=v.to_i }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
@@ -53,6 +56,9 @@ begin
    raise "Project doesn't exist, aborting." unless MiGA::Project.exist? o[:project]
    p = MiGA::Project.new(o[:project])
    d = MiGA::Daemon.new(p)
+   [:latency, :maxjobs, :ppn].each do |k|
+      d.runopts(k, o[k]) unless o[k].nil?
+   end
    d.daemon(task)
 rescue => err
    $stderr.puts "Exception: #{err}\n\n"

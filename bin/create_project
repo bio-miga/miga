@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Feb-23-2015
+# @update Apr-30-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -37,6 +37,11 @@ end.parse!
 ### MAIN
 begin
    raise "-P is mandatory." if o[:project].nil?
+
+   unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
+      puts "You must initialize MiGA before creating the first project. Do you want to initialize MiGA now? (yes / no)"
+      `'#{File.dirname(__FILE__)}/../scripts/init.bash'` if $stdin.gets.chomp == 'yes'
+   end
    
    $stderr.puts "Creating project." unless o[:q]
    raise "Project already exists, aborting." unless o[:update] or not MiGA::Project.exist? o[:project]

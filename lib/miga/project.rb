@@ -2,10 +2,11 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-13-2015
+# @update Apr-30-2015
 #
 
 require 'json'
+require 'fileutils'
 require 'miga/dataset'
 
 module MiGA
@@ -17,13 +18,14 @@ module MiGA
 	 07.annotation 07.annotation/01.function 07.annotation/02.taxonomy
 	 07.annotation/03.qa 07.annotation/03.qa/01.checkm
 	 08.mapping 08.mapping/01.read-ctg 08.mapping/02.read-gene
-	 09.distances 09.distances/01.aai 09.distances/02.ani 09.distances/03.ssu)
+	 09.distances 09.distances/01.haai 09.distances/02.aai 09.distances/03.ani 09.distances/04.ssu)
       @@RESULT_DIRS = {
-	 :ani_distances=>'09.distances/01.ani',
-	 :aai_distances=>'09.distances/02.aai',
-	 :ssu_distances=>'09.distances/03.ssu'
+	 :ani_distances=>'09.distances/01.haai',
+	 :ani_distances=>'09.distances/02.aai',
+	 :aai_distances=>'09.distances/03.ani',
+	 :ssu_distances=>'09.distances/04.ssu'
       }
-      @@DISTANCES_TASKS = [:ani_distances, :aai_distances, :ssu_distances]
+      @@DISTANCES_TASKS = [:haai_distances, :aai_distances, :ani_distances, :ssu_distances]
       def self.exist?(path)
 	 Dir.exist?(path) and File.exist?(path + '/miga.project.json')
       end
@@ -34,7 +36,8 @@ module MiGA
       # Instance
       attr_reader :path, :metadata, :datasets
       def initialize(path)
-         @path = File.absolute_path(path)
+         raise "Impossible to create project in uninitialized MiGA." unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
+	 @path = File.absolute_path(path)
 	 self.create
       end
       def create
@@ -42,6 +45,7 @@ module MiGA
 	 @@FOLDERS.each{ |dir| Dir.mkdir self.path + '/' + dir unless Dir.exist? self.path + '/' + dir }
 	 @@DATA_FOLDERS.each{ |dir| Dir.mkdir self.path + '/data/' + dir unless Dir.exist? self.path + '/data/' + dir }
 	 @metadata = Metadata.new self.path + '/miga.project.json', {:datasets=>[], :name=>File.basename(self.path).gsub(/[^A-Za-z0-9_]/,'_')}
+	 FileUtils.cp ENV["HOME"] + "/.miga_daemon.json", self.path + "/daemon/daemon.json"
 	 self.save
       end
       def save
@@ -77,14 +81,20 @@ module MiGA
 	 return nil unless File.exists? base + 'done'
 	 r = nil
 	 case result_type
-	 when :ani_distances
-	    return nil unless File.exists? base + 'ani.txt'
+	 when :haai_distances
+	    return nil unless File.exists? base + 'haai.txt'
 	    r = Result.new base + 'res.json'
-	    r.data[:files] = {:matrix=>'ani.txt'}
+	    r.data[:files] = {:matrix=>'hani.txt'}
 	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
 	    r.data[:files][:results] = 'res.d' if Dir.exists? base + 'res.d'
 	 when :aai_distances
 	    return nil unless File.exists? base + 'aai.txt'
+	    r = Result.new base + 'res.json'
+	    r.data[:files] = {:matrix=>'ani.txt'}
+	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
+	    r.data[:files][:results] = 'res.d' if Dir.exists? base + 'res.d'
+	 when :ani_distances
+	    return nil unless File.exists? base + 'ani.txt'
 	    r = Result.new base + 'res.json'
 	    r.data[:files] = {:matrix=>'ani.txt'}
 	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
