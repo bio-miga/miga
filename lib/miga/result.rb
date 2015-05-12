@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-12-2015
+# @update May-08-2015
 #
 
 require 'json'
@@ -10,7 +10,9 @@ require 'json'
 module MiGA
    class Result
       # Class
-      def self.exist?(path) File.exist? path end
+      def self.exist? path
+	 !!(File.size? path)
+      end
       def self.load path
 	 return nil unless Result.exist? path
 	 Result.new path
@@ -34,13 +36,15 @@ module MiGA
       end
       def save
 	 self.data[:updated] = Time.now.to_s
+	 json = JSON.pretty_generate self.data
 	 ofh = File.open(self.path, 'w')
-	 ofh.puts JSON.pretty_generate(self.data)
+	 ofh.puts json
 	 ofh.close
 	 self.load
       end
       def load
-	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
+	 json = File.read self.path
+	 @data = JSON.parse(json, {:symbolize_names=>true})
 	 @results = self.data[:results].map{ |rs| Result.new rs }
       end
       def remove!

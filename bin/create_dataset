@@ -20,7 +20,7 @@ Usage: #{$0} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset PATH", "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
+   opt.on("-D", "--dataset STRING", "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
    opt.on("-t", "--type STRING", "Type of dataset. Recognized types include:", *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}){ |v| o[:type]=v.to_sym }
    opt.on("-q", "--query", "If set, the dataset is registered as a query, not a reference dataset."){ |v| o[:ref]=!v }
    opt.on("-d", "--description STRING", "Description of the dataset."){ |v| o[:description]=v }

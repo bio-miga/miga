@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Apr-30-2015
+# @update May-11-2015
 #
 
 require 'json'
@@ -16,16 +16,37 @@ module MiGA
       @@DATA_FOLDERS = %w(
 	 01.raw_reads 02.trimmed_reads 03.read_quality 04.trimmed_fasta 05.assembly 06.cds
 	 07.annotation 07.annotation/01.function 07.annotation/02.taxonomy
+	 07.annotation/01.function/01.essential
 	 07.annotation/03.qa 07.annotation/03.qa/01.checkm
 	 08.mapping 08.mapping/01.read-ctg 08.mapping/02.read-gene
-	 09.distances 09.distances/01.haai 09.distances/02.aai 09.distances/03.ani 09.distances/04.ssu)
+	 09.distances 09.distances/01.haai 09.distances/02.aai 09.distances/03.ani 09.distances/04.ssu
+	 10.clades 10.clades/01.find 10.clades/02.ani 10.clades/03.ogs 10.clades/04.phylogeny
+	 10.clades/04.phylogeny/01.essential 10.clades/04.phylogeny/02.core 10.clades/05.metadata)
       @@RESULT_DIRS = {
-	 :ani_distances=>'09.distances/01.haai',
-	 :ani_distances=>'09.distances/02.aai',
-	 :aai_distances=>'09.distances/03.ani',
-	 :ssu_distances=>'09.distances/04.ssu'
+	 # Distances
+	 :haai_distances=>'09.distances/01.haai',
+	 :aai_distances=>'09.distances/02.aai',
+	 :ani_distances=>'09.distances/03.ani',
+	 #:ssu_distances=>'09.distances/04.ssu',
+	 # Clade identification
+	 :clade_finding=>'10.clades/01.find',
+	 # Clade analysis
+	 :subclades=>'10.clades/02.ani',
+	 :ogs=>'10.clades/03.ogs',
+	 :ess_phylogeny=>'10.clades/04.phylogeny/01.essential',
+	 :core_phylogeny=>'10.clades/04.phylogeny/02.core',
+	 :clade_metadata=>'10.clades/05.metadata'
       }
-      @@DISTANCES_TASKS = [:haai_distances, :aai_distances, :ani_distances, :ssu_distances]
+      @@KNOWN_TYPES = {
+	 :mixed=>{:description=>"Mixed collection of genomes, metagenomes, and viromes.", :single=>true, :multi=>true},
+	 :genomes=>{:description=>"Collection of genomes.", :single=>true, :multi=>false},
+	 :clade=>{:description=>"Collection of closely-related genomes (ANI ≤ 90%).", :single=>true, :multi=>false},
+	 :metagenomes=>{:description=>"Collection of metagenomes and/or viromes.", :single=>false, :multi=>true}
+      }
+      @@DISTANCE_TASKS = [:haai_distances, :ani_distances, :aai_distances, :clade_finding]
+      @@INCLADE_TASKS = [:subclades, :ogs, :ess_phylogeny, :core_phylogeny, :clade_metadata]
+      def self.RESULT_DIRS() @@RESULT_DIRS end
+      def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.exist?(path)
 	 Dir.exist?(path) and File.exist?(path + '/miga.project.json')
       end
@@ -44,8 +65,8 @@ module MiGA
 	 Dir.mkdir self.path unless Dir.exist? self.path
 	 @@FOLDERS.each{ |dir| Dir.mkdir self.path + '/' + dir unless Dir.exist? self.path + '/' + dir }
 	 @@DATA_FOLDERS.each{ |dir| Dir.mkdir self.path + '/data/' + dir unless Dir.exist? self.path + '/data/' + dir }
-	 @metadata = Metadata.new self.path + '/miga.project.json', {:datasets=>[], :name=>File.basename(self.path).gsub(/[^A-Za-z0-9_]/,'_')}
-	 FileUtils.cp ENV["HOME"] + "/.miga_daemon.json", self.path + "/daemon/daemon.json"
+	 @metadata = Metadata.new self.path + '/miga.project.json', {:datasets=>[], :name=>File.basename(self.path)}
+	 FileUtils.cp ENV["HOME"] + "/.miga_daemon.json", self.path + "/daemon/daemon.json" unless File.exist? self.path + "/daemon/daemon.json"
 	 self.save
       end
       def save
@@ -57,7 +78,7 @@ module MiGA
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
 	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
       end
-      def dataset(name) self.datasets.first{ |ds| ds.name==name } end
+      def dataset(name) self.datasets.select{ |ds| ds.name==name }.first end
       def add_dataset(name)
 	 self.metadata[:datasets] << name unless self.metadata[:datasets].include? name
 	 self.save
@@ -109,15 +130,18 @@ module MiGA
 	 r.save
 	 r
       end
-      def add_distances() @@DISTANCES_TASK.all?{ |t| self.add_result t } end
-      def next_distances()
-	 @@DISTANCES_TASK.find{ |t| self.add_result(t).nil? }
+      def next_distances
+	 @@DISTANCE_TASK.find{ |t| self.add_result(t).nil? }
       end
-      def unregistered_datasets()
+      def next_inclade
+         return nil unless self.metadata[:type]==:clade
+	 @@INCLADE_TASK.find{ |t| self.add_result(t).nil? }
+      end
+      def unregistered_datasets
 	 datasets = []
 	 MiGA::Dataset.RESULT_DIRS.each do |res, dir|
 	    Dir.entries(self.path + '/data/' + dir).each do |file|
-	       next unless (file =~ /\.(fa|fna|faa|fastq|fasta|fastqc|gff|gff3|done)$/) or (Dir.exists?(file) and file =~ /^[^\-\.]+$/)
+	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff|gff3|done)(\.gz)?$/)
 	       m = /([^\.]+)/.match(file)
 	       datasets << m[1] unless m.nil?
 	    end

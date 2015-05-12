@@ -1,0 +1,57 @@
+#!/bin/bash
+# Available variables: $PROJECT, $DATASET, $RUNTYPE
+source "$(dirname "$0")/miga.bash" # Available variables: $CORES, $MIGA
+cd "$PROJECT/data/09.distances"
+
+# Initialize
+date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
+
+# Check type of dataset
+NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi | wc -l | awk '{print $1}')
+if [[ "$NOMULTI" -eq "1" ]] ; then
+   # Create output directories
+   [[ -d "01.haai/$DATASET.d" ]] || mkdir "01.haai/$DATASET.d"
+   [[ -d "02.aai/$DATASET.d" ]] || mkdir "02.aai/$DATASET.d"
+   [[ -d "03.ani/$DATASET.d" ]] || mkdir "03.ani/$DATASET.d"
+
+   # Traverse "nearly-half" of the ref-datasets using first-come-first-served
+   for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+      # Check if the i-th dataset is ready
+      [[ -s "../07.function/01.essential/$i.done" ]] || continue
+      
+      # Check if the other direction is already running (or done)
+      if [[ -e "01.haai/$i.d/$DATASET.txt" ]] ; then
+	 cd "01.haai/$DATASET.d/"
+	 ln -s "../$i.d/$DATASET.txt" "$i.txt"
+	 cd "../../"
+	 continue
+      fi
+      touch "01.haai/$DATASET.d/$i.txt"
+      
+      # Calculate hAAI:
+      aai.rb -1 "../07.function/01.essential/$DATASET.ess.faa" -2 "../07.function/01.essential/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab"
+      echo -e "hAAI\t$DATASET\t$i\t$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
+      HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
+      if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
+	 # Estimate AAI:
+	 AAI=$(perl -e "printf '%.10f', 100-exp(log(100-$HAAI)*XXXXXXXXXX)")
+	 echo -e "hAAI_AAI\t$AAI\tNA\tNA\tNA" > "02.aai/$DATASET.d/$i.txt"
+      else
+	 # Calculate AAI:
+	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -o "02.aai/$DATASET.d/$i.out" -T "02.aai/$DATASET.d/$i.tab"
+	 echo -e "AAI\t$DATASET\t$i\t$(cat "02.aai/$DATASET.d/$i.tab")" > "02.aai/$DATASET.d/$i.txt"
+	 AAI=$(cat "02.aai/$DATASET.d/$i.tab" | awk '{print $1}')
+      fi
+      
+      if [[ $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
+	 # Calculate ANI:
+	 ani.rb -1 "../05.assembly/$DATASET.LargeContigs.fna" -2 "../05.assembly/$i.LargeContigs.fna" -t "$CORES" -d 10 -o "03.ani/$DATASET.d/$i.out" -T "03.ani/$DATASET.d/$i.tab"
+	 echo -e "ANI\t$DATASET\t$i\t$(cat "02.aai/$DATASET.d/$i.tab")" > "03.ani/$DATASET.d/$i.txt"
+      fi
+   done
+fi
+
+# Finalize
+date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
+$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r distances
+

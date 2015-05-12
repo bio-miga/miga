@@ -15,7 +15,7 @@ function ask_user {
 function check_req {
    local bin=$1
    local default=$(dirname "$(which "$bin")")
-   user_answer=$(ask_user "Where can I find $2 ($3)?" "$default")
+   user_answer=$(ask_user "Where can I find $2 ($3)? $4" "$default")
    if [[ -x "$user_answer/$bin" ]] ; then
       echo "export PATH=$user_answer:\$PATH" >> "$HOME/.miga_rc"
    else
@@ -83,7 +83,8 @@ for ln in $reqs ; do
    rname=$(echo "$ln" | awk -F'\t' '{print $1}')
    rtest=$(echo "$ln" | awk -F'\t' '{print $2}')
    rwebs=$(echo "$ln" | awk -F'\t' '{print $3}')
-   check_req "$rtest" "$rname" "$rwebs"
+   rhint=$(echo "$ln" | awk -F'\t' '{print $4}')
+   check_req "$rtest" "$rname" "$rwebs" "$rhint"
 done
 IFS=$IFS_BU
 
@@ -94,22 +95,28 @@ dtype=$(ask_user "Please select the type of daemon you want to setup (bash / qsu
 case "$dtype" in
    bash)
       dlatency=$(ask_user "For how long should I sleep? (# in seconds)" "30")
-      dmaxjobs=$(ask_user "How many jobs can I launch at once?" "8")
+      dmaxjobs=$(ask_user "How many jobs can I launch at once?" "6")
       dppn=$(ask_user "How many CPUs can I use per job?" "2")
-      echo "Setting up internal daemon defaults, if you don't understand this just leave the defaults:" >&2
-      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, and %3\$d for CPUs." "%2\$s CORES=%3\$d . '%1\$s'")
+      echo "Setting up internal daemon defaults, if you don't understand this just leave default values:" >&2
+      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, %3\$d for CPUs, and %4\$s for log file." "%2\$s '%1\$s' &> '%4\$s'")
       dvar=$(ask_user "How should I pass variables? Use %1\$s for keys and %2\$s for values." "%1\$s=%2\$s")
       dsep=$(ask_user "What should I use to separate variables?" " ")
+      dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for PID, output should be 1 for running and 0 for non-running." "ps -p '%1\$s'|tail -n+2|wc -l|awk '{print \$1}'")
       ;;
    [qm]sub)
       dqueue=$(ask_user "What's the name of the queue I should use?" "")
       dlatency=$(ask_user "How long should I sleep? (# in seconds)" "150")
       dmaxjobs=$(ask_user "How many jobs can I launch at once?" "300")
       dppn=$(ask_user "How many CPUs can I use per job?" "4")
-      echo "Setting up internal daemon defaults, if you don't understand this just leave the defaults:" >&2
-      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, and %3\$d for CPUs." "$dtype -q '$dqueue' -v '%2\$s' -l nodes=1:ppn=%3\$d %1\$s")
+      echo "Setting up internal daemon defaults, if you don't understand this just leave default values:" >&2
+      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, and %3\$d for CPUs, and %3\$d for log file." "$dtype -q '$dqueue' -v '%2\$s' -l nodes=1:ppn=%3\$d %1\$s -j oe -o '%4\$s'")
       dvar=$(ask_user "How should I pass variables? Use %1\$s for keys and %2\$s for values." "%1\$s=%2\$s")
       dsep=$(ask_user "What should I use to separate variables?" ",")
+      if [[ "$dtype" == "qsub" ]] ; then
+	 dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for job id, output should be 1 for running and 0 for non-running." "checkjob '%1\$s'|grep '^State:'|perl -pe 's/.*: //'|grep 'Running\\|Idle\\|Blocked\\|Starting'|tail -n1|wc -l|awk '{print \$1}'")
+      else
+	 dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for job id, output should be 1 for running and 0 for non-running." "qstat -f '%1\$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'|tail -n1|wc -l|awk '{print $1}'")
+      fi
       ;;
    *)
 esac
@@ -120,6 +127,7 @@ echo "{
    \"cmd\"    : \"$dcmd\",
    \"var\"    : \"$dvar\",
    \"varsep\" : \"$dsep\",
+   \"alive\"  : \"$dalive\",
    \"latency\": $dlatency,
    \"maxjobs\": $dmaxjobs,
    \"ppn\"    : $dppn

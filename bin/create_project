@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Apr-30-2015
+# @update May-11-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -20,6 +20,7 @@ Usage: #{$0} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+   opt.on("-t", "--type STRING", "Type of dataset. Recognized types include:", *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}){ |v| o[:type]=v.to_sym }
    opt.on("-n", "--name STRING", "Name of the project."){ |v| o[:name]=v }
    opt.on("-d", "--description STRING", "Description of the project."){ |v| o[:description]=v }
    opt.on("-u", "--user STRING", "Owner of the project."){ |v| o[:user]=v }
@@ -47,7 +48,7 @@ begin
    raise "Project already exists, aborting." unless o[:update] or not MiGA::Project.exist? o[:project]
    p = MiGA::Project.new(o[:project])
    o[:name] = File.basename(p.path) if o[:update] and o[:name].nil? # This line is redundant with MiGA::Project#create, but allows upgrading projects from early code versions
-   [:name, :description, :user, :comments].each do |k|
+   [:name, :description, :user, :comments, :type].each do |k|
       p.metadata[k] = o[k] unless o[k].nil?
    end
    p.save
