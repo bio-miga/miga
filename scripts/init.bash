@@ -17,7 +17,7 @@ function check_req {
    local default=$(dirname "$(which "$bin")")
    user_answer=$(ask_user "Where can I find $2 ($3)? $4" "$default")
    if [[ -x "$user_answer/$bin" ]] ; then
-      echo "MIGA_PATH=$user_answer:\$MIGA_PATH" >> "$HOME/.miga_rc"
+      echo "MIGA_PATH=\"$user_answer:\$MIGA_PATH\" # $2" >> "$HOME/.miga_rc"
    else
       echo "Cannot find $2 at '$user_answer/$bin'. Aborting..." >&2
       exit 1
