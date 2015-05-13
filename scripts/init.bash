@@ -136,6 +136,6 @@ echo "{
 
 # Confirm configuration
 echo "
-MIGA_CONFIG_DATE='$(date)'
+MIGA_CONFIG_DATE='$(date \"+%Y-%m-%d %H:%M:%S %z\")'
 " >> "$HOME/.miga_rc"
 
