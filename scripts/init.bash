@@ -17,7 +17,7 @@ function check_req {
    local default=$(dirname "$(which "$bin")")
    user_answer=$(ask_user "Where can I find $2 ($3)? $4" "$default")
    if [[ -x "$user_answer/$bin" ]] ; then
-      echo "export PATH=$user_answer:\$PATH" >> "$HOME/.miga_rc"
+      echo "MIGA_PATH=$user_answer:\$MIGA_PATH" >> "$HOME/.miga_rc"
    else
       echo "Cannot find $2 at '$user_answer/$bin'. Aborting..." >&2
       exit 1
@@ -87,6 +87,7 @@ for ln in $reqs ; do
    check_req "$rtest" "$rname" "$rwebs" "$rhint"
 done
 IFS=$IFS_BU
+echo "export PATH=\$MIGA_PATH\$PATH" >> "$HOME/.miga_rc"
 
 # Configure daemon
 echo "

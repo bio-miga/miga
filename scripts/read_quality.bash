@@ -17,10 +17,11 @@ fastqc ../02.trimmed_reads/$b.[12].clipped.fastq -o $b.fastqc ;
 exists ../02.trimmed_reads/$b.[12].*.pdf && mv ../02.trimmed_reads/$b.[12].*.pdf "$b.solexaqa/"
 
 # Clean 02.trimmed_reads
-if [[ -e "../02.trimmed_reads/$b.1.fastq.trimmed" ]] ; then
-   rm ../02.trimmed_reads/$b.[12].fastq.trimmed
-   rm ../02.trimmed_reads/$b.[12].fastq
-fi
+[[ -e "../02.trimmed_reads/$b.1.fastq_trimmed.segments" ]] && rm ../02.trimmed_reads/$b.[12].fastq_trimmed.segments
+[[ -e "../02.trimmed_reads/$b.1.fastq.trimmed.paired" ]] && rm ../02.trimmed_reads/$b.[12].fastq.trimmed.paired
+[[ -e "../02.trimmed_reads/$b.1.fastq.trimmed.single" ]] && rm ../02.trimmed_reads/$b.[12].fastq.trimmed.single
+[[ -e "../02.trimmed_reads/$b.1.fastq.trimmed" ]] && rm ../02.trimmed_reads/$b.[12].fastq.trimmed
+[[ -e "../02.trimmed_reads/$b.1.fastq" ]] && rm ../02.trimmed_reads/$b.[12].fastq
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"

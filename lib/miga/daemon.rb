@@ -100,6 +100,7 @@ module MiGA
 	 # Check for finished jobs
 	 self.jobs_running.select! do |job|
 	    r = job[:ds].nil? ? self.project.add_result(job[:job]) : job[:ds].add_result(job[:job])
+	    self.say "Completed pid:#{job[:pid]} for #{job[:ds].nil? ? "" : "#{job[:ds].name}:"}#{job[:job]}" unless r.nil?
 	    r.nil?
 	 end
 	 

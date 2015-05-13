@@ -22,8 +22,15 @@ else
 fi
 
 # Compress input at 01.raw_reads
-if [[ -e ../01.raw_reads/$b.1.fastq ]] ; then
+if [[ -e "../01.raw_reads/$b.1.fastq" ]] ; then
    for i in ../01.raw_reads/$b.[12].fastq ; do
+      gzip $i
+   done
+fi
+
+# Compress input at 02.trimmed_reads
+if [[ -e "../02.trimmed_reads/$b.1.clipped.fastq" ]] ; then
+   for i in ../02.trimmed_reads/$b.[12].clipped.fasta ; do
       gzip $i
    done
 fi

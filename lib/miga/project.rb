@@ -148,7 +148,7 @@ module MiGA
 	 end
 	 datasets.uniq - self.metadata[:datasets]
       end
-      def done_preprocessing?() self.datasets.map{|ds| ds.done_preprocessing?}.all? end
+      def done_preprocessing?() self.datasets.map{|ds| (not ds.is_ref?) or ds.done_preprocessing?}.all? end
    end
 end
 
