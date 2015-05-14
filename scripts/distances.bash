@@ -8,6 +8,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
 # Check type of dataset
 NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi | wc -l | awk '{print $1}')
+ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
    # Create output directories
    [[ -d "01.haai/$DATASET.d" ]] || mkdir "01.haai/$DATASET.d"
@@ -17,7 +18,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
       # Check if the i-th dataset is ready
-      [[ -s "../07.function/01.essential/$i.done" ]] || continue
+      [[ -s "$ESS/$i.done" ]] || continue
       
       # Check if the other direction is already running (or done)
       if [[ -e "01.haai/$i.d/$DATASET.txt" ]] ; then
@@ -29,7 +30,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       touch "01.haai/$DATASET.d/$i.txt"
       
       # Calculate hAAI:
-      aai.rb -1 "../07.function/01.essential/$DATASET.ess.faa" -2 "../07.function/01.essential/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab"
+      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab"
       echo -e "hAAI\t$DATASET\t$i\t$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
       if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
