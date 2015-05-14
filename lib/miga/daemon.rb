@@ -46,7 +46,9 @@ module MiGA
 	    self.say "-----------------------------------"
 	    self.say "MiGA:#{p.metadata[:name]} launched."
 	    self.say "-----------------------------------"
+	    loop_i = 0
 	    loop do
+	       loop_i += 1
 	       # Traverse datasets
 	       p.datasets.each do |ds|
 	          # Inspect preprocessing
@@ -65,6 +67,14 @@ module MiGA
 	       
 	       # Run jobs
 	       self.flush!
+
+	       # Every 12 loops:
+	       if loop_i==12
+		  loop_i = 0
+		  # Reload project metadata (to add newly created datasets)
+		  self.project.load
+		  # ToDo Check if running jobs are alive
+	       end
 	       sleep(self.latency)
 	    end
 	 end
