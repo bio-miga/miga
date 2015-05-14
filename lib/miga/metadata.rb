@@ -30,19 +30,21 @@ module MiGA
 	 self.save
       end
       def save
-         self.data[:updated] = Time.now.to_s
 	 while File.exist? self.path + '.lock'
 	    sleep(1)
 	 end
 	 FileUtils.touch self.path + '.lock'
+         self.data[:updated] = Time.now.to_s
 	 ofh = File.open(self.path + '.tmp', 'w')
 	 ofh.puts JSON.pretty_generate(self.data)
 	 ofh.close
-	 File.unlink self.path
 	 File.rename self.path + '.tmp', self.path
 	 File.unlink self.path + '.lock'
       end
       def load
+	 while File.exist? self.path + '.lock'
+	    sleep(1)
+	 end
 	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
       end
