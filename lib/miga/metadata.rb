@@ -2,10 +2,11 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-08-2015
+# @update May-14-2015
 #
 
 require 'json'
+require 'fileutils'
 
 module MiGA
    class Metadata
@@ -30,9 +31,16 @@ module MiGA
       end
       def save
          self.data[:updated] = Time.now.to_s
-	 ofh = File.open(self.path, 'w')
+	 while File.exist? self.path + '.lock'
+	    sleep(1)
+	 end
+	 FileUtils.touch self.path + '.lock'
+	 ofh = File.open(self.path + '.tmp', 'w')
 	 ofh.puts JSON.pretty_generate(self.data)
 	 ofh.close
+	 File.unlink self.path
+	 File.rename self.path + '.tmp', self.path
+	 File.unlink self.path + '.lock'
       end
       def load
 	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
