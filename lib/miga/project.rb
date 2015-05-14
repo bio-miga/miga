@@ -131,11 +131,11 @@ module MiGA
 	 r
       end
       def next_distances
-	 @@DISTANCE_TASK.find{ |t| self.add_result(t).nil? }
+	 @@DISTANCE_TASKS.find{ |t| self.add_result(t).nil? }
       end
       def next_inclade
          return nil unless self.metadata[:type]==:clade
-	 @@INCLADE_TASK.find{ |t| self.add_result(t).nil? }
+	 @@INCLADE_TASKS.find{ |t| self.add_result(t).nil? }
       end
       def unregistered_datasets
 	 datasets = []
