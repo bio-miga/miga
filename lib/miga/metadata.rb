@@ -30,13 +30,14 @@ module MiGA
 	 self.save
       end
       def save
+         self.data[:updated] = Time.now.to_s
+	 json = JSON.pretty_generate(self.data)
 	 while File.exist? self.path + '.lock'
 	    sleep(1)
 	 end
 	 FileUtils.touch self.path + '.lock'
-         self.data[:updated] = Time.now.to_s
 	 ofh = File.open(self.path + '.tmp', 'w')
-	 ofh.puts JSON.pretty_generate(self.data)
+	 ofh.puts json
 	 ofh.close
 	 File.rename self.path + '.tmp', self.path
 	 File.unlink self.path + '.lock'
