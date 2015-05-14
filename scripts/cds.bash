@@ -9,10 +9,19 @@ GM=$(which gmhmmp)
 
 # Register key
 if [[ ! -e .gm_key ]] ; then
-   if [[ -e "$GM/.gm_key" ]] ; then
-      cp "$GM/.gm_key" .
-   else
+   if [[ -e "$GM/gm_key" ]] ; then
+      cp "$GM/gm_key" ".gm_key"
+   elif [[ -e "$GM/gm_key_64" ]] ; then
+      cp "$GM/gm_key_64" ".gm_key"
+   elif [[ -e "$GM/gm_key_32" ]] ; then
+      cp "$GM/gm_key_32" ".gm_key"
+   elif [[ -e "$GM/.gm_key" ]] ; then
+      cp "$GM/.gm_key" ".gm_key"
+   elif [[ -e "$HOME/.gm_key" ]] ; then
       cp "$HOME/.gm_key" .
+   else
+      echo "Impossible to find MetaGeneMark key, please register your copy and place the key in '$GM/gm_key'." >&2
+      exit 1
    fi
 fi
 
