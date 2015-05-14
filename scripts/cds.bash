@@ -5,7 +5,7 @@ cd "$PROJECT/data/06.cds"
 
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
-GM=$(which gmhmmp)
+GM=$(dirname -- $(which gmhmmp))
 
 # Register key
 if [[ ! -e .gm_key ]] ; then
