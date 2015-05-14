@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Apr-30-2015
+# @update May-14-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -11,7 +11,7 @@ require 'miga/daemon'
 require 'optparse'
 
 if ARGV.size==0
-   ARGV << '-h'
+   ARGV << '-h' unless ['-h','--help'].include? ARGV[0]
 else
    task = ARGV.shift
 end
