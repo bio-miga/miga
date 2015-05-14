@@ -32,6 +32,9 @@ gmhmmp -a -d -m "$GM/MetaGeneMark_v1.mod" -f G -o "$DATASET.gff2" "../05.assembl
 perl "$GM/aa_from_gff.pl" < "$DATASET.gff2" > "$DATASET.faa"
 perl "$GM/nt_from_gff.pl" < "$DATASET.gff2" > "$DATASET.fna"
 
+# Gzip
+gzip "$DATASET.gff2"
+
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
 $MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r cds
