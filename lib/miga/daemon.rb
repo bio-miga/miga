@@ -105,7 +105,8 @@ module MiGA
 	 end
 	 
 	 # Randomize @jobs_to_run to avoid single datasets hogging resources
-	 @jobs_to_run.shuffle!
+	 #@jobs_to_run.shuffle! # <-- Way too expensive for large collections!
+	 @jobs_to_run.rotate! rand(@jobs_to_run.size)
 	 
 	 # Launch as many @jobs_to_run as possible
 	 while self.jobs_running.size < self.maxjobs
