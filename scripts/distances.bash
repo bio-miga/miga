@@ -35,7 +35,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
       if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 # Estimate AAI:
-	 AAI=$(perl -e "printf '%.10f', 100-exp(log(100-$HAAI))") # ToDo Actually make the estimation!!!
+	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
 	 echo -e "hAAI_AAI\t$AAI\tNA\tNA\tNA" > "02.aai/$DATASET.d/$i.txt"
       else
 	 # Calculate AAI:
