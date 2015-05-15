@@ -17,6 +17,9 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+      # Check if this is done (e.g., in a previous failed iteration)
+      [[ -s "02.aai/$DATASET.d/$i.txt" ]] && continue
+      
       # Check if the i-th dataset is ready
       [[ -s "$ESS/$i.done" ]] || continue
       
