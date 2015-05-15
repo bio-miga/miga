@@ -83,7 +83,7 @@ module MiGA
       def queue_job(job, ds=nil)
 	 return nil unless self.get_job(job, ds).nil?
 	 ds_name = (ds.nil? ? "project-wide" : ds.name)
-	 self.say "Queueing ", ds_name, "#{job}"
+	 self.say "Queueing ", ds_name, ":#{job}"
 	 type = self.runopts(:type)
 	 vars = {'PROJECT'=>self.project.path, 'RUNTYPE'=>self.runopts(:type), 'CORES'=>self.ppn}
 	 vars['DATASET'] = ds.name unless ds.nil?
