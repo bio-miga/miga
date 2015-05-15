@@ -30,7 +30,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       touch "01.haai/$DATASET.d/$i.txt"
       
       # Calculate hAAI:
-      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab"
+      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab" -n 15
       echo -e "hAAI\t$DATASET\t$i\t$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
       if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
