@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-11-2015
+# @update May-15-2015
 #
 
 require 'json'
@@ -56,10 +56,11 @@ module MiGA
       end
       # Instance
       attr_reader :path, :metadata, :datasets
-      def initialize(path)
+      def initialize(path, update=false)
          raise "Impossible to create project in uninitialized MiGA." unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
 	 @path = File.absolute_path(path)
-	 self.create
+	 self.create if update or !MiGA::Project.exist? path
+	 self.load if self.metadata.nil?
       end
       def create
 	 Dir.mkdir self.path unless Dir.exist? self.path

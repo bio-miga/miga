@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-11-2015
+# @update May-15-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -46,7 +46,7 @@ begin
    
    $stderr.puts "Creating project." unless o[:q]
    raise "Project already exists, aborting." unless o[:update] or not MiGA::Project.exist? o[:project]
-   p = MiGA::Project.new(o[:project])
+   p = MiGA::Project.new(o[:project], o[:update])
    o[:name] = File.basename(p.path) if o[:update] and o[:name].nil? # This line is redundant with MiGA::Project#create, but allows upgrading projects from early code versions
    [:name, :description, :user, :comments, :type].each do |k|
       p.metadata[k] = o[k] unless o[k].nil?
