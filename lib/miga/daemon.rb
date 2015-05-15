@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Apr-30-2015
+# @update May-14-2015
 #
 
 require 'miga/project'
@@ -71,9 +71,10 @@ module MiGA
 	       # Every 12 loops:
 	       if loop_i==12
 		  loop_i = 0
+		  # Check if running jobs are alive
+		  self.purge!
 		  # Reload project metadata (to add newly created datasets)
 		  self.project.load
-		  # ToDo Check if running jobs are alive
 	       end
 	       sleep(self.latency)
 	    end
@@ -82,7 +83,7 @@ module MiGA
       def queue_job(job, ds=nil)
 	 return nil unless self.get_job(job, ds).nil?
 	 ds_name = (ds.nil? ? "project-wide" : ds.name)
-	 self.say ds_name, ": queue task #{job}."
+	 self.say "Queueing ", ds_name, "#{job}"
 	 type = self.runopts(:type)
 	 vars = {'PROJECT'=>self.project.path, 'RUNTYPE'=>self.runopts(:type), 'CORES'=>self.ppn}
 	 vars['DATASET'] = ds.name unless ds.nil?
@@ -114,19 +115,25 @@ module MiGA
 	    r.nil?
 	 end
 	 
-	 # Randomize @jobs_to_run to avoid single datasets hogging resources
-	 #@jobs_to_run.shuffle! # <-- Way too expensive for large collections!
+	 # Avoid single datasets hogging resources
 	 @jobs_to_run.rotate! rand(@jobs_to_run.size)
 	 
 	 # Launch as many @jobs_to_run as possible
 	 while self.jobs_running.size < self.maxjobs
 	    break if self.jobs_to_run.empty?
 	    job = self.jobs_to_run.shift
-	    job[:pid] = spawn job[:cmd]
-	    Process.detach job[:pid]
+	    if self.runopts(:type)=='bash'
+	       job[:pid] = spawn job[:cmd]
+	       Process.detach job[:pid]
+	    else
+	       job[:pid] = `#{job[:cmd]}`
+	    end
 	    @jobs_running << job
 	    self.say "Spawned pid:#{job[:pid]} for #{job[:ds].nil? ? "" : "#{job[:ds].name}:"}#{job[:job]}"
 	 end
+      end
+      def purge!
+	 self.jobs_running.select!{ |job| `#{sprintf(self.runopts(:alive), job[:pid])}`.chomp.to_i == 1 }
       end
       def say(*opts)
 	 print "[#{Time.new.inspect}] ", *opts, "\n"
