@@ -70,6 +70,7 @@ module MiGA
 
 	       # Every 12 loops:
 	       if loop_i==12
+		  self.say "Housekeeping for sanity"
 		  loop_i = 0
 		  # Check if running jobs are alive
 		  self.purge!
