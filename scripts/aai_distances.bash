@@ -8,7 +8,8 @@ date "+%Y-%m-%d %H:%M:%S %z" > "miga.project.start"
 
 echo -e "metric\ta\tb\tvalue\tsd\tn\tomega" > "miga.project.txt"
 echo -n "" > "miga.project.log"
-for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
+for i in $DS ; do
    # Check if this is done (e.g., in a previous failed iteration)
    if [[ ! -d "02.aai/$i.d" || ! -s "../$i.json" ]] ; then
       echo "$i: Incomplete job, aborting project-wide update..." >&2
@@ -16,7 +17,11 @@ for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
    fi
    
    # Concatenate results
-   cat $i.d/*.txt >> "miga.project.txt"
+   for j in $DS ; do
+      [[ "$i" == "$j" ]] && break # Only lower triangle
+      [[ -e "$i.d/$j.txt" ]] || continue # Ignore missing data
+      cat "$i.d/$j.txt" >> "miga.project.txt"
+   done
    cat $i >> "miga.project.log"
 done
 

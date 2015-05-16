@@ -104,9 +104,9 @@ module MiGA
 	 r = nil
 	 case result_type
 	 when :haai_distances, :aai_distances, :ani_distances, :ssu_distances
-	    return nil unless File.exist? base + '.Rdata' and (File.exist?(base + '.txt') or File.exist?(base + '.txt.gz'))
+	    return nil unless File.exist? base + '.Rdata' and File.exist? base + '.log' and (File.exist?(base + '.txt') or File.exist?(base + '.txt.gz'))
 	    r = Result.new base + '.json'
-	    r.data[:files] = {:rdata=>'miga.project.Rdata', :matrix=>'miga.project.txt'}
+	    r.data[:files] = {:rdata=>'miga.project.Rdata', :matrix=>'miga.project.txt', :log=>'miga.project.log'}
 	    if File.exist? base + '.txt.gz'
 	       r.data[:files][:matrix] += '.gz'
 	       r.data[:gz] = true
