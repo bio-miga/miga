@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-15-2015
+# @update May-16-2015
 #
 
 require 'json'
@@ -99,34 +99,18 @@ module MiGA
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? } end
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
-	 base = self.path + '/data/' + @@RESULT_DIRS[result_type] + '/'
-	 return nil unless File.exists? base + 'done'
+	 base = self.path + '/data/' + @@RESULT_DIRS[result_type] + '/miga.project'
+	 return nil unless File.exist? base + '.done'
 	 r = nil
 	 case result_type
-	 when :haai_distances
-	    return nil unless File.exists? base + 'haai.txt'
-	    r = Result.new base + 'res.json'
-	    r.data[:files] = {:matrix=>'hani.txt'}
-	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
-	    r.data[:files][:results] = 'res.d' if Dir.exists? base + 'res.d'
-	 when :aai_distances
-	    return nil unless File.exists? base + 'aai.txt'
-	    r = Result.new base + 'res.json'
-	    r.data[:files] = {:matrix=>'ani.txt'}
-	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
-	    r.data[:files][:results] = 'res.d' if Dir.exists? base + 'res.d'
-	 when :ani_distances
-	    return nil unless File.exists? base + 'ani.txt'
-	    r = Result.new base + 'res.json'
-	    r.data[:files] = {:matrix=>'ani.txt'}
-	    r.data[:files][:rbms] = 'rbm.d' if Dir.exists? base + 'rbm.d'
-	    r.data[:files][:results] = 'res.d' if Dir.exists? base + 'res.d'
-	 when :ssu_distances
-	    return nil unless File.exists? base + 'ssu.txt'
-	    r = Result.new base + 'res.json'
-	    r.data[:files] = {:matrix=>'ani.txt'}
-	    r.data[:files][:seqs] = 'seq.d' if Dir.exists? base + 'seq.d'
-	    r.data[:files][:alns] = 'aln.d' if Dir.exists? base + 'aln.d'
+	 when :haai_distances, :aai_distances, :ani_distances, :ssu_distances
+	    return nil unless File.exist? base + '.Rdata' and (File.exist?(base + '.txt') or File.exist?(base + '.txt.gz'))
+	    r = Result.new base + '.json'
+	    r.data[:files] = {:rdata=>'miga.project.Rdata', :matrix=>'miga.project.txt'}
+	    if File.exist? base + '.txt.gz'
+	       r.data[:files][:matrix] += '.gz'
+	       r.data[:gz] = true
+	    end
 	 end
 	 r.save
 	 r
@@ -142,7 +126,8 @@ module MiGA
 	 datasets = []
 	 MiGA::Dataset.RESULT_DIRS.each do |res, dir|
 	    Dir.entries(self.path + '/data/' + dir).each do |file|
-	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff|gff3|done)(\.gz)?$/)
+	       next if (file =~ /^miga\.project\./)
+	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff[23]?|done)(\.gz)?$/)
 	       m = /([^\.]+)/.match(file)
 	       datasets << m[1] unless m.nil?
 	    end

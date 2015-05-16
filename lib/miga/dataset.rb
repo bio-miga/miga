@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-14-2015
+# @update May-16-2015
 #
 
 require 'json'
@@ -65,13 +65,13 @@ module MiGA
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
 	 base = self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/' + self.name
-	 return nil unless File.exists? base + '.done'
+	 return nil unless File.exist? base + '.done'
 	 r = nil
 	 case result_type
 	 when :raw_reads
-	    return nil unless File.exists? base + '.1.fastq' or File.exist? base + '.1.fastq.gz'
+	    return nil unless File.exist? base + '.1.fastq' or File.exist? base + '.1.fastq.gz'
 	    r = Result.new base + '.json'
-	    r.data[:gz] = File.exists?(base + '.1.fastq.gz')
+	    r.data[:gz] = File.exist?(base + '.1.fastq.gz')
 	    if File.exist? base + '.2.fastq' + (r.data[:gz] ? '.gz' : '')
 	       r.data[:files] = {:pair1=>self.name + '.1.fastq' + (r.data[:gz] ? '.gz' : ''), :pair2=>self.name + '.2.fastq' + (r.data[:gz] ? '.gz' : '')}
 	    else
@@ -102,7 +102,7 @@ module MiGA
 	    end
 	    self.add_result :raw_reads #-> Post gzip
 	 when :assembly
-	    return nil unless File.exist?(base + '.LargeContigs.fna') and File.exists?(base + '.AllContigs.fna')
+	    return nil unless File.exist?(base + '.LargeContigs.fna') and File.exist?(base + '.AllContigs.fna')
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:largecontigs=>self.name + '.LargeContigs.fna', :allcontigs=>self.name + '.AllContigs.fna'}
 	 when :cds
@@ -110,7 +110,7 @@ module MiGA
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:proteins=>self.name + '.faa', :genes=>self.name + '.fna', :gff2=>self.name + '.gff2.gz'}
 	 when :essential_genes
-	    return nil unless File.exists?(base + '.ess.faa') and Dir.exist?(base + '.ess') and File.exists?(base + '.ess/log')
+	    return nil unless File.exist?(base + '.ess.faa') and Dir.exist?(base + '.ess') and File.exist?(base + '.ess/log')
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:ess_genes=>self.name + '.ess.faa', :collection=>self.name + '.ess', :report=>self.name + '.ess/log'}
 	 when :distances
