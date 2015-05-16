@@ -77,7 +77,7 @@ module MiGA
       def load
 	 @metadata = Metadata.load self.path + '/miga.project.json'
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
-	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
+	 @datasets = self.metadata[:datasets].map{ |d.| Dataset.new self, ds }
       end
       def dataset(name) self.datasets.select{ |ds| ds.name==name }.first end
       def add_dataset(name)
@@ -99,14 +99,14 @@ module MiGA
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? } end
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
-	 base = self.path + '/data/' + @@RESULT_DIRS[result_type] + '/miga.project'
+	 base = self.path + '/data/' + @@RESULT_DIRS[result_type] + '/miga-project'
 	 return nil unless File.exist? base + '.done'
 	 r = nil
 	 case result_type
 	 when :haai_distances, :aai_distances, :ani_distances, :ssu_distances
 	    return nil unless File.exist? base + '.Rdata' and File.exist? base + '.log' and (File.exist?(base + '.txt') or File.exist?(base + '.txt.gz'))
 	    r = Result.new base + '.json'
-	    r.data[:files] = {:rdata=>'miga.project.Rdata', :matrix=>'miga.project.txt', :log=>'miga.project.log'}
+	    r.data[:files] = {:rdata=>'miga-project.Rdata', :matrix=>'miga-project.txt', :log=>'miga-project.log'}
 	    if File.exist? base + '.txt.gz'
 	       r.data[:files][:matrix] += '.gz'
 	       r.data[:gz] = true
@@ -126,10 +126,9 @@ module MiGA
 	 datasets = []
 	 MiGA::Dataset.RESULT_DIRS.each do |res, dir|
 	    Dir.entries(self.path + '/data/' + dir).each do |file|
-	       next if (file =~ /^miga\.project\./)
 	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff[23]?|done)(\.gz)?$/)
 	       m = /([^\.]+)/.match(file)
-	       datasets << m[1] unless m.nil?
+	       datasets << m[1] unless m.nil? or m[1] == 'miga-project'
 	    end
 	 end
 	 datasets.uniq - self.metadata[:datasets]

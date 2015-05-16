@@ -83,7 +83,7 @@ module MiGA
       end
       def queue_job(job, ds=nil)
 	 return nil unless self.get_job(job, ds).nil?
-	 ds_name = (ds.nil? ? "project-wide" : ds.name)
+	 ds_name = (ds.nil? ? "miga-project" : ds.name)
 	 self.say "Queueing ", ds_name, ":#{job}"
 	 type = self.runopts(:type)
 	 vars = {'PROJECT'=>self.project.path, 'RUNTYPE'=>self.runopts(:type), 'CORES'=>self.ppn}

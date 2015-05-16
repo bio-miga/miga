@@ -10,3 +10,4 @@ HMMer 3.0+		hmmsearch		http://hmmer.janelia.org/software
 NCBI BLAST+		blastp			ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST
 R			R			http://www.r-project.org/
 RAxML (pthreads)	raxmlHPC-PTHREADS	http://sco.h-its.org/exelixis/web/software/raxml/index.html
+MCL			mcl			http://micans.org/mcl/

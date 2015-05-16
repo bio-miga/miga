@@ -4,10 +4,10 @@ source "$(dirname "$0")/miga.bash" # Available variables: $CORES, $MIGA
 cd "$PROJECT/data/09.distances/03.ani"
 
 # Initialize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga.project.start"
+date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
-echo -e "metric\ta\tb\tvalue\tsd\tn\tomega" > "miga.project.txt"
-echo -n "" > "miga.project.log"
+echo -e "metric\ta\tb\tvalue\tsd\tn\tomega" > "miga-project.txt"
+echo -n "" > "miga-project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 for i in $DS ; do
    # Check if this is done (e.g., in a previous failed iteration)
@@ -21,21 +21,21 @@ for i in $DS ; do
    for j in $DS ; do
       [[ "$i" == "$j" ]] && break # Only lower triangle
       [[ -e "$i.d/$j.txt" ]] || continue # Ignore missing data
-      cat "$i.d/$j.txt" >> "miga.project.txt"
+      cat "$i.d/$j.txt" >> "miga-project.txt"
    done
-   cat $i >> "miga.project.log"
+   cat $i >> "miga-project.log"
 done
 
 # R-ify
 echo "
-ani <- read.table('miga.project.txt', sep='\\t', h=T)
-save(ani, file='miga.project.Rdata')
+ani <- read.table('miga-project.txt', sep='\\t', h=T)
+save(ani, file='miga-project.Rdata')
 " | R --vanilla
 
 # Gzip
-gzip miga.project.txt
+gzip miga-project.txt
 
 # Finalize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga.project.done"
+date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
 $MIGA/bin/add_result -P "$PROJECT" -r ani_distances
 
