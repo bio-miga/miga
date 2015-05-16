@@ -11,10 +11,11 @@ echo -n "" > "miga.project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 for i in $DS ; do
    # Check if this is done (e.g., in a previous failed iteration)
-   if [[ ! -d "01.haai/$i.d" || ! -s "../$i.json" ]] ; then
+   if [[ ! -s "../$i.json" ]] ; then
       echo "$i: Incomplete job, aborting project-wide update..." >&2
       exit 1
    fi
+   [[ -d "$i.d" ]] || continue
    
    # Concatenate results
    for j in $DS ; do

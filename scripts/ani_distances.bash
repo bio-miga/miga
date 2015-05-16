@@ -1,7 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE
 source "$(dirname "$0")/miga.bash" # Available variables: $CORES, $MIGA
-cd "$PROJECT/data/09.distances/02.aai"
+cd "$PROJECT/data/09.distances/03.ani"
 
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga.project.start"
@@ -28,8 +28,8 @@ done
 
 # R-ify
 echo "
-aai <- read.table('miga.project.txt', sep='\\t', h=T)
-save(aai, file='miga.project.Rdata')
+ani <- read.table('miga.project.txt', sep='\\t', h=T)
+save(ani, file='miga.project.Rdata')
 " | R --vanilla
 
 # Gzip
@@ -37,5 +37,5 @@ gzip miga.project.txt
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga.project.done"
-$MIGA/bin/add_result -P "$PROJECT" -r aai_distances
+$MIGA/bin/add_result -P "$PROJECT" -r ani_distances
 
