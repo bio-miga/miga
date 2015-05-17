@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-MIGA=$(cd "$(dirname "$0")/.."; pwd)
+#MIGA=$(cd "$(dirname "$0")/.."; pwd)
 source "$HOME/.miga_rc"
 
 function exists { [[ -e "$1" ]] ; }

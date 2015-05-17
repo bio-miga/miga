@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-14-2015
+# @update May-17-2015
 #
 
 require 'miga/project'
@@ -86,13 +86,13 @@ module MiGA
 	 ds_name = (ds.nil? ? "miga-project" : ds.name)
 	 self.say "Queueing ", ds_name, ":#{job}"
 	 type = self.runopts(:type)
-	 vars = {'PROJECT'=>self.project.path, 'RUNTYPE'=>self.runopts(:type), 'CORES'=>self.ppn}
+	 vars = {'PROJECT'=>self.project.path, 'RUNTYPE'=>self.runopts(:type), 'CORES'=>self.ppn, 'MIGA'=>File.expand_path(File.dirname(__FILE__) + "/../..")}
 	 vars['DATASET'] = ds.name unless ds.nil?
 	 log_dir = self.project.path + "/daemon/#{job.to_s}"
 	 Dir.mkdir log_dir unless Dir.exist? log_dir
 	 to_run = {:ds=>ds, :job=>job, :cmd=>sprintf(self.runopts(:cmd),
 	       # 1: script
-	       File.expand_path(File.dirname(__FILE__) + "/../../scripts/#{job.to_s}.bash"),
+	       vars['MIGA'] + "/scripts/#{job.to_s}.bash",
 	       # 2: vars
 	       vars.keys.map{|k| sprintf(self.runopts(:var),k,vars[k])}.join(self.runopts(:varsep)),
 	       # 3: CPUs
