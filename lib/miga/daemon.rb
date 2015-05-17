@@ -127,7 +127,7 @@ module MiGA
 	       job[:pid] = spawn job[:cmd]
 	       Process.detach job[:pid]
 	    else
-	       job[:pid] = `#{job[:cmd]}`
+	       job[:pid] = `#{job[:cmd]}`.gsub(/[\n\r]/,'')
 	    end
 	    @jobs_running << job
 	    self.say "Spawned pid:#{job[:pid]} for #{job[:ds].nil? ? "" : "#{job[:ds].name}:"}#{job[:job]}"

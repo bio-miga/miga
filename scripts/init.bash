@@ -110,13 +110,13 @@ case "$dtype" in
       dmaxjobs=$(ask_user "How many jobs can I launch at once?" "300")
       dppn=$(ask_user "How many CPUs can I use per job?" "4")
       echo "Setting up internal daemon defaults, if you don't understand this just leave default values:" >&2
-      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, and %3\$d for CPUs, and %3\$d for log file." "$dtype -q '$dqueue' -v '%2\$s' -l nodes=1:ppn=%3\$d %1\$s -j oe -o '%4\$s'")
+      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, and %3\$d for CPUs, and %3\$d for log file." "$dtype -q '$dqueue' -v '%2\$s' -l nodes=1:ppn=%3\$d %1\$s -j oe -o '%4\$s' | grep .")
       dvar=$(ask_user "How should I pass variables? Use %1\$s for keys and %2\$s for values." "%1\$s=%2\$s")
       dsep=$(ask_user "What should I use to separate variables?" ",")
       if [[ "$dtype" == "qsub" ]] ; then
 	 dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for job id, output should be 1 for running and 0 for non-running." "checkjob '%1\$s'|grep '^State:'|perl -pe 's/.*: //'|grep 'Running\\|Idle\\|Blocked\\|Starting'|tail -n1|wc -l|awk '{print \$1}'")
       else
-	 dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for job id, output should be 1 for running and 0 for non-running." "qstat -f '%1\$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'|tail -n1|wc -l|awk '{print $1}'")
+	 dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for job id, output should be 1 for running and 0 for non-running." "qstat -f '%1\$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'|tail -n1|wc -l|awk '{print \$1}'")
       fi
       ;;
    *)
