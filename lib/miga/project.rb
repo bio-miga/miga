@@ -77,7 +77,7 @@ module MiGA
       def load
 	 @metadata = Metadata.load self.path + '/miga.project.json'
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
-	 @datasets = self.metadata[:datasets].map{ |d.| Dataset.new self, ds }
+	 @datasets = self.metadata[:datasets].map{ |d| Dataset.new self, ds }
       end
       def dataset(name) self.datasets.select{ |ds| ds.name==name }.first end
       def add_dataset(name)
