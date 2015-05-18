@@ -36,7 +36,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab" -n 10
       echo "hAAI	$DATASET	$i	$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
-      if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
+      if [[ "$H"!="" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 # Estimate AAI:
 	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
 	 echo "hAAI_AAI	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
