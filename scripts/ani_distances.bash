@@ -6,7 +6,7 @@ cd "$PROJECT/data/09.distances/03.ani"
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
-echo -e "metric\ta\tb\tvalue\tsd\tn\tomega" > "miga-project.txt"
+echo "metric	a	b	value	sd	n	omega" > "miga-project.txt"
 echo -n "" > "miga-project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 for i in $DS ; do
