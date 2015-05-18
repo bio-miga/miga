@@ -1,6 +1,6 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
-source "$MIGA/miga.bash"
+source "$MIGA/scripts/miga.bash"
 cd "$PROJECT/data/09.distances"
 
 # Initialize
