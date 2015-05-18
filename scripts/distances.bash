@@ -40,7 +40,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       if [[ "$HAAI"!="" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 # Estimate AAI:
 	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
-	 echo "hAAI_AAI	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
+	 echo "hAAI_AAI	$DATASET	$i	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
       else
 	 # Calculate AAI:
 	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -o "02.aai/$DATASET.d/$i.out" -T "02.aai/$DATASET.d/$i.tab"
