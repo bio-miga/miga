@@ -1,6 +1,6 @@
 #!/bin/bash
-# Available variables: $PROJECT, $DATASET, $RUNTYPE
-source "$(dirname "$0")/miga.bash" # Available variables: $CORES, $MIGA
+# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
+source "$MIGA/miga.bash"
 cd "$PROJECT/data/04.trimmed_fasta"
 
 b=$DATASET

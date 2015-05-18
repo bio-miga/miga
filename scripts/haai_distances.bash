@@ -1,6 +1,6 @@
 #!/bin/bash
-# Available variables: $PROJECT, $RUNTYPE
-source "$(dirname "$0")/miga.bash" # Available variables: $CORES, $MIGA
+# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
+source "$MIGA/miga.bash"
 cd "$PROJECT/data/09.distances/01.haai"
 
 # Initialize
