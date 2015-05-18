@@ -34,16 +34,16 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       
       # Calculate hAAI:
       aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab" -n 10
-      echo -e "hAAI\t$DATASET\t$i\t$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
+      echo -e "hAAI	$DATASET	$i	$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
       if [[ $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 # Estimate AAI:
 	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
-	 echo -e "hAAI_AAI\t$AAI\tNA\tNA\tNA" > "02.aai/$DATASET.d/$i.txt"
+	 echo -e "hAAI_AAI	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
       else
 	 # Calculate AAI:
 	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -o "02.aai/$DATASET.d/$i.out" -T "02.aai/$DATASET.d/$i.tab"
-	 echo -e "AAI\t$DATASET\t$i\t$(cat "02.aai/$DATASET.d/$i.tab")" > "02.aai/$DATASET.d/$i.txt"
+	 echo -e "AAI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "02.aai/$DATASET.d/$i.txt"
 	 AAI=$(cat "02.aai/$DATASET.d/$i.tab" | awk '{print $1}')
       fi
       
