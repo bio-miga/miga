@@ -106,9 +106,10 @@ module MiGA
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:largecontigs=>self.name + '.LargeContigs.fna', :allcontigs=>self.name + '.AllContigs.fna'}
 	 when :cds
-	    return nil unless File.exist?(base + '.faa') and File.exist?(base + '.gff2.gz') and File.exist?(base + '.fna')
+	    return nil unless File.exist?(base + '.faa') and File.exist?(base + '.fna')
 	    r = Result.new base + '.json'
-	    r.data[:files] = {:proteins=>self.name + '.faa', :genes=>self.name + '.fna', :gff2=>self.name + '.gff2.gz'}
+	    r.data[:files] = {:proteins=>self.name + '.faa', :genes=>self.name + '.fna'}
+	    r.data[:files][:gff2] = self.name + '.gff2.gz' if File.exist? self.name + '.gff2.gz'
 	 when :essential_genes
 	    return nil unless File.exist?(base + '.ess.faa') and Dir.exist?(base + '.ess') and File.exist?(base + '.ess/log')
 	    r = Result.new base + '.json'
