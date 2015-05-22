@@ -1,6 +1,6 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
-source "$MIGA/scripts/miga.bash"
+source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/09.distances"
 
 # Initialize
@@ -37,7 +37,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       [[ -s "01.haai/$DATASET.d/$i.tab" ]] && echo "hAAI	$DATASET	$i	$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=""
       [[ -s "01.haai/$DATASET.d/$i.tab" ]] && HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
-      if [[ "$HAAI"!="" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
+      if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 # Estimate AAI:
 	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
 	 echo "hAAI_AAI	$DATASET	$i	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
-source "$MIGA/scripts/miga.bash"
+source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/06.cds"
 
 # Initialize
