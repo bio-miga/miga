@@ -48,7 +48,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 	 AAI=$(cat "02.aai/$DATASET.d/$i.tab" | awk '{print $1}')
       fi
       
-      if [[ $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
+      if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
 	 # Calculate ANI:
 	 ani.rb -1 "../05.assembly/$DATASET.LargeContigs.fna" -2 "../05.assembly/$i.LargeContigs.fna" -t "$CORES" -d 10 -o "03.ani/$DATASET.d/$i.out" -T "03.ani/$DATASET.d/$i.tab"
 	 echo "ANI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "03.ani/$DATASET.d/$i.txt"
