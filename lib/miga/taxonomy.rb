@@ -9,7 +9,7 @@ module MiGA
    class Taxonomy
       # Class
       @@KNOWN_RANKS = %w{namespace domain kingdom phylum class order family genus species strain dataset}.map{|r| r.to_sym}
-      @@RANK_SYNONYMS = {'superkingdom'=>'domain','isolate'=>'strain', 'culture'=>'isolate', 'organism'=>'dataset', 'genome'=>'dataset'}
+      @@RANK_SYNONYMS = {'superkingdom'=>'domain','isolate'=>'strain', 'culture'=>'strain', 'isolate'=>'strain', 'organism'=>'dataset', 'genome'=>'dataset'}
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
       def self.json_create(o) new(o['str']) ; end
       # Instance
