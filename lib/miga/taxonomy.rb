@@ -8,7 +8,8 @@
 module MiGA
    class Taxonomy
       # Class
-      @@KNOWN_RANKS = %w{domain phylum class order family genus species}.map{|r| r.to_sym}
+      @@KNOWN_RANKS = %w{namespace domain kingdom phylum class order family genus species strain dataset}.map{|r| r.to_sym}
+      @@RANK_SYNONYMS = {'superkingdom'=>'domain','isolate'=>'strain', 'culture'=>'isolate', 'organism'=>'dataset', 'genome'=>'dataset'}
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
       def self.json_create(o) new(o['str']) ; end
       # Instance
@@ -19,7 +20,7 @@ module MiGA
 	    if str.is_a? Array
 	       self << str
 	    else
-	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,s| self << { r => n } }
+	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,s| self << {r=>n} }
 	    end
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
@@ -37,8 +38,8 @@ module MiGA
 	 elsif value.is_a? Hash
 	    value.each_pair do |rank, name|
 	       next if name.nil? or name == ""
-	       rank = rank.downcase
-	       rank = "domain" if rank.to_s == "superkingdom"
+	       rank = rank.to_s.downcase
+	       rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
 	       rank = rank.to_sym
 	       raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
 	       @ranks[ rank ] = name.gsub(/_/," ")
