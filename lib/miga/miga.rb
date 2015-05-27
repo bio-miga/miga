@@ -9,8 +9,3 @@ require 'miga/project'
 require 'miga/taxonomy'
 require 'json'
 
-module MiGA
-   class MiGA
-      # Nothing here yet
-   end
-end
