@@ -62,6 +62,7 @@ begin
       $stderr.puts "Registering taxonomy." unless o[:q]
       d = p.dataset o[:dataset]
       d.metadata[:tax] = MiGA::Taxonomy.new(o[:taxstring])
+      d.save
    end
    
    $stderr.puts "Done." unless o[:q]
