@@ -44,6 +44,7 @@ module MiGA
 	 @metadata = Metadata.new self.project.path + '/metadata/' + self.name + '.json', {:ref=>is_ref}
       end
       def save
+	 self.metadata[:type] = :metagenome if !self.metadata[:tax].nil? and !self.metadata[:tax][:namespace].nil? and self.metadata[:tax][:namespace]=='COMMUNITY'
 	 self.metadata.save
 	 self.load
       end
