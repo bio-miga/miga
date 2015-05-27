@@ -21,7 +21,7 @@ module MiGA
 	    if str.is_a? Array
 	       self << str
 	    else
-	       (str + " ").scan(/\w+:[^:]+ /){ |m| self << m }
+	       (str + " ").scan(/\w+:[^:]+ /){ |m| self << m.sub(/\s+$/,"") }
 	    end
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
