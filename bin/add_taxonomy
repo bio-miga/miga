@@ -64,6 +64,7 @@ begin
 	 end
 	 d.metadata[:tax] = MiGA::Taxonomy.new(r, header)
 	 d.save
+	 $stderr.puts " #{d.name} registered." unless o[:q]
       end
       tfh.close
    else
