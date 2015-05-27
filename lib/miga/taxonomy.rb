@@ -18,8 +18,11 @@ module MiGA
       def initialize(str, ranks=nil)
 	 @ranks = {}
 	 if ranks.nil?
-	    str = str.split(/\s+/) unless str.is_a? Array
-	    self << str
+	    if str.is_a? Array
+	       self << str
+	    else
+	       (str + " ").scan(/\w+:[^:]+ /){ |m| self << m }
+	    end
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
 	    str = str.split(/\s/) unless str.is_a? Array
