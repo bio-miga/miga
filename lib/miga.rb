@@ -5,7 +5,10 @@
 # @update May-27-2015
 #
 
-require 'miga/miga'
+require 'json'
+require 'fileutils'
+require 'miga/project'
+require 'miga/taxonomy'
 
 module MiGA
    VERSION = "0.0.1"

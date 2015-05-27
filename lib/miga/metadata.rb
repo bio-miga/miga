@@ -5,9 +5,6 @@
 # @update May-26-2015
 #
 
-require 'json'
-require 'fileutils'
-
 module MiGA
    class Metadata
       # Class

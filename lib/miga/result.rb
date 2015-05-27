@@ -5,8 +5,6 @@
 # @update May-08-2015
 #
 
-require 'json'
-
 module MiGA
    class Result
       # Class

@@ -6,7 +6,6 @@
 #
 
 require 'miga/project'
-require 'json'
 require 'daemons'
 
 module MiGA

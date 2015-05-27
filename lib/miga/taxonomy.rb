@@ -5,8 +5,6 @@
 # @update May-27-2015
 #
 
-require 'json'
-
 module MiGA
    class Taxonomy
       # Class
