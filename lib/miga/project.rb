@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-16-2015
+# @update May-27-2015
 #
 
 require 'json'
@@ -79,7 +79,10 @@ module MiGA
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
 	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
       end
-      def dataset(name) self.datasets.select{ |ds| ds.name==name }.first end
+      def dataset(name)
+	 name.miga_name!
+	 self.datasets.select{ |ds| ds.name==name }.first
+      end
       def add_dataset(name)
 	 self.metadata[:datasets] << name unless self.metadata[:datasets].include? name
 	 self.save

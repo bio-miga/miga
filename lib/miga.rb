@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-12-2015
+# @update Mar-27-2015
 #
 
 require 'miga/miga'
@@ -24,4 +24,12 @@ class File
    end
 end
 
+class String
+   def miga_name
+      self.gsub /[^A-Za-z0-9_]/, "_"
+   end
+   def miga_name!
+      self = self.miga_name
+   end
+end
 
