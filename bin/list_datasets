@@ -48,7 +48,7 @@ begin
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
    if not o[:datum].nil?
-      ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum].to_sym ] || "?"}"}
+      ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum].to_sym ] || "?").to_s}"}
    elsif o[:info]
       header = MiGA::Dataset.INFO_FIELDS.map{|i| i.ljust(25)}.join("  ")
       puts header, header.gsub(/\S/,'-')
