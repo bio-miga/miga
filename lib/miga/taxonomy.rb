@@ -21,7 +21,7 @@ module MiGA
 	    if str.is_a? Array
 	       self << str
 	    else
-	       (str + " ").scan(/\w+:[^:]+ /){ |m| self << m.sub(/\s+$/,"") }
+	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,s| self << { r => n } }
 	    end
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
@@ -33,15 +33,21 @@ module MiGA
       def <<(value)
 	 if value.is_a? Array
 	    value.each{ |v| self << v }
-	    return nil
+	 elsif value.is_a? String
+	    (rank,name) = value.split /:/
+	    self << { rank => name }
+	 elsif value.is_a? Hash
+	    value.each_pair do |rank, name|
+	       next if name.nil? or name == ""
+	       rank = rank.downcase
+	       rank = "domain" if rank.to_s == "superkingdom"
+	       rank = rank.to_sym
+	       raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
+	       @ranks[ rank ] = name.gsub(/_/," ")
+	    end
+	 else
+	    raise "Unsupported class '#{value.class.name}'."
 	 end
-	 (rank,name) = value.split /:/
-	 return nil if name.nil? or name == ""
-	 rank.downcase!
-	 rank = "domain" if rank == "superkingdom"
-	 rank = rank.to_sym
-	 raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
-	 @ranks[ rank ] = name.gsub(/_/," ")
       end
       def [](rank) @ranks[ rank.to_sym ] ; end
       def to_s
