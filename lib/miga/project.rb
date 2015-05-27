@@ -80,7 +80,7 @@ module MiGA
 	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
       end
       def dataset(name)
-	 name.miga_name!
+	 name = name.miga_name
 	 self.datasets.select{ |ds| ds.name==name }.first
       end
       def add_dataset(name)

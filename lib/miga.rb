@@ -28,8 +28,5 @@ class String
    def miga_name
       self.gsub /[^A-Za-z0-9_]/, "_"
    end
-   def miga_name!
-      self = self.miga_name
-   end
 end
 
