@@ -51,7 +51,7 @@ begin
       header = nil
       while ln = tfh.gets
 	 next if ln =~ /^\s*?$/
-	 r = ln.chomp.split /\t/
+	 r = ln.chomp.split /\t/, -1
 	 dn = r.shift
 	 if header.nil?
 	    header = r
