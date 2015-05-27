@@ -25,7 +25,7 @@ module MiGA
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
 	    str = str.split(/\s/) unless str.is_a? Array
-	    raise "Unequal number of ranks (#{ranks.size}) and names (#{str.size})." unless ranks.size==str.size
+	    raise "Unequal number of ranks (#{ranks.size}) and names (#{str.size}):#{ranks} => #{str}" unless ranks.size==str.size
 	    (0 .. str.size).each{ |i| self << "#{ranks[i]}:#{str[i]}" }
 	 end
       end
