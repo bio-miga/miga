@@ -49,11 +49,20 @@ begin
    if not o[:taxfile].nil?
       $stderr.puts "Reading tax-file and registering taxonomy." unless o[:q]
       tfh = File.open(o[:taxfile], "r")
-      header = tfh.gets.chomp.split /\t/
-      header.shift
+      header = nil
       while ln = tfh.gets
+	 next if ln =~ /^\s*?$/
 	 r = ln.chomp.split /\t/
-	 d = p.dataset r.shift
+	 dn = r.shift
+	 if header.nil?
+	    header = r
+	    next
+	 end
+	 d = p.dataset dn
+	 if d.nil?
+	    warn "Impossible to find dataset at line #{$.}: #{dn}. Ignoring..."
+	    next
+	 end
 	 d.metadata[:tax] = MiGA::Taxonomy.new(r, header)
 	 d.save
       end
