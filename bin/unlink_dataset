@@ -3,11 +3,11 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-12-2015
+# @update May-27-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
-require 'miga/project'
+require 'miga'
 require 'optparse'
 
 ARGV << '-h' if ARGV.size==0

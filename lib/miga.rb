@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Mar-27-2015
+# @update May-27-2015
 #
 
 require 'miga/miga'
