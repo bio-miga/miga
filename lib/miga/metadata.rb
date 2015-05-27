@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-14-2015
+# @update May-26-2015
 #
 
 require 'json'
@@ -46,7 +46,7 @@ module MiGA
 	 while File.exist? self.path + '.lock'
 	    sleep(1)
 	 end
-	 @data = JSON.parse(File.read(self.path), {:symbolize_names=>true})
+	 @data = JSON.parse File.read(self.path), {:symbolize_names=>true, :create_additions=>true}
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
       end
       def remove!
