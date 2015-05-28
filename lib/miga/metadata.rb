@@ -42,8 +42,10 @@ module MiGA
 	 File.unlink self.path + '.lock'
       end
       def load
+	 sleeper = 0.0
 	 while File.exist? self.path + '.lock'
-	    sleep(1)
+	    sleeper += 0.1 if sleeper <= 10.0
+	    sleep(sleeper.to_i)
 	 end
 	 @data = JSON.parse File.read(self.path), {:symbolize_names=>true, :create_additions=>true}
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
