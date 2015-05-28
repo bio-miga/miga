@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-26-2015
+# @update May-28-2015
 #
 
 module MiGA
@@ -29,8 +29,10 @@ module MiGA
       def save
          self.data[:updated] = Time.now.to_s
 	 json = JSON.pretty_generate(self.data)
+	 sleeper = 0.0
 	 while File.exist? self.path + '.lock'
-	    sleep(1)
+	    sleeper += 0.1 if sleeper <= 10.0
+	    sleep(sleeper.to_i)
 	 end
 	 FileUtils.touch self.path + '.lock'
 	 ofh = File.open(self.path + '.tmp', 'w')

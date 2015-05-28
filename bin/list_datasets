@@ -20,7 +20,7 @@ Usage: #{$0} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to read."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset STRING", "ID of the dataset to read."){ |v| o[:dataset]=v }
+   opt.on("-D", "--dataset STRING", "ID of the dataset to read."){ |v| o[:dataset]=v.miga_name }
    opt.on(      "--[no-]ref", "If set, lists only reference (or only non-reference) datasets."){ |v| o[:ref]=v }
    opt.on(      "--[no-]multi", "If set, lists only multi-species (or only single-species) datasets."){ |v| o[:multi]=v }
    opt.on("-i", "--info", "Print additional information on each dataset."){ o[:info]=true }
@@ -48,7 +48,7 @@ begin
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
    if not o[:datum].nil?
-      ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum].to_sym ] || "?").to_s}"}
+      ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum] ] || "?").to_s}"}
    elsif o[:info]
       header = MiGA::Dataset.INFO_FIELDS.map{|i| i.ljust(25)}.join("  ")
       puts header, header.gsub(/\S/,'-')
