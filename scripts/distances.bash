@@ -19,6 +19,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
       # Check if this is done (e.g., in a previous failed iteration)
       [[ -s "02.aai/$DATASET.d/$i.txt" ]] && continue
+      [[ -e "02.aai/$DATASET.d/$i.txt" ]] && rm "02.aai/$DATASET.d/$i.txt"
       
       # Check if the i-th dataset is ready
       [[ -s "$ESS/$i.done" ]] || continue
