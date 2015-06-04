@@ -8,6 +8,7 @@
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
 require 'miga'
+require 'miga/daemon'
 require 'optparse'
 
 if ARGV.size==0
