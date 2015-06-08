@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-07-2015
+# @update Jun-08-2015
 #
 
 module MiGA
@@ -19,7 +19,7 @@ module MiGA
 	 @path = File.absolute_path(path)
 	 @data = {}
 	 defaults.each_pair{ |k,v| self[k]=v }
-	 self.create unless File.size? path
+	 self.create unless File.size? self.path
 	 self.load
       end
       def create
@@ -30,16 +30,16 @@ module MiGA
          self.data[:updated] = Time.now.to_s
 	 json = JSON.pretty_generate(self.data)
 	 sleeper = 0.0
-	 while File.exist? self.path + '.lock'
+	 while File.exist? self.path + ".lock"
 	    sleeper += 0.1 if sleeper <= 10.0
 	    sleep(sleeper.to_i)
 	 end
-	 FileUtils.touch self.path + '.lock'
-	 ofh = File.open(self.path + '.tmp', 'w')
+	 FileUtils.touch self.path + ".lock"
+	 ofh = File.open(self.path + ".tmp", "w")
 	 ofh.puts json
 	 ofh.close
-	 File.rename self.path + '.tmp', self.path
-	 File.unlink self.path + '.lock' if File.exist? self.path + '.lock'
+	 File.rename self.path + ".tmp", self.path if File.exist? self.path + ".tmp"
+	 File.unlink self.path + ".lock" if File.exist? self.path + ".lock"
       end
       def load
 	 sleeper = 0.0
