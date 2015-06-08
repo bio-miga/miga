@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+#
+# @package MiGA
+# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @license artistic license 2.0
+# @update Jun-06-2015
+#
+
+$:.push File.expand_path(File.dirname(__FILE__) + "/lib")
+require 'miga'
+
+execs = Dir[File.expand_path(File.dirname(__FILE__) + "/bin/*")]
+if %w{-v --version}.include? ARGV[0]
+   puts MiGA::VERSION[0].to_s + " - " + MiGA::VERSION_NAME
+elsif %w{-V --long-version}.include? ARGV[0]
+   puts "MiGA " + MiGA::VERSION.join(".") + " - " + MiGA::VERSION_NAME + " - " + MiGA::VERSION_DATE.to_s
+elsif execs.include? ARGV[0]
+   task = ARGV.shift
+   load File.expand_path(File.dirname(__FILE__) + '/bin/' + task)
+else
+   print <<HELP.gsub /^ {6}/,''
+      Microbial Genomes Atlas.
+
+      Usage: #{$0} {action} [options]
+
+      actions:
+          #{execs.map{ |b| File.basename b }.join(" ")}
+
+      generic options:
+          -h, --help		Display this screen.
+          -v, --version	Show MiGA version.
+          -V, --long-version	Show complete MiGA version.
+HELP
+end
+

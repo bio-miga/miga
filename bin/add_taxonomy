@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-05-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -16,7 +16,7 @@ OptionParser.new do |opt|
    opt.banner = <<BAN
 Registers taxonomic information for datasets.
 
-Usage: #{$0} [options]
+Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH", "(Mandatory) Path to the project to use."){ |v| o[:project]=v }

@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-28-2015
+# @update Jun-07-2015
 #
 
 module MiGA
@@ -39,7 +39,7 @@ module MiGA
 	 ofh.puts json
 	 ofh.close
 	 File.rename self.path + '.tmp', self.path
-	 File.unlink self.path + '.lock'
+	 File.unlink self.path + '.lock' if File.exist? self.path + '.lock'
       end
       def load
 	 sleeper = 0.0

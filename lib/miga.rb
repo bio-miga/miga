@@ -5,13 +5,16 @@
 # @update May-27-2015
 #
 
+require 'date'
 require 'json'
 require 'fileutils'
 require 'miga/project'
 require 'miga/taxonomy'
 
 module MiGA
-   VERSION = "0.0.1"
+   VERSION = [0.1, 1, 1]
+   VERSION_NAME = "crosshatching"
+   VERSION_DATE = Date.new(2015, 06, 05)
 end
 
 class File

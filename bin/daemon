@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-05-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -22,7 +22,7 @@ OptionParser.new do |opt|
    opt.banner = <<BAN
 Controls the daemon of an MiGA project.
 
-Usage: #{$0} task [options]
+Usage: #{$0} #{File.basename(__FILE__)} {task} [options]
 BAN
    opt.separator "task:"
    opt.separator "    start                            Start an instance of the application."
