@@ -1,5 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
+echo "MiGA: $MIGA"
+echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/09.distances"
 
