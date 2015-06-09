@@ -57,7 +57,7 @@ module MiGA
       def initialize(path, update=false)
          raise "Impossible to create project in uninitialized MiGA." unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
 	 @path = File.absolute_path(path)
-	 self.create if update or !Project.exist? self.path
+	 self.create if update or not Project.exist? self.path
 	 self.load if self.metadata.nil?
       end
       def create
@@ -66,7 +66,7 @@ module MiGA
 	 @@DATA_FOLDERS.each{ |dir| Dir.mkdir self.path + "/data/" + dir unless Dir.exist? self.path + "/data/" + dir }
 	 @metadata = Metadata.new self.path + "/miga.project.json", {:datasets=>[], :name=>File.basename(self.path)}
 	 FileUtils.cp ENV["HOME"] + "/.miga_daemon.json", self.path + "/daemon/daemon.json" unless File.exist? self.path + "/daemon/daemon.json"
-	 self.save
+	 self.load
       end
       def save
 	 self.metadata.save
