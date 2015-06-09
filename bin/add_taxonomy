@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-05-2015
+# @update Jun-08-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -27,6 +27,7 @@ BAN
       "Each row corresponds to a datasets and each column corresponds to a rank (blanks permitted).",
       "The first row must be a header with the rank names, and the first column must contain dataset names."){ |v| o[:taxfile]=v }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
+   opt.on("-d", "--debug INT", "Print debugging information to STDERR."){ |v| v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
       exit

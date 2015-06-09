@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-05-2015
+# @update Jun-08-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
