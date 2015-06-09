@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-08-2015
 #
 
 require 'date'
@@ -15,6 +15,28 @@ module MiGA
    VERSION = [0.1, 1, 2]
    VERSION_NAME = "crosshatching"
    VERSION_DATE = Date.new(2015, 6, 8)
+   class MiGA
+      @@DEBUG = false
+      @@DEBUG_TRACE = false
+      def self.DEBUG_ON() @@DEBUG=true end
+      def self.DEBUG_OFF() @@DEBUG=false end
+      def self.DEBUG_TRACE_ON
+	 @@DEBUG_TRACE=true
+	 self.DEBUG_ON
+      end
+      def self.DEBUG_TRACE_OFF
+	 @@DEBUG_TRACE=false
+	 self.DEBUG_OFF
+      end
+      def self.DEBUG *args
+	 $stderr.puts(*args) if @@DEBUG
+	 $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if @@DEBUG_TRACE
+      end
+      def self.VERSION() VERSION[0] end
+      def self.LONG_VERSION
+	 "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " + VERSION_DATE.to_s
+      end
+   end
 end
 
 class File

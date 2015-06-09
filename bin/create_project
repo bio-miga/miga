@@ -27,6 +27,7 @@ BAN
    opt.on("-c", "--comments STRING", "Comments on the project."){ |v| o[:comments]=v }
    opt.on(      "--update", "Updates the project if it already exists."){ o[:update]=true }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
+   opt.on("-d", "--debug INT", "Print debugging information to STDERR."){ |v| v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
       exit

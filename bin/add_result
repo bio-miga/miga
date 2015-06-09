@@ -25,6 +25,7 @@ BAN
       *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}, "Recognized names for project-wide results include:",
       *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}){ |v| o[:name]=v }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
+   opt.on("-d", "--debug", "Print debugging information to STDERR."){ MiGA.DEBUG_ON }
    opt.on("-h", "--help", "Display this screen.") do
       puts opt
       exit

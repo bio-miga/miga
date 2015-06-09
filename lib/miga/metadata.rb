@@ -27,6 +27,7 @@ module MiGA
 	 self.save
       end
       def save
+	 MiGA.DEBUG "Metadata.save #{self.path}"
          self.data[:updated] = Time.now.to_s
 	 json = JSON.pretty_generate(self.data)
 	 sleeper = 0.0
@@ -52,6 +53,7 @@ module MiGA
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
       end
       def remove!
+	 MiGA.DEBUG "Metadata.remove! #{self.path}"
 	 File.unlink self.path
       end
       def [](k) self.data[k.to_sym] end
