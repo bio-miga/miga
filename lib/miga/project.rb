@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-08-2015
 #
 
 require 'miga/dataset'
@@ -22,18 +22,18 @@ module MiGA
 	 10.clades/04.phylogeny/01.essential 10.clades/04.phylogeny/02.core 10.clades/05.metadata)
       @@RESULT_DIRS = {
 	 # Distances
-	 :haai_distances=>'09.distances/01.haai',
-	 :aai_distances=>'09.distances/02.aai',
-	 :ani_distances=>'09.distances/03.ani',
-	 #:ssu_distances=>'09.distances/04.ssu',
+	 :haai_distances=>"09.distances/01.haai",
+	 :aai_distances=>"09.distances/02.aai",
+	 :ani_distances=>"09.distances/03.ani",
+	 #:ssu_distances=>"09.distances/04.ssu",
 	 # Clade identification
-	 :clade_finding=>'10.clades/01.find',
+	 :clade_finding=>"10.clades/01.find",
 	 # Clade analysis
-	 :subclades=>'10.clades/02.ani',
-	 :ogs=>'10.clades/03.ogs',
-	 :ess_phylogeny=>'10.clades/04.phylogeny/01.essential',
-	 :core_phylogeny=>'10.clades/04.phylogeny/02.core',
-	 :clade_metadata=>'10.clades/05.metadata'
+	 :subclades=>"10.clades/02.ani",
+	 :ogs=>"10.clades/03.ogs",
+	 :ess_phylogeny=>"10.clades/04.phylogeny/01.essential",
+	 :core_phylogeny=>"10.clades/04.phylogeny/02.core",
+	 :clade_metadata=>"10.clades/05.metadata"
       }
       @@KNOWN_TYPES = {
 	 :mixed=>{:description=>"Mixed collection of genomes, metagenomes, and viromes.", :single=>true, :multi=>true},
@@ -46,7 +46,7 @@ module MiGA
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.exist?(path)
-	 Dir.exist?(path) and File.exist?(path + '/miga.project.json')
+	 Dir.exist?(path) and File.exist?(path + "/miga.project.json")
       end
       def self.load(path)
 	 return nil unless Project.exist? path
@@ -57,14 +57,14 @@ module MiGA
       def initialize(path, update=false)
          raise "Impossible to create project in uninitialized MiGA." unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
 	 @path = File.absolute_path(path)
-	 self.create if update or !MiGA::Project.exist? path
+	 self.create if update or !MiGA::Project.exist? self.path
 	 self.load if self.metadata.nil?
       end
       def create
 	 Dir.mkdir self.path unless Dir.exist? self.path
-	 @@FOLDERS.each{ |dir| Dir.mkdir self.path + '/' + dir unless Dir.exist? self.path + '/' + dir }
-	 @@DATA_FOLDERS.each{ |dir| Dir.mkdir self.path + '/data/' + dir unless Dir.exist? self.path + '/data/' + dir }
-	 @metadata = Metadata.new self.path + '/miga.project.json', {:datasets=>[], :name=>File.basename(self.path)}
+	 @@FOLDERS.each{ |dir| Dir.mkdir self.path + "/" + dir unless Dir.exist? self.path + "/" + dir }
+	 @@DATA_FOLDERS.each{ |dir| Dir.mkdir self.path + "/data/" + dir unless Dir.exist? self.path + "/data/" + dir }
+	 @metadata = Metadata.new self.path + "/miga.project.json", {:datasets=>[], :name=>File.basename(self.path)}
 	 FileUtils.cp ENV["HOME"] + "/.miga_daemon.json", self.path + "/daemon/daemon.json" unless File.exist? self.path + "/daemon/daemon.json"
 	 self.save
       end
@@ -73,7 +73,7 @@ module MiGA
 	 self.load
       end
       def load
-	 @metadata = Metadata.load self.path + '/miga.project.json'
+	 @metadata = Metadata.load self.path + "/miga.project.json"
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
 	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
       end
@@ -95,21 +95,21 @@ module MiGA
       end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
-	 Result.load self.path + '/data/' + @@RESULT_DIRS[name.to_sym] + '/result.json'
+	 Result.load self.path + "/data/" + @@RESULT_DIRS[name.to_sym] + "/result.json"
       end
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? } end
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
-	 base = self.path + '/data/' + @@RESULT_DIRS[result_type] + '/miga-project'
-	 return nil unless File.exist? base + '.done'
+	 base = self.path + "/data/" + @@RESULT_DIRS[result_type] + "/miga-project"
+	 return nil unless File.exist? base + ".done"
 	 r = nil
 	 case result_type
 	 when :haai_distances, :aai_distances, :ani_distances, :ssu_distances
-	    return nil unless File.exist? base + '.Rdata' and File.exist? base + '.log' and (File.exist?(base + '.txt') or File.exist?(base + '.txt.gz'))
-	    r = Result.new base + '.json'
-	    r.data[:files] = {:rdata=>'miga-project.Rdata', :matrix=>'miga-project.txt', :log=>'miga-project.log'}
-	    if File.exist? base + '.txt.gz'
-	       r.data[:files][:matrix] += '.gz'
+	    return nil unless File.exist? base + ".Rdata" and File.exist? base + ".log" and (File.exist?(base + ".txt") or File.exist?(base + ".txt.gz"))
+	    r = Result.new base + ".json"
+	    r.data[:files] = {:rdata=>"miga-project.Rdata", :matrix=>"miga-project.txt", :log=>"miga-project.log"}
+	    if File.exist? base + ".txt.gz"
+	       r.data[:files][:matrix] += ".gz"
 	       r.data[:gz] = true
 	    end
 	 end
@@ -126,10 +126,10 @@ module MiGA
       def unregistered_datasets
 	 datasets = []
 	 MiGA::Dataset.RESULT_DIRS.each do |res, dir|
-	    Dir.entries(self.path + '/data/' + dir).each do |file|
+	    Dir.entries(self.path + "/data/" + dir).each do |file|
 	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff[23]?|done)(\.gz)?$/)
 	       m = /([^\.]+)/.match(file)
-	       datasets << m[1] unless m.nil? or m[1] == 'miga-project'
+	       datasets << m[1] unless m.nil? or m[1] == "miga-project"
 	    end
 	 end
 	 datasets.uniq - self.metadata[:datasets]

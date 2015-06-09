@@ -38,12 +38,13 @@ module MiGA
 	 ofh = File.open(self.path + ".tmp", "w")
 	 ofh.puts json
 	 ofh.close
-	 File.rename self.path + ".tmp", self.path if File.exist? self.path + ".tmp"
-	 File.unlink self.path + ".lock" if File.exist? self.path + ".lock"
+	 raise "Lock-racing detected for #{self.path}." unless File.exist? self.path + ".tmp" and File.exist? self.path + ".lock"
+	 File.rename self.path + ".tmp", self.path
+	 File.unlink self.path + ".lock"
       end
       def load
 	 sleeper = 0.0
-	 while File.exist? self.path + '.lock'
+	 while File.exist? self.path + ".lock"
 	    sleeper += 0.1 if sleeper <= 10.0
 	    sleep(sleeper.to_i)
 	 end
@@ -57,7 +58,7 @@ module MiGA
       def []=(k,v)
 	 k = k.to_sym
 	 # Protect the special field :name
-	 v.gsub!(/[^A-Za-z0-9_]/,'_') if k==:name
+	 v.gsub!(/[^A-Za-z0-9_]/,"_") if k==:name
 	 # Register and return
 	 self.data[k]=v
       end
