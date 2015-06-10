@@ -13,7 +13,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 # Assemble
 # The type might be useful in future versions of IDBA, but for now all supported types
 # can be handled by IDBA-UD
-# TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" -d "type" | awk '{print $2}')
+# TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --metadata "type" | awk '{print $2}')
 FA="../04.trimmed_fasta/$DATASET.CoupledReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
 [[ -e $FA ]] || FA="../04.trimmed_fasta/$DATASET.SingleReads.fa"

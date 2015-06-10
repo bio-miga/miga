@@ -10,7 +10,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
 # Find and extract essential genes
 mkdir "$DATASET.ess"
-TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" -d "type" | awk '{print $2}')
+TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --metadata "type" | awk '{print $2}')
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
    HMM.essential.rb -i "../../../06.cds/$DATASET.faa" -o "$DATASET.ess.faa" -m "$DATASET.ess/" -t "$CORES" -r "$DATASET" --metagenome > "$DATASET.ess/log"
 else
