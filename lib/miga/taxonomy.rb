@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-09-2015
+# @update Jun-10-2015
 #
 
 module MiGA
@@ -20,7 +20,7 @@ module MiGA
 	 'genus'=>'g',
 	 'species'=>'s','sp'=>'s',
 	 'strain'=>'str','isolate'=>'str', 'culture'=>'str', 'isolate'=>'str',
-	 'organism'=>'ds', 'genome'=>'ds','specimen'=>'ds'
+	 'dataset'=>'ds', 'organism'=>'ds', 'genome'=>'ds','specimen'=>'ds'
       }
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
       def self.json_create(o) new(o['str']) ; end
