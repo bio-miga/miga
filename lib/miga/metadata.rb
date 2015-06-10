@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-09-2015
 #
 
 module MiGA
@@ -49,7 +49,10 @@ module MiGA
 	    sleeper += 0.1 if sleeper <= 10.0
 	    sleep(sleeper.to_i)
 	 end
-	 @data = JSON.parse File.read(self.path), {:symbolize_names=>true, :create_additions=>true}
+	 # :symbolize_names does not play nicely with :create_additions
+	 tmp = JSON.parse File.read(self.path), {:symbolize_names=>false, :create_additions=>true}
+	 @data = {}
+	 tmp.each_pair{ |k,v| @data[k.to_sym] = v }
 	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
       end
       def remove!
