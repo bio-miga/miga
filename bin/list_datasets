@@ -49,7 +49,7 @@ begin
    ds.select!{|d| d.name == o[:dataset]} unless o[:dataset].nil?
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
-   ds.select!{|d| (not d.metadata[:taxonomy].nil?) and d.metadata[:taxonomy].is_in?(o[:taxonomy]) } unless o[:taxonomy].nil?
+   ds.select!{|d| (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy]) } unless o[:taxonomy].nil?
    if not o[:datum].nil?
       ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum] ] || "?").to_s}"}
    elsif o[:info]
