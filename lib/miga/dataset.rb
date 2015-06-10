@@ -1,8 +1,8 @@
 #
-# @package MiGA
+# @package iGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-09-2015
 #
 
 require 'miga/metadata'
@@ -55,7 +55,7 @@ module MiGA
          self.results.remove!
 	 self.metadata.remove!
       end
-      def info() MiGA::Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] } end
+      def info() Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] } end
       def is_ref?() !!self.metadata[:ref] end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
