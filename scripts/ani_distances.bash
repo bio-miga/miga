@@ -22,8 +22,13 @@ for i in $DS ; do
    # Concatenate results
    for j in $DS ; do
       [[ "$i" == "$j" ]] && break # Only lower triangle
-      [[ -e "$i.d/$j.txt" ]] || continue # Ignore missing data
-      cat "$i.d/$j.txt" >> "miga-project.txt"
+      if [[ -e "$i.d/$j.txt" ]] ; then
+	 cat "$i.d/$j.txt" >> "miga-project.txt"
+      elif [[ -e "$j.d/$i.txt" ]] ; then
+	 cat "$j.d/$i.txt" >> "miga-project.txt"
+      else
+	 continue # Ignore missing data
+      fi
    done
    cat $i >> "miga-project.log"
 done

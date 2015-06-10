@@ -45,7 +45,7 @@ begin
    $stderr.puts "Finding datasets." unless o[:q]
    ud = p.unregistered_datasets
    ud.each do |dn|
-      puts "#{dn}"
+      puts dn
       if o[:add]
 	 d = p.add_dataset(dn)
 	 [:ref, :type, :user].each{ |k| d.metadata[k] = o[k] unless o[k].nil? }
@@ -58,5 +58,4 @@ rescue => err
    err.backtrace.each { |l| $stderr.puts l + "\n" }
    err
 end
-
 
