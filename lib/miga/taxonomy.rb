@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-27-2015
+# @update Jun-09-2015
 #
 
 module MiGA
@@ -12,6 +12,13 @@ module MiGA
       @@RANK_SYNONYMS = {'superkingdom'=>'domain','isolate'=>'strain', 'culture'=>'strain', 'isolate'=>'strain', 'organism'=>'dataset', 'genome'=>'dataset'}
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
       def self.json_create(o) new(o['str']) ; end
+      def self.normalize_rank(rank)
+	 rank = rank.to_s.downcase
+	 rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
+	 rank = rank.to_sym
+	 raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
+	 rank
+      end
       # Instance
       attr_reader :ranks
       def initialize(str, ranks=nil)
@@ -38,17 +45,20 @@ module MiGA
 	 elsif value.is_a? Hash
 	    value.each_pair do |rank, name|
 	       next if name.nil? or name == ""
-	       rank = rank.to_s.downcase
-	       rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
-	       rank = rank.to_sym
-	       raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
-	       @ranks[ rank ] = name.gsub(/_/," ")
+	       @ranks[ Taxonomy.normalize_rank rank ] = name.gsub(/_/," ")
 	    end
 	 else
 	    raise "Unsupported class '#{value.class.name}'."
 	 end
       end
       def [](rank) @ranks[ rank.to_sym ] ; end
+      ### Evaluates if the loaded taxonomy includes `taxon`. It assumes that `taxon`
+      ### only has one informative rank. The evaluation is case-insensitive.
+      def is_in? taxon
+	 r = taxon.ranks.keys.first
+	 return false if self[ r ].nil?
+	 self[ r ].downcase == taxon[ r ].downcase
+      end
       def to_s
 	 @@KNOWN_RANKS.map{ |r| self.ranks[r].nil? ? nil : "#{r.to_s}:#{self.ranks[r].gsub(/\s/,'_')}" }.compact.join(" ")
       end

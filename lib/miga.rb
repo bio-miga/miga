@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-09-2015
 #
 
 require 'date'
@@ -12,9 +12,9 @@ require 'miga/project'
 require 'miga/taxonomy'
 
 module MiGA
-   VERSION = [0.1, 1, 2]
+   VERSION = [0.1, 1, 3]
    VERSION_NAME = "crosshatching"
-   VERSION_DATE = Date.new(2015, 6, 8)
+   VERSION_DATE = Date.new(2015, 6, 9)
    class MiGA
       @@DEBUG = false
       @@DEBUG_TRACE = false

@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-09-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -24,6 +24,7 @@ BAN
    opt.on(      "--[no-]ref", "If set, lists only reference (or only non-reference) datasets."){ |v| o[:ref]=v }
    opt.on(      "--[no-]multi", "If set, lists only multi-species (or only single-species) datasets."){ |v| o[:multi]=v }
    opt.on("-i", "--info", "Print additional information on each dataset."){ o[:info]=true }
+   opt.on("-t", "--taxonomy RANK:TAXON", "Filter by taxonomy."){ |v| o[:taxonomy]=MiGA::Taxonomy.new v }
    opt.on("-d", "--metadata STRING", "Print name and metadata field only. If set, ignores -i."){ |v| o[:datum]=v }
    opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-d", "--debug INT", "Print debugging information to STDERR."){ |v| v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON }
@@ -48,6 +49,7 @@ begin
    ds.select!{|d| d.name == o[:dataset]} unless o[:dataset].nil?
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
+   ds.select!{|d| (not d.metadata[:taxonomy].nil?) and d.metadata[:taxonomy].is_in?(o[:taxonomy]) } unless o[:taxonomy].nil?
    if not o[:datum].nil?
       ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum] ] || "?").to_s}"}
    elsif o[:info]
