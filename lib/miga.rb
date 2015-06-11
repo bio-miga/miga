@@ -12,9 +12,9 @@ require 'miga/project'
 require 'miga/taxonomy'
 
 module MiGA
-   VERSION = [0.1, 1, 3]
+   VERSION = [0.1, 1, 4]
    VERSION_NAME = "crosshatching"
-   VERSION_DATE = Date.new(2015, 6, 9)
+   VERSION_DATE = Date.new(2015, 6, 11)
    class MiGA
       @@DEBUG = false
       @@DEBUG_TRACE = false

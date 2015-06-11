@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-11-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -47,9 +47,10 @@ begin
    ud.each do |dn|
       puts dn
       if o[:add]
-	 d = p.add_dataset(dn)
-	 [:ref, :type, :user].each{ |k| d.metadata[k] = o[k] unless o[k].nil? }
-	 d.save
+	 md = {}
+	 [:type, :user].each{ |k| md[k]=o[k] unless o[k].nil? }
+	 d = MiGA::Dataset.new(p, dn, o[:ref], md)
+	 p.add_dataset(dn)
       end
    end
    $stderr.puts "Done." unless o[:q]

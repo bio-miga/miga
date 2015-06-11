@@ -1,8 +1,8 @@
 #
-# @package iGA
+# @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-09-2015
+# @update Jun-11-2015
 #
 
 require 'miga/metadata'
@@ -37,11 +37,12 @@ module MiGA
       def self.INFO_FIELDS() %w(name created updated type ref user description comments) end
       # Instance
       attr_reader :project, :name, :metadata
-      def initialize(project, name, is_ref=true)
+      def initialize(project, name, is_ref=true, metadata={})
 	 abort "Invalid name '#{name}', please use only alphanumerics and underscores." if name !~ /^[A-Za-z0-9_]+$/
 	 @project = project
 	 @name = name
-	 @metadata = Metadata.new self.project.path + '/metadata/' + self.name + '.json', {:ref=>is_ref}
+	 metadata[:ref] = is_ref
+	 @metadata = Metadata.new self.project.path + '/metadata/' + self.name + '.json', metadata
       end
       def save
 	 self.metadata[:type] = :metagenome if !self.metadata[:tax].nil? and !self.metadata[:tax][:ns].nil? and self.metadata[:tax][:ns]=='COMMUNITY'

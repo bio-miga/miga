@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-11-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -11,7 +11,7 @@ require 'miga'
 require 'optparse'
 
 ARGV << '-h' if ARGV.size==0
-o = {:q=>true}
+o = {:q=>true, :ref=>true}
 OptionParser.new do |opt|
    opt.banner = <<BAN
 Creates an empty dataset in a pre-existing MiGA project.
@@ -46,11 +46,10 @@ begin
    raise "Impossible to load project: #{o[:project]}" if p.nil?
    
    $stderr.puts "Creating dataset." unless o[:q]
-   d = p.add_dataset(o[:dataset])
-   [:type, :ref, :description, :user, :comments].each do |k|
-      d.metadata[k] = o[k] unless o[k].nil?
-   end
-   d.save
+   md = {}
+   [:type, :description, :user, :comments].each{ |k| md[k]=o[k] unless o[k].nil? }
+   d = MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
+   p.add_dataset(o[:dataset])
 
    $stderr.puts "Done." unless o[:q]
 rescue => err
