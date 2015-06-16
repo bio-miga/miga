@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-16-2015
 #
 
 require 'miga/dataset'
@@ -53,7 +53,7 @@ module MiGA
 	 Project.new path
       end
       # Instance
-      attr_reader :path, :metadata, :datasets
+      attr_reader :path, :metadata
       def initialize(path, update=false)
          raise "Impossible to create project in uninitialized MiGA." unless File.exist? "#{ENV["HOME"]}/.miga_rc" and File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
 	 @path = File.absolute_path(path)
@@ -75,11 +75,15 @@ module MiGA
       def load
 	 @metadata = Metadata.load self.path + "/miga.project.json"
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
-	 @datasets = self.metadata[:datasets].map{ |ds| Dataset.new self, ds }
+      end
+      def datasets
+	 self.metadata[:datasets].map{ |name| self.dataset name }
       end
       def dataset(name)
 	 name = name.miga_name
-	 self.datasets.select{ |ds| ds.name==name }.first
+	 @datasets ||= {}
+	 @datasets[name] = Dataset.new(self, name) if @dataset[name].nil? 
+	 @datasets[name]
       end
       def add_dataset(name)
 	 self.metadata[:datasets] << name unless self.metadata[:datasets].include? name

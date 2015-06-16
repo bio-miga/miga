@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-09-2015
+# @update Jun-16-2015
 #
 
 module MiGA
@@ -63,7 +63,7 @@ module MiGA
       def []=(k,v)
 	 k = k.to_sym
 	 # Protect the special field :name
-	 v.gsub!(/[^A-Za-z0-9_]/,"_") if k==:name
+	 v=v.miga_name if k==:name
 	 # Register and return
 	 self.data[k]=v
       end
