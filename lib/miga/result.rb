@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update May-08-2015
+# @update Jun-16-2015
 #
 
 module MiGA
@@ -48,7 +48,7 @@ module MiGA
       def remove!
 	 self.data[:files] = {} if self.data[:files].nil?
 	 self.data[:files].each do |k,files|
-	    files = [files] unless file.kind_of? Array
+	    files = [files] unless files.kind_of? Array
 	    files.each{|file| File.unlink_r(self.dir + file)}
 	 end
 	 File.unlink self.path
