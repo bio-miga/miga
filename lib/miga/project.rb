@@ -81,7 +81,7 @@ module MiGA
       end
       def dataset(name)
 	 name = name.miga_name
-	 @datasets ||= {}
+	 @datasets = {} if @datasets.nil?
 	 @datasets[name] = Dataset.new(self, name) if @dataset[name].nil? 
 	 @datasets[name]
       end
