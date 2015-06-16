@@ -49,7 +49,7 @@ module MiGA
 	 self.data[:files] = {} if self.data[:files].nil?
 	 self.data[:files].each do |k,files|
 	    files = [files] unless files.kind_of? Array
-	    files.each{|file| File.unlink_r(self.dir + file)}
+	    files.each{ |file| File.unlink_r(self.dir + file) if File.exist? self.dir + file }
 	 end
 	 File.unlink self.path
       end
