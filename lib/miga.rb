@@ -40,7 +40,7 @@ module MiGA
 end
 
 class File
-   def unlink_r(path)
+   def self.unlink_r(path)
       if Dir.exists? path
 	 Dir.entries.reject{|f| f =~ /^\.\.?$/}.each{|f| File.unlink_r f} unless File.symlink? path
 	 Dir.unlink path
