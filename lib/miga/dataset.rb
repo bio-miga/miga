@@ -53,7 +53,7 @@ module MiGA
          # Nothing here...
       end
       def remove!
-         self.results.remove!
+         self.results.each{ |r| r.remove! }
 	 self.metadata.remove!
       end
       def info() Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] } end
