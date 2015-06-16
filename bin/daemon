@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jun-16-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -61,7 +61,7 @@ begin
    [:latency, :maxjobs, :ppn].each do |k|
       d.runopts(k, o[k]) unless o[k].nil?
    end
-   d.daemon(task)
+   d.daemon(task, o[:daemon_opts])
 rescue => err
    $stderr.puts "Exception: #{err}\n\n"
    err.backtrace.each { |l| $stderr.puts l + "\n" }
