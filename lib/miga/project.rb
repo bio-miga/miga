@@ -82,7 +82,7 @@ module MiGA
       def dataset(name)
 	 name = name.miga_name
 	 @datasets = {} if @datasets.nil?
-	 @datasets[name] = Dataset.new(self, name) if @dataset[name].nil? 
+	 @datasets[name] = Dataset.new(self, name) if @datasets[name].nil? 
 	 @datasets[name]
       end
       def add_dataset(name)
