@@ -29,7 +29,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       # Check if the other direction is already running (or done)
       if [[ -e "01.haai/$i.d/$DATASET.txt" ]] ; then
 	 cd "01.haai/$DATASET.d/"
-	 ln -s "../$i.d/$DATASET.txt" "$i.txt"
+	 [[ -e "$i.txt" ]] || ln -s "../$i.d/$DATASET.txt" "$i.txt"
 	 cd "../../"
 	 continue
       fi
