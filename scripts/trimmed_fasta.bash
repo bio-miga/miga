@@ -23,19 +23,11 @@ else
    mv $b.1.fasta $b.SingleReads.fa
 fi
 
-# Compress input at 01.raw_reads
-if [[ -e "../01.raw_reads/$b.1.fastq" ]] ; then
-   for i in ../01.raw_reads/$b.[12].fastq ; do
-      gzip $i
-   done
-fi
-
-# Compress input at 02.trimmed_reads
-if [[ -e "../02.trimmed_reads/$b.1.clipped.fastq" ]] ; then
-   for i in ../02.trimmed_reads/$b.[12].clipped.fasta ; do
-      gzip $i
-   done
-fi
+# Compress input at 01.raw_reads and 02.trimmed_reads
+for sis in 1 2 ; do
+   [[ -e "../01.raw_reads/$b.$sis.fastq" ]] && gzip "../01.raw_reads/$b.$sis.fastq"
+   [[ -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] && gzip "../02.trimmed_reads/$b.$sis.clipped.fastq"
+done
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
