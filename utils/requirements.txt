@@ -12,4 +12,4 @@ R			R			http://www.r-project.org/
 RAxML (pthreads)	raxmlHPC-PTHREADS	http://sco.h-its.org/exelixis/web/software/raxml/index.html
 MCL			mcl			http://micans.org/mcl/
 MyTaxa			MyTaxa			http://enve-omics.ce.gatech.edu/mytaxa				The folder must contain the db and utils dirs, and the AllGenomes.faa BLAST database
-Krona			ImportText.pl		http://krona.sourceforge.net
+Krona			ktImportText		http://krona.sourceforge.net

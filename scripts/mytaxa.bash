@@ -52,7 +52,7 @@ if [[ "$MULTI" -ne "1" ]] ; then
    fi
 
    # Execute Krona
-   ImportText.pl -o "$DATASET.html" -n biota "$DATASET.mytaxa.krona,$DATASET"
+   ktImportText -o "$DATASET.html" -n biota "$DATASET.mytaxa.krona,$DATASET"
 
    # Gzip and cleanup
    [[ -e "../../../06.cds/$DATASET.gff2" ]] && gzip -9 -f "../../../06.cds/$DATASET.gff2"
