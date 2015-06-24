@@ -84,12 +84,12 @@ module MiGA
 	    r = Result.new base + '.json'
 	    r.data[:gz] = File.exist?(base + '.1.clipped.fastq.gz')
 	    r.data[:files] = {}
-	    if File.exist? base + '.2.clipped.fastq' + (r[:gz] ? '.gz' : '')
-	       r.data[:files][:pair1] = self.name + '.1.clipped.fastq' + (r[:gz] ? '.gz' : '')
-	       r.data[:files][:pair2] = self.name + '.2.clipped.fastq' + (r[:gz] ? '.gz' : '')
-	       r.data[:files][:single] = self.name + '.1.clipped.single.fastq' + (r[:gz] ? '.gz' : '')
+	    if File.exist? base + '.2.clipped.fastq' + (r.data[:gz] ? '.gz' : '')
+	       r.data[:files][:pair1] = self.name + '.1.clipped.fastq' + (r.data[:gz] ? '.gz' : '')
+	       r.data[:files][:pair2] = self.name + '.2.clipped.fastq' + (r.data[:gz] ? '.gz' : '')
+	       r.data[:files][:single] = self.name + '.1.clipped.single.fastq' + (r.data[:gz] ? '.gz' : '')
 	    else
-	       r.data[:files][:single] = self.name + '.1.clipped.fastq' + (r[:gz] ? '.gz' : '')
+	       r.data[:files][:single] = self.name + '.1.clipped.fastq' + (r.data[:gz] ? '.gz' : '')
 	    end
 	    self.add_result :raw_reads #-> Post gunzip (if any)
 	 when :read_quality
