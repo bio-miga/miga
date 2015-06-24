@@ -5,9 +5,11 @@ SolexaQA++		SolexaQA++		http://solexaqa.sourceforge.net					Required version: v3
 Scythe			scythe			https://github.com/vsbuffalo/scythe				Required version: 0.991+
 FastQC			fastqc			http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 IDBA			idba_ud			http://i.cs.hku.hk/~alse/hkubrg/projects/idba
-MetaGeneMark		gmhmmp			http://exon.gatech.edu/genemark/license_download.cgi		The folder must also contain the key and the scripts
+MetaGeneMark		gmhmmp			http://exon.gatech.edu/genemark/license_download.cgi		The folder must contain the key and the scripts
 HMMer 3.0+		hmmsearch		http://hmmer.janelia.org/software
 NCBI BLAST+		blastp			ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST
 R			R			http://www.r-project.org/
 RAxML (pthreads)	raxmlHPC-PTHREADS	http://sco.h-its.org/exelixis/web/software/raxml/index.html
 MCL			mcl			http://micans.org/mcl/
+MyTaxa			MyTaxa			http://enve-omics.ce.gatech.edu/mytaxa				The folder must contain the db and utils dirs, and the AllGenomes.faa BLAST database
+Krona			ImportText.pl		http://krona.sourceforge.net

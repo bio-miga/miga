@@ -18,6 +18,7 @@ module MiGA
 	 :trimmed_fasta=>'04.trimmed_fasta', :assembly=>'05.assembly', :cds=>'06.cds',
 	 # Annotation
 	 :essential_genes=>'07.annotation/01.function/01.essential',
+	 :mytaxa=>'07.annotation/02.taxonomy/01.mytaxa',
 	 # Mapping
 	 :mapping_on_contigs=>'08.mapping/01.read-ctg', :mapping_on_genes=>'08.mapping/02.read-gene',
 	 # Distances (for single-species datasets)
@@ -30,7 +31,7 @@ module MiGA
 	 :scgenome=>{:description=>"A genome from a single cell.", :multi=>false},
 	 :popgenome=>{:description=>"The genome of a population (including microdiversity).", :multi=>false}
       }
-      @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :distances]
+      @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa, :distances]
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.exist?(project, name) File.exist? project.path + '/metadata/' + name + '.json' end
@@ -115,6 +116,13 @@ module MiGA
 	    return nil unless File.exist?(base + '.ess.faa') and Dir.exist?(base + '.ess') and File.exist?(base + '.ess/log')
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:ess_genes=>self.name + '.ess.faa', :collection=>self.name + '.ess', :report=>self.name + '.ess/log'}
+	 when :mytaxa
+	    return nil unless File.exist?(base + '.mytaxa')
+	    r = Result.new base + '.json'
+	    r.data[:files] = {:mytaxa=>self.name + '.mytaxa'}
+	    r.data[:gz] = File.exist?(base + '.mytaxain.gz')
+	    r.data[:files][:blast] = self.name + '.blast' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.blast' + (r.data[:gz] ? '.gz' : ''))
+	    r.data[:files][:mytaxain] = self.name + '.mytaxain' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.mytaxain' + (r.data[:gz] ? '.gz' : ''))
 	 when :distances
 	    r = Result.new base + '.json'
 	    r.data[:files] = {}
