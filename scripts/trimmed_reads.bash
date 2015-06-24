@@ -19,6 +19,7 @@ FastQ.tag.rb -i ../01.raw_reads/$b.1.fastq -p "$b-" -s "/1" -o $b.1.fastq
 [[ -e ../01.raw_reads/$b.2.fastq ]] && FastQ.tag.rb -i ../01.raw_reads/$b.2.fastq -p "$b-" -s "/2" -o $b.2.fastq
 
 # Trim
+exists $b.[12].fastq.* && rm $b.[12].fastq.*
 SolexaQA++ dynamictrim $b.[12].fastq -h 20 -d .
 SolexaQA++ lengthsort $b.[12].fastq.trimmed -l 50 -d .
 
