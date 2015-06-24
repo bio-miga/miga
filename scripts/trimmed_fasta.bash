@@ -27,6 +27,7 @@ fi
 for sis in 1 2 ; do
    [[ -e "../01.raw_reads/$b.$sis.fastq" ]] && gzip -9 -f "../01.raw_reads/$b.$sis.fastq"
    [[ -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] && gzip -9 -f "../02.trimmed_reads/$b.$sis.clipped.fastq"
+   [[ -e "../02.trimmed_reads/$b.$sis.clipped.single.fastq" ]] && gzip -9 -f "../02.trimmed_reads/$b.$sis.clipped.single.fastq"
 done
 
 # Finalize

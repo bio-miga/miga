@@ -80,13 +80,16 @@ module MiGA
 	       r.data[:files] = {:single=>self.name + '.1.fastq' + (r.data[:gz] ? '.gz' : '')}
 	    end
 	 when :trimmed_reads
-	    return nil unless File.exist?(base + '.1.clipped.fastq')
+	    return nil unless File.exist?(base + '.1.clipped.fastq') or File.exist?(base + '.1.clipped.fastq.gz')
 	    r = Result.new base + '.json'
-	    if File.exist? base + '.2.clipped.fastq'
-	       r.data[:files] = {:single1=>self.name + '.1.clipped.single.fastq', :single2=>self.name + '.2.clipped.single.fastq',
-		  :pair1=>self.name + '.1.clipped.fastq', :pair2=>self.name + '.2.clipped.fastq'}
+	    r[:gz] = File.exist?(base + '.1.clipped.fastq.gz')
+	    r.data[:files] = {}
+	    if File.exist? base + '.2.clipped.fastq' + (r[:gz] ? '.gz' : '')
+	       r.data[:files][:pair1] = self.name + '.1.clipped.fastq' + (r[:gz] ? '.gz' : '')
+	       r.data[:files][:pair2] = self.name + '.2.clipped.fastq' + (r[:gz] ? '.gz' : '')
+	       r.data[:files][:single] = self.name + '.1.clipped.single.fastq' + (r[:gz] ? '.gz' : '')
 	    else
-	       r.data[:files] = {:single=>self.name + '.1.clipped.fastq'}
+	       r.data[:files][:single] = self.name + '.1.clipped.fastq' + (r[:gz] ? '.gz' : '')
 	    end
 	    self.add_result :raw_reads #-> Post gunzip (if any)
 	 when :read_quality
