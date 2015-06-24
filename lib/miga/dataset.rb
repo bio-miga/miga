@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-11-2015
+# @update Jun-24-2015
 #
 
 require 'miga/metadata'
@@ -82,7 +82,7 @@ module MiGA
 	 when :trimmed_reads
 	    return nil unless File.exist?(base + '.1.clipped.fastq') or File.exist?(base + '.1.clipped.fastq.gz')
 	    r = Result.new base + '.json'
-	    r[:gz] = File.exist?(base + '.1.clipped.fastq.gz')
+	    r.data[:gz] = File.exist?(base + '.1.clipped.fastq.gz')
 	    r.data[:files] = {}
 	    if File.exist? base + '.2.clipped.fastq' + (r[:gz] ? '.gz' : '')
 	       r.data[:files][:pair1] = self.name + '.1.clipped.fastq' + (r[:gz] ? '.gz' : '')
