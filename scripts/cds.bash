@@ -35,7 +35,7 @@ perl "$GM/aa_from_gff.pl" < "$DATASET.gff2" > "$DATASET.faa"
 perl "$GM/nt_from_gff.pl" < "$DATASET.gff2" > "$DATASET.fna"
 
 # Gzip
-gzip "$DATASET.gff2"
+gzip -9 -f "$DATASET.gff2"
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"

@@ -40,7 +40,7 @@ save(ani, file='miga-project.Rdata')
 " | R --vanilla
 
 # Gzip
-gzip miga-project.txt
+gzip -9 -f miga-project.txt
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
