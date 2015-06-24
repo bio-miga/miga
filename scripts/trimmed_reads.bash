@@ -14,12 +14,14 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 [[ -e ../01.raw_reads/$b.1.fastq.gz && ! -e ../01.raw_reads/$b.1.fastq ]] && gunzip ../01.raw_reads/$b.1.fastq.gz
 [[ -e ../01.raw_reads/$b.2.fastq.gz && ! -e ../01.raw_reads/$b.2.fastq ]] && gunzip ../01.raw_reads/$b.2.fastq.gz
 
+# Clean existing files
+exists $b.[12].* && rm $b.[12].*
+
 # Tag
 FastQ.tag.rb -i ../01.raw_reads/$b.1.fastq -p "$b-" -s "/1" -o $b.1.fastq
 [[ -e ../01.raw_reads/$b.2.fastq ]] && FastQ.tag.rb -i ../01.raw_reads/$b.2.fastq -p "$b-" -s "/2" -o $b.2.fastq
 
 # Trim
-exists $b.[12].fastq.* && rm $b.[12].fastq.*
 SolexaQA++ dynamictrim $b.[12].fastq -h 20 -d .
 SolexaQA++ lengthsort $b.[12].fastq.trimmed -l 50 -d .
 
