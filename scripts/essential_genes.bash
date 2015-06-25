@@ -9,6 +9,7 @@ cd "$PROJECT/data/07.annotation/01.function/01.essential"
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
 # Find and extract essential genes
+[[ -d "$DATASET.ess" ]] && rm -R "$DATASET.ess"
 mkdir "$DATASET.ess"
 TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --metadata "type" | awk '{print $2}')
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
