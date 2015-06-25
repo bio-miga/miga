@@ -25,6 +25,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       
       # Check if the i-th dataset is ready
       [[ -s "$ESS/$i.done" ]] || continue
+      [[ -s "$ESS/$i.json" ]] || continue
       
       # Check if the other direction is already running (or done)
       if [[ -e "01.haai/$i.d/$DATASET.txt" ]] ; then
