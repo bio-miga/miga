@@ -39,7 +39,7 @@ if [[ "$MULTI" -ne "1" ]] ; then
       perl "$MT/utils/infile_convert.pl" -f gff2 "../../../06.cds/$DATASET.gff2" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
       perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" -g "../../../06.cds/$DATASET.gff2" -f gff2 -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" -K "$DATASET.mytaxa.krona" -u
-   else if [[ -e "../../../06.cds/$DATASET.gff3" ]] ; then
+   elif [[ -e "../../../06.cds/$DATASET.gff3" ]] ; then
       # GFF3
       perl "$MT/utils/infile_convert.pl" -f gff3 "../../../06.cds/$DATASET.gff3" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
