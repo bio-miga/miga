@@ -132,7 +132,7 @@ module MiGA
 	       r.data[:files] = {}
 	    end
 	 when :distances
-	    if not self.metadata[:type].nil? and not MiGA::Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	    if not self.metadata[:type].nil? and not Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
 	       return nil unless Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
 	       r = Result.new base + '.json'
 	       r.data[:files] = {}
