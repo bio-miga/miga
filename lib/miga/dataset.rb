@@ -120,7 +120,7 @@ module MiGA
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:ess_genes=>self.name + '.ess.faa', :collection=>self.name + '.ess', :report=>self.name + '.ess/log'}
 	 when :mytaxa
-	    if not self.metadata[:type].nil? and MiGA::Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	    if not self.metadata[:type].nil? and Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
 	       return nil unless File.exist?(base + '.mytaxa')
 	       r = Result.new base + '.json'
 	       r.data[:files] = {:mytaxa=>self.name + '.mytaxa'}
