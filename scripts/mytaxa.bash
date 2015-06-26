@@ -29,7 +29,8 @@ if [[ "$MULTI" -eq "1" ]] ; then
    fi
    
    # Execute search
-   blastp -query "../../../06.cds/$DATASET.faa" -db "$MT/AllGenomes.faa" -out "$DATASET.blast" -evalue "1e-10" -outfmt 6 -max_target_seqs 5 -num_threads "$CORES"
+   #blastp -query "../../../06.cds/$DATASET.faa" -db "$MT/AllGenomes.faa" -out "$DATASET.blast" -evalue "1e-10" -outfmt 6 -max_target_seqs 5 -num_threads "$CORES"
+   diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" -o "$DATASET.blast" -k 5 -t "$CORES" --min-score 60
 
    # Prepare MyTaxa input, execute MyTaxa, and generate profiles
    [[ -e "../../../06.cds/$DATASET.gff2.gz" ]] && [[ ! -e "../../../06.cds/$DATASET.gff2" ]] && gunzip "../../../06.cds/$DATASET.gff2.gz"
