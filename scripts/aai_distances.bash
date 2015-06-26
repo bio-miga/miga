@@ -30,7 +30,7 @@ for i in $DS ; do
 	 continue # Ignore missing data
       fi
    done
-   cat $i >> "miga-project.log"
+   echo "$i" >> "miga-project.log"
 done
 
 # R-ify
