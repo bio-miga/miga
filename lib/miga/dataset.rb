@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-24-2015
+# @update Jun-25-2015
 #
 
 require 'miga/metadata'
@@ -120,18 +120,29 @@ module MiGA
 	    r = Result.new base + '.json'
 	    r.data[:files] = {:ess_genes=>self.name + '.ess.faa', :collection=>self.name + '.ess', :report=>self.name + '.ess/log'}
 	 when :mytaxa
-	    return nil unless File.exist?(base + '.mytaxa')
-	    r = Result.new base + '.json'
-	    r.data[:files] = {:mytaxa=>self.name + '.mytaxa'}
-	    r.data[:gz] = File.exist?(base + '.mytaxain.gz')
-	    r.data[:files][:blast] = self.name + '.blast' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.blast' + (r.data[:gz] ? '.gz' : ''))
-	    r.data[:files][:mytaxain] = self.name + '.mytaxain' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.mytaxain' + (r.data[:gz] ? '.gz' : ''))
+	    if not self.metadata[:type].nil? and MiGA::Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	       return nil unless File.exist?(base + '.mytaxa')
+	       r = Result.new base + '.json'
+	       r.data[:files] = {:mytaxa=>self.name + '.mytaxa'}
+	       r.data[:gz] = File.exist?(base + '.mytaxain.gz')
+	       r.data[:files][:blast] = self.name + '.blast' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.blast' + (r.data[:gz] ? '.gz' : ''))
+	       r.data[:files][:mytaxain] = self.name + '.mytaxain' + (r.data[:gz] ? '.gz' : '') if File.exist?(base + '.mytaxain' + (r.data[:gz] ? '.gz' : ''))
+	    else
+	       r = Result.new base + '.json'
+	       r.data[:files] = {}
+	    end
 	 when :distances
-	    r = Result.new base + '.json'
-	    r.data[:files] = {}
-	    r.data[:files][:haai_dir] = '01.haai/' + self.name + '.d' if Dir.exist? '01.haai/' + self.name + '.d'
-	    r.data[:files][:aai_dir]  = '02.aai/'  + self.name + '.d' if Dir.exist? '02.aai/'  + self.name + '.d'
-	    r.data[:files][:ani_dir]  = '03.ani/'  + self.name + '.d' if Dir.exist? '03.ani/'  + self.name + '.d'
+	    if not self.metadata[:type].nil? and not MiGA::Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	       return nil unless Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
+	       r = Result.new base + '.json'
+	       r.data[:files] = {}
+	       r.data[:files][:haai_dir] = '01.haai/' + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
+	       r.data[:files][:aai_dir]  = '02.aai/'  + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/02.aai/'  + self.name + '.d'
+	       r.data[:files][:ani_dir]  = '03.ani/'  + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/03.ani/'  + self.name + '.d'
+	    else
+	       r = Result.new base + '.json'
+	       r.data[:files] = {}
+	    end
 	 end
 	 r.save
 	 r
