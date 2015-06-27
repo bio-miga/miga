@@ -10,6 +10,11 @@ b=$DATASET
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
+# Gunzip (if necessary)
+for sis in 1 2 ; do
+   [[ -e "../02.trimmed_reads/$b.$sis.clipped.fastq.gz" && ! -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] && gunzip "../02.trimmed_reads/$b.$sis.clipped.fastq.gz"
+done
+
 # FastQ -> FastA
 cat ../02.trimmed_reads/$b.1.clipped.fastq | FastQ.toFastA.awk > $b.1.fasta
 if [[ -e ../02.trimmed_reads/$b.2.clipped.fastq ]] ; then
