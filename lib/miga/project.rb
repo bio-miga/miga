@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-26-2015
+# @update Jun-28-2015
 #
 
 require 'miga/dataset'
@@ -41,7 +41,7 @@ module MiGA
 	 :clade=>{:description=>"Collection of closely-related genomes (ANI <= 90%).", :single=>true, :multi=>false},
 	 :metagenomes=>{:description=>"Collection of metagenomes and/or viromes.", :single=>false, :multi=>true}
       }
-      @@DISTANCE_TASKS = [:haai_distances, :ani_distances, :aai_distances, :clade_finding]
+      @@DISTANCE_TASKS = [:haai_distances, :aai_distances, :ani_distances, :clade_finding]
       @@INCLADE_TASKS = [:subclades, :ogs, :ess_phylogeny, :core_phylogeny, :clade_metadata]
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
