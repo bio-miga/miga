@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-16-2015
+# @update Jun-26-2015
 #
 
 require 'miga/dataset'
@@ -14,8 +14,8 @@ module MiGA
       @@DATA_FOLDERS = %w(
 	 01.raw_reads 02.trimmed_reads 03.read_quality 04.trimmed_fasta 05.assembly 06.cds
 	 07.annotation 07.annotation/01.function 07.annotation/02.taxonomy
-	 07.annotation/01.function/01.essential
-	 07.annotation/03.qa 07.annotation/03.qa/01.checkm
+	 07.annotation/01.function/01.essential 07.annotation/02.taxonomy/01.mytaxa
+	 07.annotation/03.qa 07.annotation/03.qa/01.checkm 07.annotation/03.qa/02.mytaxa_scan
 	 08.mapping 08.mapping/01.read-ctg 08.mapping/02.read-gene
 	 09.distances 09.distances/01.haai 09.distances/02.aai 09.distances/03.ani 09.distances/04.ssu
 	 10.clades 10.clades/01.find 10.clades/02.ani 10.clades/03.ogs 10.clades/04.phylogeny
@@ -38,7 +38,7 @@ module MiGA
       @@KNOWN_TYPES = {
 	 :mixed=>{:description=>"Mixed collection of genomes, metagenomes, and viromes.", :single=>true, :multi=>true},
 	 :genomes=>{:description=>"Collection of genomes.", :single=>true, :multi=>false},
-	 :clade=>{:description=>"Collection of closely-related genomes (ANI ≤ 90%).", :single=>true, :multi=>false},
+	 :clade=>{:description=>"Collection of closely-related genomes (ANI <= 90%).", :single=>true, :multi=>false},
 	 :metagenomes=>{:description=>"Collection of metagenomes and/or viromes.", :single=>false, :multi=>true}
       }
       @@DISTANCE_TASKS = [:haai_distances, :ani_distances, :aai_distances, :clade_finding]
