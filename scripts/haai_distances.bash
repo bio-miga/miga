@@ -8,7 +8,7 @@ cd "$PROJECT/data/09.distances/01.haai"
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
-echo "metric a b value sd n omega" > "miga-project.txt.tmp"
+echo "metric	a	b	value	sd	n	omega" > "miga-project.txt.tmp"
 echo -n "" > "miga-project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 for i in $DS ; do
@@ -33,7 +33,7 @@ for i in $DS ; do
    echo "$i" >> "miga-project.log"
 done
 
-cat "miga-project.txt.tmp" | perl -pe 's/\s/\t/g' > "miga-project.txt"
+cat "miga-project.txt.tmp" | perl -pe 's/\\s/\\t/g' > "miga-project.txt"
 rm "miga-project.txt.tmp"
 # R-ify
 echo "
