@@ -19,6 +19,7 @@ module MiGA
 	 # Annotation
 	 :essential_genes=>'07.annotation/01.function/01.essential',
 	 :mytaxa=>'07.annotation/02.taxonomy/01.mytaxa',
+	 :mytaxa_scan=>'07.annotation/03.qa/02.mytaxa_scan',
 	 # Mapping
 	 :mapping_on_contigs=>'08.mapping/01.read-ctg', :mapping_on_genes=>'08.mapping/02.read-gene',
 	 # Distances (for single-species datasets)
@@ -31,7 +32,7 @@ module MiGA
 	 :scgenome=>{:description=>"A genome from a single cell.", :multi=>false},
 	 :popgenome=>{:description=>"The genome of a population (including microdiversity).", :multi=>false}
       }
-      @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa, :distances]
+      @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa, :mytaxa_scan, :distances]
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.exist?(project, name) File.exist? project.path + '/metadata/' + name + '.json' end
