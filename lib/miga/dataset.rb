@@ -132,6 +132,15 @@ module MiGA
 	       r = Result.new base + '.json'
 	       r.data[:files] = {}
 	    end
+	 when :mytaxa_scan
+	    if not self.metadata[:type].nil? and not Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	       return nil unless File.exists?(base + '.pdf') and File.exist?(base + '.wintax') and File.exist?(base + '.mytaxa')
+	       r = Result.new base + '.json'
+	       r.data[:files] = {:mytaxa=>self.name + '.mytaxa', :wintax=>self.name + '.wintax', :report=>self.name + '.pdf'}
+	    else
+	       r = Result.new base + '.json'
+	       r.data[:files] = {}
+	    end
 	 when :distances
 	    if not self.metadata[:type].nil? and not Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
 	       return nil unless Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
