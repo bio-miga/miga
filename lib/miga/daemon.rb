@@ -97,9 +97,9 @@ module MiGA
 	       # 3: CPUs
 	       self.ppn,
 	       # 4: log file
-	       log_dir + "/#{ds_name}.log"),
+	       log_dir + "/#{ds_name}.log",
 	       # 5: task name
-	       "MiGA:#{self.project.metadata[:name]}:#{job}:#{ds_name}"}
+	       "MiGA:#{self.project.metadata[:name]}:#{job}:#{ds_name}")}
 	 @jobs_to_run << to_run
       end
       def get_job(job, ds=nil)
