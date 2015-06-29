@@ -30,7 +30,8 @@ if [[ "$MULTI" -eq "1" ]] ; then
    
    # Execute search
    #blastp -query "../../../06.cds/$DATASET.faa" -db "$MT/AllGenomes.faa" -out "$DATASET.blast" -evalue "1e-10" -outfmt 6 -max_target_seqs 5 -num_threads "$CORES"
-   diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" -o "$DATASET.blast" -k 5 -t "$CORES" --min-score 60
+   diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" -a "$DATASET.daa" -k 5 -p "$CORES" --min-score 60
+   diamond view -a "$DATASET.daa" -o "$DATASET.blast"
 
    # Prepare MyTaxa input, execute MyTaxa, and generate profiles
    [[ -e "../../../06.cds/$DATASET.gff2.gz" ]] && [[ ! -e "../../../06.cds/$DATASET.gff2" ]] && gunzip "../../../06.cds/$DATASET.gff2.gz"
@@ -60,6 +61,7 @@ if [[ "$MULTI" -eq "1" ]] ; then
    [[ -e "../../../06.cds/$DATASET.gff3" ]] && gzip -9 -f "../../../06.cds/$DATASET.gff3"
    gzip -9 -f "$DATASET.mytaxain"
    gzip -9 -f "$DATASET.blast"
+   rm "$DATASET.daa"
 fi
 
 # Finalize
