@@ -38,7 +38,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
    perl "$MT/utils/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
    "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
    ruby "$MIGA/utils/mytaxa_scan.rb" "../../../06.cds/$DATASET.faa" "$DATASET.mytaxa" "$DATASET.wintax"
-   echo "load('$MIGA/utils/mytaxa_scan.R'); pdf('$DATASET.pdf', 12, 7); mytaxa.scan('$DATASET.wintax'); dev.off();" | R --vanilla
+   echo "source('$MIGA/utils/mytaxa_scan.R'); pdf('$DATASET.pdf', 12, 7); mytaxa.scan('$DATASET.wintax'); dev.off();" | R --vanilla
 
    # Clean
    rm "$DATASET.daa"
