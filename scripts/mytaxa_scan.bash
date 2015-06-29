@@ -33,7 +33,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
    diamond view -a "$DATASET.daa" -o "$DATASET.blast"
 
    # Prepare MyTaxa input, execute MyTaxa, and generate profiles
-   perl "$MT/utils/infile_convert.pl" -f no "" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
+   perl "$MT/utils/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
    "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
    ruby "$MIGA/utils/mytaxa_scan.rb" "../../../06.cds/$DATASET.faa" "$DATASET.wintax"
    echo "load('$MIGA/utils/mytaxa_scan.R'); pdf('$DATASET.pdf', 12, 7); mytaxa.scan('$DATASET.wintax'); dev.off();" | R --vanilla

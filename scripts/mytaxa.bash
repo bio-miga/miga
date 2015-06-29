@@ -48,7 +48,7 @@ if [[ "$MULTI" -eq "1" ]] ; then
       perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" -g "../../../06.cds/$DATASET.gff3" -f gff3 -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" -K "$DATASET.mytaxa.krona" -u
    else
       # No GFF
-      perl "$MT/utils/infile_convert.pl" -f no "" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
+      perl "$MT/utils/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
       perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" -K "$DATASET.mytaxa.krona" -u
    fi
