@@ -29,8 +29,10 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
    fi
    
    # Execute search
-   diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60 -a "$DATASET.daa"
-   diamond view -a "$DATASET.daa" -o "$DATASET.blast"
+   if [[ ! -s "$DATASET.blast" ]] ; then
+      diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60 -a "$DATASET.daa"
+      diamond view -a "$DATASET.daa" -o "$DATASET.blast"
+   fi
 
    # Prepare MyTaxa input, execute MyTaxa, and generate profiles
    perl "$MT/utils/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" | sort -k 13 > "$DATASET.mytaxain"
