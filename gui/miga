@@ -42,7 +42,7 @@ begin
 #	 s.load_dataset s.project.dataset(o[:dataset])
 #      end
    #end
-   Shoes.app(title:"MiGA | Microbial Genomes Atlas", width:770, height:750)
+   MiGA::GUI.init
 rescue => err
    $stderr.puts "Exception: #{err}\n\n"
    err.backtrace.each { |l| $stderr.puts l + "\n" }
