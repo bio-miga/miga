@@ -124,7 +124,7 @@ module MiGA
 	    clades_aai90: "miga-project.ani-clades",
 	    rbm_ani95: "genome-genome.ani95.rbm",
 	    clades_ani95: "miga-project.ani95-clades"}
-	    f.each_pair{ |k.v| r.data[:files][k.to_sym] = v if File.exist? self.path + "/data/" + @@RESULT_DIRS[result_type] + "/" + v }
+	    f.each_pair{ |k,v| r.data[:files][k.to_sym] = v if File.exist? self.path + "/data/" + @@RESULT_DIRS[result_type] + "/" + v }
 	 end
 	 r.save
 	 r
