@@ -29,11 +29,12 @@ for i in $DS ; do
       else
 	 continue # Ignore missing data
       fi
+      echo "" >> "miga-project.txt.tmp"
    done
    echo "$i" >> "miga-project.log"
 done
 
-cat "miga-project.txt.tmp" | perl -pe 's/\\s/\\t/g' > "miga-project.txt"
+cat "miga-project.txt.tmp" | grep . | perl -pe "s/\\s/\\t/g" > "miga-project.txt"
 rm "miga-project.txt.tmp"
 # R-ify
 echo "
