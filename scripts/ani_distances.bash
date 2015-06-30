@@ -34,7 +34,7 @@ for i in $DS ; do
    echo "$i" >> "miga-project.log"
 done
 
-cat "miga-project.txt.tmp" | grep . | perl -pe "s/\\s/\\t/g" > "miga-project.txt"
+cat "miga-project.txt.tmp" | grep . | perl -pe "s/ /\\t/g" > "miga-project.txt"
 rm "miga-project.txt.tmp"
 # R-ify
 echo "
