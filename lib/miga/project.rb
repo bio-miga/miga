@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-28-2015
+# @update Jun-30-2015
 #
 
 require 'miga/dataset'
@@ -116,6 +116,15 @@ module MiGA
 	       r.data[:files][:matrix] += ".gz"
 	       r.data[:gz] = true
 	    end
+	 when :clade_finding
+	    return nil unless File.exist? base + ".proposed-clades"
+	    r = Result.new base + ".json"
+	    r.data[:files] = {:proposal=>"miga-project.proposed-clades"}
+	    f = {rbm_aai90: "genome-genome.aai90.rbm",
+	    clades_aai90: "miga-project.ani-clades",
+	    rbm_ani95: "genome-genome.ani95.rbm",
+	    clades_ani95: "miga-project.ani95-clades"}
+	    f.each_pair{ |k.v| r.data[:files][k.to_sym] = v if File.exist? self.path + "/data/" + @@RESULT_DIRS[result_type] + "/" + v }
 	 end
 	 r.save
 	 r
