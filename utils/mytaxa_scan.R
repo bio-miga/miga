@@ -26,7 +26,7 @@ mytaxa.scan <- function(wintax, col=c('#4dbeee', '#7e2f8e', '#0072bd', '#d95319'
       points(x, y, pch=19, cex=3, col='darkred');
       arrows(x0=x, y0=0.01, y1=y, col='darkred', length=0);
       text(x, y, 1:length(regs), col='white', font=2, cex=3/4);
-      write.table(cbind(1:length(regs), paste("Win_",regs,sep="")), paste(wintax,".regions",sep=""), col.names=F, row.names=F, quote=F)
+      write.table(regs, paste(wintax,".regions",sep=""), col.names=F, row.names=F, quote=F)
    }
    # Bars
    h <- rep(0, ncol(b));
