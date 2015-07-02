@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-16-2015
+# @update Jul-01-2015
 #
 
 module MiGA
@@ -52,8 +52,7 @@ module MiGA
 	 # :symbolize_names does not play nicely with :create_additions
 	 tmp = JSON.parse File.read(self.path), {:symbolize_names=>false, :create_additions=>true}
 	 @data = {}
-	 tmp.each_pair{ |k,v| @data[k.to_sym] = v }
-	 @data[:type] = @data[:type].to_sym unless @data[:type].nil?
+	 tmp.each_pair{ |k,v| self[k] = v }
       end
       def remove!
 	 MiGA.DEBUG "Metadata.remove! #{self.path}"
@@ -64,6 +63,8 @@ module MiGA
 	 k = k.to_sym
 	 # Protect the special field :name
 	 v=v.miga_name if k==:name
+	 # Symbolize the special field :type
+	 v=v.to_sym if k==:type
 	 # Register and return
 	 self.data[k]=v
       end
