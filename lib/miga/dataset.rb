@@ -138,7 +138,7 @@ module MiGA
 	       r = Result.new base + ".json"
 	       r.data[:files] = {:mytaxa=>self.name+".mytaxa", :wintax=>self.name+".wintax", :report=>self.name+".pdf", :regions=>self.name+".reg"}
 	       r.data[:files][:gene_ids] = self.name + ".wintax.genes" if File.exist?(base + ".wintax.genes")
-	       r.data[:files][:regions] = self.name + ".wintax.regions" if File.exist?(base + ".wintax.regions")
+	       r.data[:files][:region_ids] = self.name + ".wintax.regions" if File.exist?(base + ".wintax.regions")
 	       r.data[:files][:blast] = self.name + ".blast.gz" if File.exist?(base + ".blast.gz")
 	       r.data[:files][:mytaxain] = self.name + ".mytaxain.gz" if File.exist?(base + ".mytaxain.gz")
 	    else

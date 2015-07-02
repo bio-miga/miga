@@ -49,7 +49,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       for win in $(cat "$DATASET.wintax.regions") ; do
 	 let i=$i+1
 	 awk "NR==$win" "$DATASET.wintax.genes" | tr "\\t" "\\n" > "$DATASET.reg/$i.ids"
-	 FastA.filter.pl "$DATASET.reg/$i.ids" "../../../06.cds/$DATASET.faa" > "$DATASET.reg/$i.faa"
+	 FastA.filter.pl -q "$DATASET.reg/$i.ids" "../../../06.cds/$DATASET.faa" > "$DATASET.reg/$i.faa"
       done
    fi
 
