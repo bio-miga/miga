@@ -15,8 +15,8 @@ MT=$(dirname -- $(which MyTaxa))
 MULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --multi | wc -l | awk '{print $1}')
 if [[ "$MULTI" -eq "1" ]] ; then
    # Check requirements
-   if [[ ! -e "$MT/AllGenomes.faa.pal" ]] ; then
-      echo "Cannot locate the database: $MT/AllGenomes.faa.pal: no such file or directory" >&2
+   if [[ ! -e "$MT/AllGenomes.faa.dmnd" ]] ; then
+      echo "Cannot locate the database: $MT/AllGenomes.faa.dmnd: no such file or directory" >&2
       exit 1
    fi
    if [[ ! -d "$MT/db" ]] ; then
