@@ -17,7 +17,7 @@ mytaxa.scan <- function(wintax, col=c('#4dbeee', '#7e2f8e', '#0072bd', '#d95319'
    par(mar=c(0,5,0,0)+0.1);
    plot(1, t='n', xlim=c(0,ncol(b)+1), xaxs='i', ylim=c(0,1.2), yaxs='i', xlab='', ylab='Frequency', bty='n', xaxt='n', yaxt='n');
    axis(2, at=seq(0,1,by=0.2), las=1);
-   # Regions
+   # Regions (outliers)
    regs <- c();
    for(j in 1:ncol(b))  if(d[j] > d.thr) regs <- c(regs, j);
    if(length(regs)>0){
@@ -26,6 +26,7 @@ mytaxa.scan <- function(wintax, col=c('#4dbeee', '#7e2f8e', '#0072bd', '#d95319'
       points(x, y, pch=19, cex=3, col='darkred');
       arrows(x0=x, y0=0.01, y1=y, col='darkred', length=0);
       text(x, y, 1:length(regs), col='white', font=2, cex=3/4);
+      write.table(cbind(1:length(regs), paste("Win_",regs,sep="")), paste(wintax,".regions",sep=""), col.names=F, row.names=F, quote=F)
    }
    # Bars
    h <- rep(0, ncol(b));
