@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-25-2015
+# @update Jul-02-2015
 #
 
 require 'miga/metadata'
@@ -134,11 +134,15 @@ module MiGA
 	    end
 	 when :mytaxa_scan
 	    if not self.metadata[:type].nil? and not Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
-	       return nil unless File.exists?(base + '.pdf') and File.exist?(base + '.wintax') and File.exist?(base + '.mytaxa')
-	       r = Result.new base + '.json'
-	       r.data[:files] = {:mytaxa=>self.name + '.mytaxa', :wintax=>self.name + '.wintax', :report=>self.name + '.pdf'}
+	       return nil unless File.exists?(base+".pdf") and File.exist?(base+".wintax") and File.exist?(base+".mytaxa") and Dir.exist?(base+".reg")
+	       r = Result.new base + ".json"
+	       r.data[:files] = {:mytaxa=>self.name+".mytaxa", :wintax=>self.name+".wintax", :report=>self.name+".pdf", :regions=>self.name+".reg"}
+	       r.data[:files][:gene_ids] = self.name + ".wintax.genes" if File.exist?(base + ".wintax.genes")
+	       r.data[:files][:regions] = self.name + ".wintax.regions" if File.exist?(base + ".wintax.regions")
+	       r.data[:files][:blast] = self.name + ".blast.gz" if File.exist?(base + ".blast.gz")
+	       r.data[:files][:mytaxain] = self.name + ".mytaxain.gz" if File.exist?(base + ".mytaxain.gz")
 	    else
-	       r = Result.new base + '.json'
+	       r = Result.new base + ".json"
 	       r.data[:files] = {}
 	    end
 	 when :distances
