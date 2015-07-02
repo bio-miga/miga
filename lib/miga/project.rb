@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-30-2015
+# @update Jul-02-2015
 #
 
 require 'miga/dataset'
@@ -121,10 +121,18 @@ module MiGA
 	    r = Result.new base + ".json"
 	    r.data[:files] = {:proposal=>"miga-project.proposed-clades"}
 	    f = {rbm_aai90: "genome-genome.aai90.rbm",
-	    clades_aai90: "miga-project.ani-clades",
-	    rbm_ani95: "genome-genome.ani95.rbm",
-	    clades_ani95: "miga-project.ani95-clades"}
+	       clades_aai90: "miga-project.ani-clades",
+	       rbm_ani95: "genome-genome.ani95.rbm",
+	       clades_ani95: "miga-project.ani95-clades"}
 	    f.each_pair{ |k,v| r.data[:files][k.to_sym] = v if File.exist? self.path + "/data/" + @@RESULT_DIRS[result_type] + "/" + v }
+	 when :subclades
+	    return nil unless File.exit?(base+".pdf") and File.exist?(base+".1.classif") and File.exist?(base+".1.medoids")
+	    r = Result.new base + ".json"
+	    r.data[:file] = {:report=>"miga-project.pdf"}
+	    (1..6).each do |i|
+	       r.data[:file]["classif_#{i}".to_sym]="miga-project.#{i}.classif" if File.exist? base + ".#{i}.classif"
+	       r.data[:file]["medoids_#{i}".to_sym]="miga-project.#{i}.medoids" if File.exist? base + ".#{i}.medoids"
+	    end
 	 end
 	 r.save
 	 r
