@@ -17,11 +17,18 @@ function check_req {
    local default=$(dirname "$(which "$bin")")
    user_answer=$(ask_user "Where can I find $2 ($3)? $4" "$default")
    if [[ -x "$user_answer/$bin" ]] ; then
+      export PATH="$PATH:$user_answer"
       echo "MIGA_PATH=\"$user_answer:\$MIGA_PATH\" # $2" >> "$HOME/.miga_rc"
    else
       echo "Cannot find $2 at '$user_answer/$bin'. Aborting..." >&2
       exit 1
    fi
+}
+
+function check_rlib {
+   local rlib=$1
+   gotit=$(echo "if(require($rlib)) cat('GOT','IT')"|R --vanilla -q 2>&1 |grep "GOT IT"|wc -l|awk '{print $1}')
+   [[ "$gotit" == "1" ]]
 }
 
 #=======[ Main ]
@@ -88,6 +95,47 @@ for ln in $reqs ; do
 done
 IFS=$IFS_BU
 echo "export PATH=\$MIGA_PATH\$PATH" >> "$HOME/.miga_rc"
+
+# Check for R packages
+echo "
+Looking for R packages:" >&2
+if ! check_rlib enveomics.R ; then
+   echo "+ Installing enveomics.R" >&2
+   R CMD INSTALL $(dirname "$(which "FastQ.tag.rb")")/../enveomics.R
+fi
+RLIBS="ape ggdendro ggplot2 gridExtra cluster dendextend vegan scatterplot3d"
+for lib in $RLIBS ; do
+   if ! check_rlib $lib ; then
+      echo "+ Installing $lib" >&2
+      echo "install.packages('$lib')" | R --vanilla -q
+   fi
+done
+
+# Check for other files
+echo "
+Looking for additional files:
++ MetaGeneMark license key" >&2
+GM=$(dirname -- $(which gmhmmp))
+if [[ ! -e "$GM/gm_key" && ! -e "$GM/gm_key_64" && ! -e "$GM/gm_key_32" && ! -e "$GM/.gm_key" && ! -e "$HOME/.gm_key" ]] ; then
+   echo "Cannot find it, please place your license key in '$GM/gm_key'. Aborting..." >&2
+   exit 1
+fi
+echo "+ MetaGeneMark scripts" >&2
+if [[ ! -e "$GM/aa_from_gff.pl" || ! -e "$GM/nt_from_gff.pl" ]] ; then
+   echo "Cannot find it, please place aa_from_gff.pl and nt_from_gff.pl in '$GM/'. Aborting..." >&2
+   exit 1
+fi
+echo "+ MyTaxa scores database" >&2
+MT=$(dirname -- $(which MyTaxa))
+if [[ ! -d "$MT/db" ]] ; then
+   echo "Cannot find it, please execute 'python $MT/utils/download_db.py'. Aborting..." >&2
+   exit 1
+fi
+echo "+ MyTaxa DIAMOND database" >&2
+if [[ ! -e "$MT/AllGenomes.faa.dmnd" ]] ; then
+   echo "Cannot find it, please download 'http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd' into '$MT'. Aborting..." >&2
+   exit 1
+fi
 
 # Configure daemon
 echo "
