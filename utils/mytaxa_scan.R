@@ -1,6 +1,6 @@
 
 mytaxa.scan <- function(wintax, col=c('#4dbeee', '#7e2f8e', '#0072bd', '#d95319', '#edb120', '#77ac30', '#a2142f'), main='MyTaxa scan'){
-   a <- read.table(wintax, sep='\t', h=F, row.names=1, na.strings='');
+   a <- read.table(wintax, sep='\t', h=F, row.names=1, na.strings='', quote='');
    if(! "NA" %in% rownames(a)) a["NA", ] <- 0
    b <- as.matrix(a[-which(rownames(a)=="NA"),-1]);
 
@@ -9,7 +9,7 @@ mytaxa.scan <- function(wintax, col=c('#4dbeee', '#7e2f8e', '#0072bd', '#d95319'
    #::: DISTANCES
    par(mar=c(1,5,2,0)+0.1);
    d <- apply( a[,-1], 2, function(x,y) sqrt(sum((sqrt(x)-sqrt(y))^2)/2), y=a[,1] );
-   d.thr <- quantile(d, probs=0.95, names=F)
+   d.thr <- quantile(d, probs=0.95, names=F, na.rm=TRUE)
    plot(1, xlim=c(0, length(d)+1), ylim=c(0,1), xlab='', xaxs='i', xaxt='n', t='n', pch=19, cex=1/2, col=grey(0.3), bty='n', ylab='Signal', las=1);
    rect((1:length(d))-1, 0, 1:length(d), d, col=ifelse(d>d.thr, grey(0.3), grey(0.5)), border='NA');
 
