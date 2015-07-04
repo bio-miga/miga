@@ -12,7 +12,7 @@ library(scatterplot3d)
 subclades <- function(ani_file, out_base, thr=1){
    # Get ANI distances
    a <- read.table(gzfile(ani_file), sep='\t', h=TRUE)
-   ani.d <- enve.df2dist(cbind(a$a, a$b, 100-a$value))
+   ani.d <- enve.df2dist(cbind(a$a, a$b, 100-a$value), default.d=30)
    ani.hc <- hclust(ani.d, method='ward.D2')
    
    # Silhouette
