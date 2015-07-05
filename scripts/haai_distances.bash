@@ -11,7 +11,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 echo -n "" > "miga-project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 for i in $DS ; do
-   if [[ ! -s "miga-project.$DS.txt" ]] ; then
+   if [[ ! -s "miga-project.$i.txt" ]] ; then
       # Check if this dataset is done (e.g., in a previous failed iteration)
       if [[ ! -s "../$i.json" ]] ; then
 	 echo "$i: Incomplete job, aborting project-wide update..." >&2
@@ -20,18 +20,18 @@ for i in $DS ; do
       [[ -d "$i.d" ]] || continue
       
       # Concatenate results
-      [[ -e "miga-project.$DS.txt.tmp" ]] && rm "miga-project.$DS.txt.tmp"
+      [[ -e "miga-project.$i.txt.tmp" ]] && rm "miga-project.$i.txt.tmp"
       for j in $DS ; do
 	 [[ "$i" == "$j" ]] && break # Only lower triangle
 	 if [[ -e "$i.d/$j.txt" ]] ; then
-	    cat "$i.d/$j.txt" >> "miga-project.$DS.txt.tmp"
+	    cat "$i.d/$j.txt" >> "miga-project.$i.txt.tmp"
 	 elif [[ -e "$j.d/$i.txt" ]] ; then
-	    cat "$j.d/$i.txt" >> "miga-project.$DS.txt.tmp"
+	    cat "$j.d/$i.txt" >> "miga-project.$i.txt.tmp"
 	 else
 	    continue # Ignore missing data
 	 fi
       done
-      mv "miga-project.$DS.txt.tmp" "miga-project.$DS.txt"
+      mv "miga-project.$i.txt.tmp" "miga-project.$i.txt"
    fi
    echo "$i" >> "miga-project.log"
 done
