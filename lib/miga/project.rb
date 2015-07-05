@@ -126,7 +126,7 @@ module MiGA
 	       clades_ani95: "miga-project.ani95-clades"}
 	    f.each_pair{ |k,v| r.data[:files][k.to_sym] = v if File.exist? self.path + "/data/" + @@RESULT_DIRS[result_type] + "/" + v }
 	 when :subclades
-	    return nil unless File.exit?(base+".pdf") and File.exist?(base+".1.classif") and File.exist?(base+".1.medoids")
+	    return nil unless File.exist?(base+".pdf") and File.exist?(base+".1.classif") and File.exist?(base+".1.medoids")
 	    r = Result.new base + ".json"
 	    r.data[:file] = {:report=>"miga-project.pdf"}
 	    (1..6).each do |i|
