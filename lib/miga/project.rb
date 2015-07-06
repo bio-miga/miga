@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-02-2015
+# @update Jul-05-2015
 #
 
 require 'miga/dataset'
@@ -96,6 +96,24 @@ module MiGA
 	 self.metadata[:datasets].delete(name)
 	 self.save
 	 d
+      end
+      def import_dataset(ds, method=:hardlink)
+	 raise "Impossible to import dataset, it already exists: #{ds.name}." if Dataset.exist?(self, ds.name)
+	 # Import dataset results
+	 ds.each_result do |task, result|
+	    # import result files
+	    result.each_file do |file|
+	       File.generic_transfer "#{result.dir}/#{file}", "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{file}", method
+	    end
+	    # import result metadata
+	    %w(json start done).each do |suffix|
+	       File.generic_transfer "#{result.dir}/#{ds.name}.#{suffix}", "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{ds.name}.#{suffix}", method
+	    end
+	 end
+	 # Import dataset metadata
+	 File.generic_transfer "#{ds.project.path}/metadata/#{ds.name}.json", "#{self.path}/metadata/#{ds.name}.json", method
+	 # Save dataset
+	 self.add_dataset ds.name 
       end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
