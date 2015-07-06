@@ -21,6 +21,7 @@ for i in $DS ; do
       
       # Concatenate results
       [[ -e "miga-project.$i.txt.tmp" ]] && rm "miga-project.$i.txt.tmp"
+      touch "miga-project.$i.txt.tmp"
       for j in $DS ; do
 	 [[ "$i" == "$j" ]] && break # Only lower triangle
 	 if [[ -e "$i.d/$j.txt" ]] ; then
