@@ -37,7 +37,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       touch "01.haai/$DATASET.d/$i.txt"
       
       # Calculate hAAI:
-      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -o "01.haai/$DATASET.d/$i.out" -T "01.haai/$DATASET.d/$i.tab" -n 10
+      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -T "01.haai/$DATASET.d/$i.tab" -n 10
       [[ -s "01.haai/$DATASET.d/$i.tab" ]] && echo "hAAI	$DATASET	$i	$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
       HAAI=""
       [[ -s "01.haai/$DATASET.d/$i.tab" ]] && HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
@@ -47,14 +47,14 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 	 echo "hAAI_AAI	$DATASET	$i	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
       else
 	 # Calculate AAI:
-	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -o "02.aai/$DATASET.d/$i.out" -T "02.aai/$DATASET.d/$i.tab"
+	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -R "02.aai/$DATASET.d/$i.rbm" -T "02.aai/$DATASET.d/$i.tab"
 	 echo "AAI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "02.aai/$DATASET.d/$i.txt"
 	 AAI=$(cat "02.aai/$DATASET.d/$i.tab" | awk '{print $1}')
       fi
       
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
 	 # Calculate ANI:
-	 ani.rb -1 "../05.assembly/$DATASET.LargeContigs.fna" -2 "../05.assembly/$i.LargeContigs.fna" -t "$CORES" -d 10 -o "03.ani/$DATASET.d/$i.out" -T "03.ani/$DATASET.d/$i.tab"
+	 ani.rb -1 "../05.assembly/$DATASET.LargeContigs.fna" -2 "../05.assembly/$i.LargeContigs.fna" -t "$CORES" -d 10 -T "03.ani/$DATASET.d/$i.tab"
 	 echo "ANI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "03.ani/$DATASET.d/$i.txt"
       fi
    done
