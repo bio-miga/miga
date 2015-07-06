@@ -39,8 +39,8 @@ done
 
 # Merge
 echo "metric	a	b	value	sd	n	omega" > "miga-project.txt"
-cat "miga-project.*.txt" | grep . | perl -pe "s/ /\\t/g" >> "miga-project.txt"
-rm "miga-project.*.txt"
+cat miga-project.*.txt | grep . | perl -pe "s/ /\\t/g" >> "miga-project.txt"
+rm miga-project.*.txt
 
 # R-ify
 echo "
