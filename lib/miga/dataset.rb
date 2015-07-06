@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-05-2015
+# @update Jul-06-2015
 #
 
 require 'miga/metadata'
@@ -33,6 +33,8 @@ module MiGA
 	 :popgenome=>{:description=>"The genome of a population (including microdiversity).", :multi=>false}
       }
       @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa, :mytaxa_scan, :distances]
+      @@ONLY_MULTI_TASKS = [:mytaxa]
+      @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
       def self.RESULT_DIRS() @@RESULT_DIRS end
       def self.KNOWN_TYPES() @@KNOWN_TYPES end
       def self.exist?(project, name) File.exist? project.path + '/metadata/' + name + '.json' end
@@ -60,6 +62,14 @@ module MiGA
       end
       def info() Dataset.INFO_FIELDS.map{ |k| (k=='name') ? self.name : self.metadata[k.to_sym] } end
       def is_ref?() !!self.metadata[:ref] end
+      def is_multi?
+	 return false if self.metadata[:type].nil?
+	 return @@KNOWN_TYPES[self.metadata[:type]][:multi]
+      end
+      def is_nonmulti?
+	 return false if self.metadata[:type].nil?
+	 return !@@KNOWN_TYPES[self.metadata[:type]][:multi]
+      end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
 	 Result.load self.project.path + '/data/' + @@RESULT_DIRS[name.to_sym] + '/' + self.name + '.json'
@@ -173,6 +183,8 @@ module MiGA
 	 first = self.first_preprocessing
 	 return nil if first.nil?
 	 @@PREPROCESSING_TASKS.each do |t|
+	    next if @@ONLY_MULTI_TASKS.include?(t) and not self.is_multi?
+	    next if @@ONLY_NONMULTI_TASKS.include?(t) and not self.is_nonmulti?
 	    return t if after_first and self.add_result(t).nil?
 	    after_first = (after_first or (t==first))
 	 end
