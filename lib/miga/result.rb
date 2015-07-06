@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-16-2015
+# @update Jul-05-2015
 #
 
 module MiGA
@@ -46,12 +46,15 @@ module MiGA
 	 @results = self.data[:results].map{ |rs| Result.new rs }
       end
       def remove!
+	 self.each_file { |file| File.unlink_r(self.dir + file) if File.exist? self.dir + file }
+	 File.unlink self.path
+      end
+      def each_file(&blk)
 	 self.data[:files] = {} if self.data[:files].nil?
 	 self.data[:files].each do |k,files|
 	    files = [files] unless files.kind_of? Array
-	    files.each{ |file| File.unlink_r(self.dir + file) if File.exist? self.dir + file }
+	    files.each{ |file| blk.call(file) }
 	 end
-	 File.unlink self.path
       end
       def add_result(result)
          self.data[:results] << result.path

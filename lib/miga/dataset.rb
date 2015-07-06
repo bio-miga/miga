@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-02-2015
+# @update Jul-05-2015
 #
 
 require 'miga/metadata'
@@ -65,6 +65,12 @@ module MiGA
 	 Result.load self.project.path + '/data/' + @@RESULT_DIRS[name.to_sym] + '/' + self.name + '.json'
       end
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.compact end
+      def each_result(&blk)
+         @@RESULT_DIRS.keys.each do |k|
+	    v = self.result k
+	    blk.call(k,v) unless v.nil?
+	 end
+      end
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
 	 base = self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/' + self.name
