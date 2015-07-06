@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-16-2015
+# @update Jul-05-2015
 #
 
 require 'date'
@@ -48,6 +48,19 @@ class File
 	 File.unlink path
       else
 	 raise "Cannot find file: #{path}"
+      end
+   end
+   def self.generic_transfer(old_name, new_name, method)
+      return nil if exist? new_name
+      case method
+      when :symlink
+	 File.symlink(old_name, new_name)
+      when :hardlink
+	 File.link(old_name, new_name)
+      when :copy
+	 FileUtils.cp_r(old_name, new_name)
+      else
+	 raise "Unknown transfer method: #{method}."
       end
    end
 end
