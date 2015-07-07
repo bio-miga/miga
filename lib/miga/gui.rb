@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-28-2015
+# @update Jul-07-2015
 #
 
 require 'miga/project'
@@ -21,6 +21,9 @@ module MiGA
    class GUI < Shoes
       url '/', :index
       url '/project', :project
+      url '/datasets', :datasets
+      url '/dataset-(.*)', :dataset
+      url '/report', :report
       $miga_path = File.expand_path(File.dirname(__FILE__) + "/../../")
 
       def self.init (&block)
@@ -28,7 +31,7 @@ module MiGA
       end
       
       # =====================[ View : Windows ]
-      # Main MiGA window
+      # Main window
       def index
 	 status_bar
 	 stack do
@@ -42,7 +45,7 @@ module MiGA
 	 MiGA.RESET_STATUS
       end
 
-      # MiGA Project window
+      # Project window
       def project
 	 stack do
 	    title $project.metadata[:name], align:"center"
@@ -51,7 +54,98 @@ module MiGA
 	       stack margin: 120
 	       menu_bar [:list_datasets, :new_dataset, :process_report, :help]
 	    end
+	    stack(margin: 20) do
+	       para strong("Datasets"), ": ", $project.metadata[:datasets].size
+	       $project.metadata.each { |k,v| para(strong(k), ": ", v) unless k==:datasets }
+	    end
 	    MiGA.RESET_STATUS
+	 end
+      end
+
+      # Datasets list window
+      def datasets
+	 stack do
+	    title $project.metadata[:name], align:"center"
+	    caption $project.path, align:"center"
+	    stack(margin:20) do
+	       stack margin: 120
+	       para "Displaying #{$project.metadata[:datasets].size} datasets:"
+	       stack margin: 120
+	       $project.metadata[:datasets].each do |name|
+		  para link(name, :click=>"/dataset-#{name}")
+	       end
+	    end
+	    MiGA.RESET_STATUS
+	 end
+      end
+
+      # Dataset details window
+      def dataset(name)
+	 stack do
+	    ds = $project.dataset(name)
+	    title ds.name, align:"center"
+	    caption "A dataset in ", strong(link($project.metadata[:name], :click=>"/datasets")), align:"center"
+	    stack(margin:20) do
+	       stack margin: 120
+	       ds.metadata.each { |k,v| para strong(k), ": ", v }
+	    end
+	    flow do
+	       w = 40+30*Dataset.PREPROCESSING_TASKS.size
+	       stack(margin:20, width:w) do
+		  subtitle "Advance:"
+		  done = self.graphic_advance(ds)
+		  para sprintf("%.1f%% Complete", done*100)
+	       end
+	       stack(margin:20, width:-w) do
+		  subtitle "Task:"
+		  $task_name_field = stack { para "" }
+		  animate do
+		     $task_name_field.clear{ para $task }
+		  end
+	       end
+	    end
+	    MiGA.RESET_STATUS
+	 end
+      end
+
+      # Project report window
+      def report
+	 stack do
+	    title $project.metadata[:name], align:"center"
+	    $done = 0.0
+	    $me = self
+	    flow do
+	       w = 40+30*Dataset.PREPROCESSING_TASKS.size
+	       stack(margin:20, width:w) do
+		  subtitle "Dataset tasks advance:"
+		  shape do
+		     $project.each_dataset do |ds|
+			$done += $me.graphic_advance(ds, 1)
+		     end
+		  end
+		  $done /= $project.metadata[:datasets].size
+		  para sprintf("%.1f%% Complete", $done*100)
+	       end
+	       stack(margin:20, width:-w) do
+		  subtitle "Task:"
+		  $task_name_field = stack { para "" }
+		  subtitle "Dataset:"
+		  $dataset_name_field = stack { para "" }
+		  animate do
+		     $task_name_field.clear{ para $task }
+		     $dataset_name_field.clear{ para $dataset }
+		  end
+	       end
+	    end
+	    if $done==1.0
+	       stack(margin:20) do
+		  subtitle "Project-wide tasks:"
+		  Project.DISTANCE_TASKS.each { |t| para strong(t), ": ", ($project.add_result(t).nil? ? "Pending" : "Done") }
+		  if $project.metadata[:type]==:clade
+		     Project.INCLADE_TASKS.each { |t| para strong(t), ": ", ($project.add_result(t).nil? ? "Pending" : "Done") }
+		  end
+	       end
+	    end
 	 end
       end
       
@@ -98,6 +192,29 @@ module MiGA
 	 end
       end # status_bar
 
+      def graphic_advance(ds, h=10)
+	 ds_adv = ds.profile_advance
+	 flow(width:30*Dataset.PREPROCESSING_TASKS.size) do
+	    nostroke
+	    i = 0
+	    col = ["#CCC", rgb(119,130,61), rgb(160,41,50)]
+	    ds_adv.each do |j|
+	       stack(width:28,margin:0,top:0,left:i*30,height:h) do
+		  background col[j]
+		  t = Dataset.PREPROCESSING_TASKS[i]
+		  hover do
+		     $task = t
+		     $dataset = ds.name
+		  end
+	       end
+	       i += 1
+	    end
+	    nofill
+	 end
+	 return 0.0 if ds_adv.count{|i| i>0}==0
+	 ds_adv.count{|i| i==1}.to_f/ds_adv.count{|i| i>0}
+      end # graphic_advance
+
       # =====================[ Controller : Projects ]
       def open_project
 	 GUI.init do
@@ -123,6 +240,8 @@ module MiGA
 	    end
 	 end
       end # new_project
+      def list_datasets ; GUI.init{ visit '/datasets' } ; end # list_datasets
+      def process_report ; GUI.init{ visit '/report' } ; end # process_report
    end
 end
 

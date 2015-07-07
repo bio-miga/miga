@@ -35,8 +35,9 @@ module MiGA
       @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa, :mytaxa_scan, :distances]
       @@ONLY_MULTI_TASKS = [:mytaxa]
       @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
-      def self.RESULT_DIRS() @@RESULT_DIRS end
-      def self.KNOWN_TYPES() @@KNOWN_TYPES end
+      def self.PREPROCESSING_TASKS ; @@PREPROCESSING_TASKS ; end
+      def self.RESULT_DIRS ; @@RESULT_DIRS end
+      def self.KNOWN_TYPES ; @@KNOWN_TYPES end
       def self.exist?(project, name) File.exist? project.path + '/metadata/' + name + '.json' end
       def self.INFO_FIELDS() %w(name created updated type ref user description comments) end
       # Instance
@@ -191,6 +192,22 @@ module MiGA
 	 nil
       end
       def done_preprocessing?() (not self.first_preprocessing.nil?) and self.next_preprocessing.nil? end
+      def profile_advance
+         if self.first_preprocessing.nil?
+	    adv = Array.new(@@PREPROCESSING_TASKS.size, 0)
+	 else
+	    adv = []
+	    state = 0
+	    first_task = self.first_preprocessing
+	    next_task = self.next_preprocessing
+	    @@PREPROCESSING_TASKS.each do |task|
+	       state = 1 if first_task==task
+	       state = 2 if !next_task.nil? and next_task==task
+	       adv << state
+	    end
+	 end
+	 adv
+      end
    end
 end
 

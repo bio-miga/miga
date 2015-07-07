@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-01-2015
+# @update Jul-06-2015
 #
 
 module MiGA
@@ -68,6 +68,7 @@ module MiGA
 	 # Register and return
 	 self.data[k]=v
       end
+      def each(&blk) self.data.each{ |k,v| blk.call(k,v) } ; end
    end
 end
 

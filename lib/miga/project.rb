@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-05-2015
+# @update Jul-06-2015
 #
 
 require 'miga/dataset'
@@ -43,8 +43,10 @@ module MiGA
       }
       @@DISTANCE_TASKS = [:haai_distances, :aai_distances, :ani_distances, :clade_finding]
       @@INCLADE_TASKS = [:subclades, :ogs, :ess_phylogeny, :core_phylogeny, :clade_metadata]
-      def self.RESULT_DIRS() @@RESULT_DIRS end
-      def self.KNOWN_TYPES() @@KNOWN_TYPES end
+      def self.DISTANCE_TASKS ; @@DISTANCE_TASKS ; end
+      def self.INCLADE_TASKS ; @@INCLADE_TASKS ; end
+      def self.RESULT_DIRS ; @@RESULT_DIRS ; end
+      def self.KNOWN_TYPES ; @@KNOWN_TYPES ; end
       def self.exist?(path)
 	 Dir.exist?(path) and File.exist?(path + "/miga.project.json")
       end
@@ -84,6 +86,9 @@ module MiGA
 	 @datasets = {} if @datasets.nil?
 	 @datasets[name] = Dataset.new(self, name) if @datasets[name].nil? 
 	 @datasets[name]
+      end
+      def each_dataset(&blk)
+	 self.metadata[:datasets].each{ |name| blk.call(self.dataset name) }
       end
       def add_dataset(name)
 	 self.metadata[:datasets] << name unless self.metadata[:datasets].include? name
@@ -174,6 +179,23 @@ module MiGA
 	 datasets.uniq - self.metadata[:datasets]
       end
       def done_preprocessing?() self.datasets.map{|ds| (not ds.is_ref?) or ds.done_preprocessing?}.all? end
+      ## Generates a two-dimensional matrix (array of arrays) where the first index corresponds to the
+      ## dataset, the second index corresponds to the dataset task, and the value corresponds to:
+      ##   0: Before execution.
+      ##   1: Done (or not required).
+      ##   2: To do.
+      def profile_datasets_advance
+	 advance = []
+	 self.each_dataset_profile_advance do |ds_adv|
+	    advance << ds_adv
+	 end
+	 advance
+      end
+      def each_dataset_profile_advance(&blk)
+         self.each_dataset do |ds|
+	    blk.call(ds.profile_advance)
+	 end
+      end
    end
 end
 
