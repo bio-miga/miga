@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-06-2015
+# @update Jul-08-2015
 #
 
 require 'miga/dataset'
@@ -78,6 +78,7 @@ module MiGA
 	 @metadata = Metadata.load self.path + "/miga.project.json"
 	 raise "Couldn't find project metadata at #{self.path}" if self.metadata.nil?
       end
+      def name ; self.metadata[:name] ; end
       def datasets
 	 self.metadata[:datasets].map{ |name| self.dataset name }
       end

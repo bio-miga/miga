@@ -34,43 +34,65 @@ module MiGA
       # Main window
       def index
 	 status_bar
-	 stack do
+	 stack(margin:40) do
 	    title "Welcome to MiGA!", align:"center"
-	    flow do
-	       stack margin: 21
-	       menu_bar [:open_project, :new_project, :help]
+	    para ""
+	    flow{ menu_bar [:open_project, :new_project, :help] }
+	    para ""
+	    stack do
+	       image $miga_path + "/gui/img/MiGA-bg.png", width:150, height:50
+	       para ""
+	       para "If you use MiGA in your research, please consider citing:"
+	       para MiGA.CITATION
+	       para ""
 	    end
-	    image $miga_path + "/gui/img/MiGA-bg.png", margin:10, width:170, height:70
 	 end
 	 MiGA.RESET_STATUS
+	 keypress do |key|
+	    if [:control_o, "o"].include? key
+	       MiGA.STATUS = "Calling open_project..."
+	       open_project
+	    elsif [:control_n, "n"].include? key
+	       MiGA.STATUS = "Calling new_project..."
+	       new_project
+	    end
+	 end
       end
 
       # Project window
       def project
-	 stack do
-	    title $project.metadata[:name], align:"center"
+	 stack(margin:40) do
+	    title $project.name.unmiga_name, align:"center"
 	    caption $project.path, align:"center"
+	    para ""
+	    stack{ menu_bar [:list_datasets, :new_dataset, :progress_report, :help] }
+	    para ""
 	    stack do
-	       stack margin: 120
-	       menu_bar [:list_datasets, :new_dataset, :process_report, :help]
-	    end
-	    stack(margin: 20) do
 	       para strong("Datasets"), ": ", $project.metadata[:datasets].size
 	       $project.metadata.each { |k,v| para(strong(k), ": ", v) unless k==:datasets }
 	    end
-	    MiGA.RESET_STATUS
+	 end
+	 MiGA.RESET_STATUS
+	 keypress do |key|
+	    if [:control_r, "r"].include? key
+	       MiGA.STATUS = "Calling progress_report..."
+	       progress_report
+	    elsif [:control_d, "d"].include? key
+	       MiGA.STATUS = "Calling list_datasets..."
+	       list_datasets
+	    end
 	 end
       end
 
       # Datasets list window
       def datasets
-	 stack do
-	    title $project.metadata[:name], align:"center"
+	 stack(margin:40) do
+	    title $project.name.unmiga_name, align:"center"
 	    caption $project.path, align:"center"
-	    stack(margin:20) do
-	       stack margin: 120
+	    para ""
+	    stack do
 	       para "Displaying #{$project.metadata[:datasets].size} datasets:"
-	       stack margin: 120
+	       para ""
 	       $project.metadata[:datasets].each do |name|
 		  para link(name, :click=>"/dataset-#{name}")
 	       end
@@ -81,23 +103,22 @@ module MiGA
 
       # Dataset details window
       def dataset(name)
-	 stack do
+	 stack(margin:40) do
 	    ds = $project.dataset(name)
-	    title ds.name, align:"center"
-	    caption "A dataset in ", strong(link($project.metadata[:name], :click=>"/datasets")), align:"center"
-	    stack(margin:20) do
-	       stack margin: 120
-	       ds.metadata.each { |k,v| para strong(k), ": ", v }
-	    end
+	    title ds.name.unmiga_name, align:"center"
+	    caption "A dataset in ", strong(link($project.name.unmiga_name, :click=>"/datasets")), align:"center"
+	    para ""
+	    stack{ ds.metadata.each { |k,v| para strong(k), ": ", v } }
+	    para ""
 	    flow do
 	       w = 40+30*Dataset.PREPROCESSING_TASKS.size
-	       stack(margin:20, width:w) do
-		  subtitle "Advance:"
+	       stack(width:w) do
+		  subtitle "Advance"
 		  done = self.graphic_advance(ds)
 		  para sprintf("%.1f%% Complete", done*100)
 	       end
-	       stack(margin:20, width:-w) do
-		  subtitle "Task:"
+	       stack(width:-w) do
+		  subtitle "Task"
 		  $task_name_field = stack { para "" }
 		  animate do
 		     $task_name_field.clear{ para $task }
@@ -110,55 +131,73 @@ module MiGA
 
       # Project report window
       def report
-	 stack do
-	    title $project.metadata[:name], align:"center"
+	 stack(margin:40) do
+	    title $project.name.unmiga_name, align:"center"
 	    $done = 0.0
 	    $me = self
 	    flow do
+	       para ""
 	       w = 40+30*Dataset.PREPROCESSING_TASKS.size
-	       stack(margin:20, width:w) do
+	       stack(width:w) do
+		  para ""
 		  subtitle "Dataset tasks advance:"
-		  shape do
+		  caption link("toggle"){ $adv_logo.toggle }
+		  para ""
+		  $adv_logo = stack do
 		     $project.each_dataset do |ds|
 			$done += $me.graphic_advance(ds, 1)
+		     end
+		     motion do |x,y|
+			unless $task.nil?
+			   $task_ds_box.clear do
+			      subtitle "Task"
+			      para $task
+			      subtitle "Dataset"
+			      para $dataset
+			   end
+			   $task_ds_box.show
+			   $task_ds_box.move(w,y-150)
+			end
+		     end
+		     click do
+			GUI.init{ visit "/dataset-#{$dataset}" } unless $dataset.nil?
+		     end
+		     leave do
+			$task = nil
+			$dataset = nil
+			$task_ds_box.hide
 		     end
 		  end
 		  $done /= $project.metadata[:datasets].size
 		  para sprintf("%.1f%% Complete", $done*100)
 	       end
-	       stack(margin:20, width:-w) do
-		  subtitle "Task:"
-		  $task_name_field = stack { para "" }
-		  subtitle "Dataset:"
-		  $dataset_name_field = stack { para "" }
-		  animate do
-		     $task_name_field.clear{ para $task }
-		     $dataset_name_field.clear{ para $dataset }
-		  end
-	       end
+	       $task_ds_box = stack(width:-w)
 	    end
 	    if $done==1.0
-	       stack(margin:20) do
+	       para ""
+	       stack do
 		  subtitle "Project-wide tasks:"
 		  Project.DISTANCE_TASKS.each { |t| para strong(t), ": ", ($project.add_result(t).nil? ? "Pending" : "Done") }
 		  if $project.metadata[:type]==:clade
 		     Project.INCLADE_TASKS.each { |t| para strong(t), ": ", ($project.add_result(t).nil? ? "Pending" : "Done") }
 		  end
 	       end
+	       para ""
 	    end
+	    MiGA.RESET_STATUS
 	 end
       end
       
       # =====================[ View : Elements ]
       # Menu bar
       def menu_bar actions
-	 flow left: 20 do
+	 flow do
 	    b = {
 	       open_project:["Open project", "iconmonstr-archive-5-icon-256"],
 	       new_project:["New project","iconmonstr-plus-5-icon-256"],
 	       list_datasets:["List datasets", "iconmonstr-note-10-icon-256"],
 	       new_dataset:["New dataset", "iconmonstr-note-25-icon-256"],
-	       process_report:["Process report", "iconmonstr-bar-chart-2-icon-256"],
+	       progress_report:["Progress report", "iconmonstr-bar-chart-2-icon-256"],
 	       help:["Help", "iconmonstr-help-3-icon-256"]
 	    }
 	    actions.each do |k|
@@ -204,7 +243,7 @@ module MiGA
 		  t = Dataset.PREPROCESSING_TASKS[i]
 		  hover do
 		     $task = t
-		     $dataset = ds.name
+		     $dataset = ds.name.unmiga_name
 		  end
 	       end
 	       i += 1
@@ -236,12 +275,12 @@ module MiGA
 	       return
 	    else
 	       $project = Project.new folder
-	       visit '/project'
+	       visit "/project"
 	    end
 	 end
       end # new_project
-      def list_datasets ; GUI.init{ visit '/datasets' } ; end # list_datasets
-      def process_report ; GUI.init{ visit '/report' } ; end # process_report
+      def list_datasets ; GUI.init{ visit "/datasets" } ; end # list_datasets
+      def progress_report ; GUI.init{ visit "/report" } ; end # progress_report
    end
 end
 

@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-05-2015
+# @update Jul-08-2015
 #
 
 require 'date'
@@ -12,9 +12,10 @@ require 'miga/project'
 require 'miga/taxonomy'
 
 module MiGA
-   VERSION = [0.1, 1, 6]
+   VERSION = [0.1, 1, 7]
    VERSION_NAME = "crosshatching"
-   VERSION_DATE = Date.new(2015, 6, 16)
+   VERSION_DATE = Date.new(2015, 7, 8)
+   CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
       @@DEBUG = false
       @@DEBUG_TRACE = false
@@ -32,10 +33,11 @@ module MiGA
 	 $stderr.puts(*args) if @@DEBUG
 	 $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if @@DEBUG_TRACE
       end
-      def self.VERSION() VERSION[0] end
+      def self.VERSION ; VERSION[0] ; end
       def self.LONG_VERSION
 	 "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " + VERSION_DATE.to_s
       end
+      def self.CITATION ; CITATION ; end
    end
 end
 
@@ -66,8 +68,7 @@ class File
 end
 
 class String
-   def miga_name
-      self.gsub /[^A-Za-z0-9_]/, "_"
-   end
+   def miga_name ; gsub /[^A-Za-z0-9_]/, "_" ; end
+   def unmiga_name ; gsub /_/, " " ; end
 end
 
