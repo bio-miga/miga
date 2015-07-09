@@ -71,6 +71,7 @@ module MiGA
 	       para strong("Datasets"), ": ", $project.metadata[:datasets].size
 	       $project.metadata.each { |k,v| para(strong(k), ": ", v) unless k==:datasets }
 	    end
+	    para ""
 	 end
 	 MiGA.RESET_STATUS
 	 keypress do |key|
@@ -97,6 +98,7 @@ module MiGA
 		  para link(name, :click=>"/dataset-#{name}")
 	       end
 	    end
+	    para ""
 	    MiGA.RESET_STATUS
 	 end
       end
@@ -125,6 +127,7 @@ module MiGA
 		  end
 	       end
 	    end
+	    para ""
 	    MiGA.RESET_STATUS
 	 end
       end
@@ -182,8 +185,8 @@ module MiGA
 		     Project.INCLADE_TASKS.each { |t| para strong(t), ": ", ($project.add_result(t).nil? ? "Pending" : "Done") }
 		  end
 	       end
-	       para ""
 	    end
+	    para ""
 	    MiGA.RESET_STATUS
 	 end
       end
