@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-08-2015
+# @update Jul-10-2015
 #
 
 require 'miga/dataset'
@@ -113,7 +113,9 @@ module MiGA
 	    end
 	    # import result metadata
 	    %w(json start done).each do |suffix|
-	       File.generic_transfer "#{result.dir}/#{ds.name}.#{suffix}", "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{ds.name}.#{suffix}", method
+	       if File.exist? "#{result.dir}/#{ds.name}.#{suffix}"
+		  File.generic_transfer "#{result.dir}/#{ds.name}.#{suffix}", "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{ds.name}.#{suffix}", method
+	       end
 	    end
 	 end
 	 # Import dataset metadata
