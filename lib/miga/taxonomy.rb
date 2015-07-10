@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-10-2015
+# @update Jul-10-2015
 #
 
 module MiGA
@@ -26,6 +26,7 @@ module MiGA
       def self.json_create(o) new(o['str']) ; end
       def self.normalize_rank(rank)
 	 rank = rank.to_s.downcase
+	 return nil if rank=="no rank"
 	 rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
 	 rank = rank.to_sym
 	 raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
@@ -36,7 +37,7 @@ module MiGA
       def initialize(str, ranks=nil)
 	 @ranks = {}
 	 if ranks.nil?
-	    if str.is_a? Array
+	    if str.is_a? Array or str.is_a? Hash
 	       self << str
 	    else
 	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,s| self << {r=>n} }
