@@ -63,22 +63,42 @@ subclades <- function(ani_file, out_base, thr=1){
 }
 
 # Ancillary functions
-plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main=''){
+plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main='', type='factor'){
    ps <- list()
    ps[[1]] <- rectGrob(gp=gpar(col="white"))
+   if(length(type)==1) type <- rep(type, ncol(m))
+   if(addLabels){
+      m[labels(c),ncol(m)+1] <- labels(c)
+      type[ncol(m)] <- 'label'
+   }
    for(i in 1:ncol(m)){
       df <- data.frame(lab=factor(labels(c),levels=labels(c)), feat=m[labels(c),i])
-      ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=factor(feat))) +
-         geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
-         scale_x_continuous(expand=c(0,0)) +
-         theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-10,20,-10),'points'),
-            axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+      if(type[i]=='factor'){
+	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=factor(feat))) +
+	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
+	    scale_x_continuous(expand=c(0,0)) +
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+      }else if(type[i]=='numeric'){
+	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=as.numeric(feat))) +
+	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
+	    scale_x_continuous(expand=c(0,0)) +
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+      }else if(type[i]=='label'){
+	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab)) +
+	    geom_tile(fill='white') + geom_text(size=3/4, label=df$feat, x=.8) +
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+      }else{
+	 stop('Unsupported type: ', type[i])
+      }
    }
    ps[[i+2]] <- ggplotGrob(ggplot(segment(dendro_data(c, type="rectangle"))) +
       geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
       scale_x_continuous(expand=c(0,.5)) +
       coord_flip() + theme_dendro() +
-         theme(axis.title=element_blank(), axis.ticks=element_blank(), plot.margin=unit(c(40,20,20,-20),'points'),
+         theme(axis.title=element_blank(), axis.ticks=element_blank(), plot.margin=unit(c(40,20,20,ifelse(addLabels,-35,-30)),'points'),
             panel.margin=unit(0,'points'), axis.text=element_blank(), legend.position="none"))
    maxHeights = do.call(grid::unit.pmax, lapply(ps, function(x) x$heights[2:5]))
    for(g in ps) g$heights[2:5] <- as.list(maxHeights)
