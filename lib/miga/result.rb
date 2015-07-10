@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-05-2015
+# @update Jul-09-2015
 #
 
 module MiGA
@@ -53,7 +53,15 @@ module MiGA
 	 self.data[:files] = {} if self.data[:files].nil?
 	 self.data[:files].each do |k,files|
 	    files = [files] unless files.kind_of? Array
-	    files.each{ |file| blk.call(file) }
+	    files.each do |file|
+	       if blk.arity==1
+		  blk.call file
+	       elsif blk.arity==2
+		  blk.call k, file
+	       else
+		  raise "Wrong number of arguments: #{blk.arity} for one or two"
+	       end
+	    end
 	 end
       end
       def add_result(result)
@@ -63,8 +71,8 @@ module MiGA
       def file_path(file)
 	 f = self.data[:files][file.to_sym]
 	 return nil if f.nil?
-	 return self.path + '/' + f unless f.is_a?(Array)
-	 f.map{ |i| self.path + '/' + i }
+	 return File.dirname(self.path) + "/" + f unless f.is_a?(Array)
+	 f.map{ |i| File.dirname(self.path) + "/" + i }
       end
    end
 end
