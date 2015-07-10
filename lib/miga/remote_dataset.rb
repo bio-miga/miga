@@ -104,6 +104,7 @@ module MiGA
 	    doc = RemoteDataset.download(:ebi, :taxonomy, tax_id, "")
 	    name = (doc.scan(/SCIENTIFIC NAME\s+:\s+(.+)/).first||[]).first
 	    rank = (doc.scan(/RANK\s+:\s+(.+)/).first||[]).first
+	    rank = "dataset" if lineage.empy? and rank=="no rank"
 	    lineage[rank] = name unless rank.nil?
 	    tax_id = (doc.scan(/PARENT ID\s+:\s+(.+)/).first||[]).first
 	 end
