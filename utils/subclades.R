@@ -68,7 +68,8 @@ plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main='', type='factor')
    ps[[1]] <- rectGrob(gp=gpar(col="white"))
    if(length(type)==1) type <- rep(type, ncol(m))
    if(addLabels){
-      m[labels(c),ncol(m)+1] <- labels(c)
+      m <- cbind(m, NA)
+      m[labels(c),ncol(m)] <- labels(c)
       type[ncol(m)] <- 'label'
    }
    for(i in 1:ncol(m)){
