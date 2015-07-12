@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-07-2015
+# @update Jul-11-2015
 #
 
 require 'miga/project'
@@ -253,8 +253,8 @@ module MiGA
 	    end
 	    nofill
 	 end
-	 return 0.0 if ds_adv.count{|i| i>0}==0
-	 ds_adv.count{|i| i==1}.to_f/ds_adv.count{|i| i>0}
+	 return 0.0 if ds_adv.count{|i| i>0} <= 1
+	 (ds_adv.count{|i| i==1}.to_f - 1.0)/(ds_adv.count{|i| i>0}.to_f - 1.0)
       end # graphic_advance
 
       # =====================[ Controller : Projects ]
