@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-10-2015
+# @update Jul-12-2015
 #
 
 require 'miga/dataset'
@@ -174,7 +174,7 @@ module MiGA
 	 datasets = []
 	 Dataset.RESULT_DIRS.each do |res, dir|
 	    Dir.entries(self.path + "/data/" + dir).each do |file|
-	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff[23]?|done)(\.gz)?$/)
+	       next unless (file =~ /\.(fa|fna|faa|fasta|fastq|solexaqa|fastqc|gff[23]?|done|d|ess)(\.gz)?$/)
 	       m = /([^\.]+)/.match(file)
 	       datasets << m[1] unless m.nil? or m[1] == "miga-project"
 	    end
