@@ -45,10 +45,10 @@ begin
    raise "Impossible to load project: #{o[:project]}" if p.nil?
    
    $stderr.puts "Listing datasets." unless o[:q]
-   if o[:datasets].nil?
+   if o[:dataset].nil?
       ds = p.datasets
    else
-      ds = p.dataset(o[:datasets])
+      ds = p.dataset(o[:dataset])
    end
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
