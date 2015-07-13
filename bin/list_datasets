@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-09-2015
+# @update Jul-13-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -44,9 +44,12 @@ begin
    p = MiGA::Project.load(o[:project])
    raise "Impossible to load project: #{o[:project]}" if p.nil?
    
-   $stderr.puts "Listing dataset." unless o[:q]
-   ds = p.datasets
-   ds.select!{|d| d.name == o[:dataset]} unless o[:dataset].nil?
+   $stderr.puts "Listing datasets." unless o[:q]
+   if o[:datasets].nil?
+      ds = p.datasets
+   else
+      ds = p.dataset(o[:datasets])
+   end
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
    ds.select!{|d| (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy]) } unless o[:taxonomy].nil?
