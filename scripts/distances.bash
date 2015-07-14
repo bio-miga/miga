@@ -17,14 +17,14 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       # Check if the i-th dataset is ready
       [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
       # Check if this is done (e.g., in a previous failed iteration)
-      AAI=$(echo "select aai from aai where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null)
+      AAI=$( echo "select aai from aai where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
       # Try the other direction
       if [[ "$AAI" == "" && -s 02.aai/$i.db ]] ; then
-	 AAI=$(echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null)
+	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
       fi
       # Try with hAAI
       if [[ "$AAI" == "" || "$AAI" -eq 0 ]] ; then
-	 HAAI=$( aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa -t $CORES -a -n 10 -S 01.haai/$DATASET.db )
+	 HAAI=$( aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa -t $CORES -a -n 10 -S 01.haai/$DATASET.db || echo "" )
 	 if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	    AAI=$(perl -e "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
 	    echo "create table if not exists aai(seq1 varchar(256),seq2 varchar(256),aai float,sd float,n int,omega int);" | sqlite3 02.aai/$DATASET.db
@@ -37,7 +37,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       fi
       # Check if ANI is meaningful
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
-	 ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a )
+	 ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a || echo "" )
       fi
    done
 fi
