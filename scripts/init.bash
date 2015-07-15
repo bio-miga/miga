@@ -31,6 +31,12 @@ function check_rlib {
    [[ "$gotit" == "1" ]]
 }
 
+function check_gem {
+   local gem=$1
+   gotit=$(echo "require '$gem' | ruby 2>/dev/null && echo 1")
+   [[ "$gotit" == "$1" ]]
+}
+
 #=======[ Main ]
 MIGA_STARTUP="no"
 MIGA=$(cd "$(dirname "$0")/.."; pwd)
@@ -108,6 +114,17 @@ for lib in $RLIBS ; do
    if ! check_rlib $lib ; then
       echo "+ Installing $lib" >&2
       echo "install.packages('$lib', repos='http://cran.rstudio.com/')" | R --vanilla -q
+   fi
+done
+
+# Check for ruby gems
+echo "
+Looking for Ruby gems:" >&2
+GEMS="rest_client sqlite3 daemons json"
+for gem in $GEMS ; do
+   if ! check_gem $gem ; then
+      echo "+ Installing $gem (user-only)" >&2
+      gem install --user $gem
    fi
 done
 

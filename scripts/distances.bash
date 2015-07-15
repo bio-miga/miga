@@ -12,50 +12,32 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi | wc -l | awk '{print $1}')
 ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
-   # Create output directories
-   [[ -d "01.haai/$DATASET.d" ]] || mkdir "01.haai/$DATASET.d"
-   [[ -d "02.aai/$DATASET.d" ]] || mkdir "02.aai/$DATASET.d"
-   [[ -d "03.ani/$DATASET.d" ]] || mkdir "03.ani/$DATASET.d"
-
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
-      # Check if this is done (e.g., in a previous failed iteration)
-      [[ -s "02.aai/$DATASET.d/$i.txt" ]] && continue
-      [[ -e "02.aai/$DATASET.d/$i.txt" ]] && rm "02.aai/$DATASET.d/$i.txt"
-      
       # Check if the i-th dataset is ready
-      [[ -s "$ESS/$i.done" ]] || continue
-      [[ -s "$ESS/$i.json" ]] || continue
-      
-      # Check if the other direction is already running (or done)
-      if [[ -e "01.haai/$i.d/$DATASET.txt" ]] ; then
-	 cd "01.haai/$DATASET.d/"
-	 [[ -e "$i.txt" ]] || ln -s "../$i.d/$DATASET.txt" "$i.txt"
-	 cd "../../"
-	 continue
+      [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
+      # Check if this is done (e.g., in a previous failed iteration)
+      AAI=$( echo "select aai from aai where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
+      # Try the other direction
+      if [[ "$AAI" == "" && -s 02.aai/$i.db ]] ; then
+	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
       fi
-      touch "01.haai/$DATASET.d/$i.txt"
-      
-      # Calculate hAAI:
-      aai.rb -1 "$ESS/$DATASET.ess.faa" -2 "$ESS/$i.ess.faa" -t "$CORES" -d 10 -T "01.haai/$DATASET.d/$i.tab" -n 10
-      [[ -s "01.haai/$DATASET.d/$i.tab" ]] && echo "hAAI	$DATASET	$i	$(cat "01.haai/$DATASET.d/$i.tab")" > "01.haai/$DATASET.d/$i.txt"
-      HAAI=""
-      [[ -s "01.haai/$DATASET.d/$i.tab" ]] && HAAI=$(cat "01.haai/$DATASET.d/$i.tab" | awk '{print $1}' )
-      if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
-	 # Estimate AAI:
-	 AAI=$(perl -e "printf '%.10f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
-	 echo "hAAI_AAI	$DATASET	$i	$AAI	NA	NA	NA" > "02.aai/$DATASET.d/$i.txt"
-      else
-	 # Calculate AAI:
-	 aai.rb -1 "../06.cds/$DATASET.faa" -2 "../06.cds/$i.faa" -t "$CORES" -d 10 -R "02.aai/$DATASET.d/$i.rbm" -T "02.aai/$DATASET.d/$i.tab"
-	 echo "AAI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "02.aai/$DATASET.d/$i.txt"
-	 AAI=$(cat "02.aai/$DATASET.d/$i.tab" | awk '{print $1}')
+      # Try with hAAI
+      if [[ "$AAI" == "" || "$AAI" -eq 0 ]] ; then
+	 HAAI=$( aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa -t $CORES -a -n 10 -S 01.haai/$DATASET.db || echo "" )
+	 if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
+	    AAI=$(perl -e "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
+	    echo "create table if not exists aai(seq1 varchar(256),seq2 varchar(256),aai float,sd float,n int,omega int);" | sqlite3 02.aai/$DATASET.db
+	    echo "insert into aai values('$DATASET','$i','$AAI',0,0,0);" | sqlite3 02.aai/$DATASET.db
+	 fi
       fi
-      
+      # Try with complete AAI
+      if [[ "$AAI" == "" || "$AAI" -eq 0 ]] ; then
+	 AAI=$( aai.rb -1 ../06.cds/$DATASET.faa -2 ../06.cds/$i.faa -t $CORES -a -S 02.aai/$DATASET.db )
+      fi
+      # Check if ANI is meaningful
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
-	 # Calculate ANI:
-	 ani.rb -1 "../05.assembly/$DATASET.LargeContigs.fna" -2 "../05.assembly/$i.LargeContigs.fna" -t "$CORES" -d 10 -T "03.ani/$DATASET.d/$i.tab"
-	 echo "ANI	$DATASET	$i	$(cat "02.aai/$DATASET.d/$i.tab")" > "03.ani/$DATASET.d/$i.txt"
+	 ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a || echo "" )
       fi
    done
 fi

@@ -9,6 +9,7 @@ MetaGeneMark		gmhmmp			http://exon.gatech.edu/genemark/license_download.cgi		The
 HMMer 3.0+		hmmsearch		http://hmmer.janelia.org/software
 NCBI BLAST+		blastp			ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST
 R			R			http://www.r-project.org/
+SQLite3			sqlite3			https://www.sqlite.org/
 RAxML (pthreads)	raxmlHPC-PTHREADS	http://sco.h-its.org/exelixis/web/software/raxml/index.html
 MCL			mcl			http://micans.org/mcl/
 DIAMOND			diamond			http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.7.9+
