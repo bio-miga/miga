@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-06-2015
+# @update Jul-15-2015
 #
 
 require 'miga/metadata'
@@ -164,12 +164,12 @@ module MiGA
 	    end
 	 when :distances
 	    if not self.metadata[:type].nil? and not Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
-	       return nil unless Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
+	       return nil unless File.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.db'
 	       r = Result.new base + '.json'
 	       r.data[:files] = {}
-	       r.data[:files][:haai_dir] = '01.haai/' + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.d'
-	       r.data[:files][:aai_dir]  = '02.aai/'  + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/02.aai/'  + self.name + '.d'
-	       r.data[:files][:ani_dir]  = '03.ani/'  + self.name + '.d' if Dir.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/03.ani/'  + self.name + '.d'
+	       r.data[:files][:haai_db] = '01.haai/' + self.name + '.db' if File.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/01.haai/' + self.name + '.db'
+	       r.data[:files][:aai_db]  = '02.aai/'  + self.name + '.db' if File.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/02.aai/'  + self.name + '.db'
+	       r.data[:files][:ani_db]  = '03.ani/'  + self.name + '.db' if File.exist? self.project.path + '/data/' + @@RESULT_DIRS[result_type] + '/03.ani/'  + self.name + '.db'
 	    else
 	       r = Result.new base + '.json'
 	       r.data[:files] = {}
