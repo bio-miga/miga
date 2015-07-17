@@ -14,16 +14,19 @@ ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+      date "+%Y-%m-%d %H:%M:%S %z"
       # Check if the i-th dataset is ready
       [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
       # Check if this is done (e.g., in a previous failed iteration)
       AAI=$( echo "select aai from aai where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
       # Try the other direction
       if [[ "$AAI" == "" && -s 02.aai/$i.db ]] ; then
-	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
+	 cp 02.aai/$i.db 02.aai/$DATASET-$i.db
+	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET-$i.db 2>/dev/null || echo "" )
+	 rm 02.aai/$DATASET-$i.db
       fi
       # Try with hAAI
-      if [[ "$AAI" == "" || "$AAI" -eq 0 ]] ; then
+      if [[ "$AAI" == "" ]] ; then
 	 HAAI=$( aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa -t $CORES -a -n 10 -S 01.haai/$DATASET.db || echo "" )
 	 if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	    AAI=$(perl -e "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
@@ -32,7 +35,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 	 fi
       fi
       # Try with complete AAI
-      if [[ "$AAI" == "" || "$AAI" -eq 0 ]] ; then
+      if [[ "$AAI" == "" ]] ; then
 	 AAI=$( aai.rb -1 ../06.cds/$DATASET.faa -2 ../06.cds/$i.faa -t $CORES -a -S 02.aai/$DATASET.db )
       fi
       # Check if ANI is meaningful
