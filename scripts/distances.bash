@@ -42,7 +42,18 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       fi
       # Check if ANI is meaningful
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
-	 ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a || echo "" )
+	 # Check if this is done (e.g., in a previous failed iteration)
+	 ANI=$( echo "select ani from ani where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
+	 # Try the other direction
+	 if [[ "$ANI" == "" && -s 03.ani/$i.db ]] ; then
+	    cp "03.ani/$i.db" "$TMPDIR/$i.db"
+	    ANI=$( echo "select ani from ani where seq2='$DATASET' and seq1='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
+	    rm "$TMPDIR/$i.db"
+	 fi
+	 # Calculate it
+	 if [[ "$ANI" == "" ]] ; then
+	    ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a || echo "" )
+	 fi
       fi
       echo "$AAI;$ANI"
    done
