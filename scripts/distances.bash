@@ -7,6 +7,7 @@ cd "$PROJECT/data/09.distances"
 
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
+TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
 
 # Check type of dataset
 NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi | wc -l | awk '{print $1}')
@@ -14,6 +15,7 @@ ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+      echo "=[ $i ]"
       date "+%Y-%m-%d %H:%M:%S %z"
       # Check if the i-th dataset is ready
       [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
@@ -21,9 +23,9 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       AAI=$( echo "select aai from aai where seq1='$DATASET' and seq2='$i';" | sqlite3 02.aai/$DATASET.db 2>/dev/null || echo "" )
       # Try the other direction
       if [[ "$AAI" == "" && -s 02.aai/$i.db ]] ; then
-	 cp 02.aai/$i.db 02.aai/$DATASET-$i.db
-	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 02.aai/$DATASET-$i.db 2>/dev/null || echo "" )
-	 rm 02.aai/$DATASET-$i.db
+	 cp "02.aai/$i.db" "$TMPDIR/$i.db"
+	 AAI=$( echo "select aai from aai where seq2='$DATASET' and seq1='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
+	 rm "$TMPDIR/$i.db"
       fi
       # Try with hAAI
       if [[ "$AAI" == "" ]] ; then
@@ -42,8 +44,11 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
 	 ANI=$( ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -S 03.ani/$DATASET.db -a || echo "" )
       fi
+      echo "$AAI;$ANI"
    done
 fi
+
+rm -R $TMPDIR
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
