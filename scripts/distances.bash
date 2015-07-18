@@ -47,7 +47,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 	 # Try the other direction
 	 if [[ "$ANI" == "" && -s 03.ani/$i.db ]] ; then
 	    cp "03.ani/$i.db" "$TMPDIR/$i.db"
-	    ANI=$( echo "select ani from ani where seq2='$DATASET' and seq1='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
+	    ANI=$( echo "select ani from ani where seq1='$DATASET' and seq2='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
 	    rm "$TMPDIR/$i.db"
 	 fi
 	 # Calculate it
