@@ -40,6 +40,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       if [[ "$AAI" == "" ]] ; then
 	 AAI=$( aai.rb -1 ../06.cds/$DATASET.faa -2 ../06.cds/$i.faa -t $CORES -a -S 02.aai/$DATASET.db )
       fi
+      date "+%Y-%m-%d %H:%M:%S %z"
       # Check if ANI is meaningful
       if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" && -e "../05.assembly/$i.LargeContigs.fna" && $(perl -MPOSIX -e "print ceil $AAI") -gt 90 ]] ; then
 	 # Check if this is done (e.g., in a previous failed iteration)
@@ -47,7 +48,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 	 # Try the other direction
 	 if [[ "$ANI" == "" && -s 03.ani/$i.db ]] ; then
 	    cp "03.ani/$i.db" "$TMPDIR/$i.db"
-	    ANI=$( echo "select ani from ani where seq1='$DATASET' and seq2='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
+	    ANI=$( echo "select ani from ani where seq2='$DATASET' and seq1='$i';" | sqlite3 "$TMPDIR/$i.db" 2>/dev/null || echo "" )
 	    rm "$TMPDIR/$i.db"
 	 fi
 	 # Calculate it
