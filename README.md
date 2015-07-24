@@ -50,17 +50,17 @@ Launching daemons
 ### Configuring daemons
 
 
-### Understating the MiGA configuration file [migarc]
+### Understating the MiGA configuration file
 
 
-### Arbitrary configuration scripts [migarc+]
+### Arbitrary configuration scripts
 
 
-### Fixing system calls with aliases [alias]
+### Fixing system calls with aliases
 
 In some cases, we might not have the same executable names as MiGA expects, or we might have
 broken modules in our cluster that can be easily fixed with an `alias`. In these cases, you can
-use [arbitrary configuration scripts](#migarc+) to generate one or more `alias`. Importantly,
+use [arbitrary configuration scripts]() to generate one or more `alias`. Importantly,
 MiGA daemons work with non-interactive shells, which means you likely need to explicitly allow
 for alias extensions, for example:
 
@@ -95,7 +95,7 @@ Cluster infrastructure
 ### Loading optional modules [cluster-modules]
 
 
-See also [Fixing system calls with aliases](#alias).
+See also [Fixing system calls with aliases]().
 
 
 

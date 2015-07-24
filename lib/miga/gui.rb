@@ -40,7 +40,7 @@ module MiGA
 	    flow{ menu_bar [:open_project, :new_project, :help] }
 	    para ""
 	    stack do
-	       image $miga_path + "/gui/img/MiGA-bg.png", width:150, height:50
+	       image $miga_path + "/gui/img/MiGA.png", width:150, height:50
 	       para ""
 	       para "If you use MiGA in your research, please consider citing:"
 	       para MiGA.CITATION
