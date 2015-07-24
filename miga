@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jun-08-2015
+# @update Jul-24-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + "/lib")
@@ -33,7 +33,7 @@ else
        -h, --help		Display this screen.
        -v, --version	Show MiGA version.
        -V, --long-version	Show complete MiGA version.
-       -C, --citation		How to cite MiGA.
+       -C, --citation	How to cite MiGA.
 HELP
 end
 
