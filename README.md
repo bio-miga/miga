@@ -6,7 +6,7 @@ MiGA: Microbial Genomes Atlas
 Installation
 ------------
 
-
+Please see [INSTALLATION.md](./INSTALLATION.md) for instructions.
 
 Getting started with MiGA
 -------------------------
@@ -60,9 +60,9 @@ Launching daemons
 
 In some cases, we might not have the same executable names as MiGA expects, or we might have
 broken modules in our cluster that can be easily fixed with an `alias`. In these cases, you can
-use [arbitrary configuration scripts]() to generate one or more `alias`. Importantly,
-MiGA daemons work with non-interactive shells, which means you likely need to explicitly allow
-for alias extensions, for example:
+use [arbitrary configuration scripts](#arbitrary-configuration-scripts) to generate one or more
+`alias`. Importantly, MiGA daemons work with non-interactive shells, which means you likely need
+to explicitly allow for alias extensions, for example:
 
 ```bash
 # Allow alias expansions in non-interactive shells
@@ -95,7 +95,7 @@ Cluster infrastructure
 ### Loading optional modules
 
 
-See also [Fixing system calls with aliases]().
+See also [Fixing system calls with aliases](#fixing-system-calls-with-aliases).
 
 
 
