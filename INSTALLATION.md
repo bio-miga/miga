@@ -13,4 +13,6 @@ Initializing MiGA
 -----------------
 
 
+### MiGA in your PATH
+
 
