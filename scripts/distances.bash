@@ -42,7 +42,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       fi
       # Try with hAAI
       if [[ "$AAI" == "" ]] ; then
-	 [[ -e "$TMPDIR/$DATASET.ess.fa" ]] || cp $ESS/$DATASET.ess.fa $TMPDIR/$DATASET.ess.fa
+	 [[ -e "$TMPDIR/$DATASET.ess.faa" ]] || cp $ESS/$DATASET.ess.faa $TMPDIR/$DATASET.ess.faa
 	 HAAI=$( aai.rb -1 $TMPDIR/$DATASET.ess.faa -2 $ESS/$i.ess.faa -t $CORES -a -n 10 -S $TMPDIR/01.haai.db --name1 $DATASET --name2 $i || echo "" )
 	 if [[ "$HAAI" != "" && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	    AAI=$(perl -e "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
