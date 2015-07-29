@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-15-2015
+# @update Jul-29-2015
 #
 
 require 'miga/metadata'
@@ -169,12 +169,11 @@ module MiGA
 	    self.add_result :raw_reads #-> Post gzip
 	 when :assembly
 	    return nil unless
-	       File.exist?(base + ".LargeContigs.fna") and
-	       File.exist?(base + ".AllContigs.fna")
+	       File.exist?(base + ".LargeContigs.fna")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {
-	       largecontigs: self.name + ".LargeContigs.fna",
-	       allcontigs: self.name + ".AllContigs.fna"}
+	    r.data[:files] = {largecontigs: self.name + ".LargeContigs.fna"},
+	    r.data[:files][:allcontigs] = self.name + ".AllContigs.fna" if
+	       File.exist?(base + ".AllContigs.fna")
 	 when :cds
 	    return nil unless
 	       File.exist?(base + ".faa") and
