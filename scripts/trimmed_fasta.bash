@@ -22,8 +22,8 @@ if [[ -e ../02.trimmed_reads/$b.2.clipped.fastq ]] ; then
    FastA.interpose.pl $b.CoupledReads.fa $b.[12].fasta
    gzip -9 -f $b.2.fasta
    gzip -9 -f $b.1.fasta
-   cat ../02.trimmed_reads/$b.[12].clipped.single.fastq | FastQ.toFastA.awk > $b.SingleReads.fasta
-   gzip -9 -f $b.SingleReads.fasta
+   cat ../02.trimmed_reads/$b.[12].clipped.single.fastq | FastQ.toFastA.awk > $b.SingleReads.fa
+   gzip -9 -f $b.SingleReads.fa
 else
    mv $b.1.fasta $b.SingleReads.fa
 fi
