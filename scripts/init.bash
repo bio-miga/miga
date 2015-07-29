@@ -34,7 +34,7 @@ function check_rlib {
 function check_gem {
    local gem=$1
    gotit=$(echo "require '$gem' | ruby 2>/dev/null && echo 1")
-   [[ "$gotit" == "$1" ]]
+   [[ "$gotit" == "1" ]]
 }
 
 #=======[ Main ]
