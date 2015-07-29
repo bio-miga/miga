@@ -2,11 +2,11 @@ MiGA: Microbial Genomes Atlas
 =============================
 
 
-
 Installation
 ------------
 
 Please see [INSTALLATION.md](./INSTALLATION.md) for instructions.
+
 
 Getting started with MiGA
 -------------------------
@@ -74,27 +74,128 @@ when that's the only available option in your cluster infrastructure, but try
 to avoid this as much as possible.
 
 Now that you know where to create your project, go ahead and run:
+
 ```bash
-miga create_project -P /path/to/project -t type-of-project
+miga create_project -P /path/to/project1 -t type-of-project
 ```
 
-Where `/path/to/project` is the path to where the project should be created. You
-don't need to create the folder in advance, MiGA will take care. See the next
-section to help you decide what `type-of-project` to use. There are some other
-options that are not mandatory, but will make your project richer. Take a look
-at `miga create\_project -h`.
+Where `/path/to/project1` is the path to where the project should be created.
+You don't need to create the folder in advance, MiGA will take care. See the
+next section to help you decide what `type-of-project` to use. There are some
+other options that are not mandatory, but will make your project richer. Take a
+look at `miga create\_project -h`.
 
 #### Project types
 
+Projects can be set for different purposes, so we've divided them into "types".
+There are four of them, depending on the types of datasets to be processed (see
+[Dataset types](#dataset-types)):
 
+1. **mixed**: A generic project with any supported type of datasets.
+
+2. **metagenomes**: A project containing only metagenomic datasets. This
+includes either (or both) metagenomes and viromes.
+
+3. **genomes**: A project containing only single-organism datasets. This
+includes any of the single-organism types: genome, scgenome, and/or popgenome.
+
+4. **clade**: Same as "genomes", but all the datasets are expected to be from
+the same species. This type of project performs additional analyses that expect
+a very dense ANI matrix, so all genomes in it are expected to have AAI > 90%.
 
 ### Creating datasets
 
+Once your project is ready, you can start populating it with datasets and data.
+While it's possible to create empty datasets using `miga create\_dataset`, the
+preferred method is to first add data and then use the data to create the
+datasets in batch. For example, lets assume you have a collection of paired-end
+raw reads from several datasets. The first step is to format the filenames
+properly. For each one of your datasets, pick a name that conforms the
+[MiGA names](#miga-names) restrictions (we'll call it "ds1") and rename your
+reads to `/path/to/project1/data/01.raw_reads/ds1.1.fastq` for the first
+sister and `/path/to/project1/data/01.raw_reads/ds1.2.fastq` for the second
+sister. Also, add the date into `/path/to/project1/data/01.raw_reads/ds1.done`.
+Check what are the [expected result files](#expected-result-files) below if you
+want to start at any other point in the pipeline. Once you have renamed (or
+copied) the files inside the project folder, run:
+
+```bash
+miga find_datasets -P /path/to/project1 -a -r -t type-of-dataset
+```
+
+The `-a` flag tells MiGA that you want to add the datasets (not just find them);
+the `-r` flag tells MiGA that your datasets are to be treated as "reference"
+datasets (see [Non-reference datasets](#non-reference-datasets) below); and the
+`-t` option tells MiGA what type of datasets you're adding (see
+[Dataset types](#dataset-types) below). If you have a mixture of dataset types,
+process one at a time. This is, perform this step for each dataset type. Don't
+worry about the datasets that are already registered, those will be ignored by
+the `find_datasets` task and will remain unchanged.
+
+#### Expected result files
+
+For brevity, we'll assume that you're inside `/path/to/project1/data`; *i.e.*,
+in the `data` directory of your project. We'll also assume that you're naming
+your dataset **ds1**, but you can change this by anything following the
+[MiGA names](#miga-names) restrictions. Now, these are the "input" points that
+you can use in MiGA:
+
+1. **Paired-end raw reads**: The expected files are `01.raw_reads/ds1.1.fastq`
+and `01.raw_reads/ds1.2.fastq`, each including a sister end. The reads must be
+in the same order in both files (MiGA won't check). You can also use gzipped
+files instead.
+
+2. **Single-end raw reads**: The expected file is `01.raw_reads/ds1.1.fastq`.
+You can also use a gzipped file instead.
+
+3. **Paired-end trimmed reads**: These are assumed to be quality-controlled
+reads in FastA format, with both ends passing the quality filters. The minimum
+expected file is `04.trimmed_fasta/ds1.CoupledReads.fa`, which contains the
+reads interposed. You can also pass (in addition) the reads that past the
+quality check without the sister as a gzipped FastA at
+`04.trimmed_fasta/ds1.SingleReads.fa.gz`.
+
+4. **Single-end trimmed reads**: Similar to the option above, only
+quality-checked reads are expected here. The expected file is
+`04.trimmed_fasta/ds1.SingleReads.fa`.
+
+5. **Assembled fragments**: This can be any assembly result, including complete
+genomes. The expected file is `05.assembly/ds1.LargeContigs.fna`, containing
+only contigs longer than 500bp. You can also provide the complete assembly
+(without length-filtering) at `05.assembly/ds1.AllContigs.fna`.
+
+6. **Predicted genes/proteins**: This is the total collection of predicted genes
+and proteins. The expected files are `06.cds/ds1.fna`, containing genes, and
+`06.cds/ds1.faa`, containing proteins. You can also provide the locations of
+said genes in the genome in gzipped GFF v2 (`06.cds/ds1.gff2.gz`), gzipped
+GFF v3 (`06.cds/ds1.gff3.gz`), or gzipped tabular (`06.cds/ds1.tab.gz`).
+
+**IMPORTANT**: In all cases, an additional `ds1.done` file MUST be created in
+the same folder. This is meant to prevent MiGA from mistakenly adding files as
+results before they're done being processed or transferred. This file must
+contain the current [date in MiGA format](#date-in-miga-format). Here's a quick
+code snippet to add the `.done` file for all the input files in `01.raw_reads`
+(you can adapt this accordingly to any of the other options):
+
+```bash
+cd /path/to/project1/data/01.raw_reads
+for i in *.1.fastq ; do
+   date "+%Y-%m-%d %H:%M:%S %z" > $(basename $i .1.fastq).done
+done
+```
+
 #### Dataset types
 
-#### Non-reference datasets
+This is how you tell MiGA what kind of data you have in your datasets. Lets see
+the definitions:
 
-### Registering results
+1. **genome**: The genome from an isolate.
+2. **metagenome**: A metagenome (excluding viromes).
+3. **virome**: A viral metagenome.
+4. **scgenome**: A genome from a single cell.
+5. **popgenome**: The genome of a population (including microdiversity).
+
+#### Non-reference datasets
 
 
 Launching daemons
@@ -111,11 +212,13 @@ Launching daemons
 
 ### Fixing system calls with aliases
 
-In some cases, we might not have the same executable names as MiGA expects, or we might have
-broken modules in our cluster that can be easily fixed with an `alias`. In these cases, you can
-use [arbitrary configuration scripts](#arbitrary-configuration-scripts) to generate one or more
-`alias`. Importantly, MiGA daemons work with non-interactive shells, which means you likely need
-to explicitly allow for alias extensions, for example:
+In some cases, we might not have the same executable names as MiGA expects, or
+we might have broken modules in our cluster that can be easily fixed with an
+`alias`. In these cases, you can use
+[arbitrary configuration scripts](#arbitrary-configuration-scripts) to generate
+one or more `alias`. Importantly, MiGA daemons work with non-interactive shells,
+which means you likely need to explicitly allow for alias extensions, for
+example:
 
 ```bash
 # Allow alias expansions in non-interactive shells
@@ -130,15 +233,15 @@ alias fastqc="perl $(which fastqc)"
 alias raxmlHPC-PTHREADS=RAxML_pthreads
 ```
 
-The examples above illustrate how to use `alias` to fix broken packages or to make Software with
-non-standard names reachable.
+The examples above illustrate how to use `alias` to fix broken packages or to
+make Software with non-standard names reachable.
 
-**Known caveats to this solution:** This solution CANNOT BE USED in the few cases in which a
-whole package is expected based on a single executable. For example, adding the enveomics
-scripts to your `PATH` is far easier than creating an `alias` for each script. Also, MiGA
-expects to find the model, the activation key, and the scripts of MetaGeneMark in the same
-folder of the `gmhmmp` binary, so setting an`alias` may prevent MiGA from finding these
-ancillary files.
+**Known caveats to this solution:** This solution CANNOT BE USED in the few
+cases in which a whole package is expected based on a single executable. For
+example, adding the enveomics scripts to your `PATH` is far easier than creating
+an `alias` for each script. Also, MiGA expects to find the model, the activation
+key, and the scripts of MetaGeneMark in the same folder of the `gmhmmp` binary,
+so setting an`alias` may prevent MiGA from finding these ancillary files.
 
 
 Cluster infrastructure
@@ -150,6 +253,25 @@ Cluster infrastructure
 
 See also [Fixing system calls with aliases](#fixing-system-calls-with-aliases).
 
+
+Miscellaneous
+-------------
+
+These below are reference snippets that for which I couldn't find a more
+suitable home, but are important documentation.
+
+### MiGA Names
+
+MiGA names are non-empty strings composed exclusively of alphanumerics and
+underscores. All the dataset names in MiGA must conform this restriction, but
+not all the projects do. Other objects must conform the MiGA name restrictions,
+such as taxonomic entries.
+
+### Date in MiGA format
+
+The official format in which MiGA represents date/times is the default of Ruby's
+`Time.now.to_s`. In the *nix `date` utility this corresponds to the format:
+`+%Y-%m-%d %H:%M:%S %z`.
 
 
 Authors
