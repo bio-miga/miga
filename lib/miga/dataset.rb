@@ -184,6 +184,10 @@ module MiGA
 	       genes: self.name + ".fna"}
 	    r.data[:files][:gff2] = self.name + ".gff2.gz" if
 	       File.exist? self.name + ".gff2.gz"
+	    r.data[:files][:gff3] = self.name + ".gff3.gz" if
+	       File.exist? self.name + ".gff3.gz"
+	    r.data[:files][:tab] = self.name + ".tab.gz" if
+	       File.exist? self.name + ".tab.gz"
 	 when :essential_genes
 	    return nil unless
 	       File.exist?(base + ".ess.faa") and
