@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-10-2015
+# @update Jul-30-2015
 #
 
 module MiGA
@@ -29,7 +29,8 @@ module MiGA
 	 return nil if rank=="no rank"
 	 rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
 	 rank = rank.to_sym
-	 raise "Unknown taxonomic rank: #{rank}." unless @@KNOWN_RANKS.include? rank
+	 raise "Unknown taxonomic rank: #{rank}." unless
+	    @@KNOWN_RANKS.include? rank
 	 rank
       end
       # Instance
@@ -40,12 +41,16 @@ module MiGA
 	    if str.is_a? Array or str.is_a? Hash
 	       self << str
 	    else
-	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,s| self << {r=>n} }
+	       (str + " ").scan(/([A-Za-z]+):([^:]*)( )/) do |r,n,s|
+		  self << {r=>n}
+	       end
 	    end
 	 else
 	    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
 	    str = str.split(/\s/) unless str.is_a? Array
-	    raise "Unequal number of ranks (#{ranks.size}) and names (#{str.size}):#{ranks} => #{str}" unless ranks.size==str.size
+	    raise "Unequal number of ranks (#{ranks.size}) " +
+	       "and names (#{str.size}):#{ranks} => #{str}" unless
+	       ranks.size==str.size
 	    (0 .. str.size).each{ |i| self << "#{ranks[i]}:#{str[i]}" }
 	 end
       end
@@ -65,15 +70,19 @@ module MiGA
 	 end
       end
       def [](rank) @ranks[ rank.to_sym ] ; end
-      ### Evaluates if the loaded taxonomy includes `taxon`. It assumes that `taxon`
-      ### only has one informative rank. The evaluation is case-insensitive.
+      ### Evaluates if the loaded taxonomy includes `taxon`. It assumes that
+      ### `taxon` only has one informative rank. The evaluation is
+      ### case-insensitive.
       def is_in? taxon
 	 r = taxon.ranks.keys.first
 	 return false if self[ r ].nil?
 	 self[ r ].downcase == taxon[ r ].downcase
       end
       def to_s
-	 @@KNOWN_RANKS.map{ |r| self.ranks[r].nil? ? nil : "#{r.to_s}:#{self.ranks[r].gsub(/\s/,'_')}" }.compact.join(" ")
+	 @@KNOWN_RANKS.map do |r|
+	    self.ranks[r].nil? ? nil :
+	       "#{r.to_s}:#{self.ranks[r].gsub(/\s/,'_')}"
+	 end.compact.join(" ")
       end
       def to_json(*a)
 	 { JSON.create_id => self.class.name, 'str' => self.to_s }.to_json(*a)
