@@ -83,7 +83,7 @@ Where `/path/to/project1` is the path to where the project should be created.
 You don't need to create the folder in advance, MiGA will take care. See the
 next section to help you decide what `type-of-project` to use. There are some
 other options that are not mandatory, but will make your project richer. Take a
-look at `miga create\_project -h`.
+look at `miga create_project -h`.
 
 #### Project types
 
@@ -106,7 +106,7 @@ a very dense ANI matrix, so all genomes in it are expected to have AAI > 90%.
 ### Creating datasets
 
 Once your project is ready, you can start populating it with datasets and data.
-While it's possible to create empty datasets using `miga create\_dataset`, the
+While it's possible to create empty datasets using `miga create_dataset`, the
 preferred method is to first add data and then use the data to create the
 datasets in batch. For example, lets assume you have a collection of paired-end
 raw reads from several datasets. The first step is to format the filenames
@@ -196,6 +196,7 @@ the definitions:
 5. **popgenome**: The genome of a population (including microdiversity).
 
 #### Non-reference datasets
+
 
 
 Launching daemons

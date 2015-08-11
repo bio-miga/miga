@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-29-2015
+# @update Aug-07-2015
 #
 
 require 'miga/metadata'
@@ -171,7 +171,7 @@ module MiGA
 	    return nil unless
 	       File.exist?(base + ".LargeContigs.fna")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {largecontigs: self.name + ".LargeContigs.fna"},
+	    r.data[:files] = {largecontigs: self.name + ".LargeContigs.fna"}
 	    r.data[:files][:allcontigs] = self.name + ".AllContigs.fna" if
 	       File.exist?(base + ".AllContigs.fna")
 	 when :cds
