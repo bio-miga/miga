@@ -44,9 +44,11 @@ subclades <- function(ani_file, out_base, thr=1){
 	 angle=80, scale.y=3/2, las=2, xlab='', ylab='', zlab='')
       for(cl in 1:top.n[i]){
 	 col <- ggplotColours(top.n[i])[cl]
-	 med <- s$xyz.convert(matrix(ani.mds$points[ ani.medoids[[i]][cl] , ], ncol=3))
+	 med <- s$xyz.convert(matrix(ani.mds$points[ ani.medoids[[i]][cl] , ],
+	    ncol=3))
 	 if(sum(ani.types[,i]==cl)>1){
-	    val <- s$xyz.convert(matrix(ani.mds$points[ ani.types[,i]==cl , ], ncol=3))
+	    val <- s$xyz.convert(matrix(ani.mds$points[ ani.types[,i]==cl , ],
+	       ncol=3))
 	    arrows(x0=med$x, y0=med$y, x1=val$x, y1=val$y, length=0, col=col)
 	 }
 	 points(med, col=col, pch=19, cex=3/2)
@@ -57,13 +59,15 @@ subclades <- function(ani_file, out_base, thr=1){
 
    # Save results
    for(i in 1:length(top.n)){
-      write.table(ani.medoids[[i]], paste(out_base,i,'medoids',sep='.'), quote=FALSE, col.names=FALSE, row.names=FALSE)
-      write.table(ani.types[,i], paste(out_base,i,'classif',sep='.'), quote=FALSE, col.names=FALSE, row.names=TRUE, sep='\t')
+      write.table(ani.medoids[[i]], paste(out_base,i,'medoids',sep='.'),
+	 quote=FALSE, col.names=FALSE, row.names=FALSE)
+      write.table(ani.types[,i], paste(out_base,i,'classif',sep='.'),
+	 quote=FALSE, col.names=FALSE, row.names=TRUE, sep='\t')
    }
 }
 
 # Ancillary functions
-plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main='', type='factor'){
+plotClusterAndMetadata <- function(c,m,addLabels=TRUE,main='',type='factor'){
    ps <- list()
    ps[[1]] <- rectGrob(gp=gpar(col="white"))
    if(length(type)==1) type <- rep(type, ncol(m))
@@ -73,24 +77,31 @@ plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main='', type='factor')
       type[ncol(m)] <- 'label'
    }
    for(i in 1:ncol(m)){
-      df <- data.frame(lab=factor(labels(c),levels=labels(c)), feat=m[labels(c),i])
+      df <- data.frame(lab=factor(labels(c),levels=labels(c)),
+	 feat=m[labels(c),i])
       if(type[i]=='factor'){
 	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=factor(feat))) +
 	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
 	    scale_x_continuous(expand=c(0,0)) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
+	       plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(),
+	       legend.position="none"))
       }else if(type[i]=='numeric'){
-	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=as.numeric(feat))) +
+	 ps[[i+1]] <- ggplotGrob(ggplot(df, aes(1,lab,fill=as.numeric(feat))) +
 	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
 	    scale_x_continuous(expand=c(0,0)) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
+	       plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(),
+	       legend.position="none"))
       }else if(type[i]=='label'){
 	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab)) +
 	    geom_tile(fill='white') + geom_text(size=3/4, label=df$feat, x=.8) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'), plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(), legend.position="none"))
+	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
+	       plot.margin=unit(c(40,-12,20,-12),'points'),
+	       axis.ticks=element_blank(), axis.text=element_blank(),
+	       legend.position="none"))
       }else{
 	 stop('Unsupported type: ', type[i])
       }
@@ -99,8 +110,10 @@ plotClusterAndMetadata <- function(c, m, addLabels=TRUE, main='', type='factor')
       geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
       scale_x_continuous(expand=c(0,.5)) +
       coord_flip() + theme_dendro() +
-         theme(axis.title=element_blank(), axis.ticks=element_blank(), plot.margin=unit(c(40,20,20,ifelse(addLabels,-35,-30)),'points'),
-            panel.margin=unit(0,'points'), axis.text=element_blank(), legend.position="none"))
+         theme(axis.title=element_blank(), axis.ticks=element_blank(),
+	    plot.margin=unit(c(40,20,20,ifelse(addLabels,-35,-30)),'points'),
+            panel.margin=unit(0,'points'), axis.text=element_blank(),
+	    legend.position="none"))
    maxHeights = do.call(grid::unit.pmax, lapply(ps, function(x) x$heights[2:5]))
    for(g in ps) g$heights[2:5] <- as.list(maxHeights)
    ps$nrow <- 1
