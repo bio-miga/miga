@@ -11,7 +11,7 @@ module MiGA
       # Cannonical ranks
       @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
       # Ranks that can be safely ignored
-      @@RANK_IGNORE = %w{pathovar}.map{|r| r.to_sym}
+      @@RANK_IGNORE = %w{pathovar clade species\ group}.map{|r| r.to_sym}
       # Synonms for cannonical ranks
       @@RANK_SYNONYMS = {
 	 "namespace"=>"ns",
@@ -23,7 +23,7 @@ module MiGA
 	 "family"=>"f",
 	 "genus"=>"g",
 	 "species"=>"s","sp"=>"s",
-	 "subspecies"=>"ssp","species group"=>"ssp","clade"=>"ssp",
+	 "subspecies"=>"ssp",
 	 "strain"=>"str","isolate"=>"str","culture"=>"str","isolate"=>"str",
 	 "dataset"=>"ds","organism"=>"ds","genome"=>"ds","specimen"=>"ds"
       }
