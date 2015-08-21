@@ -212,7 +212,6 @@ want to use, and execute `miga create_project -P MiGA_RefSeq -t genomes`.
 **Step 2: Download the data**. Just `cd MiGA_RefSeq`, and execute this code:
 
 ```bash
-
 wget -O reference_genomes.txt 'http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?action=refgenomes&amp;download=on&amp;type=reference'
 grep -v '^#' reference_genomes.txt \
    | awk -F'\t' '{gsub(/[^A-Za-z0-9]/,"_",$3)} {print "miga download_dataset -P . -D "$3" -I "$4" -U ncbi --db nuccore -t genome -v # "$3""}' \
@@ -223,7 +222,6 @@ grep -v '^#' reference_genomes.txt \
 	 $ln
       fi
    done
-
 ```
 
 And that's it. The first line will download the most current list of genomes
@@ -236,6 +234,28 @@ and only missing genomes will be fetched.
 Note that running time for the above code may vary depending on the network and
 the size of RefSeq, but I was able to create a complete project with 122 genomes
 in under 10 minutes.
+
+**Alternative step 2: downloading all representatives**. If you want a larger
+and more comprehensive collection, and not just the reference genomes, you can
+download all of the representative genomes in the prokaryotic RefSeq with this
+alternative code:
+
+```bash
+wget -O representative_genomes.txt 'http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?action=refgenomes&amp;download=on'
+grep -v '^#' representative_genomes.txt \
+   | awk -F'\t' '{gsub(/[^A-Za-z0-9]/,"_",$3)} $4{print "miga download_dataset -P . -D "$3" -I "$4" -U ncbi --db nuccore -t genome -v # "$3""}' \
+   | while read ln ; do
+      sp=$(echo $ln | perl -pe 's/.*# //')
+      if [[ ! -n $(miga list_datasets -P . -D $sp) ]] ; then
+	 echo $ln
+	 $ln
+      fi
+   done
+```
+
+This is a much larger set (1,246), hence it'll take much more time. I finished
+downloading the whole thing in about one and a half hours.
+
 
 Launching daemons
 -----------------
