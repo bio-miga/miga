@@ -10,8 +10,6 @@ module MiGA
       # Class
       # Cannonical ranks
       @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
-      # Ranks that can be safely ignored
-      @@RANK_IGNORE = %w{pathovar clade species\ group}.map{|r| r.to_sym}
       # Synonms for cannonical ranks
       @@RANK_SYNONYMS = {
 	 "namespace"=>"ns",
@@ -34,9 +32,7 @@ module MiGA
 	 return nil if rank=="no rank"
 	 rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
 	 rank = rank.to_sym
-	 return nil if @@RANK_IGNORE.include? rank
-	 raise "Unknown taxonomic rank: #{rank}." unless
-	    @@KNOWN_RANKS.include? rank
+	 return nil unless @@KNOWN_RANKS.include? rank
 	 rank
       end
       # Instance
