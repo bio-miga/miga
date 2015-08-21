@@ -11,13 +11,14 @@ date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 echo -n "" > "miga-project.log"
 DS=$($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi)
 
-(
-echo "metric	a	b	value	sd	n	omega"
+echo "metric	a	b	value	sd	n	omega" \
+   > miga-project.txt
 for i in $DS ; do
-   echo "select * from aai;" | sqlite3 $i.db
+   echo "select * from aai;" | sqlite3 $i.db \
+      | tr "\\|" "\\t" \
+      >> miga-project.txt
    echo "$i" >> "miga-project.log"
-done | tr "\\|" "\\t"
-) > "miga-project.txt"
+done
 
 # R-ify
 echo "
