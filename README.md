@@ -234,8 +234,8 @@ so if you want to update an existing MiGA_RefSeq project, simply repeat step 2
 and only missing genomes will be fetched.
 
 Note that running time for the above code may vary depending on the network and
-the size of RefSeq, but I was able to create a complete project in under 10
-minutes.
+the size of RefSeq, but I was able to create a complete project with 122 genomes
+in under 10 minutes.
 
 Launching daemons
 -----------------
