@@ -17,7 +17,7 @@ module MiGA
 	    method: :rest
 	 },
 	 ncbi:{
-	    nuccore: { refseq:{stage: :assembly, format: :fasta} },
+	    dbs: { nuccore:{stage: :assembly, format: :fasta} },
 	    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"+
 	       "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
 	    method: :rest
