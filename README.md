@@ -198,6 +198,44 @@ the definitions:
 #### Non-reference datasets
 
 
+#### Creating a RefSeq project
+
+If you've reached this point, you are now ready to create a large functional
+project. If you want to continue using this documentation on real data but
+don't have any of your own handy (or if you want to use RefSeq data), this
+is a quick tutoral on how to create a functional MiGA project using ALL of
+NCBI's Prokaryotic RefSeq data.
+
+**Step 1: Create the project**. That's simple, just `cd` to the directory you
+want to use, and execute `miga create_project -P MiGA_RefSeq -t genomes`.
+
+**Step 2: Download the data**. Just `cd MiGA_RefSeq`, and execute this code:
+
+```bash
+
+wget -O reference_genomes.txt 'http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?action=refgenomes&amp;download=on&amp;type=reference'
+grep -v '^#' reference_genomes.txt \
+   | awk -F'\t' '{gsub(/[^A-Za-z0-9]/,"_",$3)} {print "miga download_dataset -P . -D "$3" -I "$4" -U ncbi --db nuccore -t genome -v # "$3""}' \
+   | while read ln ; do
+      sp=$(echo $ln | perl -pe 's/.*# //')
+      if [[ ! -n $(miga list_datasets -P . -D $sp) ]] ; then
+	 echo $ln
+	 $ln
+      fi
+   done
+
+```
+
+And that's it. The first line will download the most current list of genomes
+included in NCBI's Prokaryotic RefSeq, and the rest will repeatedly execute the
+`download_dataset` task, that automatically fetches the data (even the genome's
+taxonomy!). Note that the code above checks first if a dataset already exists,
+so if you want to update an existing MiGA_RefSeq project, simply repeat step 2
+and only missing genomes will be fetched.
+
+Note that running time for the above code may vary depending on the network and
+the size of RefSeq, but I was able to create a complete project in under 10
+minutes.
 
 Launching daemons
 -----------------
