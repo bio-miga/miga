@@ -3,7 +3,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-13-2015
+# @update Aug-20-2015
 #
 
 $:.push File.expand_path(File.dirname(__FILE__) + '/../lib')
@@ -47,8 +47,10 @@ begin
    $stderr.puts "Listing datasets." unless o[:q]
    if o[:dataset].nil?
       ds = p.datasets
-   else
+   elsif MiGA::Dataset.exist? p, o[:dataset]
       ds = [p.dataset(o[:dataset])]
+   else
+      ds = []
    end
    ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
    ds.select!{|d| (not d.metadata[:type].nil?) and (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi]) } unless o[:multi].nil?
