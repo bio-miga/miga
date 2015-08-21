@@ -2,33 +2,39 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-30-2015
+# @update Aug-20-2015
 #
 
 module MiGA
    class Taxonomy
       # Class
-      @@KNOWN_RANKS = %w{ns d k p c o f g s str ds}.map{|r| r.to_sym}
+      # Cannonical ranks
+      @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
+      # Ranks that can be safely ignored
+      @@RANK_IGNORE = %w{pathovar}.map{|r| r.to_sym}
+      # Synonms for cannonical ranks
       @@RANK_SYNONYMS = {
-	 'namespace'=>'ns',
-	 'domain'=>'d','superkingdom'=>'d',
-	 'kingdom'=>'k',
-	 'phylum'=>'p',
-	 'class'=>'c',
-	 'order'=>'o',
-	 'family'=>'f',
-	 'genus'=>'g',
-	 'species'=>'s','sp'=>'s',
-	 'strain'=>'str','isolate'=>'str', 'culture'=>'str', 'isolate'=>'str',
-	 'dataset'=>'ds', 'organism'=>'ds', 'genome'=>'ds','specimen'=>'ds'
+	 "namespace"=>"ns",
+	 "domain"=>"d","superkingdom"=>"d",
+	 "kingdom"=>"k",
+	 "phylum"=>"p",
+	 "class"=>"c",
+	 "order"=>"o",
+	 "family"=>"f",
+	 "genus"=>"g",
+	 "species"=>"s","sp"=>"s",
+	 "subspecies"=>"ssp","species group"=>"ssp","clade"=>"ssp",
+	 "strain"=>"str","isolate"=>"str","culture"=>"str","isolate"=>"str",
+	 "dataset"=>"ds","organism"=>"ds","genome"=>"ds","specimen"=>"ds"
       }
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
-      def self.json_create(o) new(o['str']) ; end
+      def self.json_create(o) new(o["str"]) ; end
       def self.normalize_rank(rank)
 	 rank = rank.to_s.downcase
 	 return nil if rank=="no rank"
 	 rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
 	 rank = rank.to_sym
+	 return nil if @@RANK_IGNORE.include? rank
 	 raise "Unknown taxonomic rank: #{rank}." unless
 	    @@KNOWN_RANKS.include? rank
 	 rank
@@ -81,11 +87,11 @@ module MiGA
       def to_s
 	 @@KNOWN_RANKS.map do |r|
 	    self.ranks[r].nil? ? nil :
-	       "#{r.to_s}:#{self.ranks[r].gsub(/\s/,'_')}"
+	       "#{r.to_s}:#{self.ranks[r].gsub(/\s/,"_")}"
 	 end.compact.join(" ")
       end
       def to_json(*a)
-	 { JSON.create_id => self.class.name, 'str' => self.to_s }.to_json(*a)
+	 { JSON.create_id => self.class.name, "str" => self.to_s }.to_json(*a)
       end
    end
 end
