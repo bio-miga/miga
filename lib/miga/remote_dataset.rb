@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-10-2015
+# @update Aug-20-2015
 #
 
 require 'restclient'
@@ -15,6 +15,12 @@ module MiGA
 	    dbs: { embl:{stage: :assembly, format: :fasta} },
 	    url: "http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s",
 	    method: :rest
+	 },
+	 ncbi:{
+	    nuccore: { refseq:{stage: :assembly, format: :fasta} },
+	    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"+
+	       "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
+	    method: :rest
 	 }
       }
       def self.UNIVERSE ; @@UNIVERSE ; end
@@ -23,11 +29,14 @@ module MiGA
 	 case @@UNIVERSE[universe][:method]
 	 when :rest
 	    url = sprintf @@UNIVERSE[universe][:url], db, ids.join(","), format
-	    response = RestClient::Request.execute(:method=>:get,  :url=>url, :timeout=>600)
-	    raise "Unable to reach #{universe} client, error code #{response.code}." unless response.code == 200
+	    response = RestClient::Request.execute(:method=>:get,  :url=>url,
+	       :timeout=>600)
+	    raise "Unable to reach #{universe} client, error code "+
+	       "#{response.code}." unless response.code == 200
 	    doc = response.to_s
 	 else
-	    raise "Unexpected error: Unsupported download method for Universe #{universe}."
+	    raise "Unexpected error: Unsupported download method for Universe "+
+	       "#{universe}."
 	 end
 	 unless file.nil?
 	    ofh = File.open(file, "w")
@@ -43,17 +52,22 @@ module MiGA
 	 @ids = (ids.is_a?(Array) ? ids : [ids])
 	 @db = db.to_sym
 	 @universe = universe.to_sym
-	 raise "Unknown Universe: #{@universe}. Try one of: #{@@UNIVERSE.keys}" unless @@UNIVERSE.keys.include? @universe
-	 raise "Unknown Database: #{@db}. Try one of: #{@@UNIVERSE[@universe][:dbs]}" unless @@UNIVERSE[@universe][:dbs].include? @db
+	 raise "Unknown Universe: #{@universe}. Try one of: "+
+	    "#{@@UNIVERSE.keys}" unless @@UNIVERSE.keys.include? @universe
+	 raise "Unknown Database: #{@db}. Try one of: "+
+	    "#{@@UNIVERSE[@universe][:dbs]}" unless
+	    @@UNIVERSE[@universe][:dbs].include? @db
       end
       def save_to(project, name=nil, is_ref=true, metadata={})
 	 name = ids.join("_").miga_name if name.nil?
 	 project = Project.new(project) if project.is_a? String
-	 raise "Dataset #{name} exists in the project, aborting..." if Dataset.exist?(project, name)
+	 raise "Dataset #{name} exists in the project, aborting..." if
+	    Dataset.exist?(project, name)
 	 metadata = get_metadata(metadata)
 	 case @@UNIVERSE[universe][:dbs][db][:stage]
 	 when :assembly
-	    base = project.path + "/data/" + Dataset.RESULT_DIRS[:assembly] + "/" + name
+	    base = project.path + "/data/" + Dataset.RESULT_DIRS[:assembly] +
+	       "/" + name
 	    ofh = File.open("#{base}.start", "w")
 	    ofh.puts Time.now.to_s
 	    ofh.close
@@ -68,7 +82,8 @@ module MiGA
 	 dataset = Dataset.new(project, name, is_ref, metadata)
 	 project.add_dataset(dataset.name)
 	 result = dataset.add_result @@UNIVERSE[universe][:dbs][db][:stage]
-	 raise "Empty dataset created: seed result was not added due to incomplete files." if result.nil?
+	 raise "Empty dataset created: seed result was not added due to "+
+	    "incomplete files." if result.nil?
 	 dataset
       end
       def get_metadata(metadata={})
@@ -76,11 +91,15 @@ module MiGA
 	 when :ebi
 	    # Get taxonomy
 	    metadata[:tax] = get_ncbi_taxonomy
+	 when :ncbi
+	    # Get taxonomy
+	    metadata[:tax] = get_ncbi_taxonomy
 	 end
 	 metadata
       end
       def download(file)
-	 RemoteDataset.download(universe, db, ids, @@UNIVERSE[universe][:dbs][db][:format], file)
+	 RemoteDataset.download(universe, db, ids,
+	    @@UNIVERSE[universe][:dbs][db][:format], file)
       end
       def get_ncbi_taxid
 	 case universe
@@ -90,6 +109,13 @@ module MiGA
 	    ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
 	    return nil if ln.nil?
 	    ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, "\\1")
+	    return nil unless ln =~ /^\d+$/
+	    ln
+	 when :ncbi
+	    doc = RemoteDataset.download(universe, db, ids, :gb).split(/\n/)
+	    ln = doc.grep(/^\s+\/db_xref="taxon:/).first
+	    return nil if ln.nil?
+	    ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, "\\1")
 	    return nil unless ln =~ /^\d+$/
 	    ln
 	 else
