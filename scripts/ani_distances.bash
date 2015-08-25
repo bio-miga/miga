@@ -13,7 +13,7 @@ DS=$($MIGA/miga list_datasets -P "$PROJECT" --ref --no-multi)
 
 echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
 for i in $DS ; do
-   echo "SELECT 'hAAI', seq1, seq2, ani, sd, n, omega from ani ;" \
+   echo "SELECT 'ANI', seq1, seq2, ani, sd, n, omega from ani ;" \
       | sqlite3 "$i.db" | tr "\\|" "\\t" >>miga-project.txt
    echo "$i" >> miga-project.log
 done
