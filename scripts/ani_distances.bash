@@ -11,6 +11,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 echo -n "" > miga-project.log
 DS=$($MIGA/miga list_datasets -P "$PROJECT" --ref --no-multi)
 
+# Extract values
 echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
 for i in $DS ; do
    echo "SELECT 'ANI', seq1, seq2, ani, sd, n, omega from ani ;" \
