@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-30-2015
+# @update Aug-31-2015
 #
 
 require 'miga/dataset'
@@ -210,6 +210,13 @@ module MiGA
 		     File.exist? base + ".#{i}.#{m}"
 	       end
 	    end
+	 when :ogs
+	    return nil unless
+	       File.exist?(base+".ogs") and
+	       File.exist?(base+".stats")
+	    r = Result.new base + ".json"
+	    r.data[:file] = {ogs:"miga-project.ogs",stats:"miga-project.stats"}
+	    r.data[:rbm] = "miga-project.rbm" if Dir.exist? "miga-project.rbm"
 	 end
 	 r.save
 	 r
