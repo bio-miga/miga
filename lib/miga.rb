@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-08-2015
+# @update Aug-31-2015
 #
 
 require 'date'
@@ -12,10 +12,11 @@ require 'miga/project'
 require 'miga/taxonomy'
 
 module MiGA
-   VERSION = [0.1, 1, 7]
+   VERSION = [0.1, 1, 8]
    VERSION_NAME = "crosshatching"
-   VERSION_DATE = Date.new(2015, 7, 8)
-   CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
+   VERSION_DATE = Date.new(2015, 8, 31)
+   CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
+      "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
       @@DEBUG = false
       @@DEBUG_TRACE = false
@@ -31,11 +32,13 @@ module MiGA
       end
       def self.DEBUG *args
 	 $stderr.puts(*args) if @@DEBUG
-	 $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if @@DEBUG_TRACE
+	 $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if
+	    @@DEBUG_TRACE
       end
       def self.VERSION ; VERSION[0] ; end
       def self.LONG_VERSION
-	 "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " + VERSION_DATE.to_s
+	 "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " +
+	    VERSION_DATE.to_s
       end
       def self.CITATION ; CITATION ; end
    end
@@ -44,7 +47,8 @@ end
 class File
    def self.unlink_r(path)
       if Dir.exists? path
-	 Dir.entries.reject{|f| f =~ /^\.\.?$/}.each{|f| File.unlink_r f} unless File.symlink? path
+	 Dir.entries.reject{|f| f =~ /^\.\.?$/}.each{|f| File.unlink_r f} unless
+	    File.symlink? path
 	 Dir.unlink path
       elsif File.exists? path
 	 File.unlink path
