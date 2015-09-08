@@ -12,6 +12,15 @@ library(scatterplot3d)
 subclades <- function(ani_file, out_base, thr=1){
    # Get ANI distances
    a <- read.table(gzfile(ani_file), sep='\t', h=TRUE, as.is=T)
+   if(nrow(a)==0){
+      pdf(paste(out_base,'.pdf',sep=''), 7, 12)
+      plot(1,t='n',axes=F)
+      legend('center','No ANI data',bty='n')
+      dev.off()
+      file.create(paste(out_base,'.1.classif',sep=''))
+      file.create(paste(out_base,'.1.medoids',sep=''))
+      return(NULL)
+   }
    ani.d <- enve.df2dist(cbind(a$a, a$b, 100-a$value), default.d=30)
    ani.hc <- hclust(ani.d, method='ward.D2')
    

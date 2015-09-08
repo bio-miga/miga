@@ -9,8 +9,11 @@ cd "$PROJECT/data/10.clades/02.ani"
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
 # Run R code
-echo "source('$MIGA/utils/subclades.R');
-subclades('../../09.distances/03.ani/miga-project.txt.gz', 'miga-project', $CORES);" | R --vanilla
+echo "
+source('$MIGA/utils/subclades.R');
+subclades('../../09.distances/03.ani/miga-project.txt.gz',
+   'miga-project', $CORES);
+" | R --vanilla
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
