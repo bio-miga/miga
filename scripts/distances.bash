@@ -24,10 +24,13 @@ NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
    | wc -l | awk '{print $1}')
 ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
-   N=10
-   checkpoint_n
+   # Initialize temporals
+   for t in 01.haai 02.aai 03.ani ; do
+      [[ -s $t/$DATASET.db ]] && cp $t/$DATASET.db $TMPDIR/$t.db
+   done
    echo "create table if not exists aai(seq1 varchar(256), seq2 varchar(256)," \
       "aai float, sd float, n int, omega int);" | sqlite3 $TMPDIR/02.aai.db
+   N=1
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
    for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
       echo "=[ $i ]"
