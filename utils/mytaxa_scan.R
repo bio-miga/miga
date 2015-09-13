@@ -7,6 +7,11 @@ mytaxa.scan <- function(
    a <- read.table(wintax, sep='\t', h=F, row.names=1, na.strings='', quote='');
    if(! "NA" %in% rownames(a)) a["NA", ] <- 0
    b <- as.matrix(a[-which(rownames(a)=="NA"),-1]);
+   if(ncol(b)==0){
+      plot(1,t='n',bty='n',axes=FALSE);
+      legend('center',legend='Insufficient data');
+      return(c());
+   }
 
    layout(matrix(c(6,6,1,4,2,3,5,5),byrow=T,ncol=2),
       widths=c(7,1), heights=c(1/4,1,2,3));
