@@ -15,3 +15,5 @@ MCL			mcl			http://micans.org/mcl/
 DIAMOND			diamond			http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.7.9+
 MyTaxa			MyTaxa			http://enve-omics.ce.gatech.edu/mytaxa				The folder must contain the db and utils dirs, and the AllGenomes.faa BLAST database
 Krona			ktImportText		http://krona.sourceforge.net
+Barrnap			barrnap			http://www.vicbioinformatics.com/software.barrnap.shtml
+bedtools		bedtools		http://bedtools.readthedocs.org/en/latest/

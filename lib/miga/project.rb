@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-31-2015
+# @update Sep-25-2015
 #
 
 require 'miga/dataset'
@@ -16,6 +16,7 @@ module MiGA
 	 05.assembly 06.cds
 	 07.annotation 07.annotation/01.function 07.annotation/02.taxonomy
 	 07.annotation/01.function/01.essential
+	 07.annotation/01.function/02.ssu
 	 07.annotation/02.taxonomy/01.mytaxa
 	 07.annotation/03.qa 07.annotation/03.qa/01.checkm
 	 07.annotation/03.qa/02.mytaxa_scan

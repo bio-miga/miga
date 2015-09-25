@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-07-2015
+# @update Sep-25-2015
 #
 
 require 'miga/metadata'
@@ -19,6 +19,7 @@ module MiGA
 	 assembly: "05.assembly", cds: "06.cds",
 	 # Annotation
 	 essential_genes: "07.annotation/01.function/01.essential",
+	 ssu: "07.annotation/01.function/02.ssu",
 	 mytaxa: "07.annotation/02.taxonomy/01.mytaxa",
 	 mytaxa_scan: "07.annotation/03.qa/02.mytaxa_scan",
 	 # Mapping
@@ -37,7 +38,7 @@ module MiGA
 	    "microdiversity).", :multi=>false}
       }
       @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality,
-	 :trimmed_fasta, :assembly, :cds, :essential_genes, :mytaxa,
+	 :trimmed_fasta, :assembly, :cds, :essential_genes, :ssu, :mytaxa,
 	 :mytaxa_scan, :distances]
       @@ONLY_MULTI_TASKS = [:mytaxa]
       @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
@@ -198,6 +199,23 @@ module MiGA
 	       ess_genes: self.name + ".ess.faa",
 	       collection: self.name + ".ess",
 	       report: self.name + ".ess/log"}
+	 when :ssu
+	    return nil unless
+	       File.exist?(base + ".ssu.fa") or
+	       File.exist?(base + ".ssu.fa.gz")
+	    r = Result.new base + ".json"
+	    r.data[:gz] = File.exist?(base + ".ssu.fa.gz")
+	    r.data[:files] = {
+	       longest_ssu_gene: self.name + ".ssu.fa" +
+	       (r.data[:gz] ? ".gz" : "")}
+	    r.data[:files][:gff] = self.name + ".ssu.gff" if
+	       File.exist?(base + ".ssu.gff")
+	    r.data[:files][:gff] = self.name + ".ssu.gff.gz" if
+	       File.exist?(base + ".ssu.gff.gz")
+	    r.data[:files][:all_ssu_genes] = self.name + ".ssu.all.fa" if
+	       File.exist?(base + ".ssu.all.fa")
+	    r.data[:files][:all_ssu_genes] = self.name + ".ssu.all.fa.gz" if
+	       File.exist?(base + ".ssu.all.fa.gz")
 	 when :mytaxa
 	    if !self.metadata[:type].nil? and
 		  Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
