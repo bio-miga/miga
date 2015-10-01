@@ -1,20 +1,20 @@
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-31-2015
+# @update  Oct-01-2015
 #
 
-require 'date'
-require 'json'
-require 'fileutils'
-require 'miga/project'
-require 'miga/taxonomy'
+require "date"
+require "json"
+require "fileutils"
+require "miga/project"
+require "miga/taxonomy"
 
 module MiGA
-   VERSION = [0.1, 1, 8]
+   VERSION = [0.1, 1, 9]
    VERSION_NAME = "crosshatching"
-   VERSION_DATE = Date.new(2015, 8, 31)
+   VERSION_DATE = Date.new(2015, 10, 1)
    CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
       "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
@@ -36,10 +36,12 @@ module MiGA
 	    @@DEBUG_TRACE
       end
       def self.VERSION ; VERSION[0] ; end
+      def self.FULL_VERSION ; VERSION.join(".") ; end
       def self.LONG_VERSION
 	 "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " +
 	    VERSION_DATE.to_s
       end
+      def self.VERSION_DATE ; VERSION_DATE ; end
       def self.CITATION ; CITATION ; end
    end
 end

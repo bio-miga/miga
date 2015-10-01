@@ -1,8 +1,8 @@
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-20-2015
+# @update  Oct-01-2015
 #
 
 module MiGA
@@ -22,7 +22,7 @@ module MiGA
 	 "genus"=>"g",
 	 "species"=>"s","sp"=>"s",
 	 "subspecies"=>"ssp",
-	 "strain"=>"str","isolate"=>"str","culture"=>"str","isolate"=>"str",
+	 "strain"=>"str","isolate"=>"str","culture"=>"str",
 	 "dataset"=>"ds","organism"=>"ds","genome"=>"ds","specimen"=>"ds"
       }
       def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
