@@ -20,7 +20,7 @@ function checkpoint_n {
 }
 
 # Check type of dataset
-NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
    | wc -l | awk '{print $1}')
 ESS="../07.annotation/01.function/01.essential"
 if [[ "$NOMULTI" -eq "1" ]] ; then
@@ -32,7 +32,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       "aai float, sd float, n int, omega int);" | sqlite3 $TMPDIR/02.aai.db
    N=1
    # Traverse "nearly-half" of the ref-datasets using first-come-first-served
-   for i in $($MIGA/bin/list_datasets -P "$PROJECT" --ref --no-multi) ; do
+   for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
       echo "=[ $i ]"
       date "+%Y-%m-%d %H:%M:%S %z"
       # Check if the i-th dataset is ready
@@ -106,5 +106,5 @@ rm -R $TMPDIR
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r distances
+miga add_result -P "$PROJECT" -D "$DATASET" -r distances
 

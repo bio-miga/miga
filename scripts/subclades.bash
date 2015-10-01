@@ -17,5 +17,5 @@ subclades('../../09.distances/03.ani/miga-project.txt.gz',
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-$MIGA/bin/add_result -P "$PROJECT" -r subclades
+miga add_result -P "$PROJECT" -r subclades
 

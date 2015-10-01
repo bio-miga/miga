@@ -11,14 +11,19 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 # Find and extract essential genes
 [[ -d "$DATASET.ess" ]] && rm -R "$DATASET.ess"
 mkdir "$DATASET.ess"
-TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --metadata "type" | awk '{print $2}')
+TYPE=$(miga list_datasets -P "$PROJECT" -D "$DATASET" \
+   --metadata "type" | awk '{print $2}')
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
-   HMM.essential.rb -i "../../../06.cds/$DATASET.faa" -o "$DATASET.ess.faa" -m "$DATASET.ess/" -t "$CORES" -r "$DATASET" --metagenome > "$DATASET.ess/log"
+   HMM.essential.rb -i "../../../06.cds/$DATASET.faa" -o "$DATASET.ess.faa" \
+      -m "$DATASET.ess/" -t "$CORES" -r "$DATASET" --metagenome \
+      > "$DATASET.ess/log"
 else
-   HMM.essential.rb -i "../../../06.cds/$DATASET.faa" -o "$DATASET.ess.faa" -m "$DATASET.ess/" -t "$CORES" -r "$DATASET" > "$DATASET.ess/log"
+   HMM.essential.rb -i "../../../06.cds/$DATASET.faa" -o "$DATASET.ess.faa" \
+      -m "$DATASET.ess/" -t "$CORES" -r "$DATASET" \
+      > "$DATASET.ess/log"
 fi
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r essential
+miga add_result -P "$PROJECT" -D "$DATASET" -r essential
 

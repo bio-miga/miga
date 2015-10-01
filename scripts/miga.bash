@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
-#MIGA=$(cd "$(dirname "$0")/.."; pwd)
+#MIGA=${MIGA:-$(cd "$(dirname "$0")/.."; pwd)}
 source "$HOME/.miga_rc"
+export PATH="$MIGA/bin:$PATH"
 
 function exists { [[ -e "$1" ]] ; }
 

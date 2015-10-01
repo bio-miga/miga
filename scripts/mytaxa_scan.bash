@@ -12,7 +12,7 @@ date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 MT=$(dirname -- $(which MyTaxa))
 
 # Check type of dataset
-NOMULTI=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
    | wc -l | awk '{print $1}')
 if [[ "$NOMULTI" -eq "1" ]] ; then
    # Check requirements
@@ -78,5 +78,5 @@ fi
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r mytaxa_scan
+miga add_result -P "$PROJECT" -D "$DATASET" -r mytaxa_scan
 

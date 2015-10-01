@@ -11,9 +11,6 @@ b=$DATASET
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
 # Assemble
-# The type might be useful in future versions of IDBA, but for now all supported types
-# can be handled by IDBA-UD
-# TYPE=$($MIGA/bin/list_datasets -P "$PROJECT" -D "$DATASET" --metadata "type" | awk '{print $2}')
 FA="../04.trimmed_fasta/$DATASET.CoupledReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
 [[ -e $FA ]] || FA="../04.trimmed_fasta/$DATASET.SingleReads.fa"
@@ -31,9 +28,11 @@ if [[ -s $DATASET/scaffold.fa ]] ; then
 else
    ln -s $DATASET/contig.fa $DATASET.AllContigs.fna
 fi
-FastA.length.pl $DATASET.AllContigs.fna | awk '$2>=1000{print $1}' | FastA.filter.pl /dev/stdin $DATASET.AllContigs.fna > $DATASET.LargeContigs.fna
+FastA.length.pl $DATASET.AllContigs.fna | awk '$2>=1000{print $1}' \
+   | FastA.filter.pl /dev/stdin $DATASET.AllContigs.fna \
+   > $DATASET.LargeContigs.fna
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r assembly
+miga add_result -P "$PROJECT" -D "$DATASET" -r assembly
 

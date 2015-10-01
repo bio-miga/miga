@@ -28,5 +28,5 @@ gzip -9 -f "$DATASET.ssu.all.fa"
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-$MIGA/bin/add_result -P "$PROJECT" -D "$DATASET" -r ssu
+miga add_result -P "$PROJECT" -D "$DATASET" -r ssu
 

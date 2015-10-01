@@ -27,13 +27,14 @@ function check_req {
 
 function check_rlib {
    local rlib=$1
-   gotit=$(echo "if(require($rlib)) cat('GOT','IT')"|R --vanilla -q 2>&1 |grep "GOT IT"|wc -l|awk '{print $1}')
+   gotit=$(echo "if(require($rlib)) cat('GOT','IT')" | R --vanilla -q 2>&1 \
+      | grep "GOT IT" | wc -l | awk '{print $1}')
    [[ "$gotit" == "1" ]]
 }
 
 function check_gem {
    local gem=$1
-   gotit=$(echo "require '$gem' | ruby 2>/dev/null && echo 1")
+   gotit=$(echo "require '$gem'" | ruby 2>/dev/null && echo 1)
    [[ "$gotit" == "1" ]]
 }
 
@@ -113,7 +114,8 @@ RLIBS="ape ggdendro ggplot2 gridExtra cluster dendextend vegan scatterplot3d"
 for lib in $RLIBS ; do
    if ! check_rlib $lib ; then
       echo "+ Installing $lib" >&2
-      echo "install.packages('$lib', repos='http://cran.rstudio.com/')" | R --vanilla -q
+      echo "install.packages('$lib', repos='http://cran.rstudio.com/')" \
+	 | R --vanilla -q
    fi
 done
 

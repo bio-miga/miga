@@ -9,7 +9,7 @@ cd "$PROJECT/data/10.clades/03.ogs"
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
 echo -n "" > miga-project.log
-DS=$($MIGA/miga list_datasets -P "$PROJECT" --ref --no-multi)
+DS=$(miga list_datasets -P "$PROJECT" --ref --no-multi)
 
 # Extract RBMs
 [[ -d miga-project.rbm ]] || mkdir miga-project.rbm
@@ -32,5 +32,5 @@ ogs.stats.rb -o miga-project.ogs -j miga-project.stats
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-$MIGA/bin/add_result -P "$PROJECT" -r ogs
+miga add_result -P "$PROJECT" -r ogs
 

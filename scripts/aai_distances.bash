@@ -9,7 +9,7 @@ cd "$PROJECT/data/09.distances/02.aai"
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
 echo -n "" > miga-project.log
-DS=$($MIGA/miga list_datasets -P "$PROJECT" --ref --no-multi)
+DS=$(miga list_datasets -P "$PROJECT" --ref --no-multi)
 
 # Extract values
 echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
@@ -31,5 +31,5 @@ gzip -9 -f miga-project.txt
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-$MIGA/miga add_result -P "$PROJECT" -r aai_distances
+miga add_result -P "$PROJECT" -r aai_distances
 

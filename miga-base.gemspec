@@ -14,8 +14,9 @@ Gem::Specification.new do |s|
    s.files	+= Dir["scripts/*.bash"]
    s.files	+= Dir["utils/*"]
    s.files	+= Dir["bin/*"]
+   s.files      += Dir["actions/*"]
    s.homepage	= "http://enve-omics.ce.gatech.edu/miga"
-   s.executables << "../miga"
+   s.executables << "miga"
    s.date	= MiGA::MiGA.VERSION_DATE.to_s
    s.add_runtime_dependency "rest-client", "~> 1.7"
    s.add_runtime_dependency "sqlite3", "~> 1.3"
