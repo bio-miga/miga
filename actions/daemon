@@ -13,7 +13,7 @@ ARGV << "-h" if ARGV.empty?
 o = {q:true, update:false, daemon_opts:[]}
 OptionParser.new do |opt|
    opt.banner = <<BAN
-Controls the daemon of an MiGA project.
+Controls the daemon of a MiGA project.
 
 Usage: #{$0} #{File.basename(__FILE__)} {task} [options]
 BAN
@@ -29,7 +29,7 @@ BAN
    opt.separator ""
    opt.separator "MiGA options:"
    opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+      "(Mandatory) Path to the project to use."){ |v| o[:project]=v }
    opt.on("--latency INT",
       "Number of seconds the daemon will be sleeping."
       ){ |v| o[:latency]=v.to_i }
