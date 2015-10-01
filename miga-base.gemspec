@@ -2,7 +2,7 @@ $:.push File.expand_path(File.dirname(__FILE__) + "/lib")
 require "miga"
 
 Gem::Specification.new do |s|
-   s.name	= "bio-miga"
+   s.name	= "miga-base"
    s.version	= MiGA::MiGA.FULL_VERSION
    s.license	= "artistic 2.0"
    s.summary	= "MiGA"
