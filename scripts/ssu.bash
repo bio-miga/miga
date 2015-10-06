@@ -3,7 +3,7 @@
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
-DIR="$PROJECT/data/07.annotation/01.function/02.rrna"
+DIR="$PROJECT/data/07.annotation/01.function/02.ssu"
 [[ -d "$DIR" ]] || mkdir -p "$DIR"
 cd "$DIR"
 
