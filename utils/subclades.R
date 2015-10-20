@@ -9,9 +9,13 @@ library(vegan)
 library(scatterplot3d)
 
 # Main function
-subclades <- function(ani_file, out_base, thr=1){
+subclades <- function(ani_file, out_base, thr=1, ani=c()){
    # Get ANI distances
-   a <- read.table(gzfile(ani_file), sep='\t', h=TRUE, as.is=T)
+   if(missing(ani_file)){
+      a <- as.data.frame(ani)
+   } else {
+      a <- read.table(gzfile(ani_file), sep='\t', h=TRUE, as.is=T)
+   }
    if(nrow(a)==0){
       pdf(paste(out_base,'.pdf',sep=''), 7, 12)
       plot(1,t='n',axes=F)
@@ -72,6 +76,20 @@ subclades <- function(ani_file, out_base, thr=1){
 	 quote=FALSE, col.names=FALSE, row.names=FALSE)
       write.table(ani.types[,i], paste(out_base,i,'classif',sep='.'),
 	 quote=FALSE, col.names=FALSE, row.names=TRUE, sep='\t')
+   }
+
+   # Explore subclades
+   for(i in 1:top.n[1]){
+      medoid <- ani.medoids[[1]][1]
+      ds_f <- labels(as.dendrogram(ani.hc))[ ani.types[,1]==i ]
+      if(length(ds_f) > 5){
+	 a_f <- ani[ ani$a %in% ds_f, ]
+	 dir.create(paste(out_base,'.1.subcl-',medoid,sep=''))
+	 write.table(ds_f, paste(out_base,'.1.subcl-',medoid,'/miga-project.all',sep=''),
+	    quote=FALSE, col.names=FALSE, row.names=FALSE)
+	 subclades(out_base=paste(out_base,'.1.subcl-',medoid,'/miga-project',sep=''),
+	    thr=thr, ani=a_f)
+      }
    }
 }
 
