@@ -75,6 +75,7 @@ end
 
 class String
    def miga_name ; gsub /[^A-Za-z0-9_]/, "_" ; end
+   def miga_name? ; self == self.miga_name ; end
    def unmiga_name ; gsub /_/, " " ; end
 end
 
