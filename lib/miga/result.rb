@@ -1,8 +1,8 @@
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Jul-09-2015
+# @update  Oct-01-2015
 #
 
 module MiGA
@@ -46,7 +46,10 @@ module MiGA
 	 @results = self.data[:results].map{ |rs| Result.new rs }
       end
       def remove!
-	 self.each_file { |file| File.unlink_r(self.dir + file) if File.exist? self.dir + file }
+	 self.each_file do |file|
+	    file_path = self.dir + "/" + file
+	    File.unlink_r(file_path) if File.exist? file_path
+	 end
 	 File.unlink self.path
       end
       def each_file(&blk)
