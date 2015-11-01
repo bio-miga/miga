@@ -51,7 +51,7 @@ class File
       if Dir.exists? path
 	 unless File.symlink? path
 	    Dir.entries(path).reject{|f| f =~ /^\.\.?$/}.each do |f|
-	       File.unlink_r f
+	       File.unlink_r path + "/" + f
 	    end
 	 end
 	 Dir.unlink path
