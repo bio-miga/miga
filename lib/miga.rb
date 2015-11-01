@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Oct-01-2015
+# @update  Nov-01-2015
 #
 
 require "date"
@@ -49,8 +49,11 @@ end
 class File
    def self.unlink_r(path)
       if Dir.exists? path
-	 Dir.entries.reject{|f| f =~ /^\.\.?$/}.each{|f| File.unlink_r f} unless
-	    File.symlink? path
+	 unless File.symlink? path
+	    Dir.entries(path).reject{|f| f =~ /^\.\.?$/}.each do |f|
+	       File.unlink_r f
+	    end
+	 end
 	 Dir.unlink path
       elsif File.exists? path
 	 File.unlink path
