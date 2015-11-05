@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Oct-01-2015
+# @update  Oct-05-2015
 #
 
 module MiGA
@@ -56,6 +56,7 @@ module MiGA
 	    (0 .. str.size).each{ |i| self << "#{ranks[i]}:#{str[i]}" }
 	 end
       end
+      
       def <<(value)
 	 if value.is_a? Array
 	    value.each{ |v| self << v }
@@ -71,7 +72,9 @@ module MiGA
 	    raise "Unsupported class '#{value.class.name}'."
 	 end
       end
+      
       def [](rank) @ranks[ rank.to_sym ] ; end
+      
       ### Evaluates if the loaded taxonomy includes `taxon`. It assumes that
       ### `taxon` only has one informative rank. The evaluation is
       ### case-insensitive.
@@ -80,12 +83,22 @@ module MiGA
 	 return false if self[ r ].nil?
 	 self[ r ].downcase == taxon[ r ].downcase
       end
-      def to_s
+      
+      ### Sorted list of ranks, as two-entry arrays
+      def sorted_ranks
 	 @@KNOWN_RANKS.map do |r|
-	    self.ranks[r].nil? ? nil :
-	       "#{r.to_s}:#{self.ranks[r].gsub(/\s/,"_")}"
-	 end.compact.join(" ")
+	    ranks[r].nil? ? nil : [r, ranks[r]]
+	 end.compact
       end
+
+      def highest; sorted_ranks.first ; end
+
+      def lowest; sorted_ranks.last ; end
+      
+      def to_s
+	 sorted_ranks.map{ |r| "#{r[0].to_s}:#{r[1].gsub(/\s/,"_")}" }.join(" ")
+      end
+      
       def to_json(*a)
 	 { JSON.create_id => self.class.name, "str" => self.to_s }.to_json(*a)
       end
