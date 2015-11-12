@@ -7,6 +7,7 @@
 
 require "miga/project"
 require "daemons"
+require "date"
 
 module MiGA
    class Daemon
@@ -18,6 +19,11 @@ module MiGA
 	    {:symbolize_names=>true})
 	 @jobs_to_run = []
 	 @jobs_running = []
+      end
+      def last_alive
+         f = File.expand_path("daemon/alive", project.path)
+	 return nil unless File.size? f
+	 DateTime.parse(File.read(f))
       end
       def default_options
          { dir_mode: :normal, dir: File.expand_path("daemon", project.path),
