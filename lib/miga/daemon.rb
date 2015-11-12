@@ -11,6 +11,12 @@ require "date"
 
 module MiGA
    class Daemon
+      def self.last_alive(p)
+         f = File.expand_path("daemon/alive", p.path)
+	 return nil unless File.size? f
+	 DateTime.parse(File.read(f))
+      end
+      
       attr_reader :project, :options, :jobs_to_run, :jobs_running
       def initialize(p)
 	 @project = p
@@ -21,9 +27,7 @@ module MiGA
 	 @jobs_running = []
       end
       def last_alive
-         f = File.expand_path("daemon/alive", project.path)
-	 return nil unless File.size? f
-	 DateTime.parse(File.read(f))
+	 Daemon.last_alive project
       end
       def default_options
          { dir_mode: :normal, dir: File.expand_path("daemon", project.path),
