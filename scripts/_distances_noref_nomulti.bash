@@ -60,12 +60,14 @@ echo $CLASSIF > "$DATASET.class"
 
 # Calculate all the ANIs against the lowest subclade (if classified in-clade)
 if [[ "$CLASSIF" != "." ]] ; then
-   for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
-      ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-	 -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a --lookup-first \
-	 -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
-      checkpoint_n
-   done
+   if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
+      for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
+	 ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
+	    -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a --lookup-first \
+	    -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
+	 checkpoint_n
+      done
+   fi
 fi
 
 # Finalize
