@@ -82,12 +82,16 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()){
    for(i in 1:top.n[1]){
       medoid <- ani.medoids[[1]][i]
       ds_f <- labels(as.dendrogram(ani.hc))[ ani.types[,1]==i ]
+      cat("Analyzing subclade with medoid:", medoid, "\n")
+      cat("   ds_f: ", ds_f, "\n")
       if(length(ds_f) > 5){
 	 a_f <- ani[ ani$a %in% ds_f, ]
 	 dir.create(paste(out_base,'.1.subcl-',medoid,sep=''))
 	 write.table(ds_f,
 	    paste(out_base,'.1.subcl-',medoid,'/miga-project.all',sep=''),
 	    quote=FALSE, col.names=FALSE, row.names=FALSE)
+	 cat("   looking for subclades within: ",
+	    out_base, ".1.subcl-", medoid, "\n", sep="")
 	 subclades(
 	    out_base=paste(out_base,'.1.subcl-',medoid,'/miga-project',sep=''),
 	    thr=thr, ani=a_f)
