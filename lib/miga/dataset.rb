@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Sep-25-2015
+# @update Nov-18-2015
 #
 
 require 'miga/metadata'
@@ -267,8 +267,13 @@ module MiGA
 	    if !self.metadata[:type].nil? and
 		  !Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
 	       pref = self.project.path + "/data/" + @@RESULT_DIRS[result_type]
-	       return nil unless
-		  File.exist?(pref + "/01.haai/" + self.name + ".db")
+	       if is_ref?
+		  return nil unless
+		     File.exist?(pref + "/01.haai/" + self.name + ".db")
+	       else
+		  return nil unless
+		     File.exist?(pref + "/02.aai/" + self.name + ".db")
+	       end
 	       r = Result.new base + ".json"
 	       r.data[:files] = {}
 	       r.data[:files][:haai_db] =
