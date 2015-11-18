@@ -71,5 +71,6 @@ if [[ "$CLASSIF" != "." ]] ; then
 fi
 
 # Finalize
-mv $TMPDIR/$DATASET.a[an]i.db .
+mv $TMPDIR/$DATASET.aai.db 02.aai/$DATASET.db
+mv $TMPDIR/$DATASET.ani.db 03.ani/$DATASET.db
 
