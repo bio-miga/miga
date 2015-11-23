@@ -204,10 +204,10 @@ module MiGA
 	       File.exist?(base+".1.classif") and
 	       File.exist?(base+".1.medoids")
 	    r = Result.new base + ".json"
-	    r.data[:file] = {report: "miga-project.pdf"}
+	    r.data[:files] = {report: "miga-project.pdf"}
 	    (1..6).each do |i|
 	       %w{classif medoids}.each do |m|
-		  r.data[:file]["#{m}_#{i}".to_sym]="miga-project.#{i}.#{m}" if
+		  r.data[:files]["#{m}_#{i}".to_sym]="miga-project.#{i}.#{m}" if
 		     File.exist? base + ".#{i}.#{m}"
 	       end
 	    end
@@ -216,8 +216,9 @@ module MiGA
 	       File.exist?(base+".ogs") and
 	       File.exist?(base+".stats")
 	    r = Result.new base + ".json"
-	    r.data[:file] = {ogs:"miga-project.ogs",stats:"miga-project.stats"}
-	    r.data[:rbm] = "miga-project.rbm" if Dir.exist? "miga-project.rbm"
+	    r.data[:files] = {ogs:"miga-project.ogs",stats:"miga-project.stats"}
+	    r.data[:files][:rbm] = "miga-project.rbm" if
+	       Dir.exist? "miga-project.rbm"
 	 end
 	 r.save
 	 r
