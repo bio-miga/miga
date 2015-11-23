@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Sep-25-2015
+# @update Nov-23-2015
 #
 
 require 'miga/dataset'
@@ -161,7 +161,7 @@ module MiGA
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
 	 Result.load self.path + "/data/" + @@RESULT_DIRS[name.to_sym] + 
-	    "/result.json"
+	    "/miga-project.json"
       end
       def results
 	 @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? }

@@ -5,7 +5,13 @@
 function checkpoint_n {
    if [[ $N -eq 10 ]] ; then
       for t in 01.haai 02.aai 03.ani ; do
-         [[ -s $TMPDIR/$t.db ]] && cp $TMPDIR/$t.db $t/$DATASET.db
+         if [[ -s $TMPDIR/$t.db ]] ; then
+	    tab="aai"
+	    [[ "$t" == "03.ani" ]] && tab="ani"
+	    [[ echo "select count(*) from $tab;" | sqlite3 $TMPDIR/$t.db ]] \
+	       || exit 1
+	    cp $TMPDIR/$t.db $t/$DATASET.db
+	 fi
       done
       N=0
    fi

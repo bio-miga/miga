@@ -12,9 +12,9 @@ require "miga/project"
 require "miga/taxonomy"
 
 module MiGA
-   VERSION = [0.2, 0, 3]
+   VERSION = [0.2, 0, 4]
    VERSION_NAME = "pochoir"
-   VERSION_DATE = Date.new(2015, 11, 12)
+   VERSION_DATE = Date.new(2015, 11, 23)
    CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
       "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
