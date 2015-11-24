@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Nov-18-2015
+# @update Nov-24-2015
 #
 
 require 'miga/metadata'
@@ -150,7 +150,7 @@ module MiGA
 	    r = Result.new base + ".json"
 	    r.data[:files] = {
 	       solexaqa: self.name + ".solexaqa",
-	       fastqc: self.name + "fastqc"}
+	       fastqc: self.name + ".fastqc"}
 	    self.add_result :trimmed_reads #-> Post cleaning
 	 when :trimmed_fasta
 	    return nil unless
