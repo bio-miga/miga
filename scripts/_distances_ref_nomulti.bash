@@ -8,7 +8,8 @@ function checkpoint_n {
          if [[ -s $TMPDIR/$t.db ]] ; then
 	    tab="aai"
 	    [[ "$t" == "03.ani" ]] && tab="ani"
-	    [[ echo "select count(*) from $tab;" | sqlite3 $TMPDIR/$t.db ]] \
+	    echo "select count(*) from $tab;" \
+	       | sqlite3 $TMPDIR/$t.db\
 	       || exit 1
 	    cp $TMPDIR/$t.db $t/$DATASET.db
 	 fi

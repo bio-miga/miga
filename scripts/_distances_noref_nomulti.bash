@@ -11,8 +11,8 @@ function checkpoint_n {
    if [[ $N -ge 10 ]] ; then
       for metric in aai ani ; do
 	 if [[ -s $TMPDIR/$DATASET.$metric.db ]] ; then
-	    [[ echo "select count(*) from $metric;" \
-	       | sqlite3 $TMPDIR/$DATASET.$metric.db ]] \
+	    echo "select count(*) from $metric;" \
+	       | sqlite3 $TMPDIR/$DATASET.$metric.db \
 	       || exit 1
 	    cp $TMPDIR/$DATASET.$metric.db .
 	 fi
