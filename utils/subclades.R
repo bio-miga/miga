@@ -11,6 +11,7 @@ library(scatterplot3d)
 # Main function
 subclades <- function(ani_file, out_base, thr=1, ani=c()){
    # Get ANI distances
+   cat("====", out_base, "\n")
    if(missing(ani_file)){
       a <- as.data.frame(ani)
    } else {
@@ -74,26 +75,30 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()){
    for(i in 1:length(top.n)){
       write.table(ani.medoids[[i]], paste(out_base,i,'medoids',sep='.'),
 	 quote=FALSE, col.names=FALSE, row.names=FALSE)
-      write.table(ani.types[,i], paste(out_base,i,'classif',sep='.'),
-	 quote=FALSE, col.names=FALSE, row.names=TRUE, sep='\t')
+      classif <- cbind(rownames(ani.types), ani.types[,i],
+	 ani.medoids[[i]][ ani.types[,i] ], NA)
+      for(j in 1:nrow(classif))
+	 classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]
+      write.table(classif, paste(out_base,i,'classif',sep='.'),
+	 quote=FALSE, col.names=FALSE, row.names=FALSE, sep='\t')
    }
 
    # Explore subclades
    for(i in 1:top.n[1]){
       medoid <- ani.medoids[[1]][i]
       ds_f <- labels(as.dendrogram(ani.hc))[ ani.types[,1]==i ]
-      cat("Analyzing subclade with medoid:", medoid, "\n")
+      cat("Analyzing subclade", i, "with medoid:", medoid, "\n")
       cat("   ds_f: ", ds_f, "\n")
       if(length(ds_f) > 5){
-	 a_f <- ani[ ani$a %in% ds_f, ]
-	 dir.create(paste(out_base,'.1.subcl-',medoid,sep=''))
+	 a_f <- a[ a$a %in% ds_f & a$b %in% ds_f, ]
+	 dir.create(paste(out_base,'.1.sc-',i,sep=''))
 	 write.table(ds_f,
-	    paste(out_base,'.1.subcl-',medoid,'/miga-project.all',sep=''),
+	    paste(out_base,'.1.sc-',i,'/miga-project.all',sep=''),
 	    quote=FALSE, col.names=FALSE, row.names=FALSE)
 	 cat("   looking for subclades within: ",
-	    out_base, ".1.subcl-", medoid, "\n", sep="")
+	    out_base, ".1.sc-", i, "\n", sep="")
 	 subclades(
-	    out_base=paste(out_base,'.1.subcl-',medoid,'/miga-project',sep=''),
+	    out_base=paste(out_base,'.1.sc-',i,'/miga-project',sep=''),
 	    thr=thr, ani=a_f)
       }
    }
