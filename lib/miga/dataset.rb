@@ -55,7 +55,7 @@ module MiGA
       attr_reader :project, :name, :metadata
       def initialize(project, name, is_ref=true, metadata={})
 	 abort "Invalid name '#{name}', please use only alphanumerics and " +
-	    "underscores." if name.miga_name?
+	    "underscores." unless name.miga_name?
 	 @project = project
 	 @name = name
 	 metadata[:ref] = is_ref
