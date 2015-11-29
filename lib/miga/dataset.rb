@@ -90,9 +90,9 @@ module MiGA
 	 return false if self.metadata[:type].nil?
 	 return !@@KNOWN_TYPES[self.metadata[:type]][:multi]
       end
-      def result(name)
-	 return nil if @@RESULT_DIRS[name.to_sym].nil?
-	 Result.load(project.path + "/data/" + @@RESULT_DIRS[name.to_sym] +
+      def result(k)
+	 return nil if @@RESULT_DIRS[k.to_sym].nil?
+	 Result.load(project.path + "/data/" + @@RESULT_DIRS[k.to_sym] +
 	    "/" + name + ".json")
       end
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.compact end
