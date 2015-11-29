@@ -2,12 +2,12 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Nov-24-2015
+# @update Nov-29-2015
 #
 
-require 'miga/metadata'
-require 'miga/project'
-require 'miga/result'
+require "miga/metadata"
+require "miga/project"
+require "miga/result"
 
 module MiGA
    class Dataset
@@ -55,17 +55,17 @@ module MiGA
       attr_reader :project, :name, :metadata
       def initialize(project, name, is_ref=true, metadata={})
 	 abort "Invalid name '#{name}', please use only alphanumerics and " +
-	    "underscores." if name !~ /^[A-Za-z0-9_]+$/
+	    "underscores." if name.miga_name?
 	 @project = project
 	 @name = name
 	 metadata[:ref] = is_ref
-	 @metadata = Metadata.new(self.project.path + "/metadata/" + self.name +
-	    ".json", metadata)
+	 @metadata = Metadata.new(project.path + "/metadata/" + name + ".json",
+	    metadata)
       end
       def save
-	 self.metadata[:type] = :metagenome if !self.metadata[:tax].nil? and
-	    !self.metadata[:tax][:ns].nil? and
-	    self.metadata[:tax][:ns]=="COMMUNITY"
+	 self.metadata[:type] = :metagenome if !metadata[:tax].nil? and
+	    !metadata[:tax][:ns].nil? and
+	    metadata[:tax][:ns]=="COMMUNITY"
 	 self.metadata.save
 	 self.load
       end
@@ -92,8 +92,8 @@ module MiGA
       end
       def result(name)
 	 return nil if @@RESULT_DIRS[name.to_sym].nil?
-	 Result.load(self.project.path + "/data/" + @@RESULT_DIRS[name.to_sym] +
-	    "/" + self.name + ".json")
+	 Result.load(project.path + "/data/" + @@RESULT_DIRS[name.to_sym] +
+	    "/" + name + ".json")
       end
       def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.compact end
       def each_result(&blk)
@@ -104,8 +104,8 @@ module MiGA
       end
       def add_result result_type
 	 return nil if @@RESULT_DIRS[result_type].nil?
-	 base = self.project.path + "/data/" + @@RESULT_DIRS[result_type] +
-	    "/" + self.name
+	 base = project.path + "/data/" + @@RESULT_DIRS[result_type] +
+	    "/" + name
 	 return nil unless File.exist? base + ".done"
 	 r = nil
 	 case result_type
@@ -116,12 +116,10 @@ module MiGA
 	    r = Result.new base + ".json"
 	    r.data[:gz] = File.exist?(base + ".1.fastq.gz")
 	    if File.exist? base + ".2.fastq" + (r.data[:gz] ? ".gz" : "")
-	       r.data[:files] = {
-		  pair1: self.name + ".1.fastq" + (r.data[:gz] ? ".gz" : ""),
-		  pair2: self.name + ".2.fastq" + (r.data[:gz] ? ".gz" : "")}
+	       r.add_file :pair1, name + ".1.fastq"
+	       r.add_file :pair2, name + ".2.fastq"
 	    else
-	       r.data[:files] = {
-		  single: self.name + ".1.fastq" + (r.data[:gz] ? ".gz" : "")}
+	       r.add_file :single, name + ".1.fastq"
 	    end
 	 when :trimmed_reads
 	    return nil unless
@@ -129,162 +127,112 @@ module MiGA
 	       File.exist?(base + ".1.clipped.fastq.gz")
 	    r = Result.new base + ".json"
 	    r.data[:gz] = File.exist?(base + ".1.clipped.fastq.gz")
-	    r.data[:files] = {}
 	    if File.exist? base + ".2.clipped.fastq" + (r.data[:gz] ? ".gz":"")
-	       r.data[:files][:pair1] =
-		  self.name + ".1.clipped.fastq" + (r.data[:gz] ? ".gz" : "")
-	       r.data[:files][:pair2] =
-		  self.name + ".2.clipped.fastq" + (r.data[:gz] ? ".gz" : "")
-	       r.data[:files][:single] =
-		  self.name + ".1.clipped.single.fastq" +
-		  (r.data[:gz] ? ".gz" : "")
-	    else
-	       r.data[:files][:single] =
-		  self.name + ".1.clipped.fastq" + (r.data[:gz] ? ".gz" : "")
+	       r.add_file :pair1, name + ".1.clipped.fastq"
+	       r.add_file :pair2, name + ".2.clipped.fastq"
 	    end
-	    self.add_result :raw_reads #-> Post gunzip (if any)
+	    r.add_file :single, name + ".1.clipped.single.fastq"
+	    add_result :raw_reads #-> Post gunzip (if any)
 	 when :read_quality
 	    return nil unless
 	       Dir.exist?(base + ".solexaqa") and
 	       Dir.exist?(base + ".fastqc")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {
-	       solexaqa: self.name + ".solexaqa",
-	       fastqc: self.name + ".fastqc"}
-	    self.add_result :trimmed_reads #-> Post cleaning
+	    r.add_file :solexaqa, self.name + ".solexaqa"
+	    r.add_file :fastqc, self.name + ".fastqc"
+	    add_result :trimmed_reads #-> Post cleaning
 	 when :trimmed_fasta
 	    return nil unless
 	       File.exist?(base + ".CoupledReads.fa") or
 	       File.exist?(base + ".SingleReads.fa")
 	    r = Result.new base + ".json"
 	    if File.exist?(base + ".CoupledReads.fa")
-	       r.data[:files] = {
-		  coupled: self.name + ".CoupledReads.fa",
-		  pair1: self.name + ".1.fasta.gz",
-		  pair2: self.name + ".2.fasta.gz",
-		  single: self.name + ".SingleReads.fa.gz"}
-	    else
-	       r.data[:files] = {
-		  single: self.name + ".SingleReads.fa"}
+	       r.add_file :coupled, name + ".CoupledReads.fa"
+	       r.add_file :pair1, name + ".1.fa"
+	       r.add_file :pair2, name + ".2.fa"
 	    end
-	    self.add_result :raw_reads #-> Post gzip
+	    r.add_file :single, name + ".SingleReads.fa"
+	    add_result :raw_reads #-> Post gzip
 	 when :assembly
 	    return nil unless
 	       File.exist?(base + ".LargeContigs.fna")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {largecontigs: self.name + ".LargeContigs.fna"}
-	    r.data[:files][:allcontigs] = self.name + ".AllContigs.fna" if
-	       File.exist?(base + ".AllContigs.fna")
+	    r.add_file :largecontigs, name + ".LargeContigs.fna"
+	    r.add_file :allcontigs, name + ".AllContigs.fna"
 	 when :cds
 	    return nil unless
 	       File.exist?(base + ".faa") and
 	       File.exist?(base + ".fna")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {
-	       proteins: self.name + ".faa",
-	       genes: self.name + ".fna"}
-	    r.data[:files][:gff2] = self.name + ".gff2.gz" if
-	       File.exist? self.name + ".gff2.gz"
-	    r.data[:files][:gff3] = self.name + ".gff3.gz" if
-	       File.exist? self.name + ".gff3.gz"
-	    r.data[:files][:tab] = self.name + ".tab.gz" if
-	       File.exist? self.name + ".tab.gz"
+	    r.add_file :proteins, name + ".faa"
+	    r.add_file :genes, name + ".fna"
+	    %w(gff2 gff3 tab).each do |ext|
+	       r.add_file ext, "#{name}.#{ext}"
+	    end
 	 when :essential_genes
 	    return nil unless
 	       File.exist?(base + ".ess.faa") and
 	       Dir.exist?(base + ".ess") and
 	       File.exist?(base + ".ess/log")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {
-	       ess_genes: self.name + ".ess.faa",
-	       collection: self.name + ".ess",
-	       report: self.name + ".ess/log"}
+	    r.add_file :ess_genes, name + ".ess.faa"
+	    r.add_file :collection, name + ".ess"
+	    r.add_file :report, name + ".ess/log"
 	 when :ssu
 	    return nil unless
 	       File.exist?(base + ".ssu.fa") or
 	       File.exist?(base + ".ssu.fa.gz")
 	    r = Result.new base + ".json"
 	    r.data[:gz] = File.exist?(base + ".ssu.fa.gz")
-	    r.data[:files] = {
-	       longest_ssu_gene: self.name + ".ssu.fa" +
-	       (r.data[:gz] ? ".gz" : "")}
-	    r.data[:files][:gff] = self.name + ".ssu.gff" if
-	       File.exist?(base + ".ssu.gff")
-	    r.data[:files][:gff] = self.name + ".ssu.gff.gz" if
-	       File.exist?(base + ".ssu.gff.gz")
-	    r.data[:files][:all_ssu_genes] = self.name + ".ssu.all.fa" if
-	       File.exist?(base + ".ssu.all.fa")
-	    r.data[:files][:all_ssu_genes] = self.name + ".ssu.all.fa.gz" if
-	       File.exist?(base + ".ssu.all.fa.gz")
+	    r.add_file :longest_ssu_gene, name + ".ssu.fa"
+	    r.add_file :gff, name + ".ssu.gff"
+	    r.add_file :all_ssu_genes, name + ".ssu.all.fa"
 	 when :mytaxa
-	    if !self.metadata[:type].nil? and
-		  Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	    if is_multi?
 	       return nil unless File.exist?(base + ".mytaxa")
 	       r = Result.new base + ".json"
-	       r.data[:files] = {mytaxa: self.name + ".mytaxa"}
 	       r.data[:gz] = File.exist?(base + ".mytaxain.gz")
-	       r.data[:files][:blast] =
-		  self.name + ".blast" + (r.data[:gz] ? ".gz" : "") if
-		  File.exist?(base + ".blast" + (r.data[:gz] ? ".gz" : ""))
-	       r.data[:files][:mytaxain] =
-		  self.name + ".mytaxain" + (r.data[:gz] ? ".gz" : "") if
-		  File.exist?(base + ".mytaxain" + (r.data[:gz] ? ".gz" : ""))
+	       r.add_file :mytaxa, name + ".mytaxa"
+	       r.add_file :blast, name + ".blast"
+	       r.add_file :mytaxain, name + ".mytaxain"
 	    else
 	       r = Result.new base + ".json"
 	       r.data[:files] = {}
 	    end
 	 when :mytaxa_scan
-	    if !self.metadata[:type].nil? and
-		  !Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
+	    if is_nonmulti?
 	       return nil unless
-		  File.exists?(base+".pdf") and
-		  File.exist?(base+".wintax") and
-		  File.exist?(base+".mytaxa") and
-		  Dir.exist?(base+".reg")
+		  File.exists?(base + ".pdf") and
+		  File.exist?(base + ".wintax") and
+		  File.exist?(base + ".mytaxa") and
+		  Dir.exist?(base + ".reg")
 	       r = Result.new base + ".json"
-	       r.data[:files] = {
-		  mytaxa: self.name + ".mytaxa",
-		  wintax: self.name + ".wintax",
-		  report: self.name + ".pdf",
-		  regions: self.name + ".reg"}
-	       r.data[:files][:gene_ids] =
-		  self.name + ".wintax.genes" if
-		  File.exist?(base + ".wintax.genes")
-	       r.data[:files][:region_ids] =
-		  self.name + ".wintax.regions" if
-		  File.exist?(base + ".wintax.regions")
-	       r.data[:files][:blast] =
-		  self.name + ".blast.gz" if
-		  File.exist?(base + ".blast.gz")
-	       r.data[:files][:mytaxain] =
-		  self.name + ".mytaxain.gz" if
-		  File.exist?(base + ".mytaxain.gz")
+	       r.add_file :mytaxa, name + ".mytaxa"
+	       r.add_file :wintax, name + ".wintax"
+	       r.add_file :report, name + ".pdf"
+	       r.add_file :regions, name + ".reg"
+	       r.add_file :gene_ids, name + ".wintax.genes"
+	       r.add_file :region_ids, name + ".wintax.regions"
+	       r.add_file :blast, name + ".blast"
+	       r.add_file :mytaxain, name + ".mytaxain"
 	    else
 	       r = Result.new base + ".json"
 	       r.data[:files] = {}
 	    end
 	 when :distances
-	    if !self.metadata[:type].nil? and
-		  !Dataset.KNOWN_TYPES[self.metadata[:type]][:multi]
-	       pref = self.project.path + "/data/" + @@RESULT_DIRS[result_type]
+	    if is_nonmulti?
+	       pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
 	       if is_ref?
 		  return nil unless
-		     File.exist?(pref + "/01.haai/" + self.name + ".db")
+		     File.exist?(pref + "/01.haai/" + name + ".db")
 	       else
 		  return nil unless
-		     File.exist?(pref + "/02.aai/" + self.name + ".db")
+		     File.exist?(pref + "/02.aai/" + name + ".db")
 	       end
 	       r = Result.new base + ".json"
-	       r.data[:files] = {}
-	       r.data[:files][:haai_db] =
-		  "01.haai/" + self.name + ".db" if
-		  File.exist?(pref + "/01.haai/" + self.name + ".db")
-	       r.data[:files][:aai_db] =
-		  "02.aai/" + self.name + ".db" if
-		  File.exist?(pref + "/02.aai/" + self.name + ".db")
-	       r.data[:files][:ani_db] =
-		  "03.ani/"  + self.name + ".db" if
-		  File.exist?(pref + "/03.ani/" + self.name + ".db")
+	       r.add_file :haai_db, "01.haai/" + name + ".db"
+	       r.add_file :aai_db, "02.aai/" + name + ".db"
+	       r.add_file :ani_db, "03.ani/" + name + ".db"
 	    else
 	       r = Result.new base + ".json"
 	       r.data[:files] = {}
@@ -301,24 +249,24 @@ module MiGA
 	 first = self.first_preprocessing
 	 return nil if first.nil?
 	 @@PREPROCESSING_TASKS.each do |t|
-	    next if @@ONLY_MULTI_TASKS.include?(t) and not self.is_multi?
-	    next if @@ONLY_NONMULTI_TASKS.include?(t) and not self.is_nonmulti?
-	    return t if after_first and self.add_result(t).nil?
+	    next if @@ONLY_MULTI_TASKS.include?(t) and not is_multi?
+	    next if @@ONLY_NONMULTI_TASKS.include?(t) and not is_nonmulti?
+	    return t if after_first and add_result(t).nil?
 	    after_first = (after_first or (t==first))
 	 end
 	 nil
       end
       def done_preprocessing?
-	 !self.first_preprocessing.nil? and self.next_preprocessing.nil?
+	 !first_preprocessing.nil? and next_preprocessing.nil?
       end
       def profile_advance
-         if self.first_preprocessing.nil?
+         if first_preprocessing.nil?
 	    adv = Array.new(@@PREPROCESSING_TASKS.size, 0)
 	 else
 	    adv = []
 	    state = 0
-	    first_task = self.first_preprocessing
-	    next_task = self.next_preprocessing
+	    first_task = first_preprocessing
+	    next_task = next_preprocessing
 	    @@PREPROCESSING_TASKS.each do |task|
 	       state = 1 if first_task==task
 	       state = 2 if !next_task.nil? and next_task==task

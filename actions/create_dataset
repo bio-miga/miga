@@ -3,7 +3,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Oct-01-2015
+# @update  Nov-29-2015
 #
 
 o = {q:true, ref:true}
@@ -15,7 +15,7 @@ Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
    opt.separator ""
    opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to create."){ |v| o[:project]=v }
+      "(Mandatory) Path to the project to use."){ |v| o[:project]=v }
    opt.on("-D", "--dataset STRING",
       "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
    opt.on("-t", "--type STRING",

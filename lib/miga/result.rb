@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Nov-01-2015
+# @update  Nov-29-2015
 #
 
 module MiGA
@@ -26,7 +26,22 @@ module MiGA
 	 end
       end
       def dir
-	 File.dirname(self.path)
+	 File.dirname(path)
+      end
+      def file_path(k)
+	 k = k.to_sym
+	 return nil if self[:files].nil? or self[:files][k].nil?
+	 return File.expand_path(self[:files][k], dir) unless
+	    self[:files][k].is_a? Array
+         self[:files][k].map{ |f| File.expand_path(f, dir) }
+      end
+      def [](k) data[k.to_sym] ; end
+      def add_file(k, file)
+         self.data[:files] ||= {}
+	 self.data[:files][k.to_sym] = file if
+	    File.exist? File.expand_path(file, dir)
+	 self.data[:files][k.to_sym] = file + ".gz" if
+	    File.exist? File.expand_path(file + ".gz", dir)
       end
       def create
 	 @data = {:created=>Time.now.to_s, :results=>[], :stats=>{}, :files=>{}}
@@ -34,23 +49,27 @@ module MiGA
       end
       def save
 	 self.data[:updated] = Time.now.to_s
-	 json = JSON.pretty_generate self.data
-	 ofh = File.open(self.path, 'w')
+	 json = JSON.pretty_generate data
+	 ofh = File.open(path, "w")
 	 ofh.puts json
 	 ofh.close
 	 self.load
       end
       def load
-	 json = File.read self.path
+	 json = File.read path
 	 @data = JSON.parse(json, {:symbolize_names=>true})
-	 @results = self.data[:results].map{ |rs| Result.new rs }
+	 @results = self[:results].map{ |rs| Result.new rs }
       end
       def remove!
-	 self.each_file do |file|
-	    file_path = self.dir + "/" + file
-	    File.unlink_r(file_path) if File.exist? file_path
+	 each_file do |file|
+	    f = File.expand_path(file, dir)
+	    File.unlink_r(f) if File.exist? f
 	 end
-	 File.unlink self.path
+	 %w(.start .done).each do |ext|
+	    f = path.sub(/\.json$/, ext)
+	    File.unlink f if File.exist? f
+	 end
+	 File.unlink path
       end
       def each_file(&blk)
 	 self.data[:files] = {} if self.data[:files].nil?

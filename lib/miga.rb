@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Nov-01-2015
+# @update  Nov-29-2015
 #
 
 require "date"
@@ -12,9 +12,9 @@ require "miga/project"
 require "miga/taxonomy"
 
 module MiGA
-   VERSION = [0.2, 0, 4]
+   VERSION = [0.2, 0, 5]
    VERSION_NAME = "pochoir"
-   VERSION_DATE = Date.new(2015, 11, 23)
+   VERSION_DATE = Date.new(2015, 11, 29)
    CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
       "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
@@ -78,7 +78,7 @@ end
 
 class String
    def miga_name ; gsub /[^A-Za-z0-9_]/, "_" ; end
-   def miga_name? ; self == self.miga_name ; end
+   def miga_name? ; not(self !~ /^[A-Za-z0-9_]+$/) ; end
    def unmiga_name ; gsub /_/, " " ; end
 end
 

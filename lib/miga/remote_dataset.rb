@@ -2,7 +2,7 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Aug-20-2015
+# @update Nov-20-2015
 #
 
 require 'restclient'
@@ -18,9 +18,16 @@ module MiGA
 	 },
 	 ncbi:{
 	    dbs: { nuccore:{stage: :assembly, format: :fasta} },
-	    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"+
+	    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
 	       "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
 	    method: :rest
+	 },
+	 ncbi_map:{
+	    dbs: { assembly:{map_to: :nuccore, format: :text} },
+	    url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
+	       "elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",
+	    method: :rest,
+	    map_to_universe: :ncbi
 	 }
       }
       def self.UNIVERSE ; @@UNIVERSE ; end
@@ -28,7 +35,9 @@ module MiGA
 	 ids = [ids] unless ids.is_a? Array
 	 case @@UNIVERSE[universe][:method]
 	 when :rest
-	    url = sprintf @@UNIVERSE[universe][:url], db, ids.join(","), format
+	    url = sprintf @@UNIVERSE[universe][:url],
+	       db, ids.join(","), format,
+	       @@UNIVERSE[universe][:dbs][db][:map_to]
 	    response = RestClient::Request.execute(:method=>:get,  :url=>url,
 	       :timeout=>600)
 	    raise "Unable to reach #{universe} client, error code "+
@@ -57,6 +66,9 @@ module MiGA
 	 raise "Unknown Database: #{@db}. Try one of: "+
 	    "#{@@UNIVERSE[@universe][:dbs]}" unless
 	    @@UNIVERSE[@universe][:dbs].include? @db
+	 unless @@UNIVERSE[@universe][:dbs][@db][:map_to].nil?
+	    res = RemoteDataset.download
+	 end
       end
       def save_to(project, name=nil, is_ref=true, metadata={})
 	 name = ids.join("_").miga_name if name.nil?
