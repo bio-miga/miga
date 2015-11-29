@@ -13,3 +13,7 @@ Nov-2015
 
 * Check malformed databases in distances before copying them back from `/tmp`.
 
+* Remove .done/.start files on unlink_dataset -r.
+
+* Cleanup data/05.assembly/*.LargeContigs.fna.fai files after :ssu.
+

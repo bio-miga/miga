@@ -21,6 +21,7 @@ FastA.length.pl $DATASET.ssu.all.fa | sort -nr -k 2 | head -n 1 \
    | cut -f 1 > $DATASET.ssu.fa.id 
 FastA.filter.pl $DATASET.ssu.fa.id $DATASET.ssu.all.fa > $DATASET.ssu.fa 
 rm $DATASET.ssu.fa.id 
+[[ -e "$fa.fai" ]] && rm "$fa.fai"
 
 # Gzip
 gzip -9 -f "$DATASET.ssu.gff"
