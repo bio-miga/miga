@@ -91,7 +91,8 @@ for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
 	       $TMPDIR/$DATASET.LargeContigs.fna
 	 ANI=$(ani.rb -1 $TMPDIR/$DATASET.LargeContigs.fna \
 	    -2 ../05.assembly/$i.LargeContigs.fna -t $CORES \
-	    -S $TMPDIR/03.ani.db -a --name1 $DATASET --name2 $i --lookup-first \
+	    -S $TMPDIR/03.ani.db -a --name1 $DATASET --name2 $i \
+	    --no-save-regions --lookup-first \
 	    || echo "")
       fi
    fi
