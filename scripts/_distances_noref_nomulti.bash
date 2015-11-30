@@ -34,7 +34,8 @@ for i in $REFGENOMES ; do
       [[ -e "../05.assembly/$DATASET.LargeContigs.fna" ]] || continue
       [[ -e "../05.assembly/$i.LargeContigs.fna" ]] || continue
       ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-	 -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a --lookup-first \
+	 -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
+	 --no-save-regions --no-save-rbm --lookup-first \
 	 -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
       checkpoint_n
       if [[ $(perl -MPOSIX -e "print ceil $ANI") -ge 95 ]] ; then
@@ -52,7 +53,8 @@ ANI_MED=""
 while [[ -e "$CLADES/$CLASSIF/miga-project.1.medoids" ]] ; do
    for i in $(cat "$CLADES/$CLASSIF/miga-project.1.medoids") ; do
       ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-	 -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a --lookup-first \
+	 -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
+	 --no-save-regions --no-save-rbm --lookup-first \
 	 -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
       checkpoint_n
       if [[ $(perl -e "print 1 if $ANI > $MAX_ANI") == "1" ]] ; then
@@ -70,7 +72,8 @@ if [[ "$CLASSIF" != "." ]] ; then
    if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
       for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
 	 ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-	    -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a --lookup-first \
+	    -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
+	    --no-save-regions --no-save-rbm --lookup-first \
 	    -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
 	 checkpoint_n
       done
