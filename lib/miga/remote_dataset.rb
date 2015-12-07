@@ -2,10 +2,10 @@
 # @package MiGA
 # @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Nov-20-2015
+# @update Dec-07-2015
 #
 
-require 'restclient'
+require "restclient"
 
 module MiGA
    class RemoteDataset
@@ -35,9 +35,10 @@ module MiGA
 	 ids = [ids] unless ids.is_a? Array
 	 case @@UNIVERSE[universe][:method]
 	 when :rest
-	    url = sprintf @@UNIVERSE[universe][:url],
-	       db, ids.join(","), format,
+	    map_to = @@UNIVERSE[universe][:dbs][db].nil? ? nil :
 	       @@UNIVERSE[universe][:dbs][db][:map_to]
+	    url = sprintf @@UNIVERSE[universe][:url],
+	       db, ids.join(","), format, map_to
 	    response = RestClient::Request.execute(:method=>:get,  :url=>url,
 	       :timeout=>600)
 	    raise "Unable to reach #{universe} client, error code "+

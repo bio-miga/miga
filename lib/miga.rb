@@ -2,7 +2,6 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Nov-29-2015
 #
 
 require "date"
@@ -12,9 +11,9 @@ require "miga/project"
 require "miga/taxonomy"
 
 module MiGA
-   VERSION = [0.2, 0, 5]
+   VERSION = [0.2, 0, 6]
    VERSION_NAME = "pochoir"
-   VERSION_DATE = Date.new(2015, 11, 29)
+   VERSION_DATE = Date.new(2015, 12, 07)
    CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
       "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
    class MiGA
