@@ -8,6 +8,7 @@ cd "$PROJECT/data/09.distances"
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
+trap "rm -rf $TMPDIR; exit" SIGHUP SIGINT SIGTERM
 
 # Check type of dataset
 NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \

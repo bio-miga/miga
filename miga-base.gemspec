@@ -1,4 +1,4 @@
-$:.push File.expand_path(File.dirname(__FILE__) + "/lib")
+$:.push File.expand_path("lib", File.dirname(__FILE__))
 require "miga"
 
 Gem::Specification.new do |s|
