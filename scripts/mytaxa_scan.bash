@@ -10,6 +10,8 @@ cd "$DIR"
 # Initialize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 MT=$(dirname -- $(which MyTaxa))
+TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
+trap "rm -rf $TMPDIR; exit" SIGHUP SIGINT SIGTERM
 
 # Check type of dataset
 NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
@@ -37,8 +39,8 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
       if [[ ! -s "$DATASET.blast" ]] ; then
 	 diamond blastp -q "../../../06.cds/$DATASET.faa" \
 	    -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60 \
-	    -a "$DATASET.daa"
-	 diamond view -a "$DATASET.daa" -o "$DATASET.blast"
+	    -a "$DATASET.daa" -t "$TMPDIR"
+	 diamond view -a "$DATASET.daa" -o "$DATASET.blast" -t "$TMPDIR"
       fi
 
       # Prepare MyTaxa input, execute MyTaxa, and generate profiles
@@ -77,6 +79,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
 fi
 
 # Finalize
+rm -R "$TMPDIR"
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r mytaxa_scan
 
