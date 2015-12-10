@@ -51,7 +51,7 @@ for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
 	 || cp $ESS/$DATASET.ess.faa $TMPDIR/$DATASET.ess.faa
       HAAI=$(aai.rb -1 $TMPDIR/$DATASET.ess.faa -2 $ESS/$i.ess.faa \
 	 -t $CORES -a -n 10 -S $TMPDIR/01.haai.db --name1 $DATASET \
-	 --name2 $i --lookup-first || echo "")
+	 --name2 $i --lookup-first --no-save-rbm || echo "")
       if [[ "$HAAI" != "" \
 	    && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
 	 AAI=$(perl -e \
