@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Nov-29-2015
+# @update  Dec-19-2015
 #
 
 module MiGA
@@ -37,10 +37,11 @@ module MiGA
       end
       def [](k) data[k.to_sym] ; end
       def add_file(k, file)
-         self.data[:files] ||= {}
-	 self.data[:files][k.to_sym] = file if
+         k = k.to_sym
+	 self.data[:files] ||= {}
+	 self.data[:files][k] = file if
 	    File.exist? File.expand_path(file, dir)
-	 self.data[:files][k.to_sym] = file + ".gz" if
+	 self.data[:files][k] = file + ".gz" if
 	    File.exist? File.expand_path(file + ".gz", dir)
       end
       def create

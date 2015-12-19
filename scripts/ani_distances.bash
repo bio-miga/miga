@@ -21,8 +21,13 @@ done
 
 # R-ify
 echo "
-ani <- read.table('miga-project.txt', sep='\\t', h=T)
-save(ani, file='miga-project.Rdata')
+ani <- read.table('miga-project.txt', sep='\\t', h=T);
+save(ani, file='miga-project.Rdata');
+h <- hist(ani\$value, breaks=100, plot=FALSE);
+write.table(
+   cbind(h\$breaks[-length(h\$breaks)], h\$breaks[-1], h\$counts),
+   file='miga-project.hist', quote=FALSE, sep='\\t',
+   col.names=FALSE, row.names=FALSE);
 " | R --vanilla
 
 # Gzip

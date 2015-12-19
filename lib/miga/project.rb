@@ -1,11 +1,11 @@
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Nov-23-2015
+# @update  Dec-19-2015
 #
 
-require 'miga/dataset'
+require "miga/dataset"
 
 module MiGA
    class Project
@@ -179,36 +179,29 @@ module MiGA
 	       File.exist? base + ".log" and
 	       (File.exist?(base + ".txt") or File.exist?(base + ".txt.gz"))
 	    r = Result.new base + ".json"
-	    r.data[:files] = {rdata: "miga-project.Rdata",
-	       matrix: "miga-project.txt", log: "miga-project.log"}
-	    if File.exist? base + ".txt.gz"
-	       r.data[:files][:matrix] += ".gz"
-	       r.data[:gz] = true
-	    end
+	    r.add_file :rdata, "miga-project.Rdata"
+	    r.add_file :matrix, "miga-project.txt"
+	    r.add_file :log, "miga-project.log"
+	    r.add_file :hist, "miga-project.hist"
+	    r.data[:gz] = File.exist?(base + ".txt.gz")
 	 when :clade_finding
 	    return nil unless File.exist? base + ".proposed-clades"
 	    r = Result.new base + ".json"
-	    r.data[:files] = {proposal: "miga-project.proposed-clades"}
-	    f = {rbm_aai90: "genome-genome.aai90.rbm",
-	       clades_aai90: "miga-project.ani-clades",
-	       rbm_ani95: "genome-genome.ani95.rbm",
-	       clades_ani95: "miga-project.ani95-clades"}
-	    f.each_pair do |k,v|
-	       r.data[:files][k.to_sym] = v if
-		  File.exist? self.path + "/data/" +
-		     @@RESULT_DIRS[result_type] + "/" + v
-	    end
+	    r.add_file :proposal, "miga-project.proposed-clades"
+	    r.add_file :rbm_aai90, "genome-genome.aai90.rbm"
+	    r.add_file :clades_aai90, "miga-project.ani-clades"
+	    r.add_file :rbm_ani95, "genome-genome.ani95.rbm"
+	    r.add_file :clades_ani95, "miga-project.ani95-clades"
 	 when :subclades
 	    return nil unless
 	       File.exist?(base+".pdf") and
 	       File.exist?(base+".1.classif") and
 	       File.exist?(base+".1.medoids")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {report: "miga-project.pdf"}
+	    r.add_file :report, "miga-project.pdf"
 	    (1..6).each do |i|
 	       %w{classif medoids}.each do |m|
-		  r.data[:files]["#{m}_#{i}".to_sym]="miga-project.#{i}.#{m}" if
-		     File.exist? base + ".#{i}.#{m}"
+		  r.add_file "#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}"
 	       end
 	    end
 	 when :ogs
@@ -216,9 +209,9 @@ module MiGA
 	       File.exist?(base+".ogs") and
 	       File.exist?(base+".stats")
 	    r = Result.new base + ".json"
-	    r.data[:files] = {ogs:"miga-project.ogs",stats:"miga-project.stats"}
-	    r.data[:files][:rbm] = "miga-project.rbm" if
-	       Dir.exist? "miga-project.rbm"
+	    r.add_file :ogs, "miga-project.ogs"
+	    r.add_file :stats, "miga-project.stats"
+	    r.add_file :rbm, "miga-project.rbm"
 	 end
 	 r.save
 	 r
