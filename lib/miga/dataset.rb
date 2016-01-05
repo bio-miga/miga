@@ -1,8 +1,8 @@
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
+# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update Nov-29-2015
+# @update  Dec-04-2015
 #
 
 require "miga/metadata"
@@ -179,14 +179,18 @@ module MiGA
 	    r.add_file :collection, name + ".ess"
 	    r.add_file :report, name + ".ess/log"
 	 when :ssu
-	    return nil unless
-	       File.exist?(base + ".ssu.fa") or
-	       File.exist?(base + ".ssu.fa.gz")
-	    r = Result.new base + ".json"
-	    r.data[:gz] = File.exist?(base + ".ssu.fa.gz")
-	    r.add_file :longest_ssu_gene, name + ".ssu.fa"
-	    r.add_file :gff, name + ".ssu.gff"
-	    r.add_file :all_ssu_genes, name + ".ssu.all.fa"
+	    if result(:assembly).nil?
+	       r = Result.new base + ".json"
+	    else
+	       return nil unless
+		  File.exist?(base + ".ssu.fa") or
+		  File.exist?(base + ".ssu.fa.gz")
+	       r = Result.new base + ".json"
+	       r.data[:gz] = File.exist?(base + ".ssu.fa.gz")
+	       r.add_file :longest_ssu_gene, name + ".ssu.fa"
+	       r.add_file :gff, name + ".ssu.gff"
+	       r.add_file :all_ssu_genes, name + ".ssu.all.fa"
+	    end
 	 when :mytaxa
 	    if is_multi?
 	       return nil unless File.exist?(base + ".mytaxa")
