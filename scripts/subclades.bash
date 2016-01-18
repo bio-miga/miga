@@ -15,6 +15,11 @@ subclades('../../09.distances/03.ani/miga-project.txt.gz',
    'miga-project', $CORES);
 " | R --vanilla
 
+# Compile
+ruby "$MIGA/utils/subclades-compile.rb" . \
+   >  miga-project.class.tsv \
+   2> miga-project.class.nwk
+
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
 miga add_result -P "$PROJECT" -r subclades

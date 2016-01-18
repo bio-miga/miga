@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Dec-19-2015
+# @update  Jan-18-2016
 #
 
 require "miga/dataset"
@@ -196,7 +196,9 @@ module MiGA
 	    return nil unless
 	       File.exist?(base+".pdf") and
 	       File.exist?(base+".1.classif") and
-	       File.exist?(base+".1.medoids")
+	       File.exist?(base+".1.medoids") and
+	       File.exist?(base+".class.tsv") and
+	       File.exist?(base+".class.nwk")
 	    r = Result.new base + ".json"
 	    r.add_file :report, "miga-project.pdf"
 	    (1..6).each do |i|
@@ -204,6 +206,8 @@ module MiGA
 		  r.add_file "#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}"
 	       end
 	    end
+	    r.add_file :class_table, "miga-project.class.tsv"
+	    r.add_file :class_tree,  "miga-project.class.nwk"
 	 when :ogs
 	    return nil unless
 	       File.exist?(base+".ogs") and
