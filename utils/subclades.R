@@ -27,7 +27,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()){
       file.create(paste(out_base,'.1.medoids',sep=''))
       return(NULL)
    }
-   ani.d <- enve.df2dist(data.frame(a$a, a$b, 1-a$value/100), default.d=0.3)
+   ani.d <- enve.df2dist(cbind(a$a, a$b, 1-a$value/100), default.d=0.3)
    ani.hc <- hclust(ani.d, method='ward.D2')
    write.tree(as.phylo(ani.hc), 'miga-project.ani.nwk')
    
