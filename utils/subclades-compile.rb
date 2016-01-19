@@ -45,4 +45,4 @@ max_depth = c.values.map{|i| i.count}.max
 c.each do |k,v|
    puts ([k] + v + ["0"]*(max_depth-v.count)).join("\t")
 end
-$stderr.puts print_tree(c)
+$stderr.puts print_tree(c) + ";"

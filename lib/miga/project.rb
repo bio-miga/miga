@@ -208,6 +208,7 @@ module MiGA
 	    end
 	    r.add_file :class_table, "miga-project.class.tsv"
 	    r.add_file :class_tree,  "miga-project.class.nwk"
+	    r.add_file :ani_tree,    "miga-project.ani.nwk"
 	 when :ogs
 	    return nil unless
 	       File.exist?(base+".ogs") and
