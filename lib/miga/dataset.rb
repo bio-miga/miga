@@ -2,7 +2,7 @@
 # @package MiGA
 # @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
 # @license artistic license 2.0
-# @update  Dec-04-2015
+# @update  Jan-18-2016
 #
 
 require "miga/metadata"
@@ -40,8 +40,9 @@ module MiGA
       @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality,
 	 :trimmed_fasta, :assembly, :cds, :essential_genes, :ssu, :mytaxa,
 	 :mytaxa_scan, :distances]
-      @@ONLY_MULTI_TASKS = [:mytaxa]
+      @@EXCLUDE_NOREF_TASKS = [:essential_genes, :mytaxa_scan]
       @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
+      @@ONLY_MULTI_TASKS = [:mytaxa]
       def self.PREPROCESSING_TASKS ; @@PREPROCESSING_TASKS ; end
       def self.RESULT_DIRS ; @@RESULT_DIRS end
       def self.KNOWN_TYPES ; @@KNOWN_TYPES end
@@ -253,6 +254,7 @@ module MiGA
 	 first = self.first_preprocessing
 	 return nil if first.nil?
 	 @@PREPROCESSING_TASKS.each do |t|
+	    next if @@EXCLUDE_NOREF_TASKS.include?(t) and not is_ref?
 	    next if @@ONLY_MULTI_TASKS.include?(t) and not is_multi?
 	    next if @@ONLY_NONMULTI_TASKS.include?(t) and not is_nonmulti?
 	    return t if after_first and add_result(t).nil?
