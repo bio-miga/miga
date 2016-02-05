@@ -33,6 +33,7 @@ N=1
 for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
    echo "=[ $i ]"
    date "+%Y-%m-%d %H:%M:%S %z"
+   HAAI=""; AAI=""; ANI="";
    # Check if the i-th dataset is ready
    [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
    # Check if this is done (e.g., in a previous failed iteration)
