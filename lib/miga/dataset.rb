@@ -302,8 +302,8 @@ class MiGA::Dataset
 	state = 2 if !next_task.nil? and next_task==task
 	adv << state
       end
-       end
-       adv
+    end
+    adv
   end
 
   private
