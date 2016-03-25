@@ -16,7 +16,8 @@ ratings:
   paths:
   - lib/**
   - actions/**
-  - */miga
+  - bin/miga
+  - gui/miga
   - scripts/**
   - **.rb
   - **.bash
