@@ -1,6 +1,6 @@
 $:.push File.expand_path("lib", File.dirname(__FILE__))
 
-require "miga"
+require "miga/version"
 
 Gem::Specification.new do |s|
   s.name	= "miga-base"
