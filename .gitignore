@@ -1,3 +1,4 @@
 .*.swp
 Gemfile.lock
 miga-base-*.gem
+doc/
