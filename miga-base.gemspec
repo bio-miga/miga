@@ -1,8 +1,9 @@
 $:.push File.expand_path("lib", File.dirname(__FILE__))
 
-require "miga"
+require "miga/version"
 
 Gem::Specification.new do |s|
+  # Basic information
   s.name	= "miga-base"
   s.version	= MiGA::MiGA.FULL_VERSION
   s.date	= MiGA::MiGA.VERSION_DATE.to_s

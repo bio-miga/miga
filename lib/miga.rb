@@ -4,24 +4,14 @@
 # @license artistic license 2.0
 #
 
-require "date"
 require "json"
 require "fileutils"
+require "miga/version"
 require "miga/project"
 require "miga/taxonomy"
 
-module MiGA
-  VERSION = [0.2, 0, 7]
-  VERSION_NAME = "pochoir"
-  VERSION_DATE = Date.new(2016, 03, 25)
-  CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
-    "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
-end
-
 class MiGA::MiGA
   
-  include MiGA
-
   @@DEBUG = false
   @@DEBUG_TRACE = false
   def self.DEBUG_ON() @@DEBUG=true end
@@ -39,28 +29,20 @@ class MiGA::MiGA
     $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if
       @@DEBUG_TRACE
   end
-  def self.VERSION ; VERSION[0] ; end
-  def self.FULL_VERSION ; VERSION.join(".") ; end
-  def self.LONG_VERSION
-    "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " +
-      VERSION_DATE.to_s
-  end
-  def self.VERSION_DATE ; VERSION_DATE ; end
-  def self.CITATION ; CITATION ; end
 end
 
 class File
   # FIXME This extension should be removed and replaced with FileUtils.rm_rf
   def self.unlink_r(path)
-  if Dir.exists? path
-    unless File.symlink? path
-      Dir.entries(path).reject{|f| f =~ /^\.\.?$/}.each do |f|
-        File.unlink_r path + "/" + f
+    if Dir.exists? path
+      unless File.symlink? path
+	Dir.entries(path).reject{|f| f =~ /^\.\.?$/}.each do |f|
+	  File.unlink_r path + "/" + f
+	end
       end
-    end
-    Dir.unlink path
-  elsif File.exists? path
-    File.unlink path
+      Dir.unlink path
+    elsif File.exists? path
+      File.unlink path
     else
       raise "Cannot find file: #{path}"
     end
@@ -81,8 +63,8 @@ class File
 end
 
 class String
-  def miga_name ; gsub /[^A-Za-z0-9_]/, "_" ; end
+  def miga_name ; gsub(/[^A-Za-z0-9_]/, "_") ; end
   def miga_name? ; not(self !~ /^[A-Za-z0-9_]+$/) ; end
-  def unmiga_name ; gsub /_/, " " ; end
+  def unmiga_name ; gsub(/_/, " ") ; end
 end
 
