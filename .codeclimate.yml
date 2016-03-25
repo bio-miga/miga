@@ -19,5 +19,3 @@ ratings:
   - bin/miga
   - gui/miga
   - scripts/**
-  - **.rb
-  - **.bash
