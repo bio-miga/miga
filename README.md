@@ -1,3 +1,7 @@
+[![Code Climate](https://codeclimate.com/github/bio-miga/miga/badges/gpa.svg)](https://codeclimate.com/github/bio-miga/miga)
+[![Test Coverage](https://codeclimate.com/github/bio-miga/miga/badges/coverage.svg)](https://codeclimate.com/github/bio-miga/miga/coverage)
+
+
 MiGA: Microbial Genomes Atlas
 =============================
 
@@ -336,11 +340,12 @@ The official format in which MiGA represents date/times is the default of Ruby's
 Authors
 -------
 
-Developed and maintained by [Luis M. Rodriguez-R](http://gplus.to/lrr).
+Developed and maintained by [Luis M. Rodriguez-R][lrr].
 
 
 License
 -------
 
+See [LICENSE](LICENSE).
 
-
+[lrr]: http://lmrodriguezr.github.io/

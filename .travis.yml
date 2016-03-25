@@ -1,0 +1,6 @@
+language: ruby
+script: "bundle exec rake test"
+cache: bundler
+addons:
+  code_climate:
+    repo_token: ae74feb57032eaec34d8b695e504f00fe300d01a2ec0055e41f107a20f512645

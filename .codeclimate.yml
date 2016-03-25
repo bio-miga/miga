@@ -1,0 +1,22 @@
+exclude_paths:
+- "utils/*"
+engines:
+  rubocop:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+  fixme:
+    enabled: true
+  shellcheck:
+    enabled: true
+ratings:
+  paths:
+  - lib/**
+  - actions/**
+  - */miga
+  - scripts/**
+  - **.rb
+  - **.bash
