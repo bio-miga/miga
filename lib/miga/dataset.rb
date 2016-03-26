@@ -5,7 +5,7 @@ require "miga/metadata"
 require "miga/project"
 require "miga/result"
 
-class MiGA::Dataset
+class MiGA::Dataset < MiGA::MiGA
   
   # Class-level
 
@@ -168,7 +168,7 @@ class MiGA::Dataset
     return nil if @@RESULT_DIRS[result_type].nil?
     base = project.path + "/data/" + @@RESULT_DIRS[result_type] +
       "/" + name
-    return nil unless File.exist? base + ".done"
+    return nil unless result_files_exist?(base, ".done")
     r = self.send("add_result_#{result_type}", base)
     r.save
     r
@@ -367,12 +367,6 @@ class MiGA::Dataset
       r.add_file :haai_db, "01.haai/" + name + ".db"
       r.add_file :aai_db, "02.aai/" + name + ".db"
       r.add_file :ani_db, "03.ani/" + name + ".db"
-    end
-
-    def result_files_exist?(base, files)
-      files.all? do |f|
-        File.exist?(base + f) or File.exist?(base + f + ".gz")
-      end
     end
 
 end # class MiGA::Dataset

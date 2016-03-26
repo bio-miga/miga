@@ -29,6 +29,13 @@ class MiGA::MiGA
     $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if
       @@DEBUG_TRACE
   end
+
+  def result_files_exist?(base, ext)                                                                                                                    
+    ext.all? do |f|
+      File.exist?(base + f) or File.exist?(base + f + ".gz")
+    end
+  end
+  
 end
 
 class File
