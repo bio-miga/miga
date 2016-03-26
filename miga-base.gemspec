@@ -17,7 +17,8 @@ Gem::Specification.new do |s|
   s.homepage	= "http://enve-omics.ce.gatech.edu/miga"
   
   # Files
-  s.files = Dir["lib/**/*.rb", "test/**/*.rb",
+  s.files = Dir[
+    "lib/**/*.rb", "test/**/*.rb",
     "scripts/*.bash", "utils/*", "bin/*", "actions/*",
     "Gemfile", "Rakefile", "README.md", "LICENSE"
   ]

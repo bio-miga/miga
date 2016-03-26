@@ -6,11 +6,19 @@
 MiGA: Microbial Genomes Atlas
 =============================
 
+WARNING
+-------
+
+**Important**: The MiGA code is under active development, and we currently
+cannot ensure any stability on the different APIs. We'll be launching a Beta
+Testing program soon, with dedicated support for a small number of laboratories.
+If you're interested, please [contact us](http://enve-omics.gatech.edu/node/7).
+
 
 Installation
 ------------
 
-Please see [INSTALLATION.md](./INSTALLATION.md) for instructions.
+Please see the [installation guide](./INSTALLATION.md) for instructions.
 
 
 Getting started with MiGA

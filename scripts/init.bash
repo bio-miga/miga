@@ -206,6 +206,8 @@ echo "{
 
 # Confirm configuration
 echo "
+MIGA_CONFIG_VERSION='$("$MIGA/bin/miga" -v)'
+MIGA_CONFIG_LONGVERSION='$("$MIGA/bin/miga" -V)'
 MIGA_CONFIG_DATE='$(date "+%Y-%m-%d %H:%M:%S %z")'
 " >> "$HOME/.miga_rc"
 
