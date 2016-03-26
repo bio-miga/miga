@@ -1,4 +1,4 @@
-$:.push File.expand_path("lib", File.dirname(__FILE__))
+$:.unshift File.join(File.dirname(__FILE__), "lib")
 
 require "miga/version"
 
