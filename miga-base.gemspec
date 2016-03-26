@@ -17,12 +17,10 @@ Gem::Specification.new do |s|
   s.homepage	= "http://enve-omics.ce.gatech.edu/miga"
   
   # Files
-  s.files	= ["lib/miga.rb"]
-  s.files	+= Dir["lib/miga/*.rb"]
-  s.files	+= Dir["scripts/*.bash"]
-  s.files	+= Dir["utils/*"]
-  s.files	+= Dir["bin/*"]
-  s.files	+= Dir["actions/*"]
+  s.files = Dir["lib/**/*.rb", "test/**/*.rb",
+    "scripts/*.bash", "utils/*", "bin/*", "actions/*",
+    "Gemfile", "Rakefile", "README.md", "LICENSE"
+  ]
   s.executables	<< "miga"
   
   # Dependencies

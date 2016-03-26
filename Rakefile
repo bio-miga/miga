@@ -2,6 +2,8 @@ require "rake/testtask"
 
 $:.unshift File.join(File.dirname(__FILE__), "lib")
 
+require "miga/version"
+
 SOURCES = FileList["lib/**/*.rb"]
 
 desc "Default Task"
