@@ -2,6 +2,9 @@
 [![Test Coverage](https://codeclimate.com/github/bio-miga/miga/badges/coverage.svg)](https://codeclimate.com/github/bio-miga/miga/coverage)
 [![Build Status](https://travis-ci.org/lmrodriguezr/gfa.svg?branch=master)](https://travis-ci.org/lmrodriguezr/gfa)
 [![Gem Version](https://badge.fury.io/rb/miga-base.svg)](https://badge.fury.io/rb/miga-base)
+[![Inch docs](http://inch-ci.org/github/bio-miga/miga.svg)](http://inch-ci.org/github/bio-miga/miga)
+[![Yard docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/github/bio-miga/miga)
+
 
 MiGA: Microbial Genomes Atlas
 =============================
