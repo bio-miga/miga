@@ -54,6 +54,7 @@ class MiGA::MiGA
   # Check if the result files exist with +base+ name (String) followed by the
   # +ext+ values (Array of String).
   def result_files_exist?(base, ext)
+    ext = [ext] unless ext.kind_of? Array
     ext.all? do |f|
       File.exist?(base + f) or File.exist?(base + f + ".gz")
     end
