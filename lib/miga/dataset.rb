@@ -2,7 +2,6 @@
 # @license artistic license 2.0
 
 require "miga/metadata"
-require "miga/project"
 require "miga/result"
 
 class MiGA::Dataset < MiGA::MiGA

@@ -1,5 +1,4 @@
 {
-  "gitbook": "2.x.x",
   "structure": {
     "readme": "manual/README.md",
     "summary": "manual/SUMMARY.md",
