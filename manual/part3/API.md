@@ -1,4 +1,4 @@
-# MiGA API [![Gem Version](https://badge.fury.io/rb/miga-base.svg)](https://badge.fury.io/rb/miga-base)
+# MiGA API
 
 API stands for Application Program Interface. This is the inner-most layer in
 the MiGA system, allowing direct interaction with the Ruby infrastructure of
@@ -42,8 +42,11 @@ exists, and then creating it.
 
 # Author
 
-Luis M. Rodriguez-R <[lmrodriguezr@gmail.com](mailto:lmrodriguezr@gmail.com)>
+[Luis M. Rodriguez-R][lrr].
 
 # License
 
 Artistic 2.0.
+
+
+[lrr]: http://lmrodriguezr.github.io/

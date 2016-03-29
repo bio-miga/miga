@@ -2,7 +2,7 @@
   "gitbook": "3.0.0-pre.5",
   "structure": {
     "readme": "INTRO.md",
-    "summary": ".SUMMARY.md",
-    "glossary": ".GLOSSARY.md"
+    "summary": ".book.summary.md",
+    "glossary": ".book.glossary.md"
   }
 }
