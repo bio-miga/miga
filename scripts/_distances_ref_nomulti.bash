@@ -2,6 +2,8 @@
 # Available variables: $PROJECT, $DATASET, $RUNTYPE, $MIGA, $CORES, $TMPDIR,
 # 			$NOMULTI, $REF
 
+set -e
+
 function checkpoint_n {
    if [[ $N -eq 10 ]] ; then
       for t in 01.haai 02.aai 03.ani ; do

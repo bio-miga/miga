@@ -1,5 +1,6 @@
 #!/bin/bash
 # Available variables: $PROJECT, $DATASET, $RUNTYPE, $MIGA, $CORES
+set -e
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1

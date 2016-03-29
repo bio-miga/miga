@@ -2,6 +2,8 @@
 # Available variables: $PROJECT, $DATASET, $RUNTYPE, $MIGA, $CORES, $TMPDIR,
 # 			$NOMULTI, $REF
 
+set -e
+
 # Deal with previous runs (if any)
 exists $DATASET.a[an]i.db && cp $DATASET.a[an]i.db $TMPDIR
 exists $DATASET.a[an]i.9[05] && rm $DATASET.a[an]i.9[05]
