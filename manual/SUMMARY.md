@@ -1,6 +1,6 @@
 # Summary
 
-* [Introduction](INTRO.md)
+* [Introduction](README.md)
 * [Part I: What is MiGA?](part1.md)
   * [How can MiGA help me?](part1/pitch.md)
   * [Who's using MiGA?](part1/use-cases.md)

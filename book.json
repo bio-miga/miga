@@ -1,8 +1,7 @@
 {
-  "gitbook": "2.6.7",
-  "language": "en",
+  "gitbook": "2.x.x",
   "structure": {
-    "readme": "manual/INTRO.md",
+    "readme": "manual/README.md",
     "summary": "manual/SUMMARY.md",
     "glossary": "manual/GLOSSARY.md"
   }

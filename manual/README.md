@@ -12,9 +12,9 @@ other purposes.
 
 ## Getting started with MiGA
 
-MiGA iself doesn't require much, but processing large data collections may require
-large infrastructures. With that in mind, MiGA is designed to support both single
-machines or cluster infrastructures.
+MiGA iself doesn't require much, but processing large data collections may
+require large infrastructures. With that in mind, MiGA is designed to support
+both single machines or cluster infrastructures.
 
 * [Requirements](part2/requirements.md)
 * [Installation](part2/installation.md)

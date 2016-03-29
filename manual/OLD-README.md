@@ -6,42 +6,6 @@ Getting started with MiGA
 
 ### MiGA Interfaces
 
-You caninteract with MiGA through different interfaces. These interfaces have
-different purposes, but they also have some degree of overlap, because different
-users with different aims sometimes want to do the same thing. Throughout this
-manual I'll be telling you how to do things using mostly the CLI, but I'll also
-try to mention the GUI and the Web Interface. The CLI is the most comprehensive
-and flexible interface, but the other two are friendlier to humans. There is a
-fourth interface that I won't be mentioning at all, but I'll try to document:
-the Ruby API. MiGA is mostly written in Ruby, with an object-oriented approach,
-and all the interfaces are just thin layers atop the Ruby core. That means that
-you can write your own interfaces (or pieces) if you know how to talk to these
-Ruby objects. Sometimes I even use `irb`, which is an interactive shell for
-Ruby, but that's mostly for debugging.
-
-#### MiGA CLI
-
-CLI stands for Command Line Interface. This is a set of little scripts that let
-you talk with MiGA through the terminal shell. If MiGA is in your PATH (see
-[installation details](./INSTALLATION.md#miga-in-your-path)), you can simply run
-`miga` in your terminal, and the help messages will take it from there. All the
-MiGA CLI calls look like:
-
-```bash
-miga task [options]
-```
-
-Where `task` is one of the supported tasks and `[options]` is a set of dash-flag
-options supported by each task. `-h` is always there to provide help. If you're
-a MiGA administrator, this is probably the most convenient option for you (but
-hey, give the GUI a chance).
-
-#### MiGA GUI
-
-The Graphical User Interface is the friendlier option for setting up a MiGA
-project. It doesn't have as many options as the CLI, but it's pretty easy to
-use, so it's a good option if you have a typical project in your hands.
-
 #### MiGA Web
 
 The Web interface for MiGA is the way MiGA reports results from a project. It's
