@@ -170,7 +170,7 @@ class MiGA::Dataset < MiGA::MiGA
       "/" + name
     return nil unless result_files_exist?(base, ".done")
     r = self.send("add_result_#{result_type}", base)
-    r.save
+    r.save unless r.nil?
     r
   end
 
