@@ -8,8 +8,6 @@
 
 # MiGA: Microbial Genomes Atlas
 
-## WARNING
-
 **Important**: The MiGA code is under active development, and we currently
 cannot ensure any stability on the different interfaces. We'll be launching a
 Beta Testing program soon, with dedicated support for a small number of
