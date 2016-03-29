@@ -3,4 +3,4 @@ CodeClimate::TestReporter.start
 
 require "rubygems"
 require "test/unit"
-require "miga/version"
+require "miga/common"

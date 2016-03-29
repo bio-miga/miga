@@ -76,10 +76,15 @@ class MiGA::Dataset < MiGA::MiGA
 
   # Instance-level
 
+  ##
   # MiGA::Project that contains the dataset.
   attr_reader :project
+  
+  ##
   # Datasets are uniquely identified by +name+ in a project.
   attr_reader :name
+  
+  ##
   # MiGA::Metadata with information about the dataset.
   attr_reader :metadata
   
@@ -89,7 +94,7 @@ class MiGA::Dataset < MiGA::MiGA
   # be treated as reference (true, default) or query (false). Pass any
   # additional +metadata+ as a Hash.
   def initialize(project, name, is_ref=true, metadata={})
-    abort "Invalid name '#{name}', please use only alphanumerics and " +
+    raise "Invalid name '#{name}', please use only alphanumerics and " +
       "underscores." unless name.miga_name?
     @project = project
     @name = name

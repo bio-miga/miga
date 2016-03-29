@@ -101,6 +101,7 @@ class MiGA::Project < MiGA::MiGA
     raise "Impossible to create project in uninitialized MiGA." unless
       File.exist? "#{ENV["HOME"]}/.miga_rc" and
       File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
+    @datasets = {}
     @path = File.absolute_path(path)
     self.create if update or not Project.exist? self.path
     self.load if self.metadata.nil?
