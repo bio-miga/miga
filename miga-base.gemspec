@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.date	= MiGA::MiGA.VERSION_DATE.to_s
   
   # Metadata
-  s.license	= "artistic 2.0"
+  s.license	= "Artistic-2.0"
   s.summary	= "MiGA"
   s.description = "Microbial Genomes Atlas"
   s.authors	= ["Luis M. Rodriguez-R"]
@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files << "README.md"
   s.rdoc_options = %w(lib README.md --main README.md)
   s.rdoc_options << "--title" << s.summary
-  s.add_development_dependency "rake"
-  s.add_development_dependency "test-unit"
+  s.add_development_dependency "rake", "~> 0"
+  s.add_development_dependency "test-unit", "~> 0"
 
 end
