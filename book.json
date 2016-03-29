@@ -1,0 +1,9 @@
+{
+  "gitbook": "2.x.x",
+  "language": "en",
+  "structure": {
+    "readme": "manual/INTRO.md",
+    "summary": "manual/SUMMARY.md",
+    "glossary": "manual/GLOSSARY.md"
+  }
+}
