@@ -55,7 +55,7 @@ class MiGA::MiGA
       File.exist?(base + f) or File.exist?(base + f + ".gz")
     end
   end
-  
+
 end
 
 ##

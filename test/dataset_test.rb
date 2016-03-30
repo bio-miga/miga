@@ -12,6 +12,11 @@ class DatasetTest < Test::Unit::TestCase
     $d1 = $p1.add_dataset("dataset1")
   end
 
+  def teardown
+    FileUtils.rm_rf $tmp
+    ENV["MIGA_HOME"] = nil
+  end
+  
   def test_known_types
     assert_respond_to(MiGA::Dataset, :KNOWN_TYPES)
     assert(MiGA::Dataset.KNOWN_TYPES.has_key?(:genome))
@@ -38,6 +43,20 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal(MiGA::Metadata, $d1.metadata.class)
   end
 
+  def test_save
+    d2 = $p1.add_dataset("ds_save")
+    assert_respond_to(d2, :save)
+    d2.save
+    assert(!d2.is_multi?)
+    assert(!d2.is_nonmulti?)
+    assert_nil(d2.metadata[:type])
+    d2.metadata[:tax] = {:ns=>"COMMUNITY"}
+    d2.save
+    assert_equal(:metagenome, d2.metadata[:type])
+    assert(d2.is_multi?)
+    assert(!d2.is_nonmulti?)
+  end
+
   def test_remove
     d2 = $p1.add_dataset("ds_remove")
     assert(File.exist?(d2.metadata.path))
@@ -49,9 +68,38 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal($d1.name, $d1.info.first)
   end
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV["MIGA_HOME"] = nil
+  def test_add_result
+    d2 = $p1.add_dataset("ds_add_result")
+    assert_nil(d2.add_result(:koop))
+    assert_nil(d2.add_result(:raw_reads))
+    FileUtils.touch(
+      File.expand_path("data/01.raw_reads/#{d2.name}.1.fastq",$p1.path))
+    assert_nil(d2.add_result(:raw_reads))
+    FileUtils.touch(
+      File.expand_path("data/01.raw_reads/#{d2.name}.done",$p1.path))
+    assert_equal(MiGA::Result, d2.add_result(:raw_reads).class)
   end
-  
+
+  def test_preprocessing
+    d2 = $p1.add_dataset("ds_preprocessing")
+    assert_nil(d2.first_preprocessing)
+    assert_nil(d2.next_preprocessing)
+    assert(! d2.done_preprocessing?)
+    FileUtils.touch(
+      File.expand_path("data/01.raw_reads/#{d2.name}.1.fastq",$p1.path))
+    FileUtils.touch(
+      File.expand_path("data/01.raw_reads/#{d2.name}.done",$p1.path))
+    assert_equal(:raw_reads, d2.first_preprocessing)
+    assert_equal(:trimmed_reads, d2.next_preprocessing)
+    assert(! d2.done_preprocessing?)
+    assert(d2.ignore_task?(:mytaxa))
+    assert(d2.ignore_task?(:distances))
+    d2.metadata[:type] = :metagenome
+    assert(! d2.ignore_task?(:mytaxa))
+    assert(d2.ignore_task?(:distances))
+    d2.metadata[:type] = :genome
+    assert(d2.ignore_task?(:mytaxa))
+    assert(! d2.ignore_task?(:distances))
+  end
+
 end

@@ -120,7 +120,7 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Get standard metadata values for the dataset as Array.
-  def info()
+  def info
     MiGA::Dataset.INFO_FIELDS.map do |k|
       (k=="name") ? self.name : self.metadata[k.to_sym]
     end
@@ -128,7 +128,7 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Is this dataset a reference?
-  def is_ref?() !!self.metadata[:ref] end
+  def is_ref? ; !!self.metadata[:ref] ; end
   
   ##
   # Is this dataset known to be multi-organism?
@@ -154,7 +154,7 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Get all the results (Array of MiGA::Result) in this dataset.
-  def results() @@RESULT_DIRS.keys.map{ |k| self.result k }.compact ; end
+  def results ; @@RESULT_DIRS.keys.map{ |k| result k }.compact ; end
   
   ##
   # For each result executes the 2-ary +blk+ block: key symbol and MiGA::Result.
@@ -193,7 +193,7 @@ class MiGA::Dataset < MiGA::MiGA
     first = self.first_preprocessing
     return nil if first.nil?
     @@PREPROCESSING_TASKS.each do |t|
-      next unless process_task? t
+      next if ignore_task? t
       return t if after_first and add_result(t).nil?
       after_first = (after_first or (t==first))
     end
@@ -201,12 +201,11 @@ class MiGA::Dataset < MiGA::MiGA
   end
 
   ##
-  # Should I run +task+?
-  def process_task?(task)
-    return false if @@EXCLUDE_NOREF_TASKS.include?(t) and not is_ref?
-    return false if @@ONLY_MULTI_TASKS.include?(t) and not is_multi?
-    return false if @@ONLY_NONMULTI_TASKS.include?(t) and not is_nonmulti?
-    true
+  # Should I ignore +task+ for this dataset?
+  def ignore_task?(task)
+    ( (@@EXCLUDE_NOREF_TASKS.include?(task) and not is_ref?) or
+      (@@ONLY_MULTI_TASKS.include?(task) and not is_multi?) or
+      (@@ONLY_NONMULTI_TASKS.include?(task) and not is_nonmulti?))
   end
   
   ##
@@ -333,16 +332,12 @@ class MiGA::Dataset < MiGA::MiGA
 	%w[mytaxa blast mytaxain].each { |i| r.add_file(i, "#{name}.#{i}") }
       else
         r = MiGA::Result.new base + ".json"
-        r.data[:files] = {}
       end
       r
     end
 
     def add_result_mytaxa_scan(base)
-      unless is_nonmulti?
-        r = MiGA::Result.new base + ".json"
-        r.data[:files] = {}
-      else
+      if is_nonmulti?
 	return nil unless
 	  result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
 	r = MiGA::Result.new base + ".json"
@@ -353,28 +348,25 @@ class MiGA::Dataset < MiGA::MiGA
 	r.add_file :regions, name + ".reg"
 	r.add_file :gene_ids, name + ".wintax.genes"
 	r.add_file :region_ids, name + ".wintax.regions"
+      else
+        r = MiGA::Result.new base + ".json"
       end
       r
     end
 
     def add_result_distances(base)
-      unless is_nonmulti?
-        r = MiGA::Result.new "#{base}.json"
-        r.data[:files] = {}
-        return r
-      end
-      pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
-      if is_ref?
-        return nil unless
-          File.exist?(pref + "/01.haai/#{name}.db")
+      if is_nonmulti?
+	pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
+	return nil unless
+	  File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
+	r = MiGA::Result.new base + ".json"
+	{:haai_db=>"01.haai",:aai_db=>"02.aai",:ani_db=>"03.ani"}.each do |k,v|
+	  r.add_file k, "#{v}/#{name}.db"
+	end
       else
-        return nil unless
-          File.exist?(pref + "/02.aai/#{name}.db")
+        r = MiGA::Result.new "#{base}.json"
       end
-      r = MiGA::Result.new base + ".json"
-      r.add_file :haai_db, "01.haai/#{name}.db"
-      r.add_file :aai_db, "02.aai/#{name}.db"
-      r.add_file :ani_db, "03.ani/#{name}.db"
+      r
     end
 
 end # class MiGA::Dataset
