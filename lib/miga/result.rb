@@ -76,7 +76,7 @@ class MiGA::Result < MiGA::MiGA
   ##
   # #add_file for each key-value pair in the +files+ Hash.
   def add_files(files)
-    file.each { |k, v| add_file(k, v) }
+    files.each { |k, v| add_file(k, v) }
   end
 
   ##

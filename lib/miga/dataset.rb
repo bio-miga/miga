@@ -241,26 +241,18 @@ class MiGA::Dataset < MiGA::MiGA
     def add_result_raw_reads(base)
       return nil unless result_files_exist?(base, ".1.fastq")
       r = MiGA::Result.new(base + ".json")
-      if result_files_exist?(base, ".2.fastq")
-        r.add_files({
-	  :pair1 => name + ".1.fastq",
-	  :pair2 => name + ".2.fastq"
-	})
-      else
-        r.add_file(:single, name + ".1.fastq")
-      end
-      r
+      add_files_to_ds_result(r, name,
+        ( result_files_exist?(base, ".2.fastq") ?
+          {:pair1=>".1.fastq", :pair2=>".2.fastq"} :
+          {:single=>".1.fastq"} ))
     end
 
     def add_result_trimmed_reads(base)
       return nil unless result_files_exist?(base, ".1.clipped.fastq")
       r = MiGA::Result.new base + ".json"
-      if result_files_exist?(base, ".2.clipped.fastq")
-        r.add_files({
-	  :pair1 => name + ".1.clipped.fastq",
-	  :pair2 => name + ".2.clipped.fastq"
-	})
-      end
+      r = add_files_to_ds_result(r, name,
+        {:pair1=>".1.clipped.fastq", :pair2=>".2.clipped.fastq"}) if
+        result_files_exist?(base, ".2.clipped.fastq")
       r.add_file(:single, name + ".1.clipped.single.fastq")
       add_result(:raw_reads) #-> Post gunzip
       r
@@ -269,10 +261,8 @@ class MiGA::Dataset < MiGA::MiGA
     def add_result_read_quality(base)
       return nil unless result_files_exist?(base, %w[.solexaqa .fastqc])
       r = MiGA::Result.new(base + ".json")
-      r.add_files({
-        :solexaqa => name + ".solexaqa",
-        :fastqc   => name + ".fastqc"
-      })
+      r = add_files_to_ds_result(r, name,
+        {:solexaqa=>".solexaqa", :fastqc=>".fastqc"})
       add_result(:trimmed_reads) #-> Post cleaning
       r
     end
@@ -282,110 +272,86 @@ class MiGA::Dataset < MiGA::MiGA
         result_files_exist?(base, ".CoupledReads.fa") or
         result_files_exist?(base, ".SingleReads.fa")
       r = MiGA::Result.new base + ".json"
-      if results_file_exist?(base, ".CoupledReads.fa")
-        r.add_files({
-	  :coupled => name + ".CoupledReads.fa",
-	  :pair1   => name + ".1.fa",
-	  :pair2   => name + ".2.fa"
-	})
-      end
-      r.add_file :single, name + ".SingleReads.fa"
-      add_result :raw_reads #-> Post gzip
+      r = add_files_to_ds_result(r, name, {:coupled=>".CoupledReads.fa",
+        :pair1=>".1.fa", :pair2=>".2.fa"}) if
+        results_file_exist?(base, ".CoupledReads.fa")
+      r.add_file(:single, name + ".SingleReads.fa")
+      add_result(:raw_reads) #-> Post gzip
       r
     end
 
     def add_result_assembly(base)
-      return nil unless result_files_exist?(base, %w[.LargeContigs.fna])
+      return nil unless result_files_exist?(base, ".LargeContigs.fna")
       r = MiGA::Result.new(base + ".json")
-      r.add_files({
-        :largecontigs => name + ".LargeContigs.fna",
-	:allcontigs   => name + ".AllContigs.fna"
-      })
-      r
+      add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
+        :allcontigs=>".AllContigs.fna"})
     end
 
     def add_result_cds(base)
       return nil unless result_files_exist?(base, %w[.faa .fna])
-      r = MiGA::Result.new base + ".json"
-      r.add_files({
-        :proteins => name + ".faa",
-        :genes    => name + ".fna",
-	:gff2     => name + ".gff2",
-	:gff3     => name + ".gff3",
-	:tab      => name + ".tab",
-      })
-      r
+      r = MiGA::Result.new(base + ".json")
+      add_files_to_ds_result(r, name, {:proteins=>".faa", :genes=>".fna",
+        :gff2=>".gff2", :gff3=>".gff3", :tab=>".tab"})
     end
 
     def add_result_essential_genes(base)
       return nil unless result_files_exist?(base, %w[.ess.fa .ess .ess/log])
-      r = MiGA::Result.new base + ".json"
-      r.add_files({
-        :ess_genes  => name + ".ess.faa",
-        :collection => name + ".ess",
-        :report     => name + ".ess/log",
-      })
-      r
+      r = MiGA::Result.new(base + ".json")
+      add_files_to_ds_result(r, name, {:ess_genes=>".ess.faa",
+        :collection=>".ess", :report=>".ess/log"})
     end
 
     def add_result_ssu(base)
       return MiGA::Result.new(base + ".json") if result(:assembly).nil?
       return nil unless result_files_exist?(base, ".ssu.fa")
-      r = MiGA::Result.new base + ".json"
-      r.add_files({
-        :longest_ssu_gene => name + ".ssu.fa",
-	:gff              => name + ".ssu.gff",
-	:all_ssu_genes    => name + ".ssu.all.fa"
-      })
-      r
+      r = MiGA::Result.new(base + ".json")
+      add_files_to_ds_result(r, name, {:longest_ssu_gene=>".ssu.fa",
+        :gff=>".ssu.gff", :all_ssu_genes=>".ssu.all.fa"})
     end
 
     def add_result_mytaxa(base)
       if is_multi?
         return nil unless result_files_exist?(base, ".mytaxa")
-        r = MiGA::Result.new base + ".json"
-	%w[mytaxa blast mytaxain].each { |i| r.add_file(i, "#{name}.#{i}") }
+        r = MiGA::Result.new(base + ".json")
+        add_files_to_ds_result(r, name, {:mytaxa=>".mytaxa", :blast=>".blast",
+          :mytaxain=>".mytaxain"})
       else
-        r = MiGA::Result.new base + ".json"
+        MiGA::Result.new base + ".json"
       end
-      r
     end
 
     def add_result_mytaxa_scan(base)
       if is_nonmulti?
-	return nil unless
-	  result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
-	r = MiGA::Result.new base + ".json"
-	r.add_files({
-	  :mytaxa     => name + ".mytaxa",
-	  :wintax     => name + ".wintax",
-	  :blast      => name + ".blast",
-	  :mytaxain   => name + ".mytaxain",
-	  :report     => name + ".pdf",
-	  :regions    => name + ".reg",
-	  :gene_ids   => name + ".wintax.genes",
-	  :region_ids => name + ".wintax.regions"
-	})
+        return nil unless
+          result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
+        r = MiGA::Result.new(base + ".json")
+        add_files_to_ds_result(r, name, {:mytaxa=>".mytaxa", :wintax=>".wintax",
+          :blast=>".blast", :mytaxain=>".mytaxain", :report=>".pdf",
+          :regions=>".reg", :gene_ids=>".wintax.genes",
+          :region_ids=>".wintax.regions"})
       else
-        r = MiGA::Result.new base + ".json"
+        MiGA::Result.new base + ".json"
       end
-      r
     end
 
     def add_result_distances(base)
       if is_nonmulti?
-	pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
-	return nil unless
-	  File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
-	r = MiGA::Result.new base + ".json"
-	r.add_files({
-	  :haai_db => "01.haai/#{name}.db",
-	  :aai_db  => "02.aai/#{name}.db",
-	  :ani_db  => "03.ani/#{name}.db"
-	})
+        pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
+        return nil unless
+          File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
+        r = MiGA::Result.new(base + ".json")
+        r.add_files({:haai_db=>"01.haai/#{name}.db",
+          :aai_db=>"02.aai/#{name}.db", :ani_db=>"03.ani/#{name}.db"})
       else
         r = MiGA::Result.new "#{base}.json"
       end
+      r
+    end
+
+    def add_files_to_ds_result(r, name, rel_files)
+      files = {}
+      rel_files.each{ |k,v| files[k] = name + v }
+      r.add_files(files)
       r
     end
 
