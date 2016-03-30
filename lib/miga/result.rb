@@ -111,7 +111,7 @@ class MiGA::Result < MiGA::MiGA
   def remove!
     each_file do |file|
       f = File.expand_path(file, dir)
-      File.unlink_r(f) if File.exist? f
+      FileUtils.rm_rf(f) if File.exist? f
     end
     %w(.start .done).each do |ext|
       f = path.sub(/\.json$/, ext)

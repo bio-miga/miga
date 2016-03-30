@@ -275,7 +275,7 @@ class MiGA::Dataset < MiGA::MiGA
       r = MiGA::Result.new base + ".json"
       r = add_files_to_ds_result(r, name, {:coupled=>".CoupledReads.fa",
         :pair1=>".1.fa", :pair2=>".2.fa"}) if
-        results_file_exist?(base, ".CoupledReads.fa")
+        result_files_exist?(base, ".CoupledReads.fa")
       r.add_file(:single, name + ".SingleReads.fa")
       add_result(:raw_reads) #-> Post gzip
       r

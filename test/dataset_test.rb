@@ -85,12 +85,12 @@ class DatasetTest < Test::Unit::TestCase
     assert_nil(d2.first_preprocessing)
     assert_nil(d2.next_preprocessing)
     assert(! d2.done_preprocessing?)
-    FileUtils.touch(
-      File.expand_path("data/01.raw_reads/#{d2.name}.1.fastq",$p1.path))
-    FileUtils.touch(
-      File.expand_path("data/01.raw_reads/#{d2.name}.done",$p1.path))
-    assert_equal(:raw_reads, d2.first_preprocessing)
-    assert_equal(:trimmed_reads, d2.next_preprocessing)
+    FileUtils.touch(File.expand_path(
+      "data/02.trimmed_reads/#{d2.name}.1.clipped.fastq",$p1.path))
+    FileUtils.touch(File.expand_path(
+      "data/02.trimmed_reads/#{d2.name}.done",$p1.path))
+    assert_equal(:trimmed_reads, d2.first_preprocessing)
+    assert_equal(:read_quality, d2.next_preprocessing)
     assert(! d2.done_preprocessing?)
     assert(d2.ignore_task?(:mytaxa))
     assert(d2.ignore_task?(:distances))
@@ -100,6 +100,61 @@ class DatasetTest < Test::Unit::TestCase
     d2.metadata[:type] = :genome
     assert(d2.ignore_task?(:mytaxa))
     assert(! d2.ignore_task?(:distances))
+  end
+
+  def test_profile_advance
+    d2 = $p1.add_dataset("ds_profile_advance")
+    assert_equal(0, d2.profile_advance.first)
+    assert_equal(0, d2.profile_advance.last)
+    assert_equal(0, d2.profile_advance.inject(:+))
+    Dir.mkdir(File.expand_path(
+      "data/03.read_quality/#{d2.name}.solexaqa",$p1.path))
+    Dir.mkdir(File.expand_path(
+      "data/03.read_quality/#{d2.name}.fastqc",$p1.path))
+    FileUtils.touch(File.expand_path(
+      "data/03.read_quality/#{d2.name}.done",$p1.path))
+    assert_equal([0,0,1,2], d2.profile_advance[0..3])
+    assert_equal(2, d2.profile_advance.last)
+  end
+
+  def test_add_result_other
+    d2 = $p1.add_dataset("ds_add_result_other")
+    Dir.mkdir(File.expand_path(
+      "data/07.annotation/01.function/01.essential/#{d2.name}.ess", $p1.path))
+    to_test = {
+      :trimmed_fasta => [
+        "data/04.trimmed_fasta/#{d2.name}.SingleReads.fa",
+        "data/04.trimmed_fasta/#{d2.name}.done"],
+      :assembly => [
+        "data/05.assembly/#{d2.name}.LargeContigs.fa",
+        "data/05.assembly/#{d2.name}.done"],
+      :cds => [
+        "data/06.cds/#{d2.name}.faa",
+        "data/06.cds/#{d2.name}.fna",
+        "data/06.cds/#{d2.name}.done"],
+      :essential_genes => %w[ess.fa ess/log done].map do |x|
+          "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}"
+        end,
+      :ssu => [
+        "data/07.annotation/01.function/02.ssu/#{d2.name}.ssu.fa",
+        "data/07.annotation/01.function/02.ssu/#{d2.name}.done"],
+      :mytaxa_scan => %w[pdf wintax mytaxa reg done].map do |x|
+          "data/07.annotation/03.qa/02.mytaxa_scan/#{d2.name}.#{x}"
+        end,
+      :distances => [
+        "data/09.distances/01.haai/#{d2.name}.db",
+        "data/09.distances/#{d2.name}.done"]
+    }
+    to_test.each do |k,v|
+      assert_nil(d2.add_result(k), "Result for #{k} should be nil.")
+      v.each do |i|
+        FileUtils.touch(File.expand_path(i, $p1.path))
+      end
+      FileUtils.touch(File.expand_path(
+        "data/04.trimmed_fasta/#{d2.name}.done",$p1.path))
+      assert_equal(MiGA::Result, d2.add_result(:trimmed_fasta).class,
+        "Result for #{k} should be MiGA::Result.")
+    end
   end
 
 end

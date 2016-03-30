@@ -32,10 +32,9 @@ class MiGA::MiGA
   end
 
   ##
-  # Turn off debug tracing (and debugging).
+  # Turn off debug tracing (but not debugging).
   def self.DEBUG_TRACE_OFF
     @@DEBUG_TRACE=false
-    self.DEBUG_OFF
   end
 
   ##
@@ -62,23 +61,6 @@ end
 # MiGA extensions to the File class.
 class File
 
-  ##
-  # FIXME This extension should be removed and replaced with FileUtils.rm_rf
-  def self.unlink_r(path)
-    if Dir.exists? path
-      unless File.symlink? path
-        Dir.entries(path).reject{|f| f =~ /^\.\.?$/}.each do |f|
-          File.unlink_r path + "/" + f
-        end
-      end
-      Dir.unlink path
-    elsif File.exists? path
-      File.unlink path
-    else
-      raise "Cannot find file: #{path}"
-    end
-  end
-  
   ##
   # Method to transfer a file from +old_name+ to +new_name+, using a +method+
   # that can be one of :symlink for File#symlink, :hardlink for File#link, or
