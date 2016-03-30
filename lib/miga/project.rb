@@ -120,7 +120,7 @@ class MiGA::Project < MiGA::MiGA
     end
     @metadata = Metadata.new(self.path + "/miga.project.json",
       {datasets: [], name: File.basename(self.path)})
-    FileUtils.cp(ENV["HOME"] + "/.miga_daemon.json",
+    FileUtils.cp(ENV["MIGA_HOME"] + "/.miga_daemon.json",
       self.path + "/daemon/daemon.json") unless
       File.exist? self.path + "/daemon/daemon.json"
     self.load
