@@ -5,6 +5,9 @@ class DatasetTest < Test::Unit::TestCase
   
   def setup
     $tmp = Dir.mktmpdir
+    ENV["MIGA_HOME"] = $tmp
+    FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
+    FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_daemon.json")
     $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
     $d1 = $p1.add_dataset("dataset1")
   end
@@ -48,6 +51,7 @@ class DatasetTest < Test::Unit::TestCase
 
   def teardown
     FileUtils.rm_rf $tmp
+    ENV["MIGA_HOME"] = nil
   end
   
 end

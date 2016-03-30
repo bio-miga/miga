@@ -65,13 +65,13 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Does the +project+ already have a dataset with that +name+?
   def self.exist?(project, name)
-       File.exist? project.path + "/metadata/" + name + ".json"
+    File.exist? project.path + "/metadata/" + name + ".json"
   end
 
   ##
   # Standard fields of metadata for datasets.
   def self.INFO_FIELDS
-       %w(name created updated type ref user description comments)
+    %w(name created updated type ref user description comments)
   end
 
   # Instance-level
@@ -183,29 +183,36 @@ class MiGA::Dataset < MiGA::MiGA
   # execution order). This typically corresponds to the result used as the
   # initial input.
   def first_preprocessing
-       @@PREPROCESSING_TASKS.find{ |t| not self.add_result(t).nil? }
+    @@PREPROCESSING_TASKS.find{ |t| not self.add_result(t).nil? }
   end
   
   ##
   # Returns the key symbol of the next task that needs to be executed.
   def next_preprocessing
     after_first = false
-       first = self.first_preprocessing
-       return nil if first.nil?
-       @@PREPROCESSING_TASKS.each do |t|
-      next if @@EXCLUDE_NOREF_TASKS.include?(t) and not is_ref?
-      next if @@ONLY_MULTI_TASKS.include?(t) and not is_multi?
-      next if @@ONLY_NONMULTI_TASKS.include?(t) and not is_nonmulti?
+    first = self.first_preprocessing
+    return nil if first.nil?
+    @@PREPROCESSING_TASKS.each do |t|
+      next unless process_task? t
       return t if after_first and add_result(t).nil?
       after_first = (after_first or (t==first))
-       end
-       nil
+    end
+    nil
+  end
+
+  ##
+  # Should I run +task+?
+  def process_task?(task)
+    return false if @@EXCLUDE_NOREF_TASKS.include?(t) and not is_ref?
+    return false if @@ONLY_MULTI_TASKS.include?(t) and not is_multi?
+    return false if @@ONLY_NONMULTI_TASKS.include?(t) and not is_nonmulti?
+    true
   end
   
   ##
   # Are all the dataset-specific tasks done?
   def done_preprocessing?
-       !first_preprocessing.nil? and next_preprocessing.nil?
+    !first_preprocessing.nil? and next_preprocessing.nil?
   end
   
   ##
@@ -234,7 +241,7 @@ class MiGA::Dataset < MiGA::MiGA
   private
     
     def add_result_raw_reads(base)
-      return nil unless result_files_exist?(base, %w[.1.fastq])
+      return nil unless result_files_exist?(base, ".1.fastq")
       r = MiGA::Result.new(base + ".json")
       if result_files_exist?(base, ".2.fastq")
         r.add_file(:pair1, name + ".1.fastq")
@@ -246,7 +253,7 @@ class MiGA::Dataset < MiGA::MiGA
     end
 
     def add_result_trimmed_reads(base)
-      return nil unless result_files_exist?(base, %w[.1.clipped.fastq])
+      return nil unless result_files_exist?(base, ".1.clipped.fastq")
       r = MiGA::Result.new base + ".json"
       if result_files_exist?(base, ".2.clipped.fastq")
         r.add_file(:pair1, name + ".1.clipped.fastq")
@@ -268,10 +275,10 @@ class MiGA::Dataset < MiGA::MiGA
 
     def add_result_trimmed_fasta(base)
       return nil unless
-        result_files_exist?(base, %w[.CoupledReads.fa]) or
-        result_files_exist?(base, %w[.SingleReads.fa])
+        result_files_exist?(base, ".CoupledReads.fa") or
+        result_files_exist?(base, ".SingleReads.fa")
       r = MiGA::Result.new base + ".json"
-      if results_file_exist?(base, %w[.CoupledReads.fa"])
+      if results_file_exist?(base, ".CoupledReads.fa")
         r.add_file(:coupled, name + ".CoupledReads.fa")
         r.add_file(:pair1, name + ".1.fa")
         r.add_file(:pair2, name + ".2.fa")
@@ -311,7 +318,7 @@ class MiGA::Dataset < MiGA::MiGA
 
     def add_result_ssu(base)
       return MiGA::Result.new(base + ".json") if result(:assembly).nil?
-      return nil unless result_files_exist?(base, %w[.ssu.fa])
+      return nil unless result_files_exist?(base, ".ssu.fa")
       r = MiGA::Result.new base + ".json"
       r.add_file :longest_ssu_gene, name + ".ssu.fa"
       r.add_file :gff, name + ".ssu.gff"
@@ -321,11 +328,9 @@ class MiGA::Dataset < MiGA::MiGA
 
     def add_result_mytaxa(base)
       if is_multi?
-        return nil unless result_files_exist?(base, %w[.mytaxa])
+        return nil unless result_files_exist?(base, ".mytaxa")
         r = MiGA::Result.new base + ".json"
-        r.add_file :mytaxa, name + ".mytaxa"
-        r.add_file :blast, name + ".blast"
-        r.add_file :mytaxain, name + ".mytaxain"
+	%w[mytaxa blast mytaxain].each { |i| r.add_file(i, "#{name}.#{i}") }
       else
         r = MiGA::Result.new base + ".json"
         r.data[:files] = {}
@@ -337,41 +342,39 @@ class MiGA::Dataset < MiGA::MiGA
       unless is_nonmulti?
         r = MiGA::Result.new base + ".json"
         r.data[:files] = {}
-        return r
+      else
+	return nil unless
+	  result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
+	r = MiGA::Result.new base + ".json"
+	%w[mytaxa wintax blast mytaxain].each do |i|
+	  r.add_file(i, "#{name}.#{i}")
+	end
+	r.add_file :report, name + ".pdf"
+	r.add_file :regions, name + ".reg"
+	r.add_file :gene_ids, name + ".wintax.genes"
+	r.add_file :region_ids, name + ".wintax.regions"
       end
-      return nil unless
-        result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
-      r = MiGA::Result.new base + ".json"
-      r.add_file :mytaxa, name + ".mytaxa"
-      r.add_file :wintax, name + ".wintax"
-      r.add_file :report, name + ".pdf"
-      r.add_file :regions, name + ".reg"
-      r.add_file :gene_ids, name + ".wintax.genes"
-      r.add_file :region_ids, name + ".wintax.regions"
-      r.add_file :blast, name + ".blast"
-      r.add_file :mytaxain, name + ".mytaxain"
       r
     end
 
     def add_result_distances(base)
       unless is_nonmulti?
-        r = MiGA::Result.new base + ".json"
+        r = MiGA::Result.new "#{base}.json"
         r.data[:files] = {}
         return r
       end
       pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
       if is_ref?
         return nil unless
-          File.exist?(pref + "/01.haai/" + name + ".db")
+          File.exist?(pref + "/01.haai/#{name}.db")
       else
         return nil unless
-          File.exist?(pref + "/02.aai/" + name + ".db")
+          File.exist?(pref + "/02.aai/#{name}.db")
       end
       r = MiGA::Result.new base + ".json"
-      r.add_file :haai_db, "01.haai/" + name + ".db"
-      r.add_file :aai_db, "02.aai/" + name + ".db"
-      r.add_file :ani_db, "03.ani/" + name + ".db"
+      r.add_file :haai_db, "01.haai/#{name}.db"
+      r.add_file :aai_db, "02.aai/#{name}.db"
+      r.add_file :ani_db, "03.ani/#{name}.db"
     end
 
 end # class MiGA::Dataset
-
