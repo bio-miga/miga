@@ -160,8 +160,7 @@ class MiGA::Dataset < MiGA::MiGA
   # For each result executes the 2-ary +blk+ block: key symbol and MiGA::Result.
   def each_result(&blk)
     @@RESULT_DIRS.keys.each do |k|
-      v = self.result k
-      blk.call(k,v) unless v.nil?
+      blk.call(k, result(k)) unless result(k).nil?
     end
   end
   
@@ -190,7 +189,7 @@ class MiGA::Dataset < MiGA::MiGA
   # Returns the key symbol of the next task that needs to be executed.
   def next_preprocessing
     after_first = false
-    first = self.first_preprocessing
+    first = first_preprocessing
     return nil if first.nil?
     @@PREPROCESSING_TASKS.each do |t|
       next if ignore_task? t
@@ -243,8 +242,10 @@ class MiGA::Dataset < MiGA::MiGA
       return nil unless result_files_exist?(base, ".1.fastq")
       r = MiGA::Result.new(base + ".json")
       if result_files_exist?(base, ".2.fastq")
-        r.add_file(:pair1, name + ".1.fastq")
-        r.add_file(:pair2, name + ".2.fastq")
+        r.add_files({
+	  :pair1 => name + ".1.fastq",
+	  :pair2 => name + ".2.fastq"
+	})
       else
         r.add_file(:single, name + ".1.fastq")
       end
@@ -255,8 +256,10 @@ class MiGA::Dataset < MiGA::MiGA
       return nil unless result_files_exist?(base, ".1.clipped.fastq")
       r = MiGA::Result.new base + ".json"
       if result_files_exist?(base, ".2.clipped.fastq")
-        r.add_file(:pair1, name + ".1.clipped.fastq")
-        r.add_file(:pair2, name + ".2.clipped.fastq")
+        r.add_files({
+	  :pair1 => name + ".1.clipped.fastq",
+	  :pair2 => name + ".2.clipped.fastq"
+	})
       end
       r.add_file(:single, name + ".1.clipped.single.fastq")
       add_result(:raw_reads) #-> Post gunzip
@@ -266,8 +269,10 @@ class MiGA::Dataset < MiGA::MiGA
     def add_result_read_quality(base)
       return nil unless result_files_exist?(base, %w[.solexaqa .fastqc])
       r = MiGA::Result.new(base + ".json")
-      r.add_file(:solexaqa, name + ".solexaqa")
-      r.add_file(:fastqc, name + ".fastqc")
+      r.add_files({
+        :solexaqa => name + ".solexaqa",
+        :fastqc   => name + ".fastqc"
+      })
       add_result(:trimmed_reads) #-> Post cleaning
       r
     end
@@ -278,9 +283,11 @@ class MiGA::Dataset < MiGA::MiGA
         result_files_exist?(base, ".SingleReads.fa")
       r = MiGA::Result.new base + ".json"
       if results_file_exist?(base, ".CoupledReads.fa")
-        r.add_file(:coupled, name + ".CoupledReads.fa")
-        r.add_file(:pair1, name + ".1.fa")
-        r.add_file(:pair2, name + ".2.fa")
+        r.add_files({
+	  :coupled => name + ".CoupledReads.fa",
+	  :pair1   => name + ".1.fa",
+	  :pair2   => name + ".2.fa"
+	})
       end
       r.add_file :single, name + ".SingleReads.fa"
       add_result :raw_reads #-> Post gzip
@@ -290,28 +297,34 @@ class MiGA::Dataset < MiGA::MiGA
     def add_result_assembly(base)
       return nil unless result_files_exist?(base, %w[.LargeContigs.fna])
       r = MiGA::Result.new(base + ".json")
-      r.add_file(:largecontigs, name + ".LargeContigs.fna")
-      r.add_file(:allcontigs, name + ".AllContigs.fna")
+      r.add_files({
+        :largecontigs => name + ".LargeContigs.fna",
+	:allcontigs   => name + ".AllContigs.fna"
+      })
       r
     end
 
     def add_result_cds(base)
       return nil unless result_files_exist?(base, %w[.faa .fna])
       r = MiGA::Result.new base + ".json"
-      r.add_file :proteins, name + ".faa"
-      r.add_file :genes, name + ".fna"
-      %w[gff2 gff3 tab].each do |ext|
-        r.add_file ext, "#{name}.#{ext}"
-      end
+      r.add_files({
+        :proteins => name + ".faa",
+        :genes    => name + ".fna",
+	:gff2     => name + ".gff2",
+	:gff3     => name + ".gff3",
+	:tab      => name + ".tab",
+      })
       r
     end
 
     def add_result_essential_genes(base)
       return nil unless result_files_exist?(base, %w[.ess.fa .ess .ess/log])
       r = MiGA::Result.new base + ".json"
-      r.add_file :ess_genes, name + ".ess.faa"
-      r.add_file :collection, name + ".ess"
-      r.add_file :report, name + ".ess/log"
+      r.add_files({
+        :ess_genes  => name + ".ess.faa",
+        :collection => name + ".ess",
+        :report     => name + ".ess/log",
+      })
       r
     end
 
@@ -319,9 +332,11 @@ class MiGA::Dataset < MiGA::MiGA
       return MiGA::Result.new(base + ".json") if result(:assembly).nil?
       return nil unless result_files_exist?(base, ".ssu.fa")
       r = MiGA::Result.new base + ".json"
-      r.add_file :longest_ssu_gene, name + ".ssu.fa"
-      r.add_file :gff, name + ".ssu.gff"
-      r.add_file :all_ssu_genes, name + ".ssu.all.fa"
+      r.add_files({
+        :longest_ssu_gene => name + ".ssu.fa",
+	:gff              => name + ".ssu.gff",
+	:all_ssu_genes    => name + ".ssu.all.fa"
+      })
       r
     end
 
@@ -341,13 +356,16 @@ class MiGA::Dataset < MiGA::MiGA
 	return nil unless
 	  result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
 	r = MiGA::Result.new base + ".json"
-	%w[mytaxa wintax blast mytaxain].each do |i|
-	  r.add_file(i, "#{name}.#{i}")
-	end
-	r.add_file :report, name + ".pdf"
-	r.add_file :regions, name + ".reg"
-	r.add_file :gene_ids, name + ".wintax.genes"
-	r.add_file :region_ids, name + ".wintax.regions"
+	r.add_files({
+	  :mytaxa     => name + ".mytaxa",
+	  :wintax     => name + ".wintax",
+	  :blast      => name + ".blast",
+	  :mytaxain   => name + ".mytaxain",
+	  :report     => name + ".pdf",
+	  :regions    => name + ".reg",
+	  :gene_ids   => name + ".wintax.genes",
+	  :region_ids => name + ".wintax.regions"
+	})
       else
         r = MiGA::Result.new base + ".json"
       end
@@ -360,9 +378,11 @@ class MiGA::Dataset < MiGA::MiGA
 	return nil unless
 	  File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
 	r = MiGA::Result.new base + ".json"
-	{:haai_db=>"01.haai",:aai_db=>"02.aai",:ani_db=>"03.ani"}.each do |k,v|
-	  r.add_file k, "#{v}/#{name}.db"
-	end
+	r.add_files({
+	  :haai_db => "01.haai/#{name}.db",
+	  :aai_db  => "02.aai/#{name}.db",
+	  :ani_db  => "03.ani/#{name}.db"
+	})
       else
         r = MiGA::Result.new "#{base}.json"
       end

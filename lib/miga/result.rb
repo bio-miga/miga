@@ -74,6 +74,12 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
+  # #add_file for each key-value pair in the +files+ Hash.
+  def add_files(files)
+    file.each { |k, v| add_file(k, v) }
+  end
+
+  ##
   # Initialize and #save empty result.
   def create
     @data = {:created=>Time.now.to_s, :results=>[], :stats=>{}, :files=>{}}
@@ -142,5 +148,5 @@ class MiGA::Result < MiGA::MiGA
     @data[:results] << result.path
     save
   end
-
+  
 end
