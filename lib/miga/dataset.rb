@@ -42,7 +42,7 @@ class MiGA::Dataset < MiGA::MiGA
   }
 
   ##
-  # Tasks to be executed before project-wide tasks.
+  # Returns an Array of tasks to be executed before project-wide tasks.
   def self.PREPROCESSING_TASKS ; @@PREPROCESSING_TASKS ; end
   @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality,
     :trimmed_fasta, :assembly, :cds, :essential_genes, :ssu, :mytaxa,
@@ -112,7 +112,8 @@ class MiGA::Dataset < MiGA::MiGA
   end
   
   ##
-  # Delete the dataset with all it's contents (including results).
+  # Delete the dataset with all it's contents (including results) and returns
+  # nil.
   def remove!
     self.results.each{ |r| r.remove! }
     self.metadata.remove!

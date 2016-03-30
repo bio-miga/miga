@@ -246,7 +246,7 @@ class MiGA::Project < MiGA::MiGA
   end
   
   ##
-  # Generates a two-dimensional matrix (Array of Array) where the first index
+  # Returns a two-dimensional matrix (Array of Array) where the first index
   # corresponds to the dataset, the second index corresponds to the dataset
   # task, and the value corresponds to:
   # - 0: Before execution.
