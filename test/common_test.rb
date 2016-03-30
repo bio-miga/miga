@@ -45,18 +45,23 @@ class CommonTest < Test::Unit::TestCase
     world = File.expand_path("World", $tmp)
     assert_respond_to(File, :generic_transfer)
     FileUtils.touch(hello)
-    assert(File.exist?(hello))
     File.generic_transfer(hello, world, :symlink)
-    assert_equal("link", File.ftype(world))
-    assert(File.symlink?(world))
+    assert_equal("link", File.ftype(world), "World should be a link.")
+    File.generic_transfer(hello, world, :copy)
+    assert_equal("link", File.ftype(world), "World should still be a link.")
     File.unlink world
     File.generic_transfer(hello, world, :hardlink)
-    assert_equal("file", File.ftype(world))
+    assert_equal("file", File.ftype(world), "A hardlink should be a file.")
     File.open(hello, "w"){ |fh| fh.print "!" }
     File.open(world, "r"){ |fh| assert_equal("!", fh.gets) }
     File.unlink world
     File.generic_transfer(hello, world, :copy)
-    assert_equal("file", File.ftype(world))
+    assert_equal("file", File.ftype(world), "A copy should be a file.")
+    File.unlink world
+    assert_raise do
+      File.generic_transfer(hello, world, :monkey)
+    end
+    assert(!File.exist?(world), "A monkey shouldn't create files.")
   ensure
     FileUtils.rm_rf $tmp
   end
