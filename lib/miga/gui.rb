@@ -7,27 +7,25 @@ require "shoes/swt"
 
 Shoes::Swt.initialize_backend
 
-class MiGA::MiGA
-  
-  ##
-  # Set system status for MiGA::GUI.
-  def self.STATUS=(status) @@STATUS = status ; end
-
-  ##
-  # System status for MiGA::GUI.
-  def self.STATUS() @@STATUS; end
-  @@STATUS = "Initializing MiGA..."
-
-  ##
-  # Reset the system status for MiGA::GUI.
-  def self.RESET_STATUS() @@STATUS="MiGA is ready to go!" ; end
-
-end
-
 ##
 # Graphical User Interface for MiGA using Shoes.
 class MiGA::GUI < Shoes
   
+  # Class-level
+  
+  ##
+  # Set system status for MiGA::GUI.
+  def self.status=(status) @@STATUS = status ; end
+
+  ##
+  # System status for MiGA::GUI.
+  def self.status() @@STATUS; end
+  @@STATUS = "Initializing MiGA..."
+
+  ##
+  # Reset the system status for MiGA::GUI.
+  def self.reset_status() @@STATUS="MiGA is ready to go!" ; end
+
   url "/",		:index
   url "/project",	:project
   url "/datasets",	:datasets
@@ -47,77 +45,47 @@ class MiGA::GUI < Shoes
   ##
   # Main window.
   def index
-    status_bar
+    header("Microbial Genomes Atlas")
     stack(margin:40) do
-      title "Welcome to MiGA!", align:"center"
-      para ""
-      flow{ menu_bar [:open_project, :new_project, :help] }
-      para ""
-      stack do
-        image $miga_path + "/gui/img/MiGA.png", width:150, height:50
-        para ""
-        para "If you use MiGA in your research, please consider citing:"
-        para MiGA.CITATION
-        para ""
+      menu_bar [:open_project, :new_project, :help]
+      box alpha: 0.0 do
+        para "Welcome to the MiGA GUI. If you use MiGA in your research, ",
+          "please consider citing:\n", MiGA::MiGA.CITATION
       end
     end
-    MiGA::MiGA.RESET_STATUS
-    keypress do |key|
-      if [:control_o, "o"].include? key
-        MiGA::MiGA.STATUS = "Calling open_project..."
-        open_project
-      elsif [:control_n, "n"].include? key
-        MiGA::MiGA.STATUS = "Calling new_project..."
-        new_project
-      end
-    end
+    MiGA::GUI.reset_status
+    status_bar
   end
 
   ##
   # Project window.
   def project
+    header("> " + $project.name.unmiga_name)
     stack(margin:40) do
-      title $project.name.unmiga_name, align:"center"
-      caption $project.path, align:"center"
-      para ""
-      stack{ menu_bar [:list_datasets, :new_dataset, :progress_report, :help] }
-      para ""
-      stack do
+      menu_bar [:list_datasets, :new_dataset, :progress_report, :help]
+      stack(margin_top:10) do
+        para strong("Path"), ": ", $project.path
         para strong("Datasets"), ": ", $project.metadata[:datasets].size
-        $project.metadata.each { |k,v| para(strong(k), ": ", v) unless
-          k==:datasets }
-      end
-      para ""
-    end
-    MiGA::MiGA.RESET_STATUS
-    keypress do |key|
-      if [:control_r, "r"].include? key
-        MiGA.STATUS = "Calling progress_report..."
-        progress_report
-      elsif [:control_d, "d"].include? key
-        MiGA.STATUS = "Calling list_datasets..."
-        list_datasets
+        $project.metadata.each do |k,v|
+          para(strong(k.to_s.capitalize), ": ", v) unless k==:datasets
+        end
       end
     end
+    MiGA::GUI.reset_status
   end
 
   ##
   # Datasets list window.
   def datasets
+    header("> " + $project.name.unmiga_name)
     stack(margin:40) do
-      title $project.name.unmiga_name, align:"center"
-      caption $project.path, align:"center"
+      para "#{$project.metadata[:datasets].size} datasets:"
       para ""
-      stack do
-        para "Displaying #{$project.metadata[:datasets].size} datasets:"
-        para ""
-        $project.metadata[:datasets].each do |name|
-          para link(name, :click=>"/dataset-#{name}")
-        end
+      $project.metadata[:datasets].each do |name|
+        para "> ", link(name, :click=>"/dataset-#{name}")
       end
-      para ""
-      MiGA::MiGA.RESET_STATUS
     end
+    MiGA::GUI.reset_status
   end
 
   ##
@@ -126,9 +94,8 @@ class MiGA::GUI < Shoes
     stack(margin:40) do
       ds = $project.dataset(name)
       title ds.name.unmiga_name, align:"center"
-      caption "A dataset in ",
-        strong(link($project.name.unmiga_name, :click=>"/datasets")),
-        align:"center"
+      caption(link("Back to #{$project.name.unmiga_name} datasets",
+        :click=>"/datasets"), align:"center")
       para ""
       stack{ ds.metadata.each { |k,v| para strong(k), ": ", v } }
       para ""
@@ -148,7 +115,7 @@ class MiGA::GUI < Shoes
         end
       end
       para ""
-      MiGA::MiGA.RESET_STATUS
+      MiGA::GUI.reset_status
     end
   end
 
@@ -184,7 +151,7 @@ class MiGA::GUI < Shoes
               end
             end
             click do
-              GUI.init{ visit "/dataset-#{$dataset}" } unless $dataset.nil?
+              MiGA::GUI.init{ visit "/dataset-#{$dataset}" } unless $dataset.nil?
             end
             leave do
               $task = nil
@@ -214,123 +181,198 @@ class MiGA::GUI < Shoes
         end
       end
       para ""
-      MiGA::MiGA.RESET_STATUS
+      MiGA::GUI.reset_status
     end
   end
+
+  private
+
+    ##
+    # Header in all windows
+    def header(msg="")
+      # workaround to shoes/shoes4#1212:
+      $clicky ||= []
+      $clicky.each{ |i| i.hide }
+      $clicky = []
+      
+      keypress do |key|
+        case key
+        # Global
+        when :control_o, :super_o
+          open_project
+        when :control_n, :super_n
+          new_project
+        when :control_d, :super_d
+          new_dataset unless $project.nil?
+        when :control_l, :super_l
+          list_datasets unless $project.nil?
+        when :control_r, :super_r
+          progress_report unless $project.nil?
+        end
+      end
+      
+      flow(margin:[40,10,40,0]) do
+        image $miga_path + "/gui/img/MiGA-sm.png"
+        title msg
+      end
+    end
+
+    ##
+    # General-purpose box
+    def box(opts={}, &blk)
+      flow(margin_bottom:5) do
+        opts[:alpha] ||= 0.2
+        opts[:side_line] ||= miga_blue
+        opts[:background] ||= miga_blue(opts[:alpha])
+        stack(width: 5, height: 1.0) do
+          background opts[:side_line]
+        end unless opts[:right]
+        stack(width: -5) do
+          background opts[:background]
+          stack{ background rgb(0,0,0,1.0) } # workaround to shoes/shoes4#1190
+          s = stack(margin:5, &blk)
+          unless opts[:click].nil?
+            s.click{ visit opts[:click] }
+          end
+        end
+        stack(width: 5, height: 1.0) do
+          background opts[:side_line]
+        end if opts[:right]
+      end
+    end
     
-  # =====================[ View : Elements ]
-  
-  ##
-  # Menu bar.
-  def menu_bar actions
-    flow do
-      b = {
-        open_project:["Open project", "iconmonstr-archive-5-icon-256"],
-        new_project:["New project","iconmonstr-plus-5-icon-256"],
-        list_datasets:["List datasets", "iconmonstr-note-10-icon-256"],
-        new_dataset:["New dataset", "iconmonstr-note-25-icon-256"],
-        progress_report:["Progress report", "iconmonstr-bar-chart-2-icon-256"],
-        help:["Help", "iconmonstr-help-3-icon-256"]
-      }
-      actions.each do |k|
-        v = b[k]
-        flow(margin:0, width:200) do
-          image $miga_path + "/gui/img/#{v[1]}.png",
-            width:40, height:40, margin:2
-          button v[0], top:5 do
-            MiGA.STATUS = "Calling #{k}..."
-            send(k)
+    def miga_blue(alpha=1.0)
+      rgb(0,114,179,alpha)
+    end
+
+    def miga_red(alpha=1.0)
+      rgb(179,0,3,alpha)
+    end
+
+      
+    # =====================[ View : Elements ]
+    
+    ##
+    # Menu bar.
+    def menu_bar actions
+      box do
+        flow do
+          img = {
+            open_project: "iconmonstr-archive-5-icon-40",
+            new_project: "iconmonstr-plus-5-icon-40",
+            list_datasets: "iconmonstr-note-10-icon-40",
+            new_dataset: "iconmonstr-note-25-icon-40",
+            progress_report: "iconmonstr-bar-chart-2-icon-40",
+            help: "iconmonstr-help-3-icon-40"}
+          actions.each do |k|
+            flow(margin:0, width:200) do
+              image $miga_path + "/gui/img/#{img[k]}.png", margin: 2
+              button(k.to_s.gsub("_"," ").capitalize, top:5){ send(k) }
+            end
           end
         end
       end
     end
-  end
-    
-  ##
-  # Status bar.
-  def status_bar
-    stack(bottom:0) do
-      flow bottom:0, height:20, margin:0 do
-        background "#CCC"
-        stack(width:50)
-        $status_cont = stack(width:-300, height:1.0)
-        every do
-          $status_cont.clear { inscription MiGA.STATUS, margin:5 }
-        end
-        stack(width:250, height:1.0) do
-          inscription MiGA.LONG_VERSION, align:"right", margin:5
-        end
-      end
-      image $miga_path + "/gui/img/MiGA-sq.png",
-        left:0, bottom:0, width:30, height:32
-    end
-  end
-
-  ##
-  # Display processing status of a dataset as a horizontal bar, as reported
-  # by MiGA::Dataset#profile_advance.
-  def graphic_advance(ds, h=10)
-    ds_adv = ds.profile_advance
-    flow(width:30*MiGA::Dataset.PREPROCESSING_TASKS.size) do
-      nostroke
-      i = 0
-      col = ["#CCC", rgb(119,130,61), rgb(160,41,50)]
-      ds_adv.each do |j|
-        stack(width:28,margin:0,top:0,left:i*30,height:h) do
-          background col[j]
-          t = MiGA::Dataset.PREPROCESSING_TASKS[i]
-          hover do
-            $task = t
-            $dataset = ds.name.unmiga_name
+      
+    ##
+    # Status bar.
+    def status_bar
+      stack(bottom:0) do
+        flow bottom:0, height:20, margin:0 do
+          background "#CCC"
+          stack(width:50)
+          $status_cont = stack(width:-300, height:1.0)
+          every do
+            $status_cont.clear { inscription MiGA::GUI.status, margin:5 }
+          end
+          stack(width:250, height:1.0) do
+            inscription MiGA::MiGA.LONG_VERSION, align:"right", margin:5
           end
         end
-        i += 1
-      end
-      nofill
-    end
-    return 0.0 if ds_adv.count{|i| i>0} <= 1
-    (ds_adv.count{|i| i==1}.to_f - 1.0)/(ds_adv.count{|i| i>0}.to_f - 1.0)
-  end
-
-  # =====================[ Controller : Projects ]
-
-  ##
-  # Load a project.
-  def open_project
-    GUI.init do
-      folder = ask_open_folder
-      if folder.nil? or not MiGA::Project.exist? folder
-        alert "Cannot find a MiGA project at #{folder}!" unless folder.nil?
-        return
-      else
-        $project = MiGA::Project.new folder
-        visit '/project'
+        image $miga_path + "/gui/img/MiGA-sq.png",
+          left:0, bottom:0, width:30, height:32
       end
     end
-  end
-  
-  ##
-  # Create a project.
-  def new_project
-    GUI.init do
-      folder = ask_save_folder
-      if folder.nil? or MiGA::Project.exist? folder
-        alert "Cannot overwrite existent MiGA project at #{folder}!" unless
-          folder.nil?
-        return
-      else
-        $project = MiGA::Project.new folder
-        visit "/project"
+
+    ##
+    # Display processing status of a dataset as a horizontal bar, as reported
+    # by MiGA::Dataset#profile_advance.
+    def graphic_advance(ds, h=10)
+      ds_adv = ds.profile_advance
+      flow(width:30*MiGA::Dataset.PREPROCESSING_TASKS.size) do
+        nostroke
+        i = 0
+        col = ["#CCC", rgb(119,130,61), rgb(160,41,50)]
+        ds_adv.each do |j|
+          stack(width:28,margin:0,top:0,left:i*30,height:h) do
+            background col[j]
+            t = MiGA::Dataset.PREPROCESSING_TASKS[i]
+            hover do
+              $task = t
+              $dataset = ds.name.unmiga_name
+            end
+          end
+          i += 1
+        end
+        nofill
       end
+      return 0.0 if ds_adv.count{|i| i>0} <= 1
+      (ds_adv.count{|i| i==1}.to_f - 1.0)/(ds_adv.count{|i| i>0}.to_f - 1.0)
     end
+
+    # =====================[ Controller : Projects ]
+
+    ##
+    # Load a project.
+    def open_project
+      MiGA::GUI.status = "Opening project..."
+      MiGA::GUI.init do
+        folder = ask_open_folder
+        if folder.nil? or not MiGA::Project.exist? folder
+          alert "Cannot find a MiGA project at #{folder}!" unless folder.nil?
+        else
+          $project = MiGA::Project.new folder
+          visit "/project"
+        end
+      end
+      MiGA::GUI.reset_status
+    end
+    
+    ##
+    # Create a project.
+    def new_project
+      MiGA::GUI.status = "Creating project..."
+      MiGA::GUI.init do
+        if MiGA::MiGA.initialized?
+          folder = ask_save_folder
+          if folder.nil? or MiGA::Project.exist? folder
+            alert "Cannot overwrite existent MiGA project at #{folder}!" unless
+              folder.nil?
+          else
+            $project = MiGA::Project.new folder
+            visit "/project"
+          end
+        else
+          alert "MiGA is currently uninitialized, no projects can be created."
+        end
+      end
+      MiGA::GUI.reset_status
+    end
+    
+    ##
+    # Open a window on #datasets.
+    def list_datasets
+      MiGA::GUI.status = "Listing all datasets..."
+      MiGA::GUI.init { visit "/datasets" }
+      MiGA::GUI.reset_status
+    end
+
+    ##
+    # Open a window on #report.
+    def progress_report
+      MiGA::GUI.status = "Creating progress report..."
+      MiGA::GUI.init { visit "/report" }
+      MiGA::GUI.reset_status
+    end
+
   end
-  
-  ##
-  # Open a window on #datasets.
-  def list_datasets ; GUI.init { visit "/datasets" } ; end
-
-  ##
-  # Open a window on #report.
-  def progress_report ; GUI.init { visit "/report" } ; end
-
-end

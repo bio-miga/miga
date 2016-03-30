@@ -8,6 +8,8 @@ require "miga/version"
 # of all other MiGA::* classes.
 class MiGA::MiGA
   
+  ENV["MIGA_HOME"] ||= ENV["HOME"]
+
   ##
   # Should debugging information be reported?
   @@DEBUG = false
@@ -43,6 +45,13 @@ class MiGA::MiGA
     $stderr.puts(*args) if @@DEBUG
     $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if
       @@DEBUG_TRACE
+  end
+
+  ##
+  # Has MiGA been initialized?
+  def self.initialized?
+    File.exist?(File.expand_path(".miga_rc", ENV["MIGA_HOME"])) and
+      File.exist?(File.expand_path(".miga_daemon.json", ENV["MIGA_HOME"]))
   end
 
   ##

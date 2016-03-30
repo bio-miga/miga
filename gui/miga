@@ -1,51 +1,55 @@
 #!/usr/bin/env jruby -J-XstartOnFirstThread
 #
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
-# @license artistic license 2.0
-# @update Jun-25-2015
+# @license Artistic-2.0
 #
 
-$:.push File.expand_path(File.dirname(__FILE__) + "/../lib")
-require 'miga'
-require 'miga/gui'
-require 'optparse'
+$:.unshift File.expand_path("../../lib", __FILE__)
+require "miga"
+require "miga/gui"
+require "optparse"
 
 o = {:q=>true}
 OptionParser.new do |opt|
-   opt.banner = <<BAN
+  opt.banner = <<BAN
 Launches the Graphical User Interface of MiGA.
 
-Usage: #{$0} #{File.basename(__FILE__)} {task} [options]
+Usage: #{$0} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project PATH", "Path to the project to load at startup."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset NAME", "Name of the dataset to load at startup."){ |v| o[:dataset]=v }
-   opt.on("-v", "--verbose", "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR."){ |v| v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON }
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+  opt.separator ""
+  opt.on("-P", "--project PATH",
+    "Path to the project to load at startup."){ |v| o[:project]=v }
+  opt.on("-D", "--dataset NAME",
+    "Name of the dataset to load at startup."){ |v| o[:dataset]=v }
+  opt.on("-v", "--verbose",
+    "Print additional information to STDERR."){ o[:q]=false }
+  opt.on("-d", "--debug INT",
+    "Print debugging information to STDERR.") do |v|
+      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
+    end
+  opt.on("-h", "--help", "Display this screen.") do
+    puts opt
+    exit
+  end
+  opt.separator ""
 end.parse!
 
 ### MAIN
 begin
-   $stderr.puts "Loading Shoes." unless o[:q]
-   #s = MiGA::Shoes.new
-   #unless o[:project].nil?
-   #   $stderr.puts "Loading Project: #{o[:project]}." unless o[:q]
-   #   s.load_project MiGA::Project.new(o[:project])
-   #   unless o[:dataset].nil?
-#	 $stderr.puts "Loading Dataset: #{o[:dataset]}." unless o[:q]
-#	 s.load_dataset s.project.dataset(o[:dataset])
-#      end
-   #end
-   MiGA::GUI.init
+  $stderr.puts "Loading Shoes." unless o[:q]
+  # FIXME
+  #s = MiGA::Shoes.new
+  #unless o[:project].nil?
+  #   $stderr.puts "Loading Project: #{o[:project]}." unless o[:q]
+  #   s.load_project MiGA::Project.new(o[:project])
+  #   unless o[:dataset].nil?
+  #    $stderr.puts "Loading Dataset: #{o[:dataset]}." unless o[:q]
+  #    s.load_dataset s.project.dataset(o[:dataset])
+  #  end
+  #end
+  MiGA::GUI.init
 rescue => err
-   $stderr.puts "Exception: #{err}\n\n"
-   err.backtrace.each { |l| $stderr.puts l + "\n" }
-   err
+  $stderr.puts "Exception: #{err}\n\n"
+  err.backtrace.each { |l| $stderr.puts l + "\n" }
+  err
 end
-

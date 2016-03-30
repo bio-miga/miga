@@ -22,9 +22,9 @@ BAN
    opt.on("-i", "--info",
       "If set, it prints additional details for each file."
       ){ |v| o[:details]=v }
-   opt.on("--exclude-json",
-      "If set, excludes json files containing results metadata."
-      ){ |v| o[:json]=!v }
+   opt.on("--[no-]json",
+      "If set to no, excludes json files containing results metadata."
+      ){ |v| o[:json]=v }
    opt.on("-v", "--verbose",
       "Print additional information to STDERR."){ o[:q]=false }
    opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
@@ -56,10 +56,9 @@ end
 
 $stderr.puts "Listing files." unless o[:q]
 results.each do |result|
-   puts (o[:details] ? result.path + "\t" + "\t" : "") + result.path if o[:json]
+   puts "#{ "#{result.path}\t\t" if o[:details] }#{result.path}" if o[:json]
    result.each_file do |k,f|
-      puts (o[:details] ? result.path + "\t" + k.to_s + "\t" : "") +
-	 File.dirname(result.path) + "/" + f.to_s
+      puts "#{ "#{result.path}\t#{k}\t" if o[:details] }#{result.dir}/#{f}"
    end
 end
 

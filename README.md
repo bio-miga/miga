@@ -28,6 +28,6 @@ Developed and maintained by [Luis M. Rodriguez-R][lrr].
 See [LICENSE](LICENSE).
 
 [lrr]: http://lmrodriguezr.github.io/
-[gitbook]: https://www.gitbook.com/book/miga/miga
+[gitbook]: https://miga.gitbooks.io/miga/content/
 [rubydoc]: http://www.rubydoc.info/github/bio-miga/miga
 [contact]: http://enve-omics.gatech.edu/node/7
