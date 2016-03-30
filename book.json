@@ -1,8 +1,9 @@
 {
   "gitbook": "3.0.0-pre.5",
+  "root": "./manual",
   "structure": {
-    "readme": "INTRO.md",
-    "summary": ".book.summary.md",
-    "glossary": ".book.glossary.md"
+    "readme": "intro.md",
+    "summary": "summary.md",
+    "glossary": "glossary.md"
   }
 }
