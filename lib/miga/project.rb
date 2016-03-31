@@ -98,9 +98,6 @@ class MiGA::Project < MiGA::MiGA
   attr_reader :metadata
 
   def initialize(path, update=false)
-    unless MiGA::MiGA.initialized?
-      raise "Impossible to create project in uninitialized MiGA."
-    end
     @datasets = {}
     @path = File.absolute_path(path)
     self.create if update or not Project.exist? self.path
@@ -108,6 +105,9 @@ class MiGA::Project < MiGA::MiGA
   end
 
   def create
+    unless MiGA::MiGA.initialized?
+      raise "Impossible to create project in uninitialized MiGA."
+    end
     Dir.mkdir self.path unless Dir.exist? self.path
     @@FOLDERS.each do |dir|
       Dir.mkdir self.path + "/" + dir unless

@@ -126,13 +126,13 @@ class DatasetTest < Test::Unit::TestCase
         "data/04.trimmed_fasta/#{d2.name}.SingleReads.fa",
         "data/04.trimmed_fasta/#{d2.name}.done"],
       :assembly => [
-        "data/05.assembly/#{d2.name}.LargeContigs.fa",
+        "data/05.assembly/#{d2.name}.LargeContigs.fna",
         "data/05.assembly/#{d2.name}.done"],
       :cds => [
         "data/06.cds/#{d2.name}.faa",
         "data/06.cds/#{d2.name}.fna",
         "data/06.cds/#{d2.name}.done"],
-      :essential_genes => %w[ess.fa ess/log done].map do |x|
+      :essential_genes => %w[ess.faa ess/log done].map do |x|
           "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}"
         end,
       :ssu => [
@@ -152,7 +152,7 @@ class DatasetTest < Test::Unit::TestCase
       end
       FileUtils.touch(File.expand_path(
         "data/04.trimmed_fasta/#{d2.name}.done",$p1.path))
-      assert_equal(MiGA::Result, d2.add_result(:trimmed_fasta).class,
+      assert_equal(MiGA::Result, d2.add_result(k).class,
         "Result for #{k} should be MiGA::Result.")
     end
   end
