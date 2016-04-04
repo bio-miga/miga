@@ -11,6 +11,10 @@ class MiGA::MiGA
   ENV["MIGA_HOME"] ||= ENV["HOME"]
 
   ##
+  # Root path to MiGA (as estimated from the location of the current file).
+  def self.root_path ; File.expand_path("../../..", __FILE__) ; end
+
+  ##
   # Should debugging information be reported?
   @@DEBUG = false
 

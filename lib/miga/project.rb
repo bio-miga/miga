@@ -1,5 +1,5 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "miga/dataset"
 
@@ -111,11 +111,11 @@ class MiGA::Project < MiGA::MiGA
     Dir.mkdir self.path unless Dir.exist? self.path
     @@FOLDERS.each do |dir|
       Dir.mkdir self.path + "/" + dir unless
-	Dir.exist? self.path + "/" + dir
+        Dir.exist? self.path + "/" + dir
     end
     @@DATA_FOLDERS.each do |dir|
       Dir.mkdir self.path + "/data/" + dir unless
-	Dir.exist? self.path + "/data/" + dir
+        Dir.exist? self.path + "/data/" + dir
     end
     @metadata = Metadata.new(self.path + "/miga.project.json",
       {datasets: [], name: File.basename(self.path)})
@@ -175,18 +175,18 @@ class MiGA::Project < MiGA::MiGA
     ds.each_result do |task, result|
       # import result files
       result.each_file do |file|
-	File.generic_transfer("#{result.dir}/#{file}",
-	  "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{file}",
-	  method)
+        File.generic_transfer("#{result.dir}/#{file}",
+          "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{file}",
+          method)
       end
       # import result metadata
       %w(json start done).each do |suffix|
-	if File.exist? "#{result.dir}/#{ds.name}.#{suffix}"
-	  File.generic_transfer("#{result.dir}/#{ds.name}.#{suffix}",
-	    "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/" +
-		      "#{ds.name}.#{suffix}",
-	    method)
-	end
+        if File.exist? "#{result.dir}/#{ds.name}.#{suffix}"
+          File.generic_transfer("#{result.dir}/#{ds.name}.#{suffix}",
+            "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/" +
+                      "#{ds.name}.#{suffix}",
+            method)
+        end
       end
     end
     # Import dataset metadata
@@ -210,7 +210,7 @@ class MiGA::Project < MiGA::MiGA
     return nil if @@RESULT_DIRS[result_type].nil?
     base = self.path + "/data/" + @@RESULT_DIRS[result_type] +
       "/miga-project"
-    return MiGA::Result.load(base + ".json") if save
+    return MiGA::Result.load(base + ".json") unless save
     return nil unless result_files_exist?(base, ".done")
     r = call("add_result_#{result_type}", base)
     r.save
@@ -230,12 +230,12 @@ class MiGA::Project < MiGA::MiGA
     datasets = []
     Dataset.RESULT_DIRS.each do |res, dir|
       Dir.entries(self.path + "/data/" + dir).each do |file|
-	next unless
-	  file =~ %r{
-	    \.(fa(a|sta|stqc?)?|fna|solexaqa|gff[23]?|done|ess)(\.gz)?$
-	    }x
-	m = /([^\.]+)/.match(file)
-	datasets << m[1] unless m.nil? or m[1] == "miga-project"
+        next unless
+          file =~ %r{
+            \.(fa(a|sta|stqc?)?|fna|solexaqa|gff[23]?|done|ess)(\.gz)?$
+            }x
+        m = /([^\.]+)/.match(file)
+        datasets << m[1] unless m.nil? or m[1] == "miga-project"
       end
     end
     datasets.uniq - self.metadata[:datasets]
@@ -291,14 +291,14 @@ class MiGA::Project < MiGA::MiGA
 
     def add_result_subclades(base)
       return nil unless
-	result_files_exist?(base,
-	%w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
+        result_files_exist?(base,
+        %w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
       r = Result.new(base + ".json")
       r.add_file(:report, "miga-project.pdf")
       (1..6).each do |i|
-	%w{classif medoids}.each do |m|
-	  r.add_file("#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}")
-	end
+        %w{classif medoids}.each do |m|
+          r.add_file("#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}")
+        end
       end
       r.add_file(:class_table, "miga-project.class.tsv")
       r.add_file(:class_tree,  "miga-project.class.nwk")
