@@ -110,7 +110,7 @@ class MiGA::Daemon < MiGA::MiGA
       loop do
         loop_i += 1
         declare_alive
-        traverse_datasets
+        check_datasets
         check_project
         flush!
         if loop_i==12

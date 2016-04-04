@@ -60,6 +60,22 @@ class MiGA::MiGA
   end
 
   ##
+  # Tabulates an +values+, and Array of Arrays, all with the same number of
+  # entries as +header+. Returns an Array of String, one per line.
+  def self.tabulate(header, values)
+    fields = [header.map{ |h| h.to_s }]
+    fields << fields.first.map{ |h| h.gsub(/\S/, "-") }
+    fields += values.map{ |row| row.map{ |cell| cell.nil? ? "?" : cell.to_s } }
+    clen = fields.map{ |row|
+      row.map{ |cell| cell.length } }.transpose.map{ |col| col.max }
+    fields.map do |row|
+      (0 .. clen.size-1).map do |col_n|
+        col_n==0 ? row[col_n].rjust(clen[col_n]) : row[col_n].ljust(clen[col_n])
+      end.join("  ")
+    end
+  end
+
+  ##
   # Check if the result files exist with +base+ name (String) followed by the
   # +ext+ values (Array of String).
   def result_files_exist?(base, ext)
@@ -92,7 +108,7 @@ class File
       raise "Unknown transfer method: #{method}."
     end
   end
-
+  
 end
 
 ##
