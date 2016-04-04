@@ -125,30 +125,19 @@ class MiGA::GUI < Shoes
   def report
     header("> " + $project.name.unmiga_name)
     stack(margin:40) do
+      $done_para = subtitle "Dataset tasks advance: "
       $done = 0.0
-      flow do
-        w = 40+30*MiGA::Dataset.PREPROCESSING_TASKS.size
-        $done_para = subtitle "Dataset tasks advance: "
-        stack(width:w) do
-          stack(margin_top:10) do
-            $project.each_dataset { |ds| $done += graphic_advance(ds, 7) }
-            motion do |_,y|
-              unless $task.nil?
-                $task_ds_box.clear do
-                  para strong("Task: "), $task
-                  para strong("Dataset: "), $dataset
-                end
-                $task_ds_box.show
-                $task_ds_box.move(w,y-110)
-              end
-            end
-            click { show_dataset($dataset) }
-          end
-          $done /= $project.metadata[:datasets].size
-          $done_para.text += sprintf("%.1f%% Complete.", $done*100)
+      w = 40+30*MiGA::Dataset.PREPROCESSING_TASKS.size
+      stack(width:w) do
+        stack(margin_top:10) do
+          $done = $project.datasets.map{ |ds| graphic_advance(ds, 7) }.inject(:+)
+          motion { |_,y| show_report_hover(w, y) }
+          click { show_dataset($dataset) }
         end
-        $task_ds_box = stack(width:-w)
-      end # stack
+        $done /= $project.metadata[:datasets].size
+        $done_para.text += sprintf("%.1f%% Complete.", $done*100)
+      end
+      $task_ds_box = stack(width:-w)
       stack(margin_top:10) do
         subtitle "Project-wide tasks:"
         tasks = MiGA::Project.DISTANCE_TASKS
@@ -159,7 +148,6 @@ class MiGA::GUI < Shoes
         end
       end if $done==1.0
     end
-    MiGA::GUI.reset_status
   end
 
   private
@@ -186,19 +174,15 @@ class MiGA::GUI < Shoes
       $clicky.each{ |i| i.hide }
       $clicky = []
       # Keyboard support
+      key_shortcuts = {
+        :control_o => :open_project,    :super_o => :open_project,
+        :control_n => :new_project,     :super_n => :new_project,
+        :control_l => :list_datasets,   :super_l => :list_datasets,
+        :control_r => :progress_report, :super_r => :progress_report
+      }
       keypress do |key|
-        case key
-        when :control_o, :super_o
-          open_project
-        when :control_n, :super_n
-          new_project
-        when :control_d, :super_d
-          new_dataset unless $project.nil?
-        when :control_l, :super_l
-          list_datasets unless $project.nil?
-        when :control_r, :super_r
-          progress_report unless $project.nil?
-        end
+        funct = key_shortcuts[key]
+        send(funct) unless funct.nil?
       end
       # Graphical header
       flow(margin:[40,10,40,0]) do
@@ -269,7 +253,7 @@ class MiGA::GUI < Shoes
           end
         end
         image "#{$miga_path}/gui/img/MiGA-sq.png",
-	  left:0, bottom:0, width:30, height:32
+          left:0, bottom:0, width:30, height:32
       end
     end
 
@@ -300,6 +284,16 @@ class MiGA::GUI < Shoes
       end
       return 0.0 if ds_adv.count{|i| i>0} <= 1
       (ds_adv.count{|i| i==1}.to_f - 1.0)/(ds_adv.count{|i| i>0}.to_f - 1.0)
+    end
+
+    def show_report_hover(w, y)
+      unless $task.nil?
+        $task_ds_box.clear do
+          para strong("Task: "), $task, "\n", strong("Dataset: "), $dataset
+        end
+        $task_ds_box.show
+        $task_ds_box.move(w-20, y-115)
+      end
     end
 
     # =====================[ Controller : Projects ]
@@ -333,7 +327,7 @@ class MiGA::GUI < Shoes
           end
         else
           # FIXME Add a way to initialize MiGA from the GUI
-	  alert "MiGA is currently uninitialized, no projects can be created."
+          alert "MiGA is currently uninitialized, no projects can be created."
         end
       end
     end
@@ -363,7 +357,7 @@ class MiGA::GUI < Shoes
     # Open a window sending +msg+ to the status, the yields +blk+.
     def open_window(msg, &blk)
       MiGA::GUI.status = msg
-      MiGA::GUI.init &blk
+      MiGA::GUI.init(&blk)
       MiGA::GUI.reset_status
     end
 

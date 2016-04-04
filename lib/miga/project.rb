@@ -145,7 +145,7 @@ class MiGA::Project < MiGA::MiGA
   def dataset(name)
     name = name.miga_name
     @datasets = {} if @datasets.nil?
-    @datasets[name] = Dataset.new(self, name) if @datasets[name].nil? 
+    @datasets[name] = MiGA::Dataset.new(self, name) if @datasets[name].nil? 
     @datasets[name]
   end
   
@@ -206,23 +206,24 @@ class MiGA::Project < MiGA::MiGA
     @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? }
   end
   
-  def add_result result_type
+  def add_result(result_type, save=true)
     return nil if @@RESULT_DIRS[result_type].nil?
     base = self.path + "/data/" + @@RESULT_DIRS[result_type] +
       "/miga-project"
+    return MiGA::Result.load(base + ".json") if save
     return nil unless result_files_exist?(base, ".done")
-    r = self.call("add_result_#{result_type}", base)
+    r = call("add_result_#{result_type}", base)
     r.save
     r
   end
   
-  def next_distances
-    @@DISTANCE_TASKS.find{ |t| self.add_result(t).nil? }
+  def next_distances(save=true)
+    @@DISTANCE_TASKS.find{ |t| add_result(t, save).nil? }
   end
   
-  def next_inclade
+  def next_inclade(save=true)
     return nil unless self.metadata[:type]==:clade
-    @@INCLADE_TASKS.find{ |t| self.add_result(t).nil? }
+    @@INCLADE_TASKS.find{ |t| add_result(t, save).nil? }
   end
   
   def unregistered_datasets
@@ -240,8 +241,8 @@ class MiGA::Project < MiGA::MiGA
     datasets.uniq - self.metadata[:datasets]
   end
   
-  def done_preprocessing?
-    self.datasets.map{|ds| (not ds.is_ref?) or ds.done_preprocessing?}.all?
+  def done_preprocessing?(save=true)
+    datasets.map{|ds| (not ds.is_ref?) or ds.done_preprocessing?(save) }.all?
   end
   
   ##
