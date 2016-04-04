@@ -167,11 +167,14 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Look for the result with symbol key +result_type+ and register it in the
-  # dataset. Returns the result MiGA::Result or nil.
-  def add_result(result_type)
+  # dataset. If +save+ is false, it doesn't register the result, but it still
+  # returns a result if the expected files are complete. Returns MiGA::Result
+  # or nil.
+  def add_result(result_type, save=true)
     return nil if @@RESULT_DIRS[result_type].nil?
     base = project.path + "/data/" + @@RESULT_DIRS[result_type] +
       "/" + name
+    return MiGA::Result.load(base + ".json") unless save
     return nil unless result_files_exist?(base, ".done")
     r = self.send("add_result_#{result_type}", base)
     r.save unless r.nil?
@@ -181,20 +184,21 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Returns the key symbol of the first registered result (sorted by the
   # execution order). This typically corresponds to the result used as the
-  # initial input.
-  def first_preprocessing
-    @@PREPROCESSING_TASKS.find{ |t| not self.add_result(t).nil? }
+  # initial input. Passes +save+ to #add_result.
+  def first_preprocessing(save=false)
+    @@PREPROCESSING_TASKS.find{ |t| not add_result(t, save).nil? }
   end
   
   ##
-  # Returns the key symbol of the next task that needs to be executed.
-  def next_preprocessing
+  # Returns the key symbol of the next task that needs to be executed. Passes
+  # +save+ to #add_result.
+  def next_preprocessing(save=false)
     after_first = false
-    first = first_preprocessing
+    first = first_preprocessing(save)
     return nil if first.nil?
     @@PREPROCESSING_TASKS.each do |t|
       next if ignore_task? t
-      return t if after_first and add_result(t).nil?
+      return t if after_first and add_result(t, save).nil?
       after_first = (after_first or (t==first))
     end
     nil
@@ -209,9 +213,9 @@ class MiGA::Dataset < MiGA::MiGA
   end
   
   ##
-  # Are all the dataset-specific tasks done?
-  def done_preprocessing?
-    !first_preprocessing.nil? and next_preprocessing.nil?
+  # Are all the dataset-specific tasks done? Passes +save+ to #add_result.
+  def done_preprocessing?(save=false)
+    !first_preprocessing(save).nil? and next_preprocessing(save).nil?
   end
   
   ##
@@ -220,19 +224,17 @@ class MiGA::Dataset < MiGA::MiGA
   # - 0 for an undefined result (a task before the initial input).
   # - 1 for a registered result (a completed task).
   # - 2 for a queued result (a task yet to be executed).
-  def profile_advance
-    if first_preprocessing.nil?
-      adv = Array.new(@@PREPROCESSING_TASKS.size, 0)
-    else
-      adv = []
-      state = 0
-      first_task = first_preprocessing
-      next_task = next_preprocessing
-      @@PREPROCESSING_TASKS.each do |task|
-        state = 1 if first_task==task
-        state = 2 if !next_task.nil? and next_task==task
-        adv << state
-      end
+  # It passes +save+ to #add_result
+  def profile_advance(save=false)
+    first_task = first_preprocessing(save)
+    return Array.new(@@PREPROCESSING_TASKS.size, 0) if first_task.nil?
+    adv = []
+    state = 0
+    next_task = next_preprocessing(save)
+    @@PREPROCESSING_TASKS.each do |task|
+      state = 1 if first_task==task
+      state = 2 if !next_task.nil? and next_task==task
+      adv << state
     end
     adv
   end
@@ -337,7 +339,7 @@ class MiGA::Dataset < MiGA::MiGA
 
     def add_result_distances(base)
       if is_nonmulti?
-        pref = project.path + "/data/" + @@RESULT_DIRS[result_type]
+        pref = File.dirname(base)
         return nil unless
           File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
         r = MiGA::Result.new(base + ".json")

@@ -69,14 +69,14 @@ module MiGA
 	       # Traverse datasets
 	       p.datasets.each do |ds|
 	          # Inspect preprocessing
-		  to_run = ds.next_preprocessing
+		  to_run = ds.next_preprocessing(true)
 		  # Launch task
 		  queue_job(to_run, ds) unless to_run.nil?
 	       end
 	       
 	       # Check if all the reference datasets are pre-processed.
 	       # If yes, check the project-level tasks
-	       if p.done_preprocessing?
+	       if p.done_preprocessing?(true)
 		  to_run = p.next_distances
 		  to_run = p.next_inclade if to_run.nil?
 		  # Launch task

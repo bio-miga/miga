@@ -89,9 +89,9 @@ class DatasetTest < Test::Unit::TestCase
       "data/02.trimmed_reads/#{d2.name}.1.clipped.fastq",$p1.path))
     FileUtils.touch(File.expand_path(
       "data/02.trimmed_reads/#{d2.name}.done",$p1.path))
-    assert_equal(:trimmed_reads, d2.first_preprocessing)
-    assert_equal(:read_quality, d2.next_preprocessing)
-    assert(! d2.done_preprocessing?)
+    assert_equal(:trimmed_reads, d2.first_preprocessing(true))
+    assert_equal(:read_quality, d2.next_preprocessing(true))
+    assert(! d2.done_preprocessing?(true))
     assert(d2.ignore_task?(:mytaxa))
     assert(d2.ignore_task?(:distances))
     d2.metadata[:type] = :metagenome
@@ -104,17 +104,17 @@ class DatasetTest < Test::Unit::TestCase
 
   def test_profile_advance
     d2 = $p1.add_dataset("ds_profile_advance")
-    assert_equal(0, d2.profile_advance.first)
-    assert_equal(0, d2.profile_advance.last)
-    assert_equal(0, d2.profile_advance.inject(:+))
+    assert_equal(0, d2.profile_advance(true).first)
+    assert_equal(0, d2.profile_advance(true).last)
+    assert_equal(0, d2.profile_advance(true).inject(:+))
     Dir.mkdir(File.expand_path(
       "data/03.read_quality/#{d2.name}.solexaqa",$p1.path))
     Dir.mkdir(File.expand_path(
       "data/03.read_quality/#{d2.name}.fastqc",$p1.path))
     FileUtils.touch(File.expand_path(
       "data/03.read_quality/#{d2.name}.done",$p1.path))
-    assert_equal([0,0,1,2], d2.profile_advance[0..3])
-    assert_equal(2, d2.profile_advance.last)
+    assert_equal([0,0,1,2], d2.profile_advance(true)[0..3])
+    assert_equal(2, d2.profile_advance(true).last)
   end
 
   def test_add_result_other

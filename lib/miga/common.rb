@@ -106,6 +106,6 @@ class String
 
   ##
   # Replace underscores by spaces.
-  def unmiga_name ; gsub(/_/, " ") ; end
+  def unmiga_name ; tr("_", " ") ; end
   
 end

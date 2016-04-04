@@ -1,5 +1,5 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "miga/project"
 require "shoes"
@@ -81,8 +81,12 @@ class MiGA::GUI < Shoes
     stack(margin:40) do
       para "#{$project.metadata[:datasets].size} datasets:"
       para ""
-      $project.metadata[:datasets].each do |name|
-        para "> ", link(name, :click=>"/dataset-#{name}")
+      flow(width: 1.0) do
+        $project.metadata[:datasets].each do |name|
+          stack(width:150) do
+            para "> ", link(name.unmiga_name){ show_dataset(name) }
+          end
+        end
       end
     end
     MiGA::GUI.reset_status
@@ -91,19 +95,17 @@ class MiGA::GUI < Shoes
   ##
   # Dataset details window.
   def dataset(name)
+    header("> " + $project.name.unmiga_name + " > " + name.unmiga_name)
     stack(margin:40) do
       ds = $project.dataset(name)
-      title ds.name.unmiga_name, align:"center"
-      caption(link("Back to #{$project.name.unmiga_name} datasets",
-        :click=>"/datasets"), align:"center")
-      para ""
-      stack{ ds.metadata.each { |k,v| para strong(k), ": ", v } }
-      para ""
-      flow do
+      stack do
+        ds.metadata.each { |k,v| para strong(k.to_s.capitalize), ": ", v }
+      end
+      flow(margin_top:10) do
         w = 40+30*MiGA::Dataset.PREPROCESSING_TASKS.size
         stack(width:w) do
           subtitle "Advance"
-          done = self.graphic_advance(ds)
+          done = graphic_advance(ds)
           para sprintf("%.1f%% Complete", done*100)
         end
         stack(width:-w) do
@@ -114,7 +116,6 @@ class MiGA::GUI < Shoes
           end
         end
       end
-      para ""
       MiGA::GUI.reset_status
     end
   end
@@ -122,37 +123,26 @@ class MiGA::GUI < Shoes
   ##
   # Project report window.
   def report
+    header("> " + $project.name.unmiga_name)
     stack(margin:40) do
-      title $project.name.unmiga_name, align:"center"
       $done = 0.0
-      $me = self
       flow do
-        para ""
         w = 40+30*MiGA::Dataset.PREPROCESSING_TASKS.size
+	$done_para = subtitle "Dataset tasks advance: "
         stack(width:w) do
-          para ""
-          subtitle "Dataset tasks advance:"
-          caption link("toggle"){ $adv_logo.toggle }
-          para ""
-          $adv_logo = stack do
-            $project.each_dataset do |ds|
-              $done += $me.graphic_advance(ds, 1)
-            end
+          stack(margin_top:10) do
+            $project.each_dataset { |ds| $done += graphic_advance(ds, 7) }
             motion do |_,y|
               unless $task.nil?
                 $task_ds_box.clear do
-                  subtitle "Task"
-                  para $task
-                  subtitle "Dataset"
-                  para $dataset
+                  para strong("Task: "), $task
+                  para strong("Dataset: "), $dataset
                 end
                 $task_ds_box.show
-                $task_ds_box.move(w,y-150)
+                $task_ds_box.move(w,y-110)
               end
             end
-            click do
-              MiGA::GUI.init{ visit "/dataset-#{$dataset}" } unless $dataset.nil?
-            end
+            click { show_dataset($dataset) unless $dataset.nil? }
             leave do
               $task = nil
               $dataset = nil
@@ -160,29 +150,25 @@ class MiGA::GUI < Shoes
             end
           end
           $done /= $project.metadata[:datasets].size
-          para sprintf("%.1f%% Complete", $done*100)
+          $done_para.text += sprintf("%.1f%% Complete.", $done*100)
         end
         $task_ds_box = stack(width:-w)
-      end
-      if $done==1.0
-        para ""
-        stack do
-          subtitle "Project-wide tasks:"
-          MiGA::Project.DISTANCE_TASKS.each do |t|
+      end # stack
+      stack(margin_top:10) do
+        subtitle "Project-wide tasks:"
+        MiGA::Project.DISTANCE_TASKS.each do |t|
+          para strong(t), ": ",
+            ($project.add_result(t, false).nil? ? "Pending" : "Done")
+        end
+        if $project.metadata[:type]==:clade
+          MiGA::Project.INCLADE_TASKS.each do |t|
             para strong(t), ": ",
-              ($project.add_result(t).nil? ? "Pending" : "Done")
-          end
-          if $project.metadata[:type]==:clade
-            MiGA::Project.INCLADE_TASKS.each do |t|
-              para strong(t), ": ",
-                ($project.add_result(t).nil? ? "Pending" : "Done")
-            end
+              ($project.add_result(t, false).nil? ? "Pending" : "Done")
           end
         end
-      end
-      para ""
-      MiGA::GUI.reset_status
+      end if $done==1.0
     end
+    MiGA::GUI.reset_status
   end
 
   private
@@ -267,7 +253,7 @@ class MiGA::GUI < Shoes
           actions.each do |k|
             flow(margin:0, width:200) do
               image $miga_path + "/gui/img/#{img[k]}.png", margin: 2
-              button(k.to_s.gsub("_"," ").capitalize, top:5){ send(k) }
+              button(k.to_s.unmiga_name.capitalize, top:5){ send(k) }
             end
           end
         end
@@ -362,17 +348,27 @@ class MiGA::GUI < Shoes
     ##
     # Open a window on #datasets.
     def list_datasets
-      MiGA::GUI.status = "Listing all datasets..."
-      MiGA::GUI.init { visit "/datasets" }
-      MiGA::GUI.reset_status
+      open_window("/datasets", "Listing all datasets...")
+    end
+
+    ##
+    # Open a window on #dataset +name+.
+    def show_dataset(name)
+      open_window("/dataset-#{name}", "Showing dataset details...")
     end
 
     ##
     # Open a window on #report.
     def progress_report
-      MiGA::GUI.status = "Creating progress report..."
-      MiGA::GUI.init { visit "/report" }
+      open_window("/report", "Creating progress report...")
+    end
+
+    ##
+    # Open a window to +path+ sending +msg+ to the status.
+    def open_window(path, msg)
+      MiGA::GUI.status = msg
+      MiGA::GUI.init { visit path }
       MiGA::GUI.reset_status
     end
 
-  end
+end
