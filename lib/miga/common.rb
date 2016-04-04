@@ -1,7 +1,8 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "miga/version"
+require "json"
 
 ##
 # Generic class used to handle system-wide information and methods, and parent
