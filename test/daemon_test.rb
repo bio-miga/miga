@@ -34,6 +34,13 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(1, $d1.maxjobs)
     assert_equal(2, $d1.latency)
     assert_equal(1, $d1.ppn)
+    $d1.runopts(:alo, :ha)
+    assert_equal(:ha, $d1.runopts(:alo))
+    $d1.runopts(:maxjobs, "1")
+    assert_equal(1, $d1.maxjobs)
+    assert_raise do
+      $d1.runopts(:latency, "!")
+    end
   end
 
   def test_say
