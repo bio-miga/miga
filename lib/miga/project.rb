@@ -5,7 +5,7 @@ require "miga/dataset"
 
 class MiGA::Project < MiGA::MiGA
   
-  # Class
+  # Class-level
 
   ##
   # Top-level folders inside a project.
@@ -90,13 +90,19 @@ class MiGA::Project < MiGA::MiGA
     Project.new path
   end
 
-  # Instance
+  # Instance-level
   
+  ##
   # Absolute path to the project folder.
   attr_reader :path
+  
+  ##
   # Information about the project as MiGA::Metadata.
   attr_reader :metadata
 
+  ##
+  # Create a new MiGA::Project at +path+, if it doesn't exist and +update+ is
+  # false, or load an existing one.
   def initialize(path, update=false)
     @datasets = {}
     @path = File.absolute_path(path)
@@ -104,88 +110,100 @@ class MiGA::Project < MiGA::MiGA
     self.load if self.metadata.nil?
   end
 
+  ##
+  # Create an empty project.
   def create
     unless MiGA::MiGA.initialized?
       raise "Impossible to create project in uninitialized MiGA."
     end
-    Dir.mkdir self.path unless Dir.exist? self.path
-    @@FOLDERS.each do |dir|
-      Dir.mkdir self.path + "/" + dir unless
-        Dir.exist? self.path + "/" + dir
-    end
-    @@DATA_FOLDERS.each do |dir|
-      Dir.mkdir self.path + "/data/" + dir unless
-        Dir.exist? self.path + "/data/" + dir
-    end
-    @metadata = Metadata.new(self.path + "/miga.project.json",
-      {datasets: [], name: File.basename(self.path)})
+    dirs = [path] + @@FOLDERS.map{|d| "#{path}/#{d}" } +
+      @@DATA_FOLDERS.map{ |d| "#{path}/data/#{d}"}
+    dirs.each{ |d| Dir.mkdir(d) unless Dir.exist? d }
+    @metadata = MiGA::Metadata.new(self.path + "/miga.project.json",
+      {datasets: [], name: File.basename(path)})
     FileUtils.cp(ENV["MIGA_HOME"] + "/.miga_daemon.json",
-      self.path + "/daemon/daemon.json") unless
-      File.exist? self.path + "/daemon/daemon.json"
+      "#{path}/daemon/daemon.json") unless
+        File.exist? "#{path}/daemon/daemon.json"
     self.load
   end
   
+  ##
+  # Save any changes persistently.
   def save
-    self.metadata.save
+    metadata.save
     self.load
   end
   
+  ##
+  # (Re-)load project data and metadata.
   def load
-    @metadata = Metadata.load self.path + "/miga.project.json"
-    raise "Couldn't find project metadata at #{self.path}" if
-      self.metadata.nil?
+    @metadata = MiGA::Metadata.load "#{path}/miga.project.json"
+    raise "Couldn't find project metadata at #{path}" if metadata.nil?
   end
   
-  def name ; self.metadata[:name] ; end
+  ##
+  # Name of the project.
+  def name ; metadata[:name] ; end
   
+  ##
+  # Returns Array of MiGA::Dataset.
   def datasets
-    self.metadata[:datasets].map{ |name| self.dataset name }
+    metadata[:datasets].map{ |name| dataset(name) }
   end
   
+  ##
+  # Returns MiGA::Dataset.
   def dataset(name)
     name = name.miga_name
-    @datasets = {} if @datasets.nil?
-    @datasets[name] = MiGA::Dataset.new(self, name) if @datasets[name].nil? 
+    @datasets ||= {}
+    @datasets[name] ||= MiGA::Dataset.new(self, name)
     @datasets[name]
   end
   
+  ##
+  # Iterate through datasets, with a single variable MiGA::Dataset passed to
+  # +blk+.
   def each_dataset(&blk)
-    self.metadata[:datasets].each{ |name| blk.call(self.dataset name) }
+    metadata[:datasets].each{ |name| blk.call(dataset(name)) }
   end
   
+  ##
+  # Add dataset identified by +name+ and return MiGA::Dataset.
   def add_dataset(name)
-    self.metadata[:datasets] << name unless
-      self.metadata[:datasets].include? name
-    self.save
-    self.dataset(name)
+    self.metadata[:datasets] << name unless metadata[:datasets].include? name
+    save
+    dataset(name)
   end
   
+  ##
+  # Unlink dataset identified by +name+ and return MiGA::Dataset.
   def unlink_dataset(name)
-    d = self.dataset name
+    d = dataset(name)
     return nil if d.nil?
     self.metadata[:datasets].delete(name)
-    self.save
+    save
     d
   end
   
+  ##
+  # Import the dataset +ds+, a MiGA::Dataset, using +method+ which is any method
+  # supported by File#generic_transfer.
   def import_dataset(ds, method=:hardlink)
     raise "Impossible to import dataset, it already exists: #{ds.name}." if
-      Dataset.exist?(self, ds.name)
+      MiGA::Dataset.exist?(self, ds.name)
     # Import dataset results
     ds.each_result do |task, result|
       # import result files
       result.each_file do |file|
         File.generic_transfer("#{result.dir}/#{file}",
-          "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/#{file}",
-          method)
+          "#{path}/data/#{MiGA::Dataset.RESULT_DIRS[task]}/#{file}", method)
       end
       # import result metadata
       %w(json start done).each do |suffix|
         if File.exist? "#{result.dir}/#{ds.name}.#{suffix}"
           File.generic_transfer("#{result.dir}/#{ds.name}.#{suffix}",
-            "#{self.path}/data/#{Dataset.RESULT_DIRS[task]}/" +
-                      "#{ds.name}.#{suffix}",
-            method)
+            "#{path}/data/#{MiGA::Dataset.RESULT_DIRS[task]}/" +
+	                      "#{ds.name}.#{suffix}", method)
         end
       end
     end
@@ -193,54 +211,71 @@ class MiGA::Project < MiGA::MiGA
     File.generic_transfer("#{ds.project.path}/metadata/#{ds.name}.json",
       "#{self.path}/metadata/#{ds.name}.json", method)
     # Save dataset
-    self.add_dataset ds.name 
+    self.add_dataset(ds.name)
   end
   
+  ##
+  # Get result identified by Symbol +name+, returns MiGA::Result.
   def result(name)
     return nil if @@RESULT_DIRS[name.to_sym].nil?
-    Result.load self.path + "/data/" + @@RESULT_DIRS[name.to_sym] + 
+    MiGA::Result.load "#{path}/data/" + @@RESULT_DIRS[name.to_sym] + 
       "/miga-project.json"
   end
   
+  ##
+  # Get all results, an Array of MiGA::Result.
   def results
-    @@RESULT_DIRS.keys.map{ |k| self.result k }.reject{ |r| r.nil? }
+    @@RESULT_DIRS.keys.map{ |k| result(k) }.reject{ |r| r.nil? }
   end
   
-  def add_result(result_type, save=true)
-    return nil if @@RESULT_DIRS[result_type].nil?
-    base = self.path + "/data/" + @@RESULT_DIRS[result_type] +
-      "/miga-project"
+  ##
+  # Add the result identified by Symbol +name+, and return MiGA::Result. Save
+  # the result if +save+.
+  def add_result(name, save=true)
+    return nil if @@RESULT_DIRS[name].nil?
+    base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
     return MiGA::Result.load(base + ".json") unless save
     return nil unless result_files_exist?(base, ".done")
-    r = send("add_result_#{result_type}", base)
+    r = send("add_result_#{name}", base)
     r.save
     r
   end
   
+  ##
+  # Get the next distances task, saving intermediate results if +save+. Returns
+  # a Symbol.
   def next_distances(save=true)
     @@DISTANCE_TASKS.find{ |t| add_result(t, save).nil? }
   end
   
+  ##
+  # Get the next inclade task, saving intermediate results if +save+. Returns a
+  # Symbol.
   def next_inclade(save=true)
-    return nil unless self.metadata[:type]==:clade
+    return nil unless metadata[:type]==:clade
     @@INCLADE_TASKS.find{ |t| add_result(t, save).nil? }
   end
   
+  ##
+  # Find all datasets with (potential) result files but are yet unregistered.
   def unregistered_datasets
     datasets = []
-    Dataset.RESULT_DIRS.each do |res, dir|
-      Dir.entries(self.path + "/data/" + dir).each do |file|
+    MiGA::Dataset.RESULT_DIRS.each do |res, dir|
+      Dir.entries("#{path}/data/#{dir}").each do |file|
         next unless
           file =~ %r{
             \.(fa(a|sta|stqc?)?|fna|solexaqa|gff[23]?|done|ess)(\.gz)?$
-            }x
+          }x
         m = /([^\.]+)/.match(file)
         datasets << m[1] unless m.nil? or m[1] == "miga-project"
       end
     end
-    datasets.uniq - self.metadata[:datasets]
+    datasets.uniq - metadata[:datasets]
   end
   
+  ##
+  # Are all the datasets in the project preprocessed? Save intermediate results
+  # if +save+.
   def done_preprocessing?(save=true)
     datasets.map{|ds| (not ds.is_ref?) or ds.done_preprocessing?(save) }.all?
   end
@@ -260,10 +295,11 @@ class MiGA::Project < MiGA::MiGA
     advance
   end
 
+  ##
+  # Call +blk+ passing the result of MiGA::Dataset#profile_advance for each
+  # registered dataset.
   def each_dataset_profile_advance(&blk)
-    self.each_dataset do |ds|
-      blk.call(ds.profile_advance)
-    end
+    each_dataset { |ds| blk.call(ds.profile_advance) }
   end
 
   private
@@ -320,4 +356,3 @@ class MiGA::Project < MiGA::MiGA
     alias add_ani_distances add_result_distances
     alias add_ssu_distances add_result_distances
 end
-
