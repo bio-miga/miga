@@ -1,4 +1,9 @@
 language: ruby
+rvm:
+  - 1.9.3
+  - 2.1.5
+  - 2.3.0
+  - jruby
 script: "bundle exec rake test"
 cache: bundler
 addons:
