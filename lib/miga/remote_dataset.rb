@@ -59,9 +59,6 @@ class MiGA::RemoteDataset < MiGA::MiGA
       raise "Unable to reach #{universe} client, error code "+
 	"#{response.code}." unless response.code == 200
       doc = response.to_s
-    else
-      raise "Unexpected error: Unsupported download method for Universe "+
-	"#{universe}."
     end
     unless file.nil?
       ofh = File.open(file, "w")

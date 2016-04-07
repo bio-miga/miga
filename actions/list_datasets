@@ -67,7 +67,7 @@ ds.select! do |d|
   (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
 end unless o[:taxonomy].nil?
 if not o[:datum].nil?
-  ds.each{|d| puts "#{d.name}\t#{(d.metadata[ o[:datum] ] || "?").to_s}"}
+  ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum] ] || "?"}"}
 elsif o[:info]
   puts MiGA::MiGA.tabulate(MiGA::Dataset.INFO_FIELDS, ds.map{ |d| d.info })
 elsif o[:processing]

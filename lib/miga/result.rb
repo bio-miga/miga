@@ -1,9 +1,10 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 ##
 # The result from a task run. It can be project-wide or dataset-specific.
 class MiGA::Result < MiGA::MiGA
+  
   # Class-level
   
   ##

@@ -1,5 +1,5 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "json"
 require "fileutils"

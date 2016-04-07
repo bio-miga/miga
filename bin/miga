@@ -31,7 +31,7 @@ elsif execs.include? ARGV[0]
       err
    end
 else
-   print <<HELP.gsub /^   /,""
+   print <<HELP.gsub(/^   /,"")
    Microbial Genomes Atlas.
 
    Usage: #{$0} {action} [options]

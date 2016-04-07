@@ -23,7 +23,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
     assert(MiGA::RemoteDataset.UNIVERSE.keys.include? :ebi)
   end
 
-  def test_remote_dataset
+  def test_bad_remote_dataset
     assert_raise { MiGA::RemoteDataset.new("ids", :embl, :marvel) }
     assert_raise { MiGA::RemoteDataset.new("ids", :google, :ebi) }
   end

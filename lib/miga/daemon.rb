@@ -172,8 +172,7 @@ class MiGA::Daemon < MiGA::MiGA
         File.expand_path("scripts/#{job}.bash", vars["MIGA"]),
         # 2: vars
         vars.keys.map { |k|
-	  sprintf(runopts(:var), k, vars[k])
-	}.join(runopts(:varsep)),
+	  sprintf(runopts(:var), k, vars[k]) }.join(runopts(:varsep)),
         # 3: CPUs
         ppn,
         # 4: log file

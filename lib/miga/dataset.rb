@@ -1,9 +1,11 @@
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "miga/metadata"
 require "miga/result"
 
+##
+# Dataset representation in MiGA.
 class MiGA::Dataset < MiGA::MiGA
   
   # Class-level

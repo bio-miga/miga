@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
-#
+
 # @package MiGA
-# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
-# @license artistic license 2.0
-# @update  Nov-29-2015
-#
+# @license Artistic-2.0
 
 o = {q:true, ref:true}
 OptionParser.new do |opt|
@@ -55,7 +52,7 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
 $stderr.puts "Creating dataset." unless o[:q]
 md = {}
 [:type, :description, :user, :comments].each{ |k| md[k]=o[k] unless o[k].nil? }
-d = MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
+MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
 p.add_dataset(o[:dataset])
 
 $stderr.puts "Done." unless o[:q]

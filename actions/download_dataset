@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 require "miga/remote_dataset"
 
@@ -95,7 +95,7 @@ glob.each do |o_i|
   [:type, :description, :user, :comments].each do |k|
     md[k]=o_i[k] unless o_i[k].nil?
   end
-  d = rd.save_to(p, o_i[:dataset], !o_i[:query], md)
+  rd.save_to(p, o_i[:dataset], !o_i[:query], md)
   p.add_dataset(o_i[:dataset])
 
   $stderr.puts "Done." unless o_i[:q]

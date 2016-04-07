@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
-#
+
 # @package MiGA
-# @author  Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
-# @license artistic license 2.0
-# @update  Oct-01-2015
-#
+# @license Artistic-2.0
 
 o = {q:true}
 OptionParser.new do |opt|
@@ -57,9 +54,9 @@ if not o[:taxfile].nil?
    $stderr.puts "Reading tax-file and registering taxonomy." unless o[:q]
    tfh = File.open(o[:taxfile], "r")
    header = nil
-   while ln = tfh.gets
+   tfh.each_line do |ln|
       next if ln =~ /^\s*?$/
-      r = ln.chomp.split /\t/, -1
+      r = ln.chomp.split(/\t/, -1)
       dn = r.shift
       if header.nil?
 	 header = r

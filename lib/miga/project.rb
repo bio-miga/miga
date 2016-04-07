@@ -3,6 +3,8 @@
 
 require "miga/dataset"
 
+##
+# MiGA representation of a project.
 class MiGA::Project < MiGA::MiGA
   
   # Class-level

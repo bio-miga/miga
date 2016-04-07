@@ -132,24 +132,20 @@ class DatasetTest < Test::Unit::TestCase
         "data/06.cds/#{d2.name}.faa",
         "data/06.cds/#{d2.name}.fna",
         "data/06.cds/#{d2.name}.done"],
-      :essential_genes => %w[ess.faa ess/log done].map do |x|
-          "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}"
-        end,
+      :essential_genes => %w[ess.faa ess/log done].map { |x|
+          "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}" },
       :ssu => [
         "data/07.annotation/01.function/02.ssu/#{d2.name}.ssu.fa",
         "data/07.annotation/01.function/02.ssu/#{d2.name}.done"],
-      :mytaxa_scan => %w[pdf wintax mytaxa reg done].map do |x|
-          "data/07.annotation/03.qa/02.mytaxa_scan/#{d2.name}.#{x}"
-        end,
+      :mytaxa_scan => %w[pdf wintax mytaxa reg done].map { |x|
+          "data/07.annotation/03.qa/02.mytaxa_scan/#{d2.name}.#{x}" },
       :distances => [
         "data/09.distances/01.haai/#{d2.name}.db",
         "data/09.distances/#{d2.name}.done"]
     }
     to_test.each do |k,v|
       assert_nil(d2.add_result(k), "Result for #{k} should be nil.")
-      v.each do |i|
-        FileUtils.touch(File.expand_path(i, $p1.path))
-      end
+      v.each { |i| FileUtils.touch(File.expand_path(i, $p1.path)) }
       FileUtils.touch(File.expand_path(
         "data/04.trimmed_fasta/#{d2.name}.done",$p1.path))
       assert_equal(MiGA::Result, d2.add_result(k).class,

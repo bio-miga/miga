@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
+
 # @package MiGA
-# @license artistic license 2.0
+# @license Artistic-2.0
 
 o = {q:true, add:false, ref:false}
 OptionParser.new do |opt|

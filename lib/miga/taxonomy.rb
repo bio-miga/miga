@@ -58,12 +58,10 @@ class MiGA::Taxonomy < MiGA::MiGA
   def initialize(str, ranks=nil)
     @ranks = {}
     if ranks.nil?
-      if str.is_a? Array or str.is_a? Hash
+      case str when Array, Hash
         self << str
       else
-        (str + " ").scan(/([A-Za-z]+):([^:]*)( )/) do |r,n,s|
-          self << {r=>n}
-        end
+        "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,_| self << {r=>n} }
       end
     else
       ranks = ranks.split(/\s+/) unless ranks.is_a? Array
@@ -126,7 +124,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   ##
   # Generate cannonical String for the taxonomy.
   def to_s
-    sorted_ranks.map{ |r| "#{r[0].to_s}:#{r[1].gsub(/\s/,"_")}" }.join(" ")
+    sorted_ranks.map{ |r| "#{r[0]}:#{r[1].gsub(/\s/,"_")}" }.join(" ")
   end
   
   ##
