@@ -260,7 +260,7 @@ class MiGA::Project < MiGA::MiGA
   # Find all datasets with (potential) result files but are yet unregistered.
   def unregistered_datasets
     datasets = []
-    MiGA::Dataset.RESULT_DIRS.each do |res, dir|
+    MiGA::Dataset.RESULT_DIRS.values.each do |dir|
       Dir.entries("#{path}/data/#{dir}").each do |file|
         next unless
           file =~ %r{
