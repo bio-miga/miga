@@ -2,13 +2,13 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.3.0
-  - ruby-head
 matrix:
   include:
     - rvm: 2.1.5
       env: REMOTE_TESTS=true
     - rvm: jruby
       gemfile: gui/Gemfile
+      env: GUI_TESTS=true
 script: "bundle exec rake test"
 cache: bundler
 addons:
