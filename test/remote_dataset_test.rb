@@ -10,7 +10,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
     FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
     FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_daemon.json")
     $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
-    $remote_tests = ENV["NO_REMOTE_TESTS"].nil?
+    $remote_tests = !ENV["REMOTE_TESTS"].nil?
   end
 
   def teardown

@@ -31,7 +31,7 @@ class MiGA::GUI < Shoes
   url "/datasets",	:datasets
   url "/dataset-(.*)",	:dataset
   url "/report",	:report
-  $miga_path = File.expand_path("../../../", __FILE__)
+  $miga_gui_path = File.expand_path("../../../gui", __FILE__)
 
   ##
   # Initialize GUI.
@@ -186,7 +186,7 @@ class MiGA::GUI < Shoes
       end
       # Graphical header
       flow(margin:[40,10,40,0]) do
-        image $miga_path + "/gui/img/MiGA-sm.png"
+        image $miga_gui_path + "/img/MiGA-sm.png"
         title msg
       end
     end
@@ -229,7 +229,7 @@ class MiGA::GUI < Shoes
             help: "iconmonstr-help-3-icon-40"}
           actions.each do |k|
             flow(margin:0, width:200) do
-              image $miga_path + "/gui/img/#{img[k]}.png", margin: 2
+              image $miga_gui_path + "/img/#{img[k]}.png", margin: 2
               button(k.to_s.unmiga_name.capitalize, top:5){ send(k) }
             end
           end
@@ -252,7 +252,7 @@ class MiGA::GUI < Shoes
             inscription MiGA::MiGA.LONG_VERSION, align:"right", margin:5
           end
         end
-        image "#{$miga_path}/gui/img/MiGA-sq.png",
+        image "#{$miga_gui_path}/img/MiGA-sq.png",
           left:0, bottom:0, width:30, height:32
       end
     end
