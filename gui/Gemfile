@@ -1,4 +1,3 @@
 source "https://rubygems.org"
 gemspec name: "miga-gui"
-ruby "1.9.3", :engine => "jruby", :engine_version => "9.0.3.0"
 gem "codeclimate-test-reporter", group: :test, require: nil

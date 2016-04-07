@@ -6,7 +6,7 @@ matrix:
   include:
     - rvm: 2.1.5
       env: REMOTE_TESTS=true
-    - rvm: jruby
+    - rvm: jruby-19mode
       gemfile: gui/Gemfile
       env: GUI_TESTS=true
 script: "bundle exec rake test"
