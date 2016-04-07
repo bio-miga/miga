@@ -2,6 +2,10 @@ require "test_helper"
 
 class CommonTest < Test::Unit::TestCase
   
+  def setup
+    $gui_tests = !ENV["GUI_TESTS"].nil?
+  end
+
   def test_debug
     assert_respond_to(MiGA::MiGA, :DEBUG)
     assert_respond_to(MiGA::MiGA, :DEBUG_ON)
@@ -24,6 +28,7 @@ class CommonTest < Test::Unit::TestCase
     assert_respond_to(MiGA::MiGA, :DEBUG)
     assert_respond_to(MiGA::MiGA, :DEBUG_ON)
     assert_respond_to(MiGA::MiGA, :DEBUG_OFF)
+    omit_if($gui_tests, "JRuby doesn't like interceptions.")
     MiGA::MiGA.DEBUG_TRACE_ON
     err = capture_stderr do
       MiGA::MiGA.DEBUG "Dandadi"
