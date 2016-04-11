@@ -60,7 +60,7 @@ class MiGA::GUI < Shoes
   ##
   # Project window.
   def project
-    header("> " + $project.name.unmiga_name)
+    header("» " + $project.name.unmiga_name)
     stack(margin:40) do
       menu_bar [:list_datasets, :new_dataset, :progress_report, :help]
       stack(margin_top:10) do
@@ -77,7 +77,7 @@ class MiGA::GUI < Shoes
   ##
   # Datasets list window.
   def datasets
-    header("> " + $project.name.unmiga_name)
+    header("» " + $project.name.unmiga_name)
     stack(margin:40) do
       para "#{$project.metadata[:datasets].size} datasets:"
       para ""
@@ -95,7 +95,7 @@ class MiGA::GUI < Shoes
   ##
   # Dataset details window.
   def dataset(name)
-    header("> " + $project.name.unmiga_name + " > " + name.unmiga_name)
+    header("» " + $project.name.unmiga_name + " » " + name.unmiga_name)
     stack(margin:40) do
       ds = $project.dataset(name)
       stack do
@@ -123,7 +123,7 @@ class MiGA::GUI < Shoes
   ##
   # Project report window.
   def report
-    header("> " + $project.name.unmiga_name)
+    header("» " + $project.name.unmiga_name)
     stack(margin:40) do
       $done_para = subtitle "Dataset tasks advance: "
       $done = 0.0
@@ -155,7 +155,7 @@ class MiGA::GUI < Shoes
     ##
     # The MiGA GUI's blue.
     def miga_blue(alpha=1.0)
-      rgb(0,114,179,alpha)
+      rgb(0,121,166,alpha)
     end
 
     ##
@@ -186,8 +186,8 @@ class MiGA::GUI < Shoes
       end
       # Graphical header
       flow(margin:[40,10,40,0]) do
-        image $miga_gui_path + "/img/MiGA-sm.png"
-        title msg
+        image $miga_gui_path + "/img/MiGA-sm.png", width: 120, height: 50
+        title msg, margin_top: 5, margin_left: 5
       end
     end
 
@@ -243,17 +243,16 @@ class MiGA::GUI < Shoes
       stack(bottom:0) do
         flow bottom:0, height:20, margin:0 do
           background "#CCC"
-          stack(width:50)
-          $status_cont = stack(width:-300, height:1.0)
+          $status_cont = stack(width:-300, height:1.0, margin_left:45)
           every do
             $status_cont.clear { inscription MiGA::GUI.status, margin:5 }
           end
-          stack(width:250, height:1.0) do
+          stack(width:250, height:1.0, right: 5) do
             inscription MiGA::MiGA.LONG_VERSION, align:"right", margin:5
           end
         end
         image "#{$miga_gui_path}/img/MiGA-sq.png",
-          left:0, bottom:0, width:30, height:32
+          left:10, bottom:5, width:30, height:32
       end
     end
 
