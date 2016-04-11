@@ -1,6 +1,8 @@
 
 require "date"
 
+##
+# High-level minimal requirements for the MiGA::MiGA class.
 module MiGA
   
   ##

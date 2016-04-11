@@ -306,6 +306,8 @@ class MiGA::Project < MiGA::MiGA
 
   private
 
+    ##
+    # Internal alias for all add_result_*_distances.
     def add_result_distances(base)
       return nil unless result_files_exist?(base, %w[.Rdata .log .txt])
       r = Result.new(base + ".json")
@@ -353,8 +355,8 @@ class MiGA::Project < MiGA::MiGA
       r
     end
 
-    alias add_haai_distances add_result_distances
-    alias add_aai_distances add_result_distances
-    alias add_ani_distances add_result_distances
-    alias add_ssu_distances add_result_distances
+    alias add_result_haai_distances add_result_distances
+    alias add_result_aai_distances add_result_distances
+    alias add_result_ani_distances add_result_distances
+    alias add_result_ssu_distances add_result_distances
 end

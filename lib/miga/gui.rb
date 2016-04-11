@@ -285,6 +285,8 @@ class MiGA::GUI < Shoes
       (ds_adv.count{|i| i==1}.to_f - 1.0)/(ds_adv.count{|i| i>0}.to_f - 1.0)
     end
 
+    ##
+    # Show floating window with additional information on report cells.
     def show_report_hover(w, y)
       unless $task.nil?
         $task_ds_box.clear do
