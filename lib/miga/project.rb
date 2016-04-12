@@ -319,30 +319,34 @@ class MiGA::Project < MiGA::MiGA
     end
 
     def add_result_clade_finding(base)
-      return nil unless result_files_exist?(base, %w[.proposed-clades])
-      r = Result.new(base + ".json")
-      r.add_file(:proposal, "miga-project.proposed-clades")
-      r.add_file(:rbm_aai90, "genome-genome.aai90.rbm")
-      r.add_file(:clades_aai90, "miga-project.ani-clades")
-      r.add_file(:rbm_ani95, "genome-genome.ani95.rbm")
-      r.add_file(:clades_ani95, "miga-project.ani95-clades")
+      return nil unless result_files_exist?(base,
+        %w[.proposed-clades .pdf .1.classif .1.medoids .class.tsv .class.nwk])
+      r = add_result_iter_clades(base)
+      r.add_file(:aai_tree,	"miga-project.aai.nwk")
+      r.add_file(:proposal,	"miga-project.proposed-clades")
+      r.add_file(:clades_aai90,	"miga-project.aai90-clades")
+      r.add_file(:clades_ani95,	"miga-project.ani95-clades")
       r
     end
 
     def add_result_subclades(base)
-      return nil unless
-        result_files_exist?(base,
+      return nil unless result_files_exist?(base,
         %w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
+      r = add_result_iter_clades(base)
+      r.add_file(:ani_tree,	"miga-project.ani.nwk")
+      r
+    end
+
+    def add_result_iter_clades(base)
       r = Result.new(base + ".json")
-      r.add_file(:report, "miga-project.pdf")
+      r.add_file(:report,	"miga-project.pdf")
+      r.add_file(:class_table,	"miga-project.class.tsv")
+      r.add_file(:class_tree,	"miga-project.class.nwk")
       (1..6).each do |i|
         %w{classif medoids}.each do |m|
           r.add_file("#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}")
         end
       end
-      r.add_file(:class_table, "miga-project.class.tsv")
-      r.add_file(:class_tree,  "miga-project.class.nwk")
-      r.add_file(:ani_tree,    "miga-project.ani.nwk")
       r
     end
 
