@@ -157,6 +157,7 @@ class MiGA::Project < MiGA::MiGA
   # Returns MiGA::Dataset.
   def dataset(name)
     name = name.miga_name
+    return nil unless MiGA::Dataset.exist?(self, name)
     @datasets ||= {}
     @datasets[name] ||= MiGA::Dataset.new(self, name)
     @datasets[name]
