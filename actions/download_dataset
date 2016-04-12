@@ -85,11 +85,12 @@ glob.each do |o_i|
   raise "-D is mandatory." if o_i[:dataset].nil?
   raise "-I is mandatory." if o_i[:ids].nil?
 
+  $stderr.puts "Dataset: #{o_i[:dataset]}" unless o_i[:q]
   $stderr.puts "Loading project." unless o_i[:q]
   p = MiGA::Project.load(o_i[:project])
   raise "Impossible to load project: #{o_i[:project]}" if p.nil?
 
-  next if o_i[:ignore_dup] and p.dataset(o_i[:dataset]).nil?
+  next if o_i[:ignore_dup] and not p.dataset(o_i[:dataset]).nil?
   
   $stderr.puts "Locating remote dataset." unless o_i[:q]
   rd = MiGA::RemoteDataset.new(o_i[:ids], o_i[:db], o_i[:universe])
