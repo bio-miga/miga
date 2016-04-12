@@ -173,8 +173,11 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Add dataset identified by +name+ and return MiGA::Dataset.
   def add_dataset(name)
-    self.metadata[:datasets] << name unless metadata[:datasets].include? name
-    save
+    unless metadata[:datasets].include? name
+      d = MiGA::Dataset.new(self, name)
+      @metadata[:datasets] << name
+      save
+    end
     dataset(name)
   end
   
