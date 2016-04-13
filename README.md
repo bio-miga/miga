@@ -3,19 +3,19 @@
 [![Build Status](https://travis-ci.org/bio-miga/miga.svg?branch=master)](https://travis-ci.org/bio-miga/miga)
 [![Gem Version](https://badge.fury.io/rb/miga-base.svg)](https://badge.fury.io/rb/miga-base)
 [![Inch docs](http://inch-ci.org/github/bio-miga/miga.svg)](http://inch-ci.org/github/bio-miga/miga)
-[![Yard docs](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/github/bio-miga/miga)
 
 
 # MiGA: Microbial Genomes Atlas
 
-**Important**: The MiGA code is under active development, and we currently
-cannot ensure any stability on the different interfaces. We'll be launching a
-Beta Testing program soon, with dedicated support for a small number of
-laboratories. If you're interested, please [contact us][contact].
+**Important**: MiGA is under active development, and we currently cannot ensure
+any stability on the different interfaces. We'll be launching a Beta Testing
+program soon, with dedicated support for a small number of laboratories. If 
+you're interested, please [contact us][contact].
 
-For additional information on the MiGA system, please refer to the
-[MiGA manual][gitbook]. For additional information on the MiGA API
-(and Ruby gem), please refer to the [miga docs][rubydoc].
+For additional information on MiGA, visit:
+* [The MiGA manual][gitbook]: The definitive guide to MiGA.
+* [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
+* [MiGA Web][miga-web]: MiGA on Rails!
 
 
 # Authors
@@ -31,3 +31,4 @@ See [LICENSE](LICENSE).
 [gitbook]: https://miga.gitbooks.io/miga/content/
 [rubydoc]: http://www.rubydoc.info/github/bio-miga/miga
 [contact]: http://enve-omics.gatech.edu/node/7
+[miga-web]: https://github.com/bio-miga/miga-web
