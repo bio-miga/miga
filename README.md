@@ -13,7 +13,7 @@ program soon, with dedicated support for a small number of laboratories. If
 you're interested, please [contact us][contact].
 
 For additional information on MiGA, visit:
-* [The MiGA manual][gitbook]: The definitive guide to MiGA.
+* [MiGA manual][gitbook]: The definitive guide to MiGA.
 * [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
 * [MiGA Web][miga-web]: MiGA on Rails!
 
