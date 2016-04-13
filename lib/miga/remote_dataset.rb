@@ -2,6 +2,7 @@
 # @license Artistic-2.0
 
 require "restclient"
+require "open-uri"
 
 ##
 # MiGA representation of datasets with data in remote locations.
@@ -21,6 +22,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # - +map_to_universe+ => Universe where results map to. Currently unsupported.
   def self.UNIVERSE ; @@UNIVERSE ; end
   @@UNIVERSE = {
+    web:{
+      dbs: {
+        assembly:{stage: :assembly, format: :fasta},
+        assembly_gz:{stage: :assembly, format: :fasta_gz}
+      },
+      url: "%2$s",
+      method: :net
+    },
     ebi:{
       dbs: { embl:{stage: :assembly, format: :fasta} },
       url: "http://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s",
@@ -29,15 +38,15 @@ class MiGA::RemoteDataset < MiGA::MiGA
     ncbi:{
       dbs: { nuccore:{stage: :assembly, format: :fasta} },
       url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
-	"efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
+        "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
       method: :rest
     },
     ncbi_map:{
       dbs: { assembly:{map_to: :nuccore, format: :text} },
       url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
-	# FIXME ncbi_map is intended to do internal NCBI mapping between
-	# databases.
-	"elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",
+        # FIXME ncbi_map is intended to do internal NCBI mapping between
+        # databases.
+        "elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",
       method: :rest,
       map_to_universe: :ncbi
     }
@@ -51,14 +60,19 @@ class MiGA::RemoteDataset < MiGA::MiGA
     case @@UNIVERSE[universe][:method]
     when :rest
       map_to = @@UNIVERSE[universe][:dbs][db].nil? ? nil :
-	@@UNIVERSE[universe][:dbs][db][:map_to]
+        @@UNIVERSE[universe][:dbs][db][:map_to]
       url = sprintf @@UNIVERSE[universe][:url],
-	db, ids.join(","), format, map_to
+        db, ids.join(","), format, map_to
       response = RestClient::Request.execute(:method=>:get,  :url=>url,
-	:timeout=>600)
+        :timeout=>600)
       raise "Unable to reach #{universe} client, error code "+
-	"#{response.code}." unless response.code == 200
+        "#{response.code}." unless response.code == 200
       doc = response.to_s
+    when :net
+      url = sprintf @@UNIVERSE[universe][:url],
+        db, ids.join(","), format, map_to
+      doc = ""
+      open(url) { |f| doc = f.read }
     end
     unless file.nil?
       ofh = File.open(file, "w")
@@ -108,9 +122,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
     case @@UNIVERSE[universe][:dbs][db][:stage]
     when :assembly
       base = project.path + "/data/" + MiGA::Dataset.RESULT_DIRS[:assembly] +
-	"/" + name
+        "/" + name
       File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
-      download("#{base}.LargeContigs.fna")
+      if @@UNIVERSE[universe][:dbs][db][:format] == :fasta_gz
+        download("#{base}.LargeContigs.fna.gz")
+        system("gzip -d #{base}.LargeContigs.fna.gz")
+      else
+        download("#{base}.LargeContigs.fna")
+      end
       File.symlink("#{base}.LargeContigs.fna", "#{base}.AllContigs.fna")
       File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
     else
@@ -128,10 +147,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get metadata from the remote location.
   def get_metadata(metadata={})
     case universe
-    when :ebi
-      # Get taxonomy
-      metadata[:tax] = get_ncbi_taxonomy
-    when :ncbi
+    when :ebi, :ncbi
       # Get taxonomy
       metadata[:tax] = get_ncbi_taxonomy
     end

@@ -14,7 +14,7 @@ other purposes.
 
 MiGA iself doesn't require much, but processing large data collections may
 require large infrastructures. With that in mind, MiGA is designed to support
-both single machines or cluster infrastructures.
+both single machines and cluster infrastructures.
 
 * [Requirements](part2/requirements.md)
 * [Installation](part2/installation.md)

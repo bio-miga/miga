@@ -1,18 +1,10 @@
-MiGA: Microbial Genomes Atlas
-=============================
+# Installation
 
-Prerequisites
--------------
+## Prerequisites
 
+## Getting MiGA
 
-Getting MiGA
-------------
+## Initializing MiGA
 
-
-Initializing MiGA
------------------
-
-
-### MiGA in your PATH
-
+## MiGA in your PATH
 

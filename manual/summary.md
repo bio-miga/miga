@@ -9,6 +9,7 @@
   * [Requirements](part2/requirements.md)
   * [Installation](part2/installation.md)
   * [MiGA types](part2/types.md)
+  * [Input data](part2/input.md)
 * [Part III: Interfaces](part3.md)
   * [MiGA API](part3/API.md)
   * [MiGA CLI](part3/CLI.md)
