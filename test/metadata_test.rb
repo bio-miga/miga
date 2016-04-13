@@ -5,7 +5,7 @@ class MetadataTest < Test::Unit::TestCase
   
   def setup
     $tmp = Dir.mktmpdir
-    $gui_tests = !ENV["GUI_TESTS"].nil?
+    $jruby_tests = !ENV["JRUBY_TESTS"].nil?
   end
 
   def teardown
@@ -13,7 +13,7 @@ class MetadataTest < Test::Unit::TestCase
   end
   
   def test_save
-    omit_if($gui_tests, "JRuby doesn't implement fork.")
+    omit_if($jruby_tests, "JRuby doesn't implement fork.")
     md1 = MiGA::Metadata.new(File.expand_path("md_save.json", $tmp))
     FileUtils.touch(md1.lock_file)
     fork do
@@ -30,7 +30,7 @@ class MetadataTest < Test::Unit::TestCase
   def test_load
     md1 = MiGA::Metadata.new(File.expand_path("md_load.json", $tmp), {:t=>1})
     assert_equal(1, md1[:t])
-    omit_if($gui_tests, "JRuby doesn't implement fork.")
+    omit_if($jruby_tests, "JRuby doesn't implement fork.")
     FileUtils.touch(md1.lock_file)
     fork do
       sleep(1)

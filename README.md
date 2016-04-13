@@ -16,6 +16,7 @@ For additional information on MiGA, visit:
 * [MiGA manual][gitbook]: The definitive guide to MiGA.
 * [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
 * [MiGA Web][miga-web]: MiGA on Rails!
+* [MiGA GUI][miga-gui]: MiGA on Shoes!
 
 
 # Authors
@@ -32,3 +33,4 @@ See [LICENSE](LICENSE).
 [rubydoc]: http://www.rubydoc.info/github/bio-miga/miga
 [contact]: http://enve-omics.gatech.edu/node/7
 [miga-web]: https://github.com/bio-miga/miga-web
+[miga-gui]: https://github.com/bio-miga/miga-gui

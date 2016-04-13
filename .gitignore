@@ -1,6 +1,5 @@
 .*.swp
 Gemfile.lock
-gui/Gemfile.lock
 miga-base-*.gem
 doc/
 _book/
