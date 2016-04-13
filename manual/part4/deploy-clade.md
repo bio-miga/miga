@@ -4,7 +4,7 @@ In this tutorial, we will create a clade project including all the genomes
 available for a species in RefSeq as well as any additional genomes you may
 have. We will use *Escherichia coli* as the target species, but you can use
 any species you want. For this tutorial you'll need some *nix utilities,
-including `curl`, `tail`, `cut`, `awk`, and `perl`.
+including `curl`, `tail`, `cut`, `awk`, `date`, and `perl`.
 
 ## 0. Initialize the project
 
@@ -22,9 +22,9 @@ you can combine them if you want.
 
 **Re-running and updating**: If the following code fails at any point, for
 example due to a network interruption, you can simply re-run it, and it will
-take it where it left it. If it fails in the last command
+take it from where it failed. If it fails in the last command
 (`miga download_dataset`), you can simply re-run that one command (not the whole
-code). Also, you can simply re-run the whole code below in the future if you
+thing). Also, you can simply re-run the whole code below in the future if you
 want to update your project with more recently released genomes.
 
 ### 1a. Download complete genomes
@@ -66,7 +66,7 @@ miga download_dataset -P . --file ref_genomes_miga.tsv \
 
 Option B is to download draft genomes from the assembly database in NCBI.
 Unfortunately, this task doesn't link the entries with NCBI taxonomy because
-EUtils currently doesn't support WGS assemblies. It works otherwise similarly:
+EUtils currently doesn't support WGS assemblies:
 
 ```bash
 # Specify the organism (use %20 instead of spaces):
@@ -105,7 +105,7 @@ If you have any unreleased genomes, you can simply add them to the same project
 to be processed together with those publicly available. You can initialize
 datasets at different points, see [input data](../part2/input.md). For the
 purposes of this tutorial, we'll assume that you have raw coupled reads from two
-sequeincing lanes (1 and 2) in gzipped FastQ:
+sequencing lanes (1 and 2) in Gzipped FastQ:
 
 ```bash
 # Set the name of the dataset (only alphanumerics and underscores):
@@ -125,7 +125,7 @@ miga create_dataset -P . -D $DS
 ## 3. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the
-data. For additional details, see [Launching daemons](daemons.md):
+data. For additional details, see [launching daemons](daemons.md):
 
 ```bash
 miga daemon start -P .
