@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "rest-client", "~> 1.7"
   s.add_runtime_dependency "daemons", "~> 1.2"
   s.add_runtime_dependency "json", "~> 1.8"
-  s.required_ruby_version = "~> 2.0"
+  s.required_ruby_version = ">= 1.9"
 
   # Docs + tests
   s.has_rdoc = true
