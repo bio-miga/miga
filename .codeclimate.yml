@@ -3,9 +3,6 @@ exclude_paths:
 engines:
   rubocop:
     enabled: true
-    exclude_fingerprints:
-    # MiGA::GUI Class length
-    - 84cace45d08652c53af0156cdfbe7d7d
   duplication:
     enabled: true
     config:
@@ -20,5 +17,4 @@ ratings:
   - lib/**
   - actions/**
   - bin/miga
-  - gui/miga
   - scripts/**
