@@ -1,6 +1,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require "miga/common"
 require "miga/project"
 require "shoes"
 require "shoes/swt"
