@@ -54,7 +54,7 @@ md = {}
 [:type, :description, :user, :comments].each{ |k| md[k]=o[k] unless o[k].nil? }
 d = MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
 p.add_dataset(o[:dataset])
-res = d.first_preprocessing
+res = d.first_preprocessing(true)
 $stderr.puts "- #{res}" unless o[:q]
 
 $stderr.puts "Done." unless o[:q]
