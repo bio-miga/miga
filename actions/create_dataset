@@ -55,7 +55,7 @@ md = {}
 d = MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
 p.add_dataset(o[:dataset])
 res = d.first_preprocessing
-put "- #{res}" unless o[:q]
+$stderr.puts "- #{res}" unless o[:q]
 
 $stderr.puts "Done." unless o[:q]
 
