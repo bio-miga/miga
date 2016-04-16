@@ -52,7 +52,7 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
 $stderr.puts "Creating dataset." unless o[:q]
 md = {}
 [:type, :description, :user, :comments].each{ |k| md[k]=o[k] unless o[k].nil? }
-MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
+d = MiGA::Dataset.new(p, o[:dataset], o[:ref], md)
 p.add_dataset(o[:dataset])
 res = d.first_preprocessing
 put "- #{res}" unless o[:q]
