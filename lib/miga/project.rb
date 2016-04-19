@@ -152,6 +152,12 @@ class MiGA::Project < MiGA::MiGA
   def datasets
     metadata[:datasets].map{ |name| dataset(name) }
   end
+
+  ##
+  # Returns Array of String (without evaluating dataset objects).
+  def dataset_names
+    metadata[:datasets]
+  end
   
   ##
   # Returns MiGA::Dataset.
@@ -174,7 +180,7 @@ class MiGA::Project < MiGA::MiGA
   # Add dataset identified by +name+ and return MiGA::Dataset.
   def add_dataset(name)
     unless metadata[:datasets].include? name
-      d = MiGA::Dataset.new(self, name)
+      MiGA::Dataset.new(self, name)
       @metadata[:datasets] << name
       save
     end

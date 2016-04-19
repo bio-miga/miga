@@ -55,13 +55,14 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # Set/get #options, where +k+ is the Symbol of the option and +v+ is the value
-  # (or nil to use as getter). Returns new value.
-  def runopts(k, v=nil)
+  # (or nil to use as getter). Skips consistency tests if +force+. Returns new
+  # value.
+  def runopts(k, v=nil, force=false)
     k = k.to_sym
     unless v.nil?
       v = v.to_i if [:latency, :maxjobs, :ppn].include? k
       raise "Daemon's #{k} cannot be set to zero." if
-        v.is_a? Integer and v==0
+        !force and v.is_a? Integer and v==0
       @runopts[k] = v
     end
     @runopts[k]
@@ -80,20 +81,20 @@ class MiGA::Daemon < MiGA::MiGA
   def ppn() runopts(:ppn) ; end
 
   ##
-  # Initializes the daemon.
-  def start() daemon("start") ; end
+  # Initializes the daemon with +opts+.
+  def start(opts=[]) daemon("start", opts) ; end
 
   ##
-  # Stops the daemon.
-  def stop() daemon("stop") ; end
+  # Stops the daemon with +opts+.
+  def stop(opts=[]) daemon("stop", opts) ; end
 
   ##
-  # Restarts the daemon.
-  def restart() daemon("restart") ; end
+  # Restarts the daemon with +opts+.
+  def restart(opts=[]) daemon("restart", opts) ; end
 
   ##
-  # Returns the status of the daemon.
-  def status() daemon("status") ; end
+  # Returns the status of the daemon with +opts+.
+  def status(opts=[]) daemon("status", opts) ; end
 
   ##
   # Launches the +task+ with options +opts+ (as command-line arguments).
@@ -145,6 +146,7 @@ class MiGA::Daemon < MiGA::MiGA
   # Check if all reference datasets are pre-processed. If yes, check the
   # project-level tasks
   def check_project
+    return if project.dataset_names.empty?
     if project.done_preprocessing?(false)
       to_run = project.next_distances(true)
       to_run = project.next_inclade(true) if to_run.nil?

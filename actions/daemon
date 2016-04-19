@@ -7,7 +7,7 @@ require "miga/daemon"
 
 task = ARGV.shift unless ["-h","--help"].include? ARGV.first
 ARGV << "-h" if ARGV.empty?
-o = {q:true, update:false, daemon_opts:[]}
+o = {q:true, daemon_opts:[]}
 OptionParser.new do |opt|
    opt.banner = <<BAN
 Controls the daemon of a MiGA project.

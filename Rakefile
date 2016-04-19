@@ -5,6 +5,9 @@ SOURCES = FileList["lib/**/*.rb"]
 desc "Default Task"
 task :default => "test:all"
 
+desc "Default tests"
+task :test => "test:all"
+
 namespace :test do
   desc "All tests"
   Rake::TestTask.new(:all) do |t|
