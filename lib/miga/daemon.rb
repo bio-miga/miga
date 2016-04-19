@@ -26,6 +26,8 @@ class MiGA::Daemon < MiGA::MiGA
   attr_reader :jobs_to_run
   # Array of jobs currently running.
   attr_reader :jobs_running
+  # Integer indicating the current iteration.
+  attr_reader :loop_i
 
   ##
   # Initialize an unactive daemon for the MiGA::Project +project+. See #daemon
@@ -37,6 +39,7 @@ class MiGA::Daemon < MiGA::MiGA
         {:symbolize_names=>true})
     @jobs_to_run = []
     @jobs_running = []
+    @loop_i = -1
   end
 
   ##
@@ -103,26 +106,7 @@ class MiGA::Daemon < MiGA::MiGA
     options = default_options
     opts.unshift(task)
     options[:ARGV] = opts
-    Daemons.run_proc("MiGA:#{project.name}", options) do
-      say "-----------------------------------"
-      say "MiGA:#{project.name} launched."
-      say "-----------------------------------"
-      loop_i = 0
-      loop do
-        loop_i += 1
-        declare_alive
-        check_datasets
-        check_project
-        flush!
-        if loop_i==12
-          say "Housekeeping for sanity"
-          loop_i = 0
-          purge!
-          project.load
-        end
-        sleep(latency)
-      end
-    end
+    Daemons.run_proc("MiGA:#{project.name}", options) { loop { in_loop } }
   end
 
   ##
@@ -230,6 +214,29 @@ class MiGA::Daemon < MiGA::MiGA
     @jobs_running.select! do |job|
       `#{sprintf(runopts(:alive), job[:pid])}`.chomp.to_i == 1
     end
+  end
+
+  ##
+  # Run one loop step.
+  def in_loop
+    if loop_i == -1
+      say "-----------------------------------"
+      say "MiGA:#{project.name} launched."
+      say "-----------------------------------"
+      @loop_i = 0
+    end
+    @loop_i += 1
+    declare_alive
+    check_datasets
+    check_project
+    flush!
+    if loop_i==12
+      say "Housekeeping for sanity"
+      @loop_i = 0
+      purge!
+      project.load
+    end
+    sleep(latency)
   end
 
   ##

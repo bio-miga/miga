@@ -22,7 +22,8 @@ class ProjectTest < Test::Unit::TestCase
   end
 
   def test_create
-    assert_equal($tmp + "create", MiGA::Project.new($tmp + "create").path)
+    assert_equal("#{$tmp}/create", MiGA::Project.new("#{$tmp}/create").path)
+    assert(Dir.exist?("#{$tmp}/create"))
     assert_raise do
       ENV["MIGA_HOME"] = $tmp + "/chez-moi"
       MiGA::Project.new($tmp + "/cuckoo")

@@ -20,10 +20,37 @@ class DaemonTest < Test::Unit::TestCase
     ENV["MIGA_HOME"] = nil
   end
 
+  def test_check_datasets
+    
+  end
+
+  def test_check_project
+  
+  end
+
+  def test_in_loop
+    p = $p1
+    d = $d1
+    d.runopts(:latency, 0, true)
+    assert_equal(-1, d.loop_i)
+    assert_nil(d.last_alive)
+    out = capture_stdout do
+      d.in_loop
+    end
+    assert_equal(DateTime, d.last_alive.class)
+    assert(out.string =~ /-{20}\n.*MiGA:#{p.name} launched/)
+    10.times{ d.in_loop }
+    assert_equal(11, d.loop_i)
+    out = capture_stdout do
+      d.in_loop
+    end
+    assert(out.string =~ /Housekeeping for sanity/)
+    assert_equal(0, d.loop_i)
+  end
+
   def test_start
-    $tmp2 = Dir.mktmpdir
-    p = MiGA::Project.new(File.expand_path("start", $tmp))
-    d = MiGA::Daemon.new(p)
+    p = $p1
+    d = $d1
     d.runopts(:latency, 0, true)
     assert_equal(0, d.latency)
     omit_if($jruby_tests, "JRuby doesn't implement fork.")
@@ -32,7 +59,7 @@ class DaemonTest < Test::Unit::TestCase
     dpath = File.expand_path("daemon/MiGA:#{p.name}",p.path)
     assert(File.exist?("#{dpath}.pid"))
     out = capture_stdout { d.stop }
-    assert(out.string =~ /MiGA:start: trying to stop process with pid \d+/)
+    assert(out.string =~ /MiGA:#{p.name}: trying to stop process with pid \d+/)
     assert(!File.exist?("#{dpath}.pid"))
     assert(File.exist?("#{dpath}.output"))
     File.open("#{dpath}.output", "r") do |fh|
@@ -44,10 +71,6 @@ class DaemonTest < Test::Unit::TestCase
     end
   ensure
     Process.kill("KILL", $child) unless $child.nil?
-  end
-
-  def test_check_datasets
-    
   end
 
   def test_last_alive
