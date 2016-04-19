@@ -33,4 +33,14 @@ class TaxonomyTest < Test::Unit::TestCase
     assert(tx.is_in? MiGA::Taxonomy.new("species:v3_0"))
   end
 
+  def test_init_methods
+    tx = MiGA::Taxonomy.new({:k=>"Mascot", :c=>"Cereal", :s=>"Melvin"})
+    assert_equal("k:Mascot c:Cereal s:Melvin", tx.to_s)
+    tx = MiGA::Taxonomy.new("Mascot College Buzz", "k c s")
+    assert_equal("k:Mascot c:College s:Buzz", tx.to_s)
+    assert_raise do
+      tx = MiGA::Taxonomy.new("Mascot State Georgia Peach", "k c s")
+    end
+  end
+
 end

@@ -45,10 +45,12 @@ class ProjectTest < Test::Unit::TestCase
     d = p.add_dataset("d1")
     assert_equal(MiGA::Dataset, d.class)
     assert_equal([d], p.datasets)
+    assert_equal(["d1"], p.dataset_names)
     p.each_dataset{ |ds| assert_equal(d, ds) }
     dr = p.unlink_dataset("d1")
     assert_equal(d, dr)
     assert_equal([], p.datasets)
+    assert_equal([], p.dataset_names)
   end
 
 end

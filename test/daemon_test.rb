@@ -27,19 +27,27 @@ class DaemonTest < Test::Unit::TestCase
     d.runopts(:latency, 0, true)
     assert_equal(0, d.latency)
     omit_if($jruby_tests, "JRuby doesn't implement fork.")
-    $child = fork do
-      capture_stdout do
-	d.start
-      end
-    end
-    sleep(1)
-    assert(File.exist?(File.expand_path("daemon/MiGA:#{p.name}.pid",p.path)))
+    $child = fork { d.start }
+    sleep(2)
+    dpath = File.expand_path("daemon/MiGA:#{p.name}",p.path)
+    assert(File.exist?("#{dpath}.pid"))
     out = capture_stdout { d.stop }
     assert(out.string =~ /MiGA:start: trying to stop process with pid \d+/)
-    assert(!File.exist?(File.expand_path("daemon/MiGA:#{p.name}.pid",p.path)))
-    assert(File.exist?(File.expand_path("daemon/MiGA:#{p.name}.output",p.path)))
+    assert(!File.exist?("#{dpath}.pid"))
+    assert(File.exist?("#{dpath}.output"))
+    File.open("#{dpath}.output", "r") do |fh|
+      l = fh.each_line.to_a
+      assert(l[0] =~ /-{20}\n/)
+      assert(l[1] =~ /MiGA:#{p.name} launched/)
+      assert(l[2] =~ /-{20}\n/)
+      assert(l[3] =~ /Housekeeping for sanity\n/)
+    end
   ensure
     Process.kill("KILL", $child) unless $child.nil?
+  end
+
+  def test_check_datasets
+    
   end
 
   def test_last_alive
