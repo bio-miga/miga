@@ -10,6 +10,7 @@
   * [Installation](part2/installation.md)
   * [MiGA types](part2/types.md)
   * [Input data](part2/input.md)
+  * [Distances](part2/distances.md)
 * [Part III: Interfaces](part3.md)
   * [MiGA API](part3/API.md)
   * [MiGA CLI](part3/CLI.md)

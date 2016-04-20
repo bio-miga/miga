@@ -19,6 +19,7 @@ both single machines and cluster infrastructures.
 * [Requirements](part2/requirements.md)
 * [Installation](part2/installation.md)
 * [MiGA types](part2/types.md)
+* [Distances](part2/distances.md)
 
 ## MiGA Interfaces
 

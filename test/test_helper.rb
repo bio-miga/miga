@@ -1,5 +1,5 @@
 require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+CodeClimate::TestReporter.start unless ENV["REMOTE_TESTS"].nil?
 
 require "rubygems"
 require "test/unit"
