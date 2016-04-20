@@ -9,8 +9,8 @@ class DaemonTest < Test::Unit::TestCase
     ENV["MIGA_HOME"] = $tmp
     FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
     File.open("#{ENV["MIGA_HOME"]}/.miga_daemon.json", "w") do |fh|
-      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ","var":"%s%s",
-        "cmd":"%s%s%s%s%s"}'
+      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ","var":"%s=%s",
+        "cmd":"%5$s","alive":"echo 1 # %s"}'
     end
     $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
     $d1 = MiGA::Daemon.new($p1)
@@ -36,14 +36,14 @@ class DaemonTest < Test::Unit::TestCase
     FileUtils.cp(File.expand_path("daemon/daemon.json", p.path),
       File.expand_path("data/01.raw_reads/ds1.1.fastq", p.path))
     FileUtils.cp(File.expand_path("daemon/daemon.json", p.path),
-      File.expand_path("data/01.raw_reads/ds1.2.fastq", p.path))
-    FileUtils.cp(File.expand_path("daemon/daemon.json", p.path),
       File.expand_path("data/01.raw_reads/ds1.done", p.path))
     out = capture_stdout do
       d.check_datasets
     end
     assert(out.string =~ /Queueing #{ds.name}:trimmed_reads/)
-    assert_equal(1,d.jobs_to_run.size)
+    assert_equal(1, d.jobs_to_run.size)
+    assert_equal("project1:trimmed_reads:ds1", d.jobs_to_run.first[:cmd])
+    assert_equal(d.jobs_to_run.first, d.get_job(:trimmed_reads, ds))
   end
 
   def test_in_loop
