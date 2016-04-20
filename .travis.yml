@@ -9,9 +9,8 @@ matrix:
       env: JRUBY_TESTS=true JRUBY_OPTS="-d"
       jdk: openjdk7
     # Additional tests with standard versions
-    - rvm:
-      - 1.9.3
-      - 2.3.0
+    - rvm: 1.9.3
+    - rvm: 2.3.0
 script: "bundle exec rake test:all"
 cache: bundler
 addons:
