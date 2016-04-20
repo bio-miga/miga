@@ -1,7 +1,4 @@
 language: ruby
-rvm:
-  - 1.9.3
-  - 2.3.0
 matrix:
   include:
     # Run remote tests in only one version
@@ -11,6 +8,10 @@ matrix:
     - rvm: jruby-9.0.5.0
       env: JRUBY_TESTS=true JRUBY_OPTS="-d"
       jdk: openjdk7
+    # Additional tests with standard versions
+    - rvm:
+      - 1.9.3
+      - 2.3.0
 script: "bundle exec rake test:all"
 cache: bundler
 addons:
