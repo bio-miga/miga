@@ -1,48 +1,45 @@
 #!/usr/bin/env ruby
-#
+
 # @package MiGA
-# @author Luis M. Rodriguez-R <lmrodriguezr at gmail dot com>
-# @license artistic license 2.0
-# @update Oct-01-2015
-#
+# @license Artistic-2.0
 
 $:.push File.expand_path("../lib", File.dirname(__FILE__))
 
 require "optparse"
 require "miga"
 
-execs = Dir[File.expand_path("../actions/*",
-   File.dirname(__FILE__))].map{ |b| File.basename b }
+execs = Dir[File.expand_path("../actions/*.rb",
+  File.dirname(__FILE__))].map{ |b| File.basename(b, ".rb") }
 
 if %w{-v --version}.include? ARGV[0]
-   puts MiGA::MiGA.VERSION
+  puts MiGA::MiGA.VERSION
 elsif %w{-V --long-version}.include? ARGV[0]
-   puts MiGA::MiGA.LONG_VERSION
+  puts MiGA::MiGA.LONG_VERSION
 elsif %w{-C --citation}.include? ARGV[0]
-   puts MiGA::MiGA.CITATION
+  puts MiGA::MiGA.CITATION
 elsif execs.include? ARGV[0]
-   task = ARGV.shift
-   ARGV << "-h" if ARGV.empty?
-   begin
-      load File.expand_path("../actions/" + task, File.dirname(__FILE__))
-   rescue => err
-      $stderr.puts "Exception: #{err}\n\n"
-      err.backtrace.each { |l| $stderr.puts l + "\n" }
-      err
-   end
+  task = ARGV.shift
+  ARGV << "-h" if ARGV.empty?
+  begin
+    load File.expand_path("../actions/#{task}.rb", File.dirname(__FILE__))
+  rescue => err
+    $stderr.puts "Exception: #{err}\n\n"
+    err.backtrace.each { |l| $stderr.puts l + "\n" }
+    err
+  end
 else
-   print <<HELP.gsub(/^   /,"")
-   Microbial Genomes Atlas.
+  print <<HELP.gsub(/^  /,"")
+  Microbial Genomes Atlas.
 
-   Usage: #{$0} {action} [options]
+  Usage: #{$0} {action} [options]
 
-   actions:#{ execs.map{ |e| "\n       #{e}"}.join }
+  actions:#{ execs.map{ |e| "\n       #{e}"}.join }
 
-   generic options:
-       -h, --help		Display this screen.
-       -v, --version	Show MiGA version.
-       -V, --long-version	Show complete MiGA version.
-       -C, --citation	How to cite MiGA.
+  generic options:
+      -h, --help          Display this screen.
+      -v, --version       Show MiGA version.
+      -V, --long-version  Show complete MiGA version.
+      -C, --citation      How to cite MiGA.
 HELP
 end
 
