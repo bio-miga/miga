@@ -69,7 +69,7 @@ else
       if [[ $(perl -e "print 1 if $ANI >= $MAX_ANI") == "1" ]] ; then
         MAX_ANI=$ANI
         ANI_MED=$i
-        AAI_CLS=$i_n
+        ANI_CLS=$i_n
       fi
     done
     CLASSIF="$CLASSIF/miga-project.1.subcl-$ANI_CLS"
