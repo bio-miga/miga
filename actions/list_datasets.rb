@@ -11,18 +11,11 @@ Lists all registered datasets in an MiGA project.
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
   opt_object(opt, o, [:project, :dataset_opt])
-  opt.on("--[no-]ref",
-    "If set, lists only reference (or only non-reference) datasets."
-    ){ |v| o[:ref]=v }
-  opt.on("--[no-]multi",
-    "If set, lists only multi-species (or only single-species) datasets."
-    ){ |v| o[:multi]=v }
+  opt_filter_datasets(opt, o)
   opt.on("-i", "--info",
     "Print additional information on each dataset."){ |v| o[:info]=v }
   opt.on("-p", "--processing",
     "Print information on processing advance."){ |v| o[:processing]=v }
-  opt.on("-t", "--taxonomy RANK:TAXON",
-    "Filter by taxonomy."){ |v| o[:taxonomy]=MiGA::Taxonomy.new v }
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only. If set, ignores -i."
     ){ |v| o[:datum]=v }
@@ -45,14 +38,8 @@ elsif MiGA::Dataset.exist? p, o[:dataset]
 else
   ds = []
 end
-ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
-ds.select! do |d|
-  (not d.metadata[:type].nil?) and
-    (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi])
-end unless o[:multi].nil?
-ds.select! do |d|
-  (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
-end unless o[:taxonomy].nil?
+ds = filter_datasets!(ds, o)
+
 if not o[:datum].nil?
   ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum] ] || "?"}"}
 elsif o[:info]

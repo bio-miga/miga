@@ -18,9 +18,7 @@ BAN
    opt.on("-f", "--format STRING",
       "Format of the index file. By default: #{o[:format]}. Supported: " +
       "json, tab."){ |v| o[:format]=v.to_sym }
-   opt.on("--[no-]multi",
-      "If set, lists only multi-species (or only single-species) datasets."
-      ){ |v| o[:multi]=v }
+   opt_filter_datasets(opt, o)
    opt_common(opt, o)
 end.parse!
 
@@ -35,10 +33,7 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
 $stderr.puts "Loading datasets." unless o[:q]
 ds = p.datasets
 ds.select!{|d| not d.metadata[:tax].nil? }
-ds.select! do |d|
-   (not d.metadata[:type].nil?) and
-      (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi])
-end unless o[:multi].nil?
+ds = filter_datasets!(ds, o)
 
 $stderr.puts "Indexing taxonomy." unless o[:q]
 tax_index = MiGA::TaxIndex.new

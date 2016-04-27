@@ -23,7 +23,7 @@ def opt_object(opt, o, what=[:project, :dataset])
     ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type
 end
 
-# OptParse flags common to all actions
+# OptParse flags common to all actions.
 def opt_common(opt, o)
   opt.on("-v", "--verbose",
     "Print additional information to STDERR."){ o[:q]=false }
@@ -36,6 +36,32 @@ def opt_common(opt, o)
   end
   opt.separator ""
 end
+
+# OptParse flags to filter lists of datasets.
+def opt_filter_datasets(opt, o, what=[:ref, :multi, :taxonomy])
+  opt.on("--[no-]ref",
+    "If set, uses only reference (or only non-reference) datasets."
+    ){ |v| o[:ref]=v } if what.include? :ref
+  opt.on("--[no-]multi",
+    "If set, uses only multi-species (or only single-species) datasets."
+    ){ |v| o[:multi]=v } if what.include? :multi
+  opt.on("-t", "--taxonomy RANK:TAXON", "Filter by taxonomy."
+    ){ |v| o[:taxonomy]=MiGA::Taxonomy.new v } if what.include? :taxonomy
+end
+
+# Filters datasets by keys set in +opt_filter_datasets+.
+def filter_datasets!(ds, o)
+  ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
+  ds.select! do |d|
+    o[:multi] ? d.is_multi? : d.is_nonmulti?
+  end unless o[:multi].nil?
+  ds.select! do |d|
+    (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
+  end unless o[:taxonomy].nil?
+  ds
+end
+
+##=> Main <=
 
 execs = Dir[File.expand_path("../actions/*.rb",
   File.dirname(__FILE__))].map{ |b| File.basename(b, ".rb") }

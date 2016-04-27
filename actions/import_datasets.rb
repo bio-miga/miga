@@ -22,14 +22,7 @@ BAN
       ){ o[:method] = :symlink }
    opt.on("-c", "--copy",
       "Creates copies instead of the default hard links."){ o[:method] = :copy }
-   opt.on("--[no-]ref",
-      "If set, links only reference (or only non-reference) datasets."
-      ){ |v| o[:ref]=v }
-   opt.on("--[no-]multi",
-      "If set, links only multi-species (or only single-species) datasets."
-      ){ |v| o[:multi]=v }
-   opt.on("-t", "--taxonomy RANK:TAXON",
-      "Filter by taxonomy."){ |v| o[:taxonomy]=MiGA::Taxonomy.new v }
+   opt_filter_datasets(opt, o)
    opt_common(opt, o)
 end.parse!
 
@@ -50,15 +43,7 @@ if o[:dataset].nil?
 else
    ds = [p.dataset(o[:dataset])]
 end
-ds.select!{|d| d.name == o[:dataset]} unless o[:dataset].nil?
-ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
-ds.select! do |d|
-   (not d.metadata[:type].nil?) and
-      (MiGA::Dataset.KNOWN_TYPES[d.metadata[:type]][:multi] == o[:multi])
-end unless o[:multi].nil?
-ds.select! do |d|
-   (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
-end unless o[:taxonomy].nil?
+ds = filter_datasets!(ds, o)
 ds.each do |d|
    next unless o[:force] or d.done_preprocessing?
    puts d.name
