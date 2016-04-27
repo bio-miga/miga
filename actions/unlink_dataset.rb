@@ -10,24 +10,11 @@ Removes a dataset from an MiGA project.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to use."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset PATH",
-      "(Mandatory) ID of the dataset to create."){ |v| o[:dataset]=v }
+   opt_object(opt, o)
    opt.on("-r", "--remove",
       "Also remove all associated files.",
       "By default, only unlinks from metadata."){ o[:remove]=true }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 

@@ -10,28 +10,14 @@ Lists all registered files from the results of a dataset or a project.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to read."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset STRING",
-      "ID of the dataset to read. If not set, project-wide results are shown."
-      ){ |v| o[:dataset]=v.miga_name }
+   opt_object(opt, o, [:project, :dataset_opt])
    opt.on("-i", "--info",
       "If set, it prints additional details for each file."
       ){ |v| o[:details]=v }
    opt.on("--[no-]json",
       "If set to no, excludes json files containing results metadata."
       ){ |v| o[:json]=v }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 

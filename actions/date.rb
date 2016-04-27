@@ -10,11 +10,7 @@ Returns the current date in standard MiGA format.
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
    opt.separator ""
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 

@@ -10,11 +10,7 @@ Lists all registered datasets in an MiGA project.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-  opt.separator ""
-  opt.on("-P", "--project PATH",
-    "(Mandatory) Path to the project to read."){ |v| o[:project]=v }
-  opt.on("-D", "--dataset STRING",
-    "ID of the dataset to read."){ |v| o[:dataset]=v.miga_name }
+  opt_object(opt, o, [:project, :dataset_opt])
   opt.on("--[no-]ref",
     "If set, lists only reference (or only non-reference) datasets."
     ){ |v| o[:ref]=v }
@@ -30,16 +26,7 @@ BAN
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only. If set, ignores -i."
     ){ |v| o[:datum]=v }
-  opt.on("-v", "--verbose",
-    "Print additional information to STDERR."){ o[:q]=false }
-  opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-    v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-  end
-  opt.on("-h", "--help", "Display this screen.") do
-    puts opt
-    exit
-  end
-  opt.separator ""
+  opt_common(opt, o)
 end.parse!
 
 

@@ -25,8 +25,7 @@ BAN
    }.each{ |k,v| opt.separator sprintf "    %*s%s", -33, k, v }
    opt.separator ""
    opt.separator "MiGA options:"
-   opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to use."){ |v| o[:project]=v }
+   opt_object(opt, o, [:project])
    opt.on("--latency INT",
       "Number of seconds the daemon will be sleeping."
       ){ |v| o[:latency]=v.to_i }
@@ -34,16 +33,7 @@ BAN
       "Maximum number of jobs to use simultaneously."){ |v| o[:maxjobs]=v.to_i }
    opt.on("--ppn INT",
       "Maximum number of cores to use in a single job."){ |v| o[:ppn]=v.to_i }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
    opt.separator "Daemon options:"
    opt.on("-t", "--ontop",
       "Stay on top (does not daemonize)"){ o[:daemon_opts] << '-t' }

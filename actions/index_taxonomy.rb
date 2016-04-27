@@ -12,9 +12,7 @@ Creates a taxonomy-indexed list of the datasets.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to read."){ |v| o[:project]=v }
+   opt_object(opt, o, [:project])
    opt.on("-i", "--index PATH",
       "(Mandatory) File to create with the index."){ |v| o[:index]=v }
    opt.on("-f", "--format STRING",
@@ -23,16 +21,7 @@ BAN
    opt.on("--[no-]multi",
       "If set, lists only multi-species (or only single-species) datasets."
       ){ |v| o[:multi]=v }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 ### MAIN

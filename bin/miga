@@ -8,6 +8,31 @@ $:.push File.expand_path("../lib", File.dirname(__FILE__))
 require "optparse"
 require "miga"
 
+# OptParse flags that determine the object to load
+def opt_object(opt, o, what=[:project, :dataset])
+  opt.separator ""
+  opt.on("-P", "--project PATH", "(Mandatory) Path to the project."
+    ){ |v| o[:project]=v } if what.include? :project
+  opt.on("-D", "--dataset PATH", "(Mandatory) Name of the dataset."
+    ){ |v| o[:dataset]=v } if what.include? :dataset
+  opt.on("-D", "--dataset PATH", "Name of the dataset."
+    ){ |v| o[:dataset]=v } if what.include? :dataset_opt
+end
+
+# OptParse flags common to all actions
+def opt_common(opt, o)
+  opt.on("-v", "--verbose",
+    "Print additional information to STDERR."){ o[:q]=false }
+  opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
+    v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
+  end
+  opt.on("-h", "--help", "Display this screen.") do
+    puts opt
+    exit
+  end
+  opt.separator ""
+end
+
 execs = Dir[File.expand_path("../actions/*.rb",
   File.dirname(__FILE__))].map{ |b| File.basename(b, ".rb") }
 

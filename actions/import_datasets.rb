@@ -10,15 +10,10 @@ Link datasets (including results) from one project to another.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project-source PATH",
-      "(Mandatory) Path to the project that contains the dataset."
-      ){ |v| o[:project1]=v }
+   opt_object(opt, o)
    opt.on("-Q", "--project-target PATH",
       "(Mandatory) Path to the project where to link the dataset."
       ){ |v| o[:project2]=v }
-   opt.on("-D", "--dataset STRING",
-      "ID of the dataset to link."){ |v| o[:dataset]=v.miga_name }
    opt.on("-f", "--force",
       "Forces linking, even if dataset's preprocessing is incomplete."
       ){ |v| o[:force]=v }
@@ -35,16 +30,7 @@ BAN
       ){ |v| o[:multi]=v }
    opt.on("-t", "--taxonomy RANK:TAXON",
       "Filter by taxonomy."){ |v| o[:taxonomy]=MiGA::Taxonomy.new v }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 

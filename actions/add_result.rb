@@ -10,28 +10,14 @@ Registers a result.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt.separator ""
-   opt.on("-P", "--project PATH",
-      "(Mandatory) Path to the project to use."){ |v| o[:project]=v }
-   opt.on("-D", "--dataset PATH",
-      "(Mandatory if the result is dataset-specific) ID of the dataset to use."
-      ){ |v| o[:dataset]=v }
+   opt_object(opt, o, [:project, :dataset_opt])
    opt.on("-r", "--result STRING",
       "(Mandatory) Name of the result to add.",
       "Recognized names for dataset-specific results include:",
       *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
       "Recognized names for project-wide results include:",
       *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}){ |v| o[:name]=v }
-   opt.on("-v", "--verbose",
-      "Print additional information to STDERR."){ o[:q]=false }
-   opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
-      v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
-   end
-   opt.on("-h", "--help", "Display this screen.") do
-      puts opt
-      exit
-   end
-   opt.separator ""
+   opt_common(opt, o)
 end.parse!
 
 
