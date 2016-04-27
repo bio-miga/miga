@@ -37,7 +37,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
       let i_n=$i_n+1
       AAI=$(aai.rb -1 ../06.cds/$DATASET.faa \
         -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
-        -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "")
+        -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "0")
       checkpoint_n
       if [[ $(perl -e "print 1 if $AAI >= $MAX_AAI") == "1" ]] ; then
         MAX_AAI=$AAI
@@ -64,7 +64,7 @@ else
       ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
         -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
         --no-save-regions --no-save-rbm --lookup-first \
-        -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
+        -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "0")
       checkpoint_n
       if [[ $(perl -e "print 1 if $ANI >= $MAX_ANI") == "1" ]] ; then
         MAX_ANI=$ANI
@@ -81,10 +81,11 @@ else
   if [[ "$CLASSIF" != "." ]] ; then
     if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
       for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
-        ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-          -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
+        ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
+          -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -q \
           --no-save-regions --no-save-rbm --lookup-first \
-          -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "")
+          -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
+          > /dev/null
         checkpoint_n
       done
     fi
