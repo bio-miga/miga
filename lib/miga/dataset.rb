@@ -347,14 +347,10 @@ class MiGA::Dataset < MiGA::MiGA
           add_result_distances_nonref(base)
         end
       else
-        add_result_distances_multi(base)
+        MiGA::Result.new "#{base}.json"
       end
     end
 
-    def add_result_distances_multi(base)
-      MiGA::Result.new "#{base}.json"
-    end
-    
     def add_result_distances_ref(base)
       pref = File.dirname(base)
       return nil unless
