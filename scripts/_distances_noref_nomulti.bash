@@ -45,7 +45,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
         AAI_CLS=$i_n
       fi
     done
-    CLASSIF="$CLASSIF/miga-project.1.subcl-$AAI_CLS"
+    CLASSIF="$CLASSIF/miga-project.1.sc-$AAI_CLS"
     echo "$AAI_CLS	$AAI_MED	$MAX_AAI	$CLASSIF" \
       >> "$DATASET.aai-medoids.tsv"
   done
@@ -72,7 +72,7 @@ else
         ANI_CLS=$i_n
       fi
     done
-    CLASSIF="$CLASSIF/miga-project.1.subcl-$ANI_CLS"
+    CLASSIF="$CLASSIF/miga-project.1.sc-$ANI_CLS"
     echo "$ANI_CLS	$ANI_MED	$MAX_ANI	$CLASSIF" \
       >> "$DATASET.ani-medoids.tsv"
   done
