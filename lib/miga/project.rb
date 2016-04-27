@@ -330,7 +330,9 @@ class MiGA::Project < MiGA::MiGA
 
     def add_result_clade_finding(base)
       return nil unless result_files_exist?(base,
-        %w[.proposed-clades .pdf .1.classif .1.medoids .class.tsv .class.nwk])
+        %w[.proposed-clades])
+      return nil unless is_clade? or result_files_exist?(base,
+        %w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
       r.add_file(:aai_tree,	"miga-project.aai.nwk")
       r.add_file(:proposal,	"miga-project.proposed-clades")

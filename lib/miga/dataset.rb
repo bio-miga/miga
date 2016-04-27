@@ -341,16 +341,38 @@ class MiGA::Dataset < MiGA::MiGA
 
     def add_result_distances(base)
       if is_nonmulti?
-        pref = File.dirname(base)
-        return nil unless
-          File.exist?("#{pref}/#{is_ref? ? "01.haai" : "02.aai"}/#{name}.db")
-        r = MiGA::Result.new(base + ".json")
-        r.add_files({:haai_db=>"01.haai/#{name}.db",
-          :aai_db=>"02.aai/#{name}.db", :ani_db=>"03.ani/#{name}.db"})
+        if is_ref?
+          add_result_distances_ref(base)
+        else
+          add_result_distances_nonref(base)
+        end
       else
-        r = MiGA::Result.new "#{base}.json"
+        add_result_distances_multi(base)
       end
+    end
+
+    def add_result_distances_multi(base)
+      MiGA::Result.new "#{base}.json"
+    end
+    
+    def add_result_distances_ref(base)
+      pref = File.dirname(base)
+      return nil unless
+        File.exist?("#{pref}/01.haai/#{name}.db")
+      r = MiGA::Result.new(base + ".json")
+      r.add_files({:haai_db=>"01.haai/#{name}.db",
+        :aai_db=>"02.aai/#{name}.db", :ani_db=>"03.ani/#{name}.db"})
       r
+    end
+
+    def add_result_distances_nonref(base)
+      return nil unless
+        result_files_exist?(base, %w[.aai-medoids.tsv .aai.db]) or
+        result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
+      r = MiGA::Result.new(base + ".json")
+      add_files_to_ds_result(r, name, {
+        :aai_medoids=>".aai-medoids.tsv", :aai_db=>".aai.db",
+        :ani_medoids=>".ani-medoids.tsv", :ani_db=>".ani.db"})
     end
 
     def add_files_to_ds_result(r, name, rel_files)

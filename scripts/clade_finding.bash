@@ -27,13 +27,15 @@ rm genome-genome.ani95.rbm
 cat miga-project.ani95-clades | tail -n +2 | tr "," "\\t" | awk 'NF >= 5' \
   > miga-project.proposed-clades
 
-# Run R code
-echo "
-source('$MIGA/utils/subclades.R');
-subclades('../../09.distances/02.aai/miga-project.txt.gz',
-  'miga-project', $CORES);
-" | R --vanilla
-mv miga-project.ani.nwk miga-project.aai.nwk
+# Run R code (except in projects type clade)
+if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
+  echo "
+  source('$MIGA/utils/subclades.R');
+  subclades('../../09.distances/02.aai/miga-project.txt.gz',
+    'miga-project', $CORES);
+  " | R --vanilla
+  mv miga-project.ani.nwk miga-project.aai.nwk
+fi
 
 # Compile
 ruby "$MIGA/utils/subclades-compile.rb" . \
