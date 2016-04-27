@@ -19,7 +19,7 @@ elsif %w{-C --citation}.include? ARGV[0]
   puts MiGA::MiGA.CITATION
 elsif execs.include? ARGV[0]
   task = ARGV.shift
-  ARGV << "-h" if ARGV.empty?
+  ARGV << "-h" if ARGV.empty? and not %w[date].include? task
   begin
     load File.expand_path("../actions/#{task}.rb", File.dirname(__FILE__))
   rescue => err
