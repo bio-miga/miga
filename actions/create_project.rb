@@ -10,11 +10,7 @@ Creates an empty MiGA project.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt_object(opt, o, [:project])
-   opt.on("-t", "--type STRING",
-      "Type of dataset. Recognized types include:", 
-      *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
-      ){ |v| o[:type]=v.to_sym }
+   opt_object(opt, o, [:project, :dataset_type])
    opt.on("-n", "--name STRING",
       "Name of the project."){ |v| o[:name]=v }
    opt.on("-d", "--description STRING",

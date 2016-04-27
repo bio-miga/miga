@@ -12,7 +12,7 @@ Creates an empty dataset in a pre-existing MiGA project.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-  opt_object(opt, o)
+  opt_object(opt, o, [:project, :dataset, :dataset_type])
   opt.on("-I", "--ids ID1,ID2,...",
     "(Mandatory unless -F) IDs in the remote database separated by commas."
     ){ |v| o[:ids]=v }
@@ -27,10 +27,6 @@ BAN
     "The long form of all the options are supported as header (without the --)",
     "including dataset, ids, universe, and db. For query use true/false values."
     ){ |v| o[:file] = v }
-  opt.on("-t", "--type STRING",
-    "Type of dataset. Recognized types include:",
-    *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}" }
-    ){ |v| o[:type]=v.to_sym }
   opt.on("-q", "--query",
     "If set, the dataset is registered as a query, not a reference dataset."
     ){ |v| o[:query]=v }

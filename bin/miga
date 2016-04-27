@@ -17,6 +17,10 @@ def opt_object(opt, o, what=[:project, :dataset])
     ){ |v| o[:dataset]=v } if what.include? :dataset
   opt.on("-D", "--dataset PATH", "Name of the dataset."
     ){ |v| o[:dataset]=v } if what.include? :dataset_opt
+  opt.on("-t", "--type STRING",
+    "Type of dataset. Recognized types include:", 
+    *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
+    ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type
 end
 
 # OptParse flags common to all actions

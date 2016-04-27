@@ -10,14 +10,10 @@ Finds unregistered datasets based on result files.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-  opt_object(opt, o, [:project])
+  opt_object(opt, o, [:project, :dataset_type])
   opt.on("-a", "--add",
     "Register the datasets found. By default, only lists them (dry run)."
     ){ |v| o[:add]=v }
-  opt.on("-t", "--type STRING",
-    "Type of datasets. Recognized types include:",
-    *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
-    ){ |v| o[:type]=v.to_sym }
   opt.on("-r", "--ref",
     "If set, all datasets are registered as reference datasets."
     ){ |v| o[:ref]=v }
