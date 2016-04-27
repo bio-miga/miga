@@ -146,6 +146,14 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Name of the project.
   def name ; metadata[:name] ; end
+
+  ##
+  # Type of project.
+  def type ; metadata[:type] ; end
+
+  ##
+  # Is this a clade project?
+  def is_clade? ; type==:clade ; end
   
   ##
   # Returns Array of MiGA::Dataset.
