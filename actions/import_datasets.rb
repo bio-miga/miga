@@ -10,7 +10,7 @@ Link datasets (including results) from one project to another.
 
 Usage: #{$0} #{File.basename(__FILE__)} [options]
 BAN
-   opt_object(opt, o)
+   opt_object(opt, o, [:project, :dataset_opt])
    opt.on("-Q", "--project-target PATH",
       "(Mandatory) Path to the project where to link the dataset."
       ){ |v| o[:project2]=v }
@@ -28,12 +28,12 @@ end.parse!
 
 
 ### MAIN
-raise "-P is mandatory." if o[:project1].nil?
+raise "-P is mandatory." if o[:project].nil?
 raise "-Q is mandatory." if o[:project2].nil?
 
 $stderr.puts "Loading project." unless o[:q]
-p = MiGA::Project.load(o[:project1])
-raise "Impossible to load project: #{o[:project1]}" if p.nil?
+p = MiGA::Project.load(o[:project])
+raise "Impossible to load project: #{o[:project]}" if p.nil?
 q = MiGA::Project.load(o[:project2])
 raise "Impossible to load project: #{o[:project2]}" if q.nil?
 
