@@ -5,16 +5,10 @@
 
 o = {}
 opts = OptionParser.new do |opt|
-   opt.banner = <<BAN
-Returns the current date in standard MiGA format.
-
-Usage: #{$0} #{File.basename(__FILE__)} [options]
-BAN
-   opt.separator ""
-   opt_common(opt, o)
+  opt_banner(opt)
+  opt_common(opt, o)
 end.parse!
 
-
-### MAIN
+##=> Main <=
 opts.parse!
 puts Time.now.to_s

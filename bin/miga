@@ -8,9 +8,41 @@ $:.push File.expand_path("../lib", File.dirname(__FILE__))
 require "optparse"
 require "miga"
 
+##=> Global variables <=
+
+$task_desc = {
+  add_result: "Registers a result.",
+  add_taxonomy: "Registers taxonomic information for datasets.",
+  create_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
+  create_project: "Creates an empty MiGA project.",
+  daemon: "Controls the daemon of a MiGA project.",
+  date: "Returns the current date in standard MiGA format.",
+  download_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
+  find_datasets: "Finds unregistered datasets based on result files.",
+  import_datasets: "Link datasets (including results) from one project to "+
+    "another.",
+  index_taxonomy: "Creates a taxonomy-indexed list of the datasets.",
+  list_datasets: "Lists all registered datasets in an MiGA project.",
+  list_files: "Lists all registered files from the results of a dataset or a "+
+    "project.",
+  project_info: "Displays information about a MiGA project.",
+  unlink_dataset: "Removes a dataset from an MiGA project."
+}
+
+##=> Functions <=
+
+# OptParse banner
+def opt_banner(opt)
+  opt.banner = <<BAN
+#{$task_desc[$task]}
+
+Usage: #{$0} #{$task} [options]
+BAN
+  opt.separator ""
+end
+
 # OptParse flags that determine the object to load
 def opt_object(opt, o, what=[:project, :dataset])
-  opt.separator ""
   opt.on("-P", "--project PATH", "(Mandatory) Path to the project."
     ){ |v| o[:project]=v } if what.include? :project
   opt.on("-D", "--dataset PATH", "(Mandatory) Name of the dataset."
@@ -18,9 +50,13 @@ def opt_object(opt, o, what=[:project, :dataset])
   opt.on("-D", "--dataset PATH", "Name of the dataset."
     ){ |v| o[:dataset]=v } if what.include? :dataset_opt
   opt.on("-t", "--type STRING",
+    "Type of dataset. Recognized types include:",
+    *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}" }
+    ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type
+  opt.on("-t", "--type STRING",
     "Type of dataset. Recognized types include:", 
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
-    ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type
+    ){ |v| o[:type]=v.to_sym } if what.include? :project_type
 end
 
 # OptParse flags common to all actions.
@@ -49,6 +85,12 @@ def opt_filter_datasets(opt, o, what=[:ref, :multi, :taxonomy])
     ){ |v| o[:taxonomy]=MiGA::Taxonomy.new v } if what.include? :taxonomy
 end
 
+def opt_require(o, req={project:"-P", dataset:"-D"})
+  req.each do |k,v|
+    raise "#{v} is mandatory: please provide #{k}." if o[k].nil?
+  end
+end
+
 # Filters datasets by keys set in +opt_filter_datasets+.
 def filter_datasets!(ds, o)
   ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
@@ -63,8 +105,7 @@ end
 
 ##=> Main <=
 
-execs = Dir[File.expand_path("../actions/*.rb",
-  File.dirname(__FILE__))].map{ |b| File.basename(b, ".rb") }
+execs = $task_desc.keys.map{ |k| k.to_s }
 
 case ARGV[0]
 when "-v", "--version"
@@ -74,28 +115,30 @@ when "-V", "--long-version"
 when "-C", "--citation"
   puts MiGA::MiGA.CITATION
 when *execs
-  task = ARGV.shift
-  ARGV << "-h" if ARGV.empty? and not %w[date].include? task
+  $task = ARGV.shift.to_sym
+  ARGV << "-h" if ARGV.empty? and not [:date].include? $task
   begin
-    load File.expand_path("../actions/#{task}.rb", File.dirname(__FILE__))
+    load File.expand_path("../actions/#{$task}.rb", File.dirname(__FILE__))
   rescue => err
     $stderr.puts "Exception: #{err}\n\n"
     err.backtrace.each { |l| $stderr.puts l + "\n" }
     err
   end
 else
-  print <<HELP.gsub(/^  /,"")
-  Microbial Genomes Atlas.
+  print <<HELP
 
-  Usage: #{$0} {action} [options]
+Microbial Genomes Atlas.
 
-  actions:#{ execs.map{ |e| "\n       #{e}"}.join }
+Usage: #{$0} {action} [options]
 
-  generic options:
-      -h, --help          Display this screen.
-      -v, --version       Show MiGA version.
-      -V, --long-version  Show complete MiGA version.
-      -C, --citation      How to cite MiGA.
+#{ MiGA::MiGA.tabulate([:action, :description], $task_desc.to_a).join("\n")}
+
+generic options:
+    -h, --help          Display this screen.
+    -v, --version       Show MiGA version.
+    -V, --long-version  Show complete MiGA version.
+    -C, --citation      How to cite MiGA.
+
 HELP
 end
 

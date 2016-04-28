@@ -5,11 +5,7 @@
 
 o = {q:true, info:false, processing:false}
 OptionParser.new do |opt|
-  opt.banner = <<BAN
-Displays information about a MiGA project.
-
-Usage: #{$0} #{File.basename(__FILE__)} [options]
-BAN
+  opt_banner(opt)
   opt_object(opt, o, [:project])
   opt.on("-p", "--processing",
     "Print information on processing advance."){ |v| o[:processing]=v }
@@ -20,8 +16,8 @@ BAN
 end.parse!
 
 
-### MAIN
-raise "-P is mandatory." if o[:project].nil?
+##=> Main <=
+opt_require(o, project:"-P")
 
 $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])

@@ -7,11 +7,7 @@ require "miga/remote_dataset"
 
 o = {q:true, query:false, universe: :ebi, db: :embl}
 OptionParser.new do |opt|
-  opt.banner = <<BAN
-Creates an empty dataset in a pre-existing MiGA project.
-
-Usage: #{$0} #{File.basename(__FILE__)} [options]
-BAN
+  opt_banner(opt)
   opt_object(opt, o, [:project, :dataset, :dataset_type])
   opt.on("-I", "--ids ID1,ID2,...",
     "(Mandatory unless -F) IDs in the remote database separated by commas."
@@ -42,7 +38,7 @@ BAN
 end.parse!
 
 
-### MAIN
+##=> Main <=
 glob = [o]
 unless o[:file].nil?
   glob = []
@@ -64,9 +60,7 @@ unless o[:file].nil?
 end
 
 glob.each do |o_i|
-  raise "-P is mandatory." if o_i[:project].nil?
-  raise "-D is mandatory." if o_i[:dataset].nil?
-  raise "-I is mandatory." if o_i[:ids].nil?
+  opt_require(o_i, project:"-P", dataset:"-D", ids:"-I")
 
   $stderr.puts "Dataset: #{o_i[:dataset]}" unless o_i[:q]
   $stderr.puts "Loading project." unless o_i[:q]
