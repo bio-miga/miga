@@ -3,6 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
+o = {}
 opts = OptionParser.new do |opt|
    opt.banner = <<BAN
 Returns the current date in standard MiGA format.

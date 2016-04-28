@@ -66,13 +66,14 @@ end
 execs = Dir[File.expand_path("../actions/*.rb",
   File.dirname(__FILE__))].map{ |b| File.basename(b, ".rb") }
 
-if %w{-v --version}.include? ARGV[0]
+case ARGV[0]
+when "-v", "--version"
   puts MiGA::MiGA.VERSION
-elsif %w{-V --long-version}.include? ARGV[0]
+when "-V", "--long-version"
   puts MiGA::MiGA.LONG_VERSION
-elsif %w{-C --citation}.include? ARGV[0]
+when "-C", "--citation"
   puts MiGA::MiGA.CITATION
-elsif execs.include? ARGV[0]
+when *execs
   task = ARGV.shift
   ARGV << "-h" if ARGV.empty? and not %w[date].include? task
   begin
