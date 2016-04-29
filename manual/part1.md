@@ -42,7 +42,9 @@ MiGA is designed to process genomes, and can handle metagenomes (with some
 restrictions). In any case, MiGA is optimized for short-read datasets, or
 alternatively already assembled datasets. MiGA is optimized to process
 prokaryotic data (Archaeal and Bacterial), but it has some readily available
-customizations for viral metagenomes (or viromes).
+customizations for viral metagenomes (or viromes). For more details, see the
+[types](part2/types.md) of datasets and projects and the
+[input data](part2/input.md) supported.
 
 **MiGA is not**: No customizations are currently available for eukaryotic
 or viral genomes, nor for transcriptomic data. The data management design
@@ -140,5 +142,5 @@ The [intermediate analyses](part5/workflow.md) performed by MiGA can be used for
 many other purposes. For example, we use MiGA's initial pre-processing (like
 [read trimming](part5/workflow.md#trimmed_reads)/[quality check](part5/workflow.md#read_quality),
 [assembly](part5/workflow.md#assembly), and
-[gene prediction](part5/workflow.md#cds) in most of our genomic and metagenomic
+[gene prediction](part5/workflow.md#cds)) in most of our genomic and metagenomic
 projects.

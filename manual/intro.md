@@ -9,6 +9,7 @@ other purposes.
 
 * [How can MiGA help me?](part1/pitch.md).
 * [Who's using MiGA?](part1/use-cases.md).
+* [Definitions](glossary.md).
 
 ## Getting started with MiGA
 
