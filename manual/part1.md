@@ -101,7 +101,7 @@ reports and logs, and a few general statistics in JSON. Finally, all of the
 
 ## Taxonomy
 
-MiGA's ultimate goal is to provide a standardized set of analyses for consistent
+MiGA's ultimate goal is to provide a standardized set of tools for consistent
 genome-wide taxonomic analyses. For this reason, MiGA **does not** provide nor
 favors any one taxonomic database. This *authority-agnostic* approach allows us
 to focus on the underlying analyses, supporting as many schemas as possible.
@@ -110,15 +110,35 @@ databases in EBI and NCBI linked to NCBI Taxonomy, and it does support some
 automated adjustments for the JGI schema (in particular for metagenomes).
 Instead of forcing groups by external taxonomies that may have varying degrees
 of accuracy and completeness, MiGA follows a data-driven clustering based on
-naturally-forming groups based on AAI and ANI analyses. Hence, MiGA projects
-can be used to classify novel genomes using any reference taxonomy (or none!).
+[naturally-forming groups](part2/clustering.md) based on AAI and ANI analyses.
+Hence, MiGA projects can be used to classify novel genomes using any reference
+taxonomy (or none!).
 
 **MiGA is not**: MiGA does not provide nor endorse any particular taxonomic
 authority.
 
 ## Diversity
 
+MiGA can catalogue datasets, even in the absence of a reference taxonomy. This
+allows many advanced analyses, including (but not restricted to):
+
+* Phylogenomic reconstructions using
+  [orthologous groups of proteins](part5/workflow.md#ogs).
+* Multi-Locus sequence analysis using
+  [essential genes](part5/workflow.md#essential-genes).
+* Characterization of collections of
+  [single-cell](part2/types.md#single-cell-genome) or
+  [population](part2/types.md#population-genome) genomes
+* Characterization of
+  [intra-population diversity](part2/clustering.md#ani-clades).
+* [Metagenome](part2/types.md#metagenome) or [virome](part2/types.md#virome)
+  analyses.
 
 ## More
 
-
+The [intermediate analyses](part5/workflow.md) performed by MiGA can be used for
+many other purposes. For example, we use MiGA's initial pre-processing (like
+[read trimming](part5/workflow.md#trimmed_reads)/[quality check](part5/workflow.md#read_quality),
+[assembly](part5/workflow.md#assembly), and
+[gene prediction](part5/workflow.md#cds) in most of our genomic and metagenomic
+projects.

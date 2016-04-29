@@ -4,7 +4,7 @@ In this tutorial, we will create a clade project including all the genomes
 available for a species in RefSeq as well as any additional genomes you may
 have. We will use *Escherichia coli* as the target species, but you can use
 any species you want. For this tutorial you'll need some *nix utilities,
-including `curl`, `tail`, `cut`, `awk`, `date`, and `perl`.
+including `curl`, `tail`, `cut`, `awk`, `date`, `gzip`, and `perl`.
 
 ## 0. Initialize the project
 
