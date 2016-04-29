@@ -42,7 +42,7 @@ class ProjectTest < Test::Unit::TestCase
   end
 
   def test_datasets
-    p = MiGA::Project.new(File.expand_path("datasets", $tmp))
+    p = $p1
     d = p.add_dataset("d1")
     assert_equal(MiGA::Dataset, d.class)
     assert_equal([d], p.datasets)
@@ -52,6 +52,27 @@ class ProjectTest < Test::Unit::TestCase
     assert_equal(d, dr)
     assert_equal([], p.datasets)
     assert_equal([], p.dataset_names)
+  end
+
+  def test_import_dataset
+    p1 = $p1
+    d1 = p1.add_dataset("d1")
+    File.open("#{p1.path}/data/01.raw_reads/#{d1.name}.1.fastq",
+      "w") { |f| f.puts ":-)" }
+    File.open("#{p1.path}/data/01.raw_reads/#{d1.name}.done",
+      "w") { |f| f.puts ":-)" }
+    d1.next_preprocessing(true)
+    p2 = MiGA::Project.new(File.expand_path("import_dataset", $tmp))
+    assert(p2.datasets.empty?)
+    assert_nil(p2.dataset("d1"))
+    p2.import_dataset(d1)
+    assert_equal(1, p2.datasets.size)
+    assert_equal(MiGA::Dataset, p2.dataset("d1").class)
+    assert_equal(1, p2.dataset("d1").results.size)
+    assert(File.exist?(
+      File.expand_path("data/01.raw_reads/#{d1.name}.1.fastq", p2.path)))
+    assert(File.exist?(
+      File.expand_path("metadata/#{d1.name}.json", p2.path)))
   end
 
 end
