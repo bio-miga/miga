@@ -33,7 +33,7 @@ ud.each do |dn|
     [:type, :user].each{ |k| md[k]=o[k] unless o[k].nil? }
     d = MiGA::Dataset.new(p, dn, o[:ref], md)
     p.add_dataset(dn)
-    res = d.first_preprocessing
+    res = d.first_preprocessing(true)
     puts "- #{res}" unless o[:q]
   end
 end
