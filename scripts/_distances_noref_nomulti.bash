@@ -58,7 +58,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
         aai.rb -1 ../06.cds/$DATASET.faa \
           -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
-          -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
+          -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i \
           > /dev/null
         checkpoint_n
       done
