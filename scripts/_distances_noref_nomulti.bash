@@ -39,12 +39,11 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
         -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
         -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "0")
       checkpoint_n
-      echo "[$CLASSIF] $i - $AAI (max: $MAX_AAI)"
       if [[ $(perl -e "print 1 if '$AAI' >= '$MAX_AAI'") == "1" ]] ; then
         MAX_AAI=$AAI
         AAI_MED=$i
         AAI_CLS=$i_n
-	echo "New max: $AAI_MED ($AAI_CLS): $MAX_AAI"
+	echo "[$CLASSIF] New max: $AAI_MED ($AAI_CLS): $MAX_AAI"
       fi
     done
     CLASSIF="$CLASSIF/miga-project.1.sc-$AAI_CLS"
@@ -58,7 +57,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
     if [[ -s "$PAR" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
         aai.rb -1 ../06.cds/$DATASET.faa \
-          -2 ../06.cds/$i.faa -t $CORES -q --lookup-first \
+          -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
           -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
           > /dev/null
         checkpoint_n
@@ -86,6 +85,7 @@ else
         MAX_ANI=$ANI
         ANI_MED=$i
         ANI_CLS=$i_n
+	echo "[$CLASSIF] New max: $ANI_MED ($ANI_CLS): $MAX_ANI"
       fi
     done
     CLASSIF="$CLASSIF/miga-project.1.sc-$ANI_CLS"
@@ -99,7 +99,7 @@ else
     if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$ANI_CLS{print \$1}") ; do
         ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-          -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -q \
+          -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
           --no-save-regions --no-save-rbm --lookup-first \
           -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
           > /dev/null
