@@ -73,7 +73,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(0, d.latency)
     omit_if($jruby_tests, "JRuby doesn't implement fork.")
     $child = fork { d.start }
-    sleep(2)
+    sleep(3)
     dpath = File.expand_path("daemon/MiGA:#{p.name}",p.path)
     assert(File.exist?("#{dpath}.pid"))
     out = capture_stdout { d.stop }
