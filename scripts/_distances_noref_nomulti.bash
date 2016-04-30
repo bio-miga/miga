@@ -15,7 +15,7 @@ function checkpoint_n {
       if [[ -s $TMPDIR/$DATASET.$metric.db ]] ; then
         echo "select count(*) from $metric;" \
           | sqlite3 $TMPDIR/$DATASET.$metric.db \
-          || exit 1
+          >/dev/null || exit 1
         cp $TMPDIR/$DATASET.$metric.db .
       fi
     done
@@ -27,11 +27,11 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
   CLADES="../10.clades/01.find"
   CLASSIF="."
-  MAX_AAI=0
-  AAI_MED=""
-  AAI_CLS=""
   [[ -e "$DATASET.aai-medoids.tsv" ]] && rm "$DATASET.aai-medoids.tsv"
   while [[ -e "$CLADES/$CLASSIF/miga-project.1.medoids" ]] ; do
+    MAX_AAI=0
+    AAI_MED=""
+    AAI_CLS=""
     i_n=0
     for i in $(cat "$CLADES/$CLASSIF/miga-project.1.medoids") ; do
       let i_n=$i_n+1
@@ -55,11 +55,11 @@ else
   # Classify ani-clade (if project type is clade)
   CLADES="../10.clades/02.ani"
   CLASSIF="."
-  MAX_ANI=0
-  ANI_MED=""
-  ANI_CLS=""
   [[ -e "$DATASET.ani-medoids.tsv" ]] && rm "$DATASET.ani-medoids.tsv"
   while [[ -e "$CLADES/$CLASSIF/miga-project.1.medoids" ]] ; do
+    MAX_ANI=0
+    ANI_MED=""
+    ANI_CLS=""
     i_n=0
     for i in $(cat "$CLADES/$CLASSIF/miga-project.1.medoids") ; do
       let i_n=$i_n+1

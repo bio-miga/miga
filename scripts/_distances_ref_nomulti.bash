@@ -11,8 +11,8 @@ function checkpoint_n {
 	    tab="aai"
 	    [[ "$t" == "03.ani" ]] && tab="ani"
 	    echo "select count(*) from $tab;" \
-	       | sqlite3 $TMPDIR/$t.db\
-	       || exit 1
+	       | sqlite3 $TMPDIR/$t.db \
+	       >/dev/null || exit 1
 	    cp $TMPDIR/$t.db $t/$DATASET.db
 	 fi
       done
