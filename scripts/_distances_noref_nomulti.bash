@@ -54,8 +54,9 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
 
   # Calculate all the AAIs against the lowest subclade (if classified)
   if [[ "$CLASSIF" != "." ]] ; then
-    if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
-      for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
+    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.1.classif
+    if [[ -s "$PAR" ]] ; then
+      for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
         aai.rb -1 ../06.cds/$DATASET.faa \
           -2 ../06.cds/$i.faa -t $CORES -q --lookup-first \
           -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
@@ -94,8 +95,9 @@ else
 
   # Calculate all the ANIs against the lowest subclade (if classified in-clade)
   if [[ "$CLASSIF" != "." ]] ; then
+    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.1.classif
     if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
-      for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
+      for i in $(cat "$PAR" | awk "\$2==$ANI_CLS{print \$1}") ; do
         ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
           -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -q \
           --no-save-regions --no-save-rbm --lookup-first \
