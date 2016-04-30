@@ -51,6 +51,19 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
     echo "$AAI_CLS	$AAI_MED	$MAX_AAI	$CLASSIF" \
       >> "$DATASET.aai-medoids.tsv"
   done
+
+  # Calculate all the AAIs against the lowest subclade (if classified)
+  if [[ "$CLASSIF" != "." ]] ; then
+    if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
+      for i in $(cat "$CLADES/$CLASSIF/miga-project.all") ; do
+        aai.rb -1 ../06.cds/$DATASET.faa \
+          -2 ../06.cds/$i.faa -t $CORES -q --lookup-first \
+          -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
+          > /dev/null
+        checkpoint_n
+      done
+    fi
+  fi
 else
   # Classify ani-clade (if project type is clade)
   CLADES="../10.clades/02.ani"
