@@ -59,7 +59,7 @@ cat ref_genomes.tsv | tail -n +2 | cut -f 1,11 \
 
 # Download remote entries:
 miga download_dataset -P . --file ref_genomes_miga.tsv \
-  --universe ncbi --db nuccore --ignore-dup --verbose
+  --universe ncbi --db nuccore --ignore-dup --verbose -t genome
 ```
 
 ### 1b. Download draft genomes
@@ -96,7 +96,7 @@ cat draft_genomes.tsv | tail -n +2 | cut -f 1,8,20 \
 
 # Download remote entries:
 miga download_dataset -P . --file draft_genomes_miga.tsv \
-  --universe web --db assembly_gz --ignore-dup --verbose
+  --universe web --db assembly_gz --ignore-dup --verbose -t genome
 ```
 
 ## 2. Add your own genomes
@@ -119,7 +119,7 @@ gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > data/01.raw_reads/$DS.2.fastq
 date "+%Y-%m-%d %H:%M:%S %z" > data/01.raw_reads/$DS.done
 
 # Register the dataset:
-miga create_dataset -P . -D $DS
+miga create_dataset -P . -D $DS -t genome
 ```
 
 ## 3. Launch the daemon
