@@ -9,7 +9,9 @@ $:.push File.expand_path(File.dirname(__FILE__) + "/lib")
 dir = ARGV.shift or abort "Usage: #{$0} <classif.dir>"
 
 def read_classif(dir, classif={})
-   fh = File.open(File.expand_path("miga-project.1.classif", dir), "r")
+   classif_file = File.expand_path("miga-project.classif", dir)
+   return classif unless File.exist? classif_file
+   fh = File.open(classif_file, "r")
    klass = []
    while ln = fh.gets
       r = ln.chomp.split("\t")
@@ -19,7 +21,7 @@ def read_classif(dir, classif={})
    end
    fh.close
    klass.each do |i|
-      d = File.expand_path("miga-project.1.sc-#{i}", dir)
+      d = File.expand_path("miga-project.sc-#{i}", dir)
       classif = read_classif(d, classif) if Dir.exist? d
    end
    classif

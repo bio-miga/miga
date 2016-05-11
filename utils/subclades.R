@@ -1,171 +1,153 @@
-library(enveomics.R)
-library(ape)
-library(ggdendro)
-library(ggplot2)
-library(grid)
-library(gridExtra)
-library(cluster)
-library(dendextend)
-library(vegan)
-library(scatterplot3d)
+#!/usr/bin/env Rscript
+#
+# @package MiGA
+# @license Artistic-2.0
+#
 
-# Main function
-subclades <- function(ani_file, out_base, thr=1, ani=c()){
-   # Get ANI distances
-   cat("====", out_base, "\n")
-   if(missing(ani_file)){
-      a <- as.data.frame(ani)
-   } else {
-      a <- read.table(gzfile(ani_file), sep='\t', h=TRUE, as.is=T)
-   }
-   if(nrow(a)==0){
-      pdf(paste(out_base,'.pdf',sep=''), 7, 12)
-      plot(1,t='n',axes=F)
-      legend('center','No ANI data',bty='n')
-      dev.off()
-      file.create(paste(out_base,'.1.classif',sep=''))
-      file.create(paste(out_base,'.1.medoids',sep=''))
-      return(NULL)
-   }
-   ani.d <- enve.df2dist(cbind(a$a, a$b, 1-a$value/100), default.d=0.3)
-   ani.hc <- hclust(ani.d, method='ward.D2')
-   write.tree(as.phylo(ani.hc), 'miga-project.ani.nwk')
-   
-   # Silhouette
-   k <- 2:(length(labels(ani.d))-1)
-   s <- sapply(k, function(x) summary(silhouette(pam(ani.d, x)))$avg.width)
-   ds <- 10^(s[-c(1,length(s))]-(s[-length(s)+c(0,1)]+s[-c(1,2)])/2)
-   top.n <- head(k[order(c(-Inf,ds,-Inf), decreasing=T)],n=6)
+#= Load stuff
+argv <- commandArgs(trailingOnly=T)
+suppressPackageStartupMessages(library(ape))
+suppressPackageStartupMessages(library(vegan))
+suppressPackageStartupMessages(library(cluster))
+suppressPackageStartupMessages(library(parallel))
+suppressPackageStartupMessages(library(enveomics.R))
 
-   # Save "ANI-types"
-   ani.types <- c()
-   ani.medoids <- list()
-   for(i in 1:length(top.n)){
-      k_i <- top.n[i]
-      ani.cl <- pam(ani.d, k_i)
-      ani.types <- cbind(ani.types, ani.cl$clustering)
-      ani.medoids[[ i ]]  <- ani.cl$medoids
-   }
+#= Main function
+subclades <- function(ani_file, out_base, thr=1, ani=c()) {
+  say("==> Out base:", out_base, "<==")
+  
+  # Input arguments
+  if(missing(ani_file)){
+    a <- as.data.frame(ani)
+  }else{
+    a <- read.table(gzfile(ani_file), sep="\t", header=TRUE, as.is=TRUE)
+  }
+  if(nrow(a)==0){
+    generate_empty_files(out_base)
+    return(NULL)
+  }
+  
+  # Get ANI distances
+  say("Distances")
+  a$d <- 1-a$value/100
+  ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.1)
+  ani.hc <- hclust(ani.d, method="ward.D2")
+  ani.ph <- as.phylo(ani.hc)
+  write.tree(as.phylo(ani.hc), paste(out_base, ".nwk", sep=""))
+  
+  # Silhouette
+  say("Silhouette")
+  k <- 2:min(length(labels(ani.d))-1, 100)
+  cl <- makeCluster(thr)
+  s <- parSapply(cl, k, function(x) {
+      library(cluster)
+      pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$avg.width
+    })
+  stopCluster(cl)
+  ds <- (s[-c(1,length(s))]-pmax(s[-length(s)+c(0,1)],s[-c(1,2)]))
+  top.n <- head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=1)
+  
+  # Classify genomes
+  say("Classify")
+  ani.cl <- pam(ani.d, top.n)
+  ani.types <- ani.cl$clustering
+  ani.medoids <- ani.cl$medoids
+  
+  # Generate graphic report
+  say("Graphic report")
+  pdf(paste(out_base, ".pdf", sep=""), 7, 12)
+  layout(1:4)
+  plot_distances(ani.d)
+  plot_silhouette(k, s, ds, top.n)
+  plot_clustering(ani.cl, ani.d, ani.types)
+  plot_tree(ani.ph, ani.types, ani.medoids)
+  dev.off()
 
-   # Generate graphic reports
-   pdf(paste(out_base,'.pdf',sep=''), 7, 12)
-   plotClusterAndMetadata(as.dendrogram(ani.hc), ani.types, main='ANI types')
-   ani.mds <- metaMDS(ani.d, k=3, autotransform=FALSE, parallel=thr, wascores=F)
-   layout(matrix(1:6, ncol=2))
-   for(i in 1:length(top.n)){
-      s <- scatterplot3d(ani.mds$points, pch=19, type='h',
-	 color=ggplotColours(top.n[i], alpha=1/2)[ani.types[,i]],
-	 cex.symbols=1/2, box=FALSE, lty.hplot=3,
-	 main=paste('NMDS of ANI distances with', top.n[i] ,'clusters'),
-	 angle=80, scale.y=3/2, las=2, xlab='', ylab='', zlab='')
-      for(cl in 1:top.n[i]){
-	 col <- ggplotColours(top.n[i])[cl]
-	 med <- s$xyz.convert(matrix(ani.mds$points[ ani.medoids[[i]][cl] , ],
-	    ncol=3))
-	 if(sum(ani.types[,i]==cl)>1){
-	    val <- s$xyz.convert(matrix(ani.mds$points[ ani.types[,i]==cl , ],
-	       ncol=3))
-	    arrows(x0=med$x, y0=med$y, x1=val$x, y1=val$y, length=0, col=col)
-	 }
-	 points(med, col=col, pch=19, cex=3/2)
-	 text(med, labels=cl, col='white', cex=2/3)
-      }
-   }
-   dev.off()
+  # Save results
+  say("Text report")
+  write.table(ani.medoids, paste(out_base, "medoids", sep="."),
+    quote=FALSE, col.names=FALSE, row.names=FALSE)
+  classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
+  for(j in 1:nrow(classif)){
+    classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]
+  }
+  write.table(classif, paste(out_base,"classif",sep="."),
+    quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
 
-   # Save results
-   for(i in 1:length(top.n)){
-      write.table(ani.medoids[[i]], paste(out_base,i,'medoids',sep='.'),
-	 quote=FALSE, col.names=FALSE, row.names=FALSE)
-      classif <- cbind(rownames(ani.types), ani.types[,i],
-	 ani.medoids[[i]][ ani.types[,i] ], NA)
-      for(j in 1:nrow(classif))
-	 classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]
-      write.table(classif, paste(out_base,i,'classif',sep='.'),
-	 quote=FALSE, col.names=FALSE, row.names=FALSE, sep='\t')
-   }
-
-   # Explore subclades
-   for(i in 1:top.n[1]){
-      medoid <- ani.medoids[[1]][i]
-      ds_f <- rownames(ani.types)[ ani.types[,1]==i ]
-      cat("Analyzing subclade", i, "with medoid:", medoid, "\n")
-      cat("   ds_f: ", ds_f, "\n")
-      if(length(ds_f) > 5){
-	 a_f <- a[ (a$a %in% ds_f) & (a$b %in% ds_f), ]
-	 dir.create(paste(out_base,'.1.sc-',i,sep=''))
-	 write.table(ds_f,
-	    paste(out_base,'.1.sc-',i,'/miga-project.all',sep=''),
-	    quote=FALSE, col.names=FALSE, row.names=FALSE)
-	 cat("   looking for subclades within: ",
-	    out_base, ".1.sc-", i, "\n", sep="")
-	 subclades(
-	    out_base=paste(out_base,'.1.sc-',i,'/miga-project',sep=''),
-	    thr=thr, ani=a_f)
-      }
-   }
+  # Recursive search
+  for(i in 1:top.n){
+    medoid <- ani.medoids[i]
+    ds_f <- names(ani.types)[ ani.types==i ]
+    say("Analyzing subclade", i, "with medoid:", medoid)
+    dir.create(paste(out_base, ".sc-", i, sep=""))
+    write.table(ds_f,
+      paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
+      quote=FALSE, col.names=FALSE, row.names=FALSE)
+    if(length(ds_f) > 5){
+      a_f <- a[ (a$a %in% ds_f) & (a$b %in% ds_f), ]
+      subclades(out_base=paste(out_base, ".sc-", i, "/miga-project", sep=""),
+        thr=thr, ani=a_f)
+    }
+  }
 }
 
-# Ancillary functions
-plotClusterAndMetadata <- function(c,m,addLabels=TRUE,main='',type='factor'){
-   ps <- list()
-   ps[[1]] <- rectGrob(gp=gpar(col="white"))
-   if(length(type)==1) type <- rep(type, ncol(m))
-   if(addLabels){
-      m <- cbind(m, NA)
-      m[labels(c),ncol(m)] <- labels(c)
-      type[ncol(m)] <- 'label'
-   }
-   for(i in 1:ncol(m)){
-      df <- data.frame(lab=factor(labels(c),levels=labels(c)),
-	 feat=m[labels(c),i])
-      if(type[i]=='factor'){
-	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab, fill=factor(feat))) +
-	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
-	    scale_x_continuous(expand=c(0,0)) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
-	       plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(),
-	       legend.position="none"))
-      }else if(type[i]=='numeric'){
-	 ps[[i+1]] <- ggplotGrob(ggplot(df, aes(1,lab,fill=as.numeric(feat))) +
-	    geom_tile() + geom_text(size=3/4, label=df$feat, x=.8) +
-	    scale_x_continuous(expand=c(0,0)) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
-	       plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(),
-	       legend.position="none"))
-      }else if(type[i]=='label'){
-	 ps[[i+1]] <- ggplotGrob(ggplot(df,  aes(1, lab)) +
-	    geom_tile(fill='white') + geom_text(size=3/4, label=df$feat, x=.8) +
-	    theme(axis.title=element_blank(), panel.margin=unit(1,'points'),
-	       plot.margin=unit(c(40,-12,20,-12),'points'),
-	       axis.ticks=element_blank(), axis.text=element_blank(),
-	       legend.position="none"))
-      }else{
-	 stop('Unsupported type: ', type[i])
-      }
-   }
-   ps[[i+2]] <- ggplotGrob(ggplot(segment(dendro_data(c, type="rectangle"))) +
-      geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
-      scale_x_continuous(expand=c(0,.5)) +
-      coord_flip() + theme_dendro() +
-         theme(axis.title=element_blank(), axis.ticks=element_blank(),
-	    plot.margin=unit(c(40,20,20,ifelse(addLabels,-35,-30)),'points'),
-            panel.margin=unit(0,'points'), axis.text=element_blank(),
-	    legend.position="none"))
-   maxHeights = do.call(grid::unit.pmax, lapply(ps, function(x) x$heights[2:5]))
-   for(g in ps) g$heights[2:5] <- as.list(maxHeights)
-   ps$nrow <- 1
-   ps$widths <- c(0.1,rep(.07,ncol(m)),1)
-   ps$main <- main
-   do.call(grid.arrange, ps)
-   return(ps)
+#= Helper functions
+say <- function(...) { cat("[", date(), "]", ..., "\n") }
+
+generate_empty_files <- function(out_base) {
+  pdf(paste(out_base, ".pdf", sep=""), 7, 12)
+  plot(1, t="n", axes=F)
+  legend("center", "No data", bty="n")
+  dev.off()
+  file.create(paste(out_base,".1.classif",sep=""))
+  file.create(paste(out_base,".1.medoids",sep=""))
+}
+
+plot_silhouette <- function(k, s, ds, top.n) {
+  par(mar=c(4,5,1,5)+0.1)
+  plot(1, t="n", xlab="k (clusters)", ylab="", xlim=range(c(0,k)),
+    ylim=range(s), bty="n", xaxs="i", yaxt="n")
+  polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
+  axis(2, fg="grey60", col.axis="grey60")
+  mtext("Average silhouette", side=2, line=3, col="grey60")
+  par(new=TRUE)
+  plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
+    ylim=range(ds), bty="n", xaxs="i")
+  points(k[-c(1,length(k))], ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
+  axis(4, fg="darkred", col.axis="darkred")
+  mtext("Silhouette gain", side=4, line=3, col="darkred")
+  abline(v=top.n, lty=2)
+}
+
+plot_distances <- function(dist) {
+  par(mar=c(5,4,1,2)+0.1)
+  hist(dist, border=NA, col="grey60", breaks=50, xlab="Distances", main="")
+}
+
+plot_clustering <- function(cl, dist, types) {
+  par(mar=c(5,4,4,2)+0.1)
+  top.n <- length(cl$medoids)
+  col <- ggplotColours(top.n)
+  plot(silhouette(cl), col=col)
+  clusplot(cl, dist=dist, main="", col.p=col[types], lines=0)
+}
+
+plot_tree <- function(phy, types, medoids){
+  layout(1)
+  top.n <- length(unique(types))
+  col <- ggplotColours(top.n)
+  is.medoid <- phy$tip.label %in% medoids
+  plot(phy, cex=ifelse(is.medoid, 1/3, 1/6),
+    font=ifelse(is.medoid, 2, 1),
+    tip.color=col[types[phy$tip.label]])
 }
 
 ggplotColours <- function(n=6, h=c(0, 360)+15, alpha=1){
-   if ((diff(h)%%360) < 1) h[2] <- h[2] - 360/n
-   hcl(h=seq(h[1], h[2], length=n), c=100, l=65, alpha=alpha)
+  if ((diff(h)%%360) < 1) h[2] <- h[2] - 360/n
+  hcl(h=seq(h[1], h[2], length=n), c=100, l=65, alpha=alpha)
 }
 
+#= Main
+subclades(ani_file=argv[1], out_base=argv[2],
+  thr=ifelse(is.na(argv[3]), 1, as.numeric(argv[3])))
 

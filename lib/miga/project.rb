@@ -340,7 +340,7 @@ class MiGA::Project < MiGA::MiGA
       return nil unless result_files_exist?(base,
         %w[.proposed-clades])
       return nil unless is_clade? or result_files_exist?(base,
-        %w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
+        %w[.pdf .classif .medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
       r.add_file(:aai_tree,	"miga-project.aai.nwk")
       r.add_file(:proposal,	"miga-project.proposed-clades")
@@ -351,9 +351,9 @@ class MiGA::Project < MiGA::MiGA
 
     def add_result_subclades(base)
       return nil unless result_files_exist?(base,
-        %w[.pdf .1.classif .1.medoids .class.tsv .class.nwk])
+        %w[.pdf .classif .medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
-      r.add_file(:ani_tree,	"miga-project.ani.nwk")
+      r.add_file(:ani_tree, "miga-project.ani.nwk")
       r
     end
 
@@ -362,11 +362,8 @@ class MiGA::Project < MiGA::MiGA
       r.add_file(:report,	"miga-project.pdf")
       r.add_file(:class_table,	"miga-project.class.tsv")
       r.add_file(:class_tree,	"miga-project.class.nwk")
-      (1..6).each do |i|
-        %w{classif medoids}.each do |m|
-          r.add_file("#{m}_#{i}".to_sym, "miga-project.#{i}.#{m}")
-        end
-      end
+      r.add_file(:classif,	"miga-project.classif")
+      r.add_file(:medoids,	"miga-project.medoids")
       r
     end
 

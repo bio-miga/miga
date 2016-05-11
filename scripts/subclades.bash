@@ -10,11 +10,10 @@ cd "$PROJECT/data/10.clades/02.ani"
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
 
 # Run R code
-echo "
-source('$MIGA/utils/subclades.R');
-subclades('../../09.distances/03.ani/miga-project.txt.gz',
-   'miga-project', $CORES);
-" | R --vanilla
+$MIGA/utils/subclades.R \
+  ../../09.distances/03.ani/miga-project.txt.gz \
+  miga-project $CORES
+mv miga-project.nwk miga-project.ani.nwk
 
 # Compile
 ruby "$MIGA/utils/subclades-compile.rb" . \

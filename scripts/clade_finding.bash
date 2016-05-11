@@ -29,18 +29,16 @@ cat miga-project.ani95-clades | tail -n +2 | tr "," "\\t" | awk 'NF >= 5' \
 
 # Run R code (except in projects type clade)
 if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
-  echo "
-  source('$MIGA/utils/subclades.R');
-  subclades('../../09.distances/02.aai/miga-project.txt.gz',
-    'miga-project', $CORES);
-  " | R --vanilla
-  mv miga-project.ani.nwk miga-project.aai.nwk
+  $MIGA/utils/subclades.R \
+    ../../09.distances/02.aai/miga-project.txt.gz \
+    miga-project $CORES
+  mv miga-project.nwk miga-project.aai.nwk
+  
+  # Compile
+  ruby "$MIGA/utils/subclades-compile.rb" . \
+    >  miga-project.class.tsv \
+    2> miga-project.class.nwk
 fi
-
-# Compile
-ruby "$MIGA/utils/subclades-compile.rb" . \
-  >  miga-project.class.tsv \
-  2> miga-project.class.nwk
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
