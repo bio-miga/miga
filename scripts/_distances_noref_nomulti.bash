@@ -5,15 +5,16 @@
 set -e
 
 # Deal with previous runs (if any)
+exists $DATASET.haai.db && cp $DATASET.haai.db $TMPDIR
 exists $DATASET.a[an]i.db && cp $DATASET.a[an]i.db $TMPDIR
 exists $DATASET.a[an]i.9[05] && rm $DATASET.a[an]i.9[05]
 N=0
 function checkpoint_n {
   let N=$N+1
   if [[ $N -ge 10 ]] ; then
-    for metric in aai ani ; do
+    for metric in haai aai ani ; do
       if [[ -s $TMPDIR/$DATASET.$metric.db ]] ; then
-        echo "select count(*) from $metric;" \
+        echo "select count(*) from ${metric#h};" \
           | sqlite3 $TMPDIR/$DATASET.$metric.db \
           >/dev/null || exit 1
         cp $TMPDIR/$DATASET.$metric.db .
@@ -23,6 +24,7 @@ function checkpoint_n {
   fi
 }
 
+ESS="../07.annotation/01.function/01.essential"
 if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
   CLADES="../10.clades/01.find"
@@ -35,9 +37,20 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
     i_n=0
     for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
       let i_n=$i_n+1
-      AAI=$(aai.rb -1 ../06.cds/$DATASET.faa \
-        -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
-        -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "0")
+      HAAI=$(aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa \
+        -t $CORES -a --lookup-first \
+        -S $TMPDIR/$DATASET.haai.db --name1 $DATASET --name2 $i || echo "0")
+      if [[ "$HAAI" != "" \
+          && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
+        AAI=$(perl -e \
+          "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
+        echo "insert into aai values('$DATASET','$i','$AAI',0,0,0);" \
+          | sqlite3 $TMPDIR/$DATASET.aai.db
+      else
+        AAI=$(aai.rb -1 ../06.cds/$DATASET.faa \
+          -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
+          -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "0")
+      fi
       checkpoint_n
       if [[ $(perl -e "print 1 if '$AAI' >= '$MAX_AAI'") == "1" ]] ; then
         MAX_AAI=$AAI

@@ -161,7 +161,8 @@ module MiGA::DatasetResult
         result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
       r = MiGA::Result.new(base + ".json")
       add_files_to_ds_result(r, name, {
-        :aai_medoids=>".aai-medoids.tsv", :aai_db=>".aai.db",
+        :aai_medoids=>".aai-medoids.tsv",
+        :haai_db=>".haai.db", :aai_db=>".aai.db",
         :ani_medoids=>".ani-medoids.tsv", :ani_db=>".ani.db"})
     end
 
