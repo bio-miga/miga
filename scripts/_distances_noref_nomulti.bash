@@ -28,12 +28,12 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   CLADES="../10.clades/01.find"
   CLASSIF="."
   [[ -e "$DATASET.aai-medoids.tsv" ]] && rm "$DATASET.aai-medoids.tsv"
-  while [[ -e "$CLADES/$CLASSIF/miga-project.1.medoids" ]] ; do
+  while [[ -e "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
     MAX_AAI=0
     AAI_MED=""
     AAI_CLS=""
     i_n=0
-    for i in $(cat "$CLADES/$CLASSIF/miga-project.1.medoids") ; do
+    for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
       let i_n=$i_n+1
       AAI=$(aai.rb -1 ../06.cds/$DATASET.faa \
         -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
@@ -46,14 +46,14 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
 	echo "[$CLASSIF] New max: $AAI_MED ($AAI_CLS): $MAX_AAI"
       fi
     done
-    CLASSIF="$CLASSIF/miga-project.1.sc-$AAI_CLS"
+    CLASSIF="$CLASSIF/miga-project.sc-$AAI_CLS"
     echo "$AAI_CLS	$AAI_MED	$MAX_AAI	$CLASSIF" \
       >> "$DATASET.aai-medoids.tsv"
   done
 
   # Calculate all the AAIs against the lowest subclade (if classified)
   if [[ "$CLASSIF" != "." ]] ; then
-    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.1.classif
+    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
     if [[ -s "$PAR" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
         aai.rb -1 ../06.cds/$DATASET.faa \
@@ -69,12 +69,12 @@ else
   CLADES="../10.clades/02.ani"
   CLASSIF="."
   [[ -e "$DATASET.ani-medoids.tsv" ]] && rm "$DATASET.ani-medoids.tsv"
-  while [[ -e "$CLADES/$CLASSIF/miga-project.1.medoids" ]] ; do
+  while [[ -e "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
     MAX_ANI=0
     ANI_MED=""
     ANI_CLS=""
     i_n=0
-    for i in $(cat "$CLADES/$CLASSIF/miga-project.1.medoids") ; do
+    for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
       let i_n=$i_n+1
       ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
         -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
@@ -88,14 +88,14 @@ else
 	echo "[$CLASSIF] New max: $ANI_MED ($ANI_CLS): $MAX_ANI"
       fi
     done
-    CLASSIF="$CLASSIF/miga-project.1.sc-$ANI_CLS"
+    CLASSIF="$CLASSIF/miga-project.sc-$ANI_CLS"
     echo "$ANI_CLS	$ANI_MED	$MAX_ANI	$CLASSIF" \
       >> "$DATASET.ani-medoids.tsv"
   done
 
   # Calculate all the ANIs against the lowest subclade (if classified in-clade)
   if [[ "$CLASSIF" != "." ]] ; then
-    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.1.classif
+    PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
     if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$ANI_CLS{print \$1}") ; do
         ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
