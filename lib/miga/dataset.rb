@@ -55,7 +55,7 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Tasks to be excluded from query datasets.
-  @@EXCLUDE_NOREF_TASKS = [:essential_genes, :mytaxa_scan]
+  @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan]
   
   ##
   # Tasks to be executed only in datasets that are not multi-organism. These
