@@ -37,20 +37,11 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
     i_n=0
     for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
       let i_n=$i_n+1
-      HAAI=$(aai.rb -1 $ESS/$DATASET.ess.faa -2 $ESS/$i.ess.faa \
-        -t $CORES -a --lookup-first \
-        -S $TMPDIR/$DATASET.haai.db --name1 $DATASET --name2 $i || echo "0")
-      if [[ "$HAAI" != "" \
-          && $(perl -MPOSIX -e "print floor $HAAI") -lt 90 ]] ; then
-        AAI=$(perl -e \
-          "printf '%f', 100-exp(2.435076 + 0.4275193*log(100-$HAAI))")
-        echo "insert into aai values('$DATASET','$i','$AAI',0,0,0);" \
-          | sqlite3 $TMPDIR/$DATASET.aai.db
-      else
-        AAI=$(aai.rb -1 ../06.cds/$DATASET.faa \
-          -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
-          -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i || echo "0")
-      fi
+      AAI=$(haai $ESS/$DATASET.ess.faa $ESS/$i.ess.faa $CORES \
+        $TMPDIR/$DATASET.haai.db $TMPDIR/$DATASET.aai.db)
+      [[ "$AAI" -le 0 ]] \
+        && AAI=$(aai ../06.cds/$DATASET.faa ../06.cds/$i.faa $CORES \
+        $TMPDIR/$DATASET.aai.db)
       checkpoint_n
       if [[ $(perl -e "print 1 if '$AAI' >= '$MAX_AAI'") == "1" ]] ; then
         MAX_AAI=$AAI
@@ -69,10 +60,8 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
     PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
     if [[ -s "$PAR" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
-        aai.rb -1 ../06.cds/$DATASET.faa \
-          -2 ../06.cds/$i.faa -t $CORES -a --lookup-first \
-          -S $TMPDIR/$DATASET.aai.db --name1 $DATASET --name2 $i \
-          > /dev/null
+        aai ../06.cds/$DATASET.faa ../06.cds/$i.faa $CORES \
+          $TMPDIR/$DATASET.aai.db > /dev/null
         checkpoint_n
       done
     fi
@@ -89,10 +78,8 @@ else
     i_n=0
     for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
       let i_n=$i_n+1
-      ANI=$(ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-        -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
-        --no-save-regions --no-save-rbm --lookup-first \
-        -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i || echo "0")
+      ANI=$(ani ../05.assembly/$DATASET.LargeContigs.fna \
+        ../05.assembly/$i.LargeContigs.fna $CORES $TMPDIR/$DATASET.ani.db)
       checkpoint_n
       if [[ $(perl -e "print 1 if '$ANI' >= '$MAX_ANI'") == "1" ]] ; then
         MAX_ANI=$ANI
@@ -111,11 +98,9 @@ else
     PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
     if [[ -s "$CLADES/$CLASSIF/miga-project.all" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$ANI_CLS{print \$1}") ; do
-        ani.rb -1 ../05.assembly/$DATASET.LargeContigs.fna \
-          -2 ../05.assembly/$i.LargeContigs.fna -t $CORES -a \
-          --no-save-regions --no-save-rbm --lookup-first \
-          -S $TMPDIR/$DATASET.ani.db --name1 $DATASET --name2 $i \
-          > /dev/null
+        ani ../05.assembly/$DATASET.LargeContigs.fna \
+          ../05.assembly/$i.LargeContigs.fna $CORES \
+          $TMPDIR/$DATASET.ani.db > /dev/null
         checkpoint_n
       done
     fi

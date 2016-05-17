@@ -17,7 +17,8 @@ NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
 REF=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --ref \
    | wc -l | awk '{print $1}')
 
-# Call submodule
+# Call submodules
+source "$MIGA/scripts/_distances_functions.bash"
 if [[ "$NOMULTI" -eq "1" && "$REF" -eq "1" ]] ; then
    source "$MIGA/scripts/_distances_ref_nomulti.bash"
 elif [[ "$NOMULTI" -eq "1" ]] ; then
