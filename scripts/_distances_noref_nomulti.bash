@@ -39,7 +39,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
       let i_n=$i_n+1
       AAI=$(haai $ESS/$DATASET.ess.faa $ESS/$i.ess.faa $CORES \
         $TMPDIR/$DATASET.haai.db $TMPDIR/$DATASET.aai.db)
-      [[ "$AAI" -le 0 ]] \
+      [[ "${AAI%.*}" -le 0 ]] \
         && AAI=$(aai ../06.cds/$DATASET.faa ../06.cds/$i.faa $CORES \
         $TMPDIR/$DATASET.aai.db)
       checkpoint_n
