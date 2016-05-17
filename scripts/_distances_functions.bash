@@ -43,7 +43,7 @@ function haai {
   local N1=$(ds_name $F1)
   local N2=$(ds_name $F2)
   local HAAI=$(aai $F1 $F2 $TH $DB)
-  if [[ "$HAAI" != "" && $(perl -e "print 1 if '$HAAI' >= 90") == "1" ]] ; then
+  if [[ "$HAAI" != "" && $(perl -e "print 1 if '$HAAI' <= 90") == "1" ]] ; then
     local AAI=$(perl -e "print (100-exp(2.435076 + 0.4275193*log(100-$HAAI)))")
     [[ ! -s $AAI_DB ]] && make_empty_aai_db $AAI_DB
     echo "insert into aai values('$N1','$N2','$AAI',0,0,0);" | sqlite3 $AAI_DB
