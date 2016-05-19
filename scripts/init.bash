@@ -106,11 +106,7 @@ echo "export PATH=\$MIGA_PATH\$PATH" >> "$HOME/.miga_rc"
 # Check for R packages
 echo "
 Looking for R packages:" >&2
-if ! check_rlib enveomics.R ; then
-   echo "+ Installing enveomics.R" >&2
-   R CMD INSTALL $(dirname "$(which "FastQ.tag.rb")")/../enveomics.R
-fi
-RLIBS="ape ggdendro ggplot2 gridExtra cluster dendextend vegan scatterplot3d"
+RLIBS="enveomics.R ape ggdendro ggplot2 gridExtra cluster dendextend vegan scatterplot3d"
 for lib in $RLIBS ; do
    if ! check_rlib $lib ; then
       echo "+ Installing $lib" >&2
