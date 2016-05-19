@@ -178,10 +178,17 @@ class MiGA::Project < MiGA::MiGA
   end
   
   ##
-  # Iterate through datasets, with a single variable MiGA::Dataset passed to
-  # +blk+.
+  # Iterate through datasets, with one or two variables passed to +blk+.
+  # If one, the dataset MiGA::Dataset object is passed. If two, the name and
+  # the dataset object are passed.
   def each_dataset(&blk)
-    metadata[:datasets].each{ |name| blk.call(dataset(name)) }
+    metadata[:datasets].each do |name|
+      if blk.arity == 1
+        blk.call(dataset(name))
+      else
+        blk.call(name, dataset(name))
+      end
+    end
   end
   
   ##

@@ -120,9 +120,13 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Traverse datasets
   def check_datasets
-    project.each_dataset do |ds|
-      to_run = ds.next_preprocessing(true)
-      queue_job(to_run, ds) unless to_run.nil?
+    project.each_dataset do |n, ds|
+      if ds.nil?
+        say "Warning: Dataset #{n} listed but not loaded."
+      else
+        to_run = ds.next_preprocessing(true)
+        queue_job(to_run, ds) unless to_run.nil?
+      end
     end
   end
 
