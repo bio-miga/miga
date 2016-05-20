@@ -118,7 +118,7 @@ done
 # Check for ruby gems
 echo "
 Looking for Ruby gems:" >&2
-GEMS="rest_client sqlite3 daemons json"
+GEMS="rest-client sqlite3 daemons json"
 for gem in $GEMS ; do
    if ! check_gem $gem ; then
       echo "+ Installing $gem (user-only)" >&2
