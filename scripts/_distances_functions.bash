@@ -4,10 +4,12 @@
 
 set -e
 
-MIGA_AAI_SAVE_RBM=${MIGA_AAI_SAVE_RBM:-save-rbm}
-if [[ -n $PROJECT ]] ; then
-  if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
-    MIGA_AAI_SAVE_RBM="no-save-rbm"
+if [[ ! -n $MIGA_AAI_SAVE_RBM ]] ; then
+  MIGA_AAI_SAVE_RBM="save-rbm"
+  if [[ -n $PROJECT ]] ; then
+    if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
+      MIGA_AAI_SAVE_RBM="no-save-rbm"
+    fi
   fi
 fi
 
