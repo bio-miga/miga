@@ -1,6 +1,15 @@
 #!/bin/bash
+# Available variables: $PROJECT, $DATASET, $RUNTYPE, $MIGA, $CORES, $TMPDIR,
+#                      $NOMULTI, $REF
 
 set -e
+
+MIGA_AAI_SAVE_RBM=${MIGA_AAI_SAVE_RBM:-save-rbm}
+if [[ -n $PROJECT ]] ; then
+  if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
+    MIGA_AAI_SAVE_RBM="no-save-rbm"
+  fi
+fi
 
 function make_empty_aai_db {
   local DB=$1
@@ -20,7 +29,7 @@ function aai {
   local N1=$(ds_name $F1)
   local N2=$(ds_name $F2)
   aai.rb -1 $F1 -2 $F2 -t $TH -a --lookup-first -S $DB --name1 $N1 --name2 $N2 \
-    || echo "0"
+    --$MIGA_AAI_SAVE_RBM || echo "0"
 }
 
 function ani {
