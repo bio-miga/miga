@@ -31,8 +31,7 @@ N=1
 
 # Traverse "nearly-half" of the ref-datasets using first-come-first-served
 for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
-  echo "=[ $i ]"
-  date "+%Y-%m-%d %H:%M:%S %z"
+  echo "[ $(date "+%Y-%m-%d %H:%M:%S %z") ] $i"
   AAI=""; ANI="";
   # Check if the i-th dataset is ready
   [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
@@ -53,7 +52,6 @@ for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
       || cp ../06.cds/$DATASET.faa $TMPDIR/$DATASET.faa
     AAI=$(aai $TMPDIR/$DATASET.faa ../06.cds/$i.faa $CORES $TMPDIR/02.aai.db)
   fi
-  date "+%Y-%m-%d %H:%M:%S %z"
   # Check if ANI is meaningful
   if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" \
       && -e "../05.assembly/$i.LargeContigs.fna" \
@@ -71,7 +69,6 @@ for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
         ../05.assembly/$i.LargeContigs.fna $CORES $TMPDIR/03.ani.db)
     fi
   fi
-  echo "$AAI;$ANI"
   checkpoint_n
 done
 N=10
