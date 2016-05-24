@@ -55,13 +55,18 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
       >> "$DATASET.aai-medoids.tsv"
   done
 
-  # Calculate all the AAIs against the lowest subclade (if classified)
+  # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
   if [[ "$CLASSIF" != "." ]] ; then
     PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
     if [[ -s "$PAR" ]] ; then
       for i in $(cat "$PAR" | awk "\$2==$AAI_CLS{print \$1}") ; do
-        aai ../06.cds/$DATASET.faa ../06.cds/$i.faa $CORES \
-          $TMPDIR/$DATASET.aai.db > /dev/null
+        AAI=$(aai ../06.cds/$DATASET.faa ../06.cds/$i.faa $CORES \
+          $TMPDIR/$DATASET.aai.db)
+        if [[ $(perl -e "print 1 if '$AAI' >= 90") == "1" ]] ; then
+          ani ../05.assembly/$DATASET.LargeContigs.fna \
+            ../05.assembly/$i.LargeContigs.fna \
+            $TMPDIR/$DATASET.ani.db >/dev/null
+        fi
         checkpoint_n
       done
     fi
