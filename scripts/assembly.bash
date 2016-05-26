@@ -16,7 +16,11 @@ FA="../04.trimmed_fasta/$DATASET.CoupledReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
 [[ -e $FA ]] || FA="../04.trimmed_fasta/$DATASET.SingleReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
-idba_ud --pre_correction -r "$FA" -o "$DATASET" --num_threads "$CORES"
+if [[ $FA == *.SingleReads.* ]] ; then
+  idba_ud --pre_correction -l "$FA" -o "$DATASET" --num_threads "$CORES"
+else
+  idba_ud --pre_correction -r "$FA" -o "$DATASET" --num_threads "$CORES"
+fi
 
 # Clean
 cd $DATASET
