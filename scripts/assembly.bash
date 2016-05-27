@@ -16,11 +16,10 @@ FA="../04.trimmed_fasta/$DATASET.CoupledReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
 [[ -e $FA ]] || FA="../04.trimmed_fasta/$DATASET.SingleReads.fa"
 [[ -e $FA ]] || FA="$FA.gz"
-if [[ $FA == *.SingleReads.* ]] ; then
-  idba_ud --pre_correction -l "$FA" -o "$DATASET" --num_threads "$CORES"
-else
-  idba_ud --pre_correction -r "$FA" -o "$DATASET" --num_threads "$CORES"
-fi
+RD="r"
+[[ $FA == *.SingleReads.* ]] && RD="l"
+idba_ud --pre_correction -$RD "$FA" -o "$DATASET" --num_threads "$CORES" || true
+[[ -s $DATASET.contig.fa ]] || exit 1
 
 # Clean
 cd $DATASET
@@ -40,4 +39,3 @@ FastA.length.pl $DATASET.AllContigs.fna | awk '$2>=1000{print $1}' \
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r assembly
-
