@@ -19,7 +19,7 @@ FA="../04.trimmed_fasta/$DATASET.CoupledReads.fa"
 RD="r"
 [[ $FA == *.SingleReads.* ]] && RD="l"
 idba_ud --pre_correction -$RD "$FA" -o "$DATASET" --num_threads "$CORES" || true
-[[ -s $DATASET.contig.fa ]] || exit 1
+[[ -s $DATASET/contig.fa ]] || exit 1
 
 # Clean
 cd $DATASET
