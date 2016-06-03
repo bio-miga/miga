@@ -45,10 +45,11 @@ module MiGA::DatasetResult
     def add_result_trimmed_fasta(base)
       return nil unless
         result_files_exist?(base, ".CoupledReads.fa") or
-        result_files_exist?(base, ".SingleReads.fa")
+        result_files_exist?(base, ".SingleReads.fa") or
+        result_files_exist?(base, %w[.1.fasta .2.fasta])
       r = MiGA::Result.new base + ".json"
       r = add_files_to_ds_result(r, name, {:coupled=>".CoupledReads.fa",
-        :pair1=>".1.fa", :pair2=>".2.fa"}) if
+        :pair1=>".1.fasta", :pair2=>".2.fasta"}) if
         result_files_exist?(base, ".CoupledReads.fa")
       r.add_file(:single, name + ".SingleReads.fa")
       add_result(:raw_reads) #-> Post gzip
