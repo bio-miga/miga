@@ -49,9 +49,7 @@ module MiGA::DatasetResult
         result_files_exist?(base, %w[.1.fasta .2.fasta])
       r = MiGA::Result.new base + ".json"
       r = add_files_to_ds_result(r, name, {:coupled=>".CoupledReads.fa",
-        :pair1=>".1.fasta", :pair2=>".2.fasta"}) if
-        result_files_exist?(base, ".CoupledReads.fa")
-      r.add_file(:single, name + ".SingleReads.fa")
+        :single=>".SingleReads.fa", :pair1=>".1.fasta", :pair2=>".2.fasta"})
       add_result(:raw_reads) #-> Post gzip
       r
     end
