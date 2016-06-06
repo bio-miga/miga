@@ -4,7 +4,7 @@ In this tutorial, we will create a clade project including all the genomes
 available for a species in RefSeq as well as any additional genomes you may
 have. We will use *Escherichia coli* as the target species, but you can use
 any species you want. For this tutorial you'll need some *nix utilities,
-including `curl`, `tail`, `cut`, `awk`, `date`, `gzip`, and `perl`.
+including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
 
 ## 0. Initialize the project
 
@@ -50,7 +50,7 @@ curl -o ref_genomes.tsv "$NCBI_SCRIPT?$NCBI_PARAMS"
 
 # Format the list for MiGA:
 ( echo -e "dataset\tids" ;
-cat ref_genomes.tsv | tail -n +2 | cut -f 1,11 \
+tail -n +2 ref_genomes.tsv | cut -f 1,11 \
   | awk 'BEGIN{FS="\t"; OFS="\t"} \
     { gsub(/[^A-Za-z0-9]/,"_",$1); gsub(/[^:;]*:/,"",$2) } \
     { gsub(/\/[^\/;]*/,"",$2) } {print $0}' \
@@ -116,7 +116,7 @@ gzip -d -c ~/some/file/d1_ACTG_L[12]_R1.fastq.gz > data/01.raw_reads/$DS.1.fastq
 gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > data/01.raw_reads/$DS.2.fastq
 
 # Tell MiGA your transfer is complete
-date "+%Y-%m-%d %H:%M:%S %z" > data/01.raw_reads/$DS.done
+miga date > data/01.raw_reads/$DS.done
 
 # Register the dataset:
 miga create_dataset -P . -D $DS -t genome
