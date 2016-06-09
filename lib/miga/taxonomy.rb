@@ -12,6 +12,13 @@ class MiGA::Taxonomy < MiGA::MiGA
   @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
 
   ##
+  # Long names of the cannonical ranks.
+  def self.LONG_RANKS() @@LONG_RANKS ; end
+  @@LONG_RANKS = {root: "root", ns: "namespace", d: "domain", k: "kingdom",
+    p: "phylum", c: "class", o: "order", f: "family", g: "genus", s: "species",
+    ssp: "subspecies", str: "strain", ds: "dataset"}
+
+  ##
   # Synonms for cannonical ranks.
   @@RANK_SYNONYMS = {
     "namespace"=>"ns",
