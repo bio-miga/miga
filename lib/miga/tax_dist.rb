@@ -33,7 +33,8 @@ module MiGA::TaxDist
           keys.each do |i|
             v = row.shift
             next if v=="NA"
-            vals[MiGA::Taxonomy.KNOWN_RANKS[i]] = v.to_f
+            rank = i==0 ? :root : MiGA::Taxonomy.KNOWN_RANKS[i-1]
+            vals[rank] = v.to_f
           end
           return vals
         end
