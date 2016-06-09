@@ -26,6 +26,7 @@ $task_desc = {
   list_files: "Lists all registered files from the results of a dataset or a "+
     "project.",
   project_info: "Displays information about a MiGA project.",
+  tax_distributions: "Estimates distributions of distance by taxonomy.",
   unlink_dataset: "Removes a dataset from an MiGA project."
 }
 
