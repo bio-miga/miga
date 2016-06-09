@@ -35,6 +35,26 @@ class MiGA::TaxIndex < MiGA::MiGA
   end
 
   ##
+  # Finds all the taxa in the collection at the +rank+ taxonomic rank.
+  def taxa_by_rank(rank)
+    rank = MiGA::Taxonomy.normalize_rank(rank)
+    taxa = [@root]
+    select = []
+    loop do
+      new_taxa = []
+      taxa.map{ |tx| tx.children }.flatten.each do |ch|
+        if ch.rank == rank
+          select << ch
+        elsif not ch.children.empty?
+          new_taxa << ch
+        end
+      end
+      break if new_taxa.empty?
+    end
+    select
+  end
+
+  ##
   # Generate JSON String for the index.
   def to_json
     JSON.pretty_generate({ root:root.to_hash,
@@ -96,6 +116,12 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
   # Get the number of datasets in the taxon (including children).
   def datasets_count
     datasets.size + children.map{ |it| it.datasets_count }.reduce(0, :+)
+  end
+
+  ##
+  # Get all the datasets in the taxon (including children).
+  def all_datasets
+    datasets + children.map{ |it| it.datasets }.reduce([], :+)
   end
 
   ##
