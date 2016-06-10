@@ -94,17 +94,15 @@ plot.miga.taxdist <- function(file, exclude=c()){
 miga.taxprob.novel <- function(max.aai, rank, data){
   o <- c()
   for(i in max.aai){
-    a <- sum(data$rank >= rank & data$aai <= i)/sum(data$aai <= i)
-    o <- c(o, a)
+    o <- c(o, sum(data$rank >= rank & data$aai <= i))
   }
-  return(o*sum(data$rank < 12)/sum(data$rank >= rank))
+  return(o/sum(data$rank >= rank))
 }
 
 miga.taxprob.intax <- function(max.aai, rank, data){
   o <- c()
   for(i in max.aai){
-    a <- sum(data$rank < rank & data$aai >= i)/sum(data$aai >= i)
-    o <- c(o, a)
+    o <- c(o, sum(data$rank < rank & data$aai >= i)/sum(data$aai >= i))
   }
-  return(o*sum(data$rank < 12)/sum(data$rank < rank))
+  return(o)
 }
