@@ -53,9 +53,9 @@ module MiGA::TaxDist
     out = {}
     meaning.each do |phrase, thresholds|
       lwr, upr = thresholds
-      min = pv.values.select{ |v| v <= upr }.max
+      min = pv.values.select{ |v| v < upr }.max
       return out if min.nil?
-      if min > lwr
+      if min >= lwr
         v = pv.select{ |_,v| v==min }
         out[phrase] = (test==:intax ? v.reverse_each : v).first
       end
