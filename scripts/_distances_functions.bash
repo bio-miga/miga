@@ -62,6 +62,19 @@ function haai {
   fi
 }
 
+function haai_or_aai {
+  local FH1=$1
+  local FH2=$2
+  local DBH=$3
+  local F1=$5
+  local F2=$6
+  local DB=$7
+  local TH=$8
+  AAI=$(haai $FH1 $FH2 $TH $DBH $DB)
+  [[ "${AAI%.*}" -le 0 ]] && AAI=$(aai $F1 $F2 $TH $DB)
+  echo $AAI
+}
+
 function val_from_db {
   local N1=$1
   local N2=$2
