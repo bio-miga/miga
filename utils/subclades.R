@@ -50,7 +50,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   
   # Classify genomes
   say("Classify")
-  ani.cl <- pam(ani.d, top.n)
+  ani.cl <- pam(ani.d, top.n, pamonce=1)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
   
@@ -66,6 +66,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
 
   # Save results
   say("Text report")
+  save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   write.table(ani.medoids, paste(out_base, "medoids", sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE)
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
@@ -76,6 +77,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
     quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
 
   # Recursive search
+  say("Recursive search")
   for(i in 1:top.n){
     medoid <- ani.medoids[i]
     ds_f <- names(ani.types)[ ani.types==i ]
@@ -110,7 +112,7 @@ plot_silhouette <- function(k, s, ds, top.n) {
     ylim=range(s), bty="n", xaxs="i", yaxt="n")
   polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
   axis(2, fg="grey60", col.axis="grey60")
-  mtext("Min Average silhouette", side=2, line=3, col="grey60")
+  mtext("Weighted Average silhouette", side=2, line=3, col="grey60")
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
