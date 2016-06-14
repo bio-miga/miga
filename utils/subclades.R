@@ -41,7 +41,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   cl <- makeCluster(thr)
   s <- parSapply(cl, k, function(x) {
       library(cluster)
-      pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$avg.width
+      min(pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$clus.avg.widths)
     })
   stopCluster(cl)
   ds <- (s[-c(1,length(s))]-pmax(s[-length(s)+c(0,1)],s[-c(1,2)]))
@@ -109,7 +109,7 @@ plot_silhouette <- function(k, s, ds, top.n) {
     ylim=range(s), bty="n", xaxs="i", yaxt="n")
   polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
   axis(2, fg="grey60", col.axis="grey60")
-  mtext("Average silhouette", side=2, line=3, col="grey60")
+  mtext("Min Average silhouette", side=2, line=3, col="grey60")
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
