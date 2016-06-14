@@ -41,7 +41,8 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   cl <- makeCluster(thr)
   s <- parSapply(cl, k, function(x) {
       library(cluster)
-      min(pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$clus.avg.widths)
+      w = pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$clus.avg.widths
+      mean(c(min(w), w))
     })
   stopCluster(cl)
   ds <- (s[-c(1,length(s))]-pmax(s[-length(s)+c(0,1)],s[-c(1,2)]))
