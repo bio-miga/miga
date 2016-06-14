@@ -46,7 +46,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
     })
   stopCluster(cl)
   ds <- (s[-c(1,length(s))]-pmax(s[-length(s)+c(0,1)],s[-c(1,2)]))
-  top.n <- head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=1)
+  top.n <- tail(head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=2), n=1)
   
   # Classify genomes
   say("Classify")
