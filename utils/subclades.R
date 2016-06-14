@@ -129,7 +129,11 @@ plot_clustering <- function(cl, dist, types) {
   top.n <- length(cl$medoids)
   col <- ggplotColours(top.n)
   plot(silhouette(cl), col=col)
-  clusplot(cl, dist=dist, main="", col.p=col[types], lines=0)
+  if(length(labels(dist))<=15){
+    plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+  }else{
+    clusplot(cl, dist=dist, main="", col.p=col[types], lines=0)
+  }
 }
 
 plot_tree <- function(phy, types, medoids){
