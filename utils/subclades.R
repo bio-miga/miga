@@ -41,12 +41,12 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   cl <- makeCluster(thr)
   s <- parSapply(cl, k, function(x) {
       library(cluster)
-      w = pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo$clus.avg.widths
-      mean(c(min(w), w))
+      s <- pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo
+      c(s$avg.width, sum(s$widths[,3]>0))
     })
   stopCluster(cl)
-  ds <- (s[-c(1,length(s))]-pmax(s[-length(s)+c(0,1)],s[-c(1,2)]))
-  top.n <- tail(head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=2), n=1)
+  ds <- s[1,]*(s[2,]-mean(s[2,]))
+  top.n <- head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=1)
   
   # Classify genomes
   say("Classify")
@@ -59,16 +59,16 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
   layout(1:4)
   plot_distances(ani.d)
-  plot_silhouette(k, s, ds, top.n)
+  plot_silhouette(k, s[1,], s[,2], top.n)
   plot_clustering(ani.cl, ani.d, ani.types)
   plot_tree(ani.ph, ani.types, ani.medoids)
   dev.off()
 
   # Save results
   say("Text report")
-  save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   write.table(ani.medoids, paste(out_base, "medoids", sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE)
+  save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
   for(j in 1:nrow(classif)){
     classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]
@@ -112,13 +112,13 @@ plot_silhouette <- function(k, s, ds, top.n) {
     ylim=range(s), bty="n", xaxs="i", yaxt="n")
   polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
   axis(2, fg="grey60", col.axis="grey60")
-  mtext("Weighted Average silhouette", side=2, line=3, col="grey60")
+  mtext("Mean silhouette", side=2, line=3, col="grey60")
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
   points(k[-c(1,length(k))], ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
   axis(4, fg="darkred", col.axis="darkred")
-  mtext("Silhouette gain", side=4, line=3, col="darkred")
+  mtext("Positive silhouette", side=4, line=3, col="darkred")
   abline(v=top.n, lty=2)
 }
 
