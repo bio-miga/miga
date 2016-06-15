@@ -59,7 +59,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
   layout(1:4)
   plot_distances(ani.d)
-  plot_silhouette(k, s[1,], s[,2], top.n)
+  plot_silhouette(k, s[1,], s[2,], top.n)
   plot_clustering(ani.cl, ani.d, ani.types)
   plot_tree(ani.ph, ani.types, ani.medoids)
   dev.off()
