@@ -116,7 +116,7 @@ plot_silhouette <- function(k, s, ds, top.n) {
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
-  points(k[-c(1,length(k))], ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
+  points(k, ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
   axis(4, fg="darkred", col.axis="darkred")
   mtext("Negative silhouette area", side=4, line=3, col="darkred")
   abline(v=top.n, lty=2)
