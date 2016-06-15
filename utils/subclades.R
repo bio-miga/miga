@@ -42,11 +42,11 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   s <- parSapply(cl, k, function(x) {
       library(cluster)
       s <- pam(ani.d, x, do.swap=FALSE, pamonce=1)$silinfo
-      c(s$avg.width, sum(s$widths[,3]>0))
+      c(s$avg.width, -sum(ifelse(s$widths[,3]>0,0,s$widths[,3])))
     })
   stopCluster(cl)
-  ds <- s[1,]*(s[2,]-mean(s[2,]))
-  top.n <- head(k[order(c(-Inf,ds,-Inf), decreasing=T)], n=1)
+  ds <- s[1,]/s[2,]
+  top.n <- k[which.max(ds)]
   
   # Classify genomes
   say("Classify")
@@ -118,7 +118,7 @@ plot_silhouette <- function(k, s, ds, top.n) {
     ylim=range(ds), bty="n", xaxs="i")
   points(k[-c(1,length(k))], ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
   axis(4, fg="darkred", col.axis="darkred")
-  mtext("Positive silhouette", side=4, line=3, col="darkred")
+  mtext("Negative silhouette area", side=4, line=3, col="darkred")
   abline(v=top.n, lty=2)
 }
 
