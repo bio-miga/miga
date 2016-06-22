@@ -31,6 +31,9 @@ done
 ogs.mcl.rb -o miga-project.ogs -d miga-project.rbm -t $CORES
 ogs.stats.rb -o miga-project.ogs -j miga-project.stats
 
+# Clean RBMs
+rm -rf miga-project.rbm
+
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
 miga add_result -P "$PROJECT" -r ogs
