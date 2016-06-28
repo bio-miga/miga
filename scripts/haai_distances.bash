@@ -21,15 +21,21 @@ for i in $DS ; do
 done
 
 # R-ify
-echo "
-haai <- read.table('miga-project.txt', sep='\\t', h=T);
-save(haai, file='miga-project.Rdata');
-h <- hist(haai[,'value'], breaks=100, plot=FALSE);
-write.table(
-   cbind(h[['breaks']][-length(h[['breaks']])],h[['breaks']][-1],h[['counts']]),
-   file='miga-project.hist', quote=FALSE, sep='\\t',
-   col.names=FALSE, row.names=FALSE);
-" | R --vanilla
+if true ; then
+  echo "
+  haai <- read.table('miga-project.txt', sep='\\t', h=T);
+  save(haai, file='miga-project.Rdata');"
+  if [[ $(cat miga-project.txt | wc -l) -gt 1 ]] ; then
+    echo "
+    h <- hist(haai[,'value'], breaks=100, plot=FALSE);
+    write.table(
+      cbind(h[['breaks']][-length(h[['breaks']])],
+        h[['breaks']][-1],h[['counts']]),
+      file='miga-project.hist', quote=FALSE, sep='\\t',
+      col.names=FALSE, row.names=FALSE);
+    "
+  fi
+fi | R --vanilla
 
 # Gzip
 gzip -9 -f miga-project.txt
