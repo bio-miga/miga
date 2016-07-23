@@ -214,8 +214,7 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
-    return true  if metadata[ "no_run_#{task}" ]
-    return false if metadata[    "run_#{task}" ]
+    return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
     ( (@@EXCLUDE_NOREF_TASKS.include?(task) and not is_ref?) or
       (@@ONLY_MULTI_TASKS.include?(task) and not is_multi?) or
       (@@ONLY_NONMULTI_TASKS.include?(task) and not is_nonmulti?))

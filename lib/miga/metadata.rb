@@ -107,8 +107,8 @@ class MiGA::Metadata < MiGA::MiGA
     v=v.miga_name if k==:name
     # Symbolize the special field :type
     v=v.to_sym if k==:type
-    # Register and return
-    @data[k]=v
+    # Delete if nil, register, and return
+    v.nil? ? @data.delete(k) : (@data[k]=v)
   end
 
   ##
