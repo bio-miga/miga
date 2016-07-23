@@ -191,7 +191,9 @@ class MiGA::Dataset < MiGA::MiGA
   # execution order). This typically corresponds to the result used as the
   # initial input. Passes +save+ to #add_result.
   def first_preprocessing(save=false)
-    @@PREPROCESSING_TASKS.find{ |t| not add_result(t, save).nil? }
+    @@PREPROCESSING_TASKS.find do |t|
+      not ignore_task?(t) and not add_result(t, save).nil?
+    end
   end
   
   ##
@@ -212,6 +214,8 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
+    return true  if metadata[ "no_run_#{task}" ]
+    return false if metadata[    "run_#{task}" ]
     ( (@@EXCLUDE_NOREF_TASKS.include?(task) and not is_ref?) or
       (@@ONLY_MULTI_TASKS.include?(task) and not is_multi?) or
       (@@ONLY_NONMULTI_TASKS.include?(task) and not is_nonmulti?))
