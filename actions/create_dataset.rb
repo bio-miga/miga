@@ -39,7 +39,7 @@ d = o[:update] ? p.dataset(o[:dataset]) :
   MiGA::Dataset.new(p, o[:dataset], o[:ref], {})
 raise "Dataset does not exist." if d.nil?
 unless o[:metadata].nil?
-  o[:metadata].split(",") do |pair|
+  o[:metadata].split(",").each do |pair|
     (k,v) = pair.split("=")
     case v
     when "true"
