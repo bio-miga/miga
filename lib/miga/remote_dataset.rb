@@ -130,7 +130,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
       else
         download("#{base}.LargeContigs.fna")
       end
-      File.symlink("#{base}.LargeContigs.fna", "#{base}.AllContigs.fna")
+      File.symlink(
+        File.basename("#{base}.LargeContigs.fna"), "#{base}.AllContigs.fna")
       File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
     else
       raise "Unexpected error: Unsupported result for database #{db}."
