@@ -40,7 +40,7 @@ if not o[:datum].nil?
 elsif o[:info]
   puts MiGA::MiGA.tabulate(MiGA::Dataset.INFO_FIELDS, ds.map{ |d| d.info })
 elsif o[:processing]
-  comp = ["undef","done","queued"]
+  comp = ["-","done","queued"]
   puts MiGA::MiGA.tabulate([:name] + MiGA::Dataset.PREPROCESSING_TASKS,
     ds.map{ |d| [d.name] + d.profile_advance.map{ |i| comp[i] } })
 else
