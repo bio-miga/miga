@@ -63,6 +63,10 @@ class MiGA::Result < MiGA::MiGA
   def [](k) data[k.to_sym] ; end
 
   ##
+  # Adds value +v+ to entry with symbol +k+.
+  def []=(k,v) data[k.to_sym]=v ; end
+
+  ##
   # Register +file+ (path relative to #dir) with the symbol +k+. If the file
   # doesn't exist but the .gz extension does, the gzipped file is registered
   # instead. If neither exists, nothing is registered.
