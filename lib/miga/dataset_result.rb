@@ -59,8 +59,10 @@ module MiGA::DatasetResult
     def add_result_assembly(base)
       return nil unless result_files_exist?(base, ".LargeContigs.fna")
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
+      r = add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
         :allcontigs=>".AllContigs.fna"})
+      add_result(:trimmed_fasta) #-> Post interposing
+      r
     end
 
     ##
@@ -132,6 +134,12 @@ module MiGA::DatasetResult
       else
         add_result_distances_multi(base)
       end
+    end
+
+    ##
+    # Add result type +:stats+ at +base+.
+    def add_result_stats(base)
+      MiGA::Result.new(base + ".json")
     end
     
     ##
