@@ -11,23 +11,29 @@ require "miga"
 ##=> Global variables <=
 
 $task_desc = {
-  add_result: "Registers a result.",
-  add_taxonomy: "Registers taxonomic information for datasets.",
-  create_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
+  # Projects
   create_project: "Creates an empty MiGA project.",
-  daemon: "Controls the daemon of a MiGA project.",
-  date: "Returns the current date in standard MiGA format.",
+  project_info: "Displays information about a MiGA project.",
+  # Datasets
+  create_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
   download_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
+  unlink_dataset: "Removes a dataset from an MiGA project.",
   find_datasets: "Finds unregistered datasets based on result files.",
   import_datasets: "Link datasets (including results) from one project to "+
     "another.",
-  index_taxonomy: "Creates a taxonomy-indexed list of the datasets.",
   list_datasets: "Lists all registered datasets in an MiGA project.",
+  # Results
+  add_result: "Registers a result.",
+  result_stats: "Extracts statistics for the given result.",
   list_files: "Lists all registered files from the results of a dataset or a "+
     "project.",
-  project_info: "Displays information about a MiGA project.",
+  # System
+  daemon: "Controls the daemon of a MiGA project.",
+  date: "Returns the current date in standard MiGA format.",
+  # Taxonomy
+  add_taxonomy: "Registers taxonomic information for datasets.",
+  index_taxonomy: "Creates a taxonomy-indexed list of the datasets.",
   tax_distributions: "Estimates distributions of distance by taxonomy.",
-  unlink_dataset: "Removes a dataset from an MiGA project."
 }
 
 ##=> Functions <=
@@ -58,6 +64,13 @@ def opt_object(opt, o, what=[:project, :dataset])
     "Type of dataset. Recognized types include:", 
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
     ){ |v| o[:type]=v.to_sym } if what.include? :project_type
+  opt.on("-r", "--result STRING",
+    "(Mandatory) Name of the result to add.",
+    "Recognized names for dataset-specific results include:",
+    *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
+    "Recognized names for project-wide results include:",
+    *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
+    ){ |v| o[:name]=v.downcase.to_sym } if what.include? :result
 end
 
 # OptParse flags common to all actions.

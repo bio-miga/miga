@@ -6,13 +6,7 @@
 o = {q:true}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
-  opt_object(opt, o, [:project, :dataset_opt])
-  opt.on("-r", "--result STRING",
-    "(Mandatory) Name of the result to add.",
-    "Recognized names for dataset-specific results include:",
-    *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
-    "Recognized names for project-wide results include:",
-    *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}){ |v| o[:name]=v }
+  opt_object(opt, o, [:project, :dataset_opt, :result])
   opt_common(opt, o)
 end.parse!
 
