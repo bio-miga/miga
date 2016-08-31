@@ -1,5 +1,5 @@
 #!/bin/bash
-# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
+# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES, $DATASET
 set -e
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
@@ -19,4 +19,4 @@ done
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r cds
+miga add_result -P "$PROJECT" -D "$DATASET" -r stats
