@@ -69,8 +69,7 @@ if o[:compute]
 end
 
 r[:stats].each do |k,v|
-  puts "#{k.to_s.unmiga_name.capitalize}: #{
-    v.is_a? Array ? v.join(" ") : v}."
+  puts "#{k.to_s.unmiga_name.capitalize}: #{v.is_a?(Array) ? v.join(" ") : v}."
 end
 
 $stderr.puts "Done." unless o[:q]
