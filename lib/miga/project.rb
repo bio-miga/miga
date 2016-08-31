@@ -30,6 +30,7 @@ class MiGA::Project < MiGA::MiGA
     10.clades 10.clades/01.find 10.clades/02.ani 10.clades/03.ogs
     10.clades/04.phylogeny 10.clades/04.phylogeny/01.essential
     10.clades/04.phylogeny/02.core 10.clades/05.metadata
+    90.stats
   ]
 
   ##
@@ -45,10 +46,11 @@ class MiGA::Project < MiGA::MiGA
     clade_finding: "10.clades/01.find",
     # Clade analysis
     subclades: "10.clades/02.ani",
-    ogs: "10.clades/03.ogs",
-    ess_phylogeny: "10.clades/04.phylogeny/01.essential",
-    core_phylogeny: "10.clades/04.phylogeny/02.core",
-    clade_metadata: "10.clades/05.metadata"
+    ogs: "10.clades/03.ogs"
+    #ess_phylogeny: "10.clades/04.phylogeny/01.essential",
+    #core_phylogeny: "10.clades/04.phylogeny/02.core",
+    #clade_metadata: "10.clades/05.metadata"
+    #project_stats: "90.stats"
   }
 
   ##

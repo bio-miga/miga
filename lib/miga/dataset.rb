@@ -30,7 +30,9 @@ class MiGA::Dataset < MiGA::MiGA
     mapping_on_contigs: "08.mapping/01.read-ctg",
     mapping_on_genes: "08.mapping/02.read-gene",
     # Distances (for single-species datasets)
-    distances: "09.distances"
+    distances: "09.distances",
+    # General statistics
+    stats: "90.stats"
   }
 
   ##
