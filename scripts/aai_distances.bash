@@ -25,7 +25,7 @@ done
 echo "
 aai <- read.table('miga-project.txt', sep='\\t', h=T);
 save(aai, file='miga-project.Rdata');
-h <- hist(aai[,'value'], breaks=100, plot=FALSE);
+h <- hist(aai[aai[,'a'] != aai[,'b'], 'value'], breaks=100, plot=FALSE);
 write.table(
    cbind(h[['breaks']][-length(h[['breaks']])],h[['breaks']][-1],h[['counts']]),
    file='miga-project.hist', quote=FALSE, sep='\\t',

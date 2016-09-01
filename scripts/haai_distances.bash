@@ -27,7 +27,7 @@ if true ; then
   save(haai, file='miga-project.Rdata');"
   if [[ $(cat miga-project.txt | wc -l) -gt 1 ]] ; then
     echo "
-    h <- hist(haai[,'value'], breaks=100, plot=FALSE);
+    h <- hist(haai[haai[,'a'] != haai[,'b'], 'value'], breaks=100, plot=FALSE);
     write.table(
       cbind(h[['breaks']][-length(h[['breaks']])],
         h[['breaks']][-1],h[['counts']]),
