@@ -53,7 +53,7 @@ class MiGA::Dataset < MiGA::MiGA
   def self.PREPROCESSING_TASKS ; @@PREPROCESSING_TASKS ; end
   @@PREPROCESSING_TASKS = [:raw_reads, :trimmed_reads, :read_quality,
     :trimmed_fasta, :assembly, :cds, :essential_genes, :ssu, :mytaxa,
-    :mytaxa_scan, :distances]
+    :mytaxa_scan, :distances, :stats]
   
   ##
   # Tasks to be excluded from query datasets.
