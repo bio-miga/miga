@@ -290,6 +290,7 @@ class MiGA::Project < MiGA::MiGA
   def unregistered_datasets
     datasets = []
     MiGA::Dataset.RESULT_DIRS.values.each do |dir|
+      next unless Dir.exist? dir
       Dir.entries("#{path}/data/#{dir}").each do |file|
         next unless
           file =~ %r{
