@@ -22,7 +22,7 @@ done
 
 # R-ify
 echo "
-ani <- read.table('miga-project.txt', sep='\\t', h=T);
+ani <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
 save(ani, file='miga-project.Rdata');
 h <- hist(ani[ani[,'a'] != ani[,'b'], 'value'], breaks=100, plot=FALSE);
 write.table(

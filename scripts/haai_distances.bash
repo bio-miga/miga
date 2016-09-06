@@ -23,7 +23,7 @@ done
 # R-ify
 if true ; then
   echo "
-  haai <- read.table('miga-project.txt', sep='\\t', h=T);
+  haai <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
   save(haai, file='miga-project.Rdata');"
   if [[ $(cat miga-project.txt | wc -l) -gt 1 ]] ; then
     echo "

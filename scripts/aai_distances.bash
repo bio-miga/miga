@@ -23,7 +23,7 @@ done
 
 # R-ify
 echo "
-aai <- read.table('miga-project.txt', sep='\\t', h=T);
+aai <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
 save(aai, file='miga-project.Rdata');
 h <- hist(aai[aai[,'a'] != aai[,'b'], 'value'], breaks=100, plot=FALSE);
 write.table(
