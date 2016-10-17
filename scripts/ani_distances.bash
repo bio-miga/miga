@@ -24,7 +24,7 @@ done
 echo "
 ani <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
 save(ani, file='miga-project.Rdata');
-if(sum(ani[ani[,'a'] != ani[,'b']) > 0){
+if(sum(ani[,'a'] != ani[,'b']) > 0){
   h <- hist(ani[ani[,'a'] != ani[,'b'], 'value'], breaks=100, plot=FALSE);
   write.table(
     cbind(h[['breaks']][-length(h[['breaks']])],
