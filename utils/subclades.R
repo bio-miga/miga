@@ -45,8 +45,8 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
       c(s$avg.width, -sum(ifelse(s$widths[,3]>0,0,s$widths[,3])))
     })
   stopCluster(cl)
-  ds <- s[1,]/s[2,]
-  top.n <- k[which.max(ds)]
+  ds <- 4*s[2,] - s[1,]
+  top.n <- k[which.min(ds)]
   
   # Classify genomes
   say("Classify")
