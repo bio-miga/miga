@@ -4,6 +4,7 @@ matrix:
     # Run remote tests in only one version
     - rvm: 2.1.5
       env: REMOTE_TESTS=true
+      after_script: "bundle exec codeclimate-test-reporter"
     # Test with JRuby (for the GUI)
     - rvm: jruby-9.0.5.0
       env: JRUBY_TESTS=true JRUBY_OPTS="-d"

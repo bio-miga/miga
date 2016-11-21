@@ -3,3 +3,4 @@ Gemfile.lock
 miga-base-*.gem
 doc/
 _book/
+coverage/
