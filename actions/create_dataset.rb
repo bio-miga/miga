@@ -56,11 +56,8 @@ end
   d.metadata[k]=o[k] unless o[k].nil?
 end
 
-if o[:update]
-  d.save
-else
-  p.add_dataset(o[:dataset])
-end
+d.save
+p.add_dataset(o[:dataset]) unless o[:update]
 res = d.first_preprocessing(true)
 $stderr.puts "- #{res}" unless o[:q]
 
