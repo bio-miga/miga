@@ -30,7 +30,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   # Get ANI distances
   say("Distances")
   a$d <- 1-a$value/100
-  ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.1)
+  ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.2)
   ani.hc <- hclust(ani.d, method="ward.D2")
   ani.ph <- as.phylo(ani.hc)
   write.tree(as.phylo(ani.hc), paste(out_base, ".nwk", sep=""))
