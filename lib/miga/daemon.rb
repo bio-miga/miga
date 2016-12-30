@@ -232,6 +232,7 @@ class MiGA::Daemon < MiGA::MiGA
     end
     @loop_i += 1
     declare_alive
+    project.load
     check_datasets
     check_project
     flush!
@@ -239,7 +240,6 @@ class MiGA::Daemon < MiGA::MiGA
       say "Housekeeping for sanity"
       @loop_i = 0
       purge!
-      project.load
     end
     sleep(latency)
   end
