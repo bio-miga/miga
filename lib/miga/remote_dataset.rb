@@ -37,13 +37,13 @@ class MiGA::RemoteDataset < MiGA::MiGA
     },
     ncbi:{
       dbs: { nuccore:{stage: :assembly, format: :fasta} },
-      url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
+      url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
         "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
       method: :rest
     },
     ncbi_map:{
       dbs: { assembly:{map_to: :nuccore, format: :text} },
-      url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
+      url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
         # FIXME ncbi_map is intended to do internal NCBI mapping between
         # databases.
         "elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",

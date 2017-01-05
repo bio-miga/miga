@@ -22,7 +22,7 @@ want to update your project with more recently released genomes.
 
 ```bash
 # Get the list of genomes:
-NCBI_SCRIPT="http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
+NCBI_SCRIPT="https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
 NCBI_PARAMS="action=refgenomes&download=on"
 curl -o rep_genomes.tsv "$NCBI_SCRIPT?$NCBI_PARAMS"
 

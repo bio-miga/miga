@@ -42,7 +42,7 @@ STATUS="50|40" # <- Complete or Chromosome
 # STATUS="40" # <- Only chromosome
 
 # Get the list of genomes:
-NCBI_SCRIPT="http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
+NCBI_SCRIPT="https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
 NCBI_PARAMS="action=download&report=proks&group=--%20All%20Prokaryotes%20--"
 NCBI_PARAMS="$NCBI_PARAMS&subgroup=--%20All%20Prokaryotes%20--"
 NCBI_PARAMS="$NCBI_PARAMS&orgn=$ORGN\\[orgn\\]&status=$STATUS"
@@ -78,7 +78,7 @@ STATUS="30|20" # <- Scaffold or contig
 # STATUS="20" # <- Only contig
 
 # Get the list of genomes:
-NCBI_SCRIPT="http://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
+NCBI_SCRIPT="https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
 NCBI_PARAMS="action=download&report=proks&group=--%20All%20Prokaryotes%20--"
 NCBI_PARAMS="$NCBI_PARAMS&subgroup=--%20All%20Prokaryotes%20--"
 NCBI_PARAMS="$NCBI_PARAMS&orgn=$ORGN\\[orgn\\]&status=$STATUS"
