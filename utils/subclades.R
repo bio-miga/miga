@@ -45,7 +45,9 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
       c(s$avg.width, -sum(ifelse(s$widths[,3]>0,0,s$widths[,3])))
     })
   stopCluster(cl)
-  ds <- 4*s[2,] - s[1,] + max(s[1,])/1:nrow(s)
+  s.avg.z <- (s[1,]-mean(s[1,]))/sd(s[1,])
+  s.neg.z <- (s[2,]-mean(s[2,]))/sd(s[2,])
+  ds <- s.avg.z - s.neg.z + 2/(1:nrow(s))
   top.n <- k[which.min(ds)]
   
   # Classify genomes
@@ -59,7 +61,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
   layout(1:4)
   plot_distances(ani.d)
-  plot_silhouette(k, s[1,], s[2,], top.n)
+  plot_silhouette(k, s[1,], s[2,], ds, top.n)
   plot_clustering(ani.cl, ani.d, ani.types)
   plot_tree(ani.ph, ani.types, ani.medoids)
   dev.off()
@@ -106,19 +108,26 @@ generate_empty_files <- function(out_base) {
   file.create(paste(out_base,".1.medoids",sep=""))
 }
 
-plot_silhouette <- function(k, s, ds, top.n) {
+plot_silhouette <- function(k, s, ns, ds, top.n) {
+  // s
   par(mar=c(4,5,1,5)+0.1)
   plot(1, t="n", xlab="k (clusters)", ylab="", xlim=range(c(0,k)),
     ylim=range(s), bty="n", xaxs="i", yaxt="n")
   polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
   axis(2, fg="grey60", col.axis="grey60")
   mtext("Mean silhouette", side=2, line=3, col="grey60")
+  // ns
+  par(new=TRUE)
+  plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
+    ylim=range(ns), bty="n", xaxs="i")
+  points(k, ns, type="o", pch=16, col=rgb(1/2,0,0,3/4))
+  axis(4, fg="darkred", col.axis="darkred")
+  mtext("Negative silhouette area", side=4, line=3, col="darkred")
+  // ds
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
-  points(k, ds, type="o", pch=16, col=rgb(1/2,0,0,3/4))
-  axis(4, fg="darkred", col.axis="darkred")
-  mtext("Negative silhouette area", side=4, line=3, col="darkred")
+  lines(k, ds)
   abline(v=top.n, lty=2)
 }
 
