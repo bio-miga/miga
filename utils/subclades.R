@@ -109,21 +109,21 @@ generate_empty_files <- function(out_base) {
 }
 
 plot_silhouette <- function(k, s, ns, ds, top.n) {
-  // s
+  # s
   par(mar=c(4,5,1,5)+0.1)
   plot(1, t="n", xlab="k (clusters)", ylab="", xlim=range(c(0,k)),
     ylim=range(s), bty="n", xaxs="i", yaxt="n")
   polygon(c(k[1], k, k[length(k)]), c(0,s,0), border=NA, col="grey80")
   axis(2, fg="grey60", col.axis="grey60")
   mtext("Mean silhouette", side=2, line=3, col="grey60")
-  // ns
+  # ns
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ns), bty="n", xaxs="i")
   points(k, ns, type="o", pch=16, col=rgb(1/2,0,0,3/4))
   axis(4, fg="darkred", col.axis="darkred")
   mtext("Negative silhouette area", side=4, line=3, col="darkred")
-  // ds
+  # ds
   par(new=TRUE)
   plot(1, t="n", xlab="", xaxt="n", ylab="", yaxt="n", xlim=range(c(0,k)),
     ylim=range(ds), bty="n", xaxs="i")
