@@ -31,9 +31,8 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   say("Distances")
   a$d <- 1-a$value/100
   ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.2)
-  ani.hc <- hclust(ani.d, method="ward.D2")
-  ani.ph <- as.phylo(ani.hc)
-  write.tree(as.phylo(ani.hc), paste(out_base, ".nwk", sep=""))
+  ani.ph <- bionj(ani.d)
+  write.tree(ani.ph, paste(out_base, ".nwk", sep=""))
   
   # Silhouette
   say("Silhouette")
@@ -47,7 +46,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   stopCluster(cl)
   s.avg.z <- (s[1,]-mean(s[1,]))/sd(s[1,])
   s.neg.z <- (s[2,]-mean(s[2,]))/sd(s[2,])
-  ds <- s.avg.z - s.neg.z - 2/(1:length(k))
+  ds <- s.avg.z - s.neg.z - 2/(1:length(k)) - 2/(length(k):1)
   top.n <- k[which.max(ds)]
   
   # Classify genomes
