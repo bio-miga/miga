@@ -50,7 +50,8 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   top.n <- k[which.max(ds)]
   
   # Classify genomes
-  say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
+  say("Classify => k :", top.n, "| n :", length(labels(ani.d)),
+    "| k-key :", which.max(ds), "| ds: ", ds)
   ani.cl <- pam(ani.d, top.n, pamonce=1)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
