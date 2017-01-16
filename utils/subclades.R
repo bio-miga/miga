@@ -44,14 +44,13 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
       c(s$avg.width, -sum(ifelse(s$widths[,3]>0,0,s$widths[,3])))
     })
   stopCluster(cl)
-  s.avg.z <- (s[1,]-mean(s[1,]))/sd(s[1,])
-  s.neg.z <- (s[2,]-mean(s[2,]))/sd(s[2,])
+  s.avg.z <- (s[1,]-mean(s[1,]))/(sd(s[1,])+0.0001)
+  s.neg.z <- (s[2,]-mean(s[2,]))/(sd(s[2,])+0.01)
   ds <- s.avg.z - s.neg.z - 2/(1:length(k)) - (1:length(k))/50
   top.n <- k[which.max(ds)]
   
   # Classify genomes
-  say("Classify => k :", top.n, "| n :", length(labels(ani.d)),
-    "| k-key :", which.max(ds), "| ds: ", ds)
+  say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
   ani.cl <- pam(ani.d, top.n, pamonce=1)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
