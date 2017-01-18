@@ -60,15 +60,15 @@ if o[:compute]
     s = `FastA.length.pl '#{f}' | #{scr}`.chomp.split(" ")
     stats = {predicted_proteins: s[0].to_i, average_length: [s[1].to_f, "aa"]}
   when :essential_genes
-    stats = {completeness:0.0, contamination:0.0}
+    stats = {completeness:[0.0,"%"], contamination:[0.0,"%"]}
     File.open(r.file_path(:report), "r") do |fh|
       fh.each_line do |ln|
         if /^! (Completeness|Contamination): (.*)%/.match(ln)
-          stats[$1.downcase.to_sym] = $2.to_f/100
+          stats[$1.downcase.to_sym][0] = $2.to_f
         end
       end
     end
-    stats[:quality] = stats[:completeness] - stats[:contamination]*5
+    stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
   else
     stats = nil
   end
