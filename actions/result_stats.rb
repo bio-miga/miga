@@ -64,7 +64,7 @@ if o[:compute]
     File.open(r.file_path(:report), "r") do |fh|
       fh.each_line do |ln|
         if /^! (Completeness|Contamination): (.*)%/.match(ln)
-          stats[$1.downcase.to_sym][0] = $2.to_f/100
+          stats[$1.downcase.to_sym] = $2.to_f/100
         end
       end
     end
