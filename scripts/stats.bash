@@ -12,7 +12,7 @@ cd "$DIR"
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
 
 # Calculate statistics
-for i in raw_reads trimmed_fasta assembly cds ; do
+for i in raw_reads trimmed_fasta assembly cds essential_genes ; do
   echo "# $i"
   miga result_stats --compute-and-save -P "$PROJECT" -D "$DATASET" -r $i
 done
