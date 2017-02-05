@@ -72,7 +72,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
   for(j in 1:nrow(classif)){
-    classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]
+    classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]*100
   }
   write.table(classif, paste(out_base,"classif",sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
