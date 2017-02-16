@@ -14,6 +14,7 @@ $task_desc = {
   # Projects
   create_project: "Creates an empty MiGA project.",
   project_info: "Displays information about a MiGA project.",
+  plugins: "Lists or (un)installs plugins in a MiGA project.",
   # Datasets
   create_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
   download_dataset: "Creates an empty dataset in a pre-existing MiGA project.",

@@ -4,7 +4,7 @@
 
 set -e
 
-function checkpoint_n {
+fx_exists miga-checkpoint_n || function miga-checkpoint_n {
   if [[ $N -eq 10 ]] ; then
     for t in 01.haai 02.aai 03.ani ; do
       if [[ -s $TMPDIR/$t.db ]] ; then
@@ -36,41 +36,42 @@ for i in $(miga list_datasets -P "$PROJECT" --ref --no-multi) ; do
   # Check if the i-th dataset is ready
   [[ -s $ESS/$i.done && -s $ESS/$i.json ]] || continue
   # Check if this is done (e.g., in a previous failed iteration)
-  AAI=$(aai_from_db $DATASET $i $TMPDIR/02.aai.db)
+  AAI=$(miga-aai_from_db $DATASET $i $TMPDIR/02.aai.db)
   # Try the other direction
-  [[ "${AAI%.*}" -le 0 ]] && AAI=$(aai_from_db $i $DATASET 02.aai/$i.db)
+  [[ "${AAI%.*}" -le 0 ]] && AAI=$(miga-aai_from_db $i $DATASET 02.aai/$i.db)
   # Try with hAAI
   if [[ "${AAI%.*}" -le 0 ]] ; then
     [[ -e "$TMPDIR/$DATASET.ess.faa" ]] \
       || cp $ESS/$DATASET.ess.faa $TMPDIR/$DATASET.ess.faa
-    AAI=$(haai $TMPDIR/$DATASET.ess.faa $ESS/$i.ess.faa \
+    AAI=$(miga-haai $TMPDIR/$DATASET.ess.faa $ESS/$i.ess.faa \
       $CORES $TMPDIR/01.haai.db $TMPDIR/02.aai.db)
   fi
   # Try with complete AAI
   if [[ "${AAI%.*}" -le 0 ]] ; then
     [[ -e "$TMPDIR/$DATASET.faa" ]] \
       || cp ../06.cds/$DATASET.faa $TMPDIR/$DATASET.faa
-    AAI=$(aai $TMPDIR/$DATASET.faa ../06.cds/$i.faa $CORES $TMPDIR/02.aai.db)
+    AAI=$(miga-aai $TMPDIR/$DATASET.faa ../06.cds/$i.faa \
+      $CORES $TMPDIR/02.aai.db)
   fi
   # Check if ANI is meaningful
   if [[ -e "../05.assembly/$DATASET.LargeContigs.fna" \
       && -e "../05.assembly/$i.LargeContigs.fna" \
       && $(perl -e "print 1 if '$AAI' >= 90") == "1" ]] ; then
     # Check if this is done (e.g., in a previous failed iteration)
-    ANI=$(ani_from_db $DATASET $i $TMPDIR/03.ani.db)
+    ANI=$(miga-ani_from_db $DATASET $i $TMPDIR/03.ani.db)
     # Try the other direction
-    [[ "${ANI%.*}" -le 0 ]] && ANI=$(ani_from_db $i $DATASET 03.ani/$i.db)
+    [[ "${ANI%.*}" -le 0 ]] && ANI=$(miga-ani_from_db $i $DATASET 03.ani/$i.db)
     # Calculate it
     if [[ "${ANI%.*}" -le 0 ]] ; then
       [[ -e "$TMPDIR/$DATASET.LargeContigs.fna" ]] \
         || cp ../05.assembly/$DATASET.LargeContigs.fna \
           $TMPDIR/$DATASET.LargeContigs.fna
-      ANI=$(ani $TMPDIR/$DATASET.LargeContigs.fna \
+      ANI=$(miga-ani $TMPDIR/$DATASET.LargeContigs.fna \
         ../05.assembly/$i.LargeContigs.fna $CORES $TMPDIR/03.ani.db)
     fi
   fi
-  checkpoint_n
+  miga-checkpoint_n
 done
 N=10
-checkpoint_n
+miga-checkpoint_n
 

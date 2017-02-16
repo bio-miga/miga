@@ -110,8 +110,9 @@ class MiGA::Project < MiGA::MiGA
   def initialize(path, update=false)
     @datasets = {}
     @path = File.absolute_path(path)
-    self.create if update or not Project.exist? self.path
+    self.create if not update and not Project.exist? self.path
     self.load if self.metadata.nil?
+    self.load_plugins
   end
 
   ##
@@ -332,6 +333,37 @@ class MiGA::Project < MiGA::MiGA
   # registered dataset.
   def each_dataset_profile_advance(&blk)
     each_dataset { |ds| blk.call(ds.profile_advance) }
+  end
+
+  ##
+  # Installs the plugin in the specified path.
+  def install_plugin(path)
+    abs_path = File.absolute_path(path)
+    raise "Plugin already installed in project: #{abs_path}." unless
+      metadata[:plugins].nil? or not metadata[:plugins].include?(abs_path)
+    raise "Malformed MiGA plugin: #{abs_path}." unless
+      File.exist?(File.expand_path("miga-plugin.json", abs_path))
+    self.metadata[:plugins] ||= []
+    self.metadata[:plugins] << abs_path
+    save
+  end
+
+  ##
+  # Uninstall the plugin in the specified path.
+  def uninstall_plugin(path)
+    abs_path = File.absolute_path(path)
+    raise "Plugin not currently installed: #{abs_path}." if
+      metadata[:plugins].nil? or not metadata[:plugins].include?(abs_path)
+    self.metadata[:plugins].delete(abs_path)
+    save
+  end
+
+  ##
+  # List plugins installed in the project.
+  def plugins ; metadata[:plugins] ||= [] ; end
+
+  def load_plugins
+    plugins.each { |pl| require File.expand_path("lib-plugin.rb", pl) }
   end
 
   private

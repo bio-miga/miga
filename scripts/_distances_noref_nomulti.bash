@@ -9,7 +9,7 @@ exists $DATASET.haai.db && cp $DATASET.haai.db $TMPDIR
 exists $DATASET.a[an]i.db && cp $DATASET.a[an]i.db $TMPDIR
 exists $DATASET.a[an]i.9[05] && rm $DATASET.a[an]i.9[05]
 N=0
-function checkpoint_n {
+fx_exists miga-checkpoint_n || function miga-checkpoint_n {
   let N=$N+1
   if [[ $N -ge 10 ]] ; then
     for metric in haai aai ani ; do
@@ -24,20 +24,24 @@ function checkpoint_n {
   fi
 }
 
-function noref_haai_or_aai {
+fx_exists miga-noref_haai_or_aai || function miga-noref_haai_or_aai {
   local Q=$1
   local S=$2
-  haai_or_aai $ESS/$Q.ess.faa $ESS/$S.ess.faa $TMPDIR/$Q.haai.db \
+  miga-haai_or_aai $ESS/$Q.ess.faa $ESS/$S.ess.faa $TMPDIR/$Q.haai.db \
     ../06.cds/$Q.faa ../06.cds/$S.faa $TMPDIR/$Q.aai.db $CORES
 }
 
-function noref_ani {
+fx_exists miga-noref_ani || function miga-noref_ani {
   local Q=$1
   local S=$2
-  ani ../05.assembly/$Q.LargeContigs.fna ../05.assembly/$S.LargeContigs.fna \
+  miga-ani ../05.assembly/$Q.LargeContigs.fna \
+    ../05.assembly/$S.LargeContigs.fna \
     $CORES $TMPDIR/$Q.ani.db
 }
 
+
+
+# Calculate the classification-informed AAI/ANI traverse (if not classified)
 ESS="../07.annotation/01.function/01.essential"
 if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
@@ -59,11 +63,11 @@ while [[ -e "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
   for i in $(cat "$CLADES/$CLASSIF/miga-project.medoids") ; do
     let i_n=$i_n+1
     if [[ $METRIC == "aai" ]] ; then
-      VAL=$(noref_haai_or_aai $DATASET $i)
+      VAL=$(miga-noref_haai_or_aai $DATASET $i)
     else
-      VAL=$(noref_ani $DATASET $i)
+      VAL=$(miga-noref_ani $DATASET $i)
     fi
-    checkpoint_n
+    miga-checkpoint_n
     if [[ $(perl -e "print 1 if '$VAL' >= '$MAX_VAL'") == "1" ]] ; then
       MAX_VAL=$VAL
       VAL_MED=$i
@@ -82,18 +86,18 @@ if [[ "$CLASSIF" != "." ]] ; then
   if [[ -s "$PAR" ]] ; then
     for i in $(cat "$PAR" | awk "\$2==$VAL_CLS{print \$1}") ; do
       if [[ $METRIC == "aai" ]] ; then
-        AAI=$(noref_haai_or_aai $DATASET $i)
+        AAI=$(miga-noref_haai_or_aai $DATASET $i)
       else
         AAI=100
       fi
       if [[ $(perl -e "print 1 if '$AAI' >= 90") == "1" ]] ; then
-        noref_ani $DATASET $i
+        miga-noref_ani $DATASET $i
       fi
-      checkpoint_n
+      miga-checkpoint_n
     done
   fi
 fi
 
 #Finalize
 N=11
-checkpoint_n
+miga-checkpoint_n
