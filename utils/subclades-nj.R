@@ -163,10 +163,15 @@ plot_clustering <- function(hcl, dist, types, medoids) {
     plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
   }else{
     ani.mds <- cmdscale(dist, k=4)
-    plot(ani.mds[,1], ani.mds[,2], col=col[types], cex=1/2,
-      xlab='Component 1', ylab='Component 2')
-    plot(ani.mds[,3], ani.mds[,4], col=col[types], cex=1/2,
-      xlab='Component 3', ylab='Component 4')
+    if(ncol(ani.mds)==4){
+      plot(ani.mds[,1], ani.mds[,2], col=col[types], cex=1/2,
+	xlab='Component 1', ylab='Component 2')
+      plot(ani.mds[,3], ani.mds[,4], col=col[types], cex=1/2,
+	xlab='Component 3', ylab='Component 4')
+    }else{
+      plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+      plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+    }
   }
 }
 
