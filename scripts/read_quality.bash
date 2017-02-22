@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="read_quality"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -34,5 +35,4 @@ exists ../02.trimmed_reads/$b.[12].*.pdf \
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r read_quality
-
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"

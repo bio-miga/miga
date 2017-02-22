@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="subclades"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -22,5 +23,4 @@ ruby "$MIGA/utils/subclades-compile.rb" . \
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-miga add_result -P "$PROJECT" -r subclades
-
+miga add_result -P "$PROJECT" -r "$SCRIPT"

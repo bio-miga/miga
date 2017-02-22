@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="trimmed_reads"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -54,5 +55,4 @@ rm $b.[12].*.discard &>/dev/null
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads
-
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"

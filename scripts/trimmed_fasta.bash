@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="trimmed_fasta"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -44,5 +45,4 @@ done
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_fasta
-
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"

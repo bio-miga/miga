@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="ogs"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -36,5 +37,4 @@ rm -rf miga-project.rbm
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-miga add_result -P "$PROJECT" -r ogs
-
+miga add_result -P "$PROJECT" -r "$SCRIPT"

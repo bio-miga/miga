@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="mytaxa_scan"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -82,5 +83,4 @@ fi
 # Finalize
 rm -R "$TMPDIR"
 date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r mytaxa_scan
-
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"

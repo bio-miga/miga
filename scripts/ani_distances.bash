@@ -1,6 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
+SCRIPT="ani_distances"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
@@ -39,4 +40,4 @@ gzip -9 -f miga-project.txt
 
 # Finalize
 date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
-miga add_result -P "$PROJECT" -r ani_distances
+miga add_result -P "$PROJECT" -r "$SCRIPT"
