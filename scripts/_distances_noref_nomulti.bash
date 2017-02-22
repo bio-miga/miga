@@ -27,15 +27,18 @@ fx_exists miga-checkpoint_n || function miga-checkpoint_n {
 fx_exists miga-noref_haai_or_aai || function miga-noref_haai_or_aai {
   local Q=$1
   local S=$2
+  [[ -s $TMPDIR/$Q.faa ]] \
+    || cp ../06.cds/$Q.faa $TMPDIR/$Q.faa
   miga-haai_or_aai $ESS/$Q.ess.faa $ESS/$S.ess.faa $TMPDIR/$Q.haai.db \
-    ../06.cds/$Q.faa ../06.cds/$S.faa $TMPDIR/$Q.aai.db $CORES
+    $TMPDIR/$Q.faa ../06.cds/$S.faa $TMPDIR/$Q.aai.db $CORES
 }
 
 fx_exists miga-noref_ani || function miga-noref_ani {
   local Q=$1
   local S=$2
-  miga-ani ../05.assembly/$Q.LargeContigs.fna \
-    ../05.assembly/$S.LargeContigs.fna \
+  [[ -s $TMPDIR/$Q.LargeContigs.fna ]] \
+    || cp ../05.assembly/$Q.LargeContigs.fna $TMPDIR/$Q.LargeContigs.fna
+  miga-ani $TMPDIR/$Q.LargeContigs.fna ../05.assembly/$S.LargeContigs.fna \
     $CORES $TMPDIR/$Q.ani.db
 }
 
