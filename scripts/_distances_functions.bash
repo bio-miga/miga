@@ -53,7 +53,7 @@ fx_exists miga-haai || function miga-haai {
   local AAI_DB=$5
   local N1=$(miga-ds_name $F1)
   local N2=$(miga-ds_name $F2)
-  local HAAI=$(MIGA_AAI_SAVE_RBM="no-save-rbm" aai $F1 $F2 $TH $DB)
+  local HAAI=$(MIGA_AAI_SAVE_RBM="no-save-rbm" miga-aai $F1 $F2 $TH $DB)
   if [[ "$HAAI" != "" && $(perl -e "print 1 if '$HAAI' <= 90") == "1" ]] ; then
     local AAI=$(perl -e "print (100-exp(2.435076 + 0.4275193*log(100-$HAAI)))")
     [[ ! -s $AAI_DB ]] && make_empty_aai_db $AAI_DB
