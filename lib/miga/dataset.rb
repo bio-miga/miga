@@ -181,7 +181,8 @@ class MiGA::Dataset < MiGA::MiGA
     return nil if @@RESULT_DIRS[result_type].nil?
     base = project.path + "/data/" + @@RESULT_DIRS[result_type] +
       "/" + name
-    return MiGA::Result.load("#{base}.json") unless save
+    r_pre = MiGA::Result.load("#{base}.json")
+    return r_pre unless r_pre.nil? or save
     return nil unless result_files_exist?(base, ".done")
     r = self.send("add_result_#{result_type}", base)
     r.save unless r.nil?
