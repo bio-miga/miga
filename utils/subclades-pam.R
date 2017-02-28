@@ -32,7 +32,12 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   a$d <- 1-a$value/100
   ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.2)
   ani.ph <- bionj(ani.d)
+  express.ori <- options('expressions')$expressions
+  if(express.ori < ani.ph$Nnode*4){
+    options(expressions=min(c(5e7,ani.ph$Nnode*4)))
+  }
   write.tree(ani.ph, paste(out_base, ".nwk", sep=""))
+  options(expressions=express.ori)
   
   # Silhouette
   say("Silhouette")
@@ -58,7 +63,7 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   # Generate graphic report
   say("Graphic report")
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
-  layout(1:4)
+  layout(matrix(c(1,1,2,2,3,3,4,5),byrow=TRUE, ncol=2))
   plot_distances(ani.d)
   plot_silhouette(k, s[1,], s[2,], ds, top.n)
   plot_clustering(ani.cl, ani.d, ani.types)
@@ -71,8 +76,9 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
     quote=FALSE, col.names=FALSE, row.names=FALSE)
   save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
+  ani.d.m <- 100 - as.matrix(ani.d)*100
   for(j in 1:nrow(classif)){
-    classif[j,4] <- 100 - as.matrix(ani.d)[classif[j,1], classif[j,3]]*100
+    classif[j,4] <- ani.d.m[classif[j,1], classif[j,3]]
   }
   write.table(classif, paste(out_base,"classif",sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
@@ -142,8 +148,18 @@ plot_clustering <- function(cl, dist, types) {
   plot(silhouette(cl), col=col)
   if(length(labels(dist))<=15){
     plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+    plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
   }else{
-    clusplot(cl, dist=dist, main="", col.p=col[types], lines=0)
+    ani.mds <- cmdscale(dist, k=4)
+    if(ncol(ani.mds)==4){
+      plot(ani.mds[,1], ani.mds[,2], col=col[types], cex=1/2,
+	xlab='Component 1', ylab='Component 2')
+      plot(ani.mds[,3], ani.mds[,4], col=col[types], cex=1/2,
+	xlab='Component 3', ylab='Component 4')
+    }else{
+      plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+      plot(1, type="n", axes=FALSE, xlab="", ylab="", bty="n")
+    }
   }
 }
 
@@ -152,6 +168,8 @@ plot_tree <- function(phy, types, medoids){
   top.n <- length(unique(types))
   col <- ggplotColours(top.n)
   is.medoid <- phy$tip.label %in% medoids
+  phy$tip.label[is.medoid] <- paste(phy$tip.label[is.medoid],
+    " [", types[phy$tip.label[is.medoid]], "]", sep='')
   plot(phy, cex=ifelse(is.medoid, 1/3, 1/6),
     font=ifelse(is.medoid, 2, 1),
     tip.color=col[types[phy$tip.label]])
