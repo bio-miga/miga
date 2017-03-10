@@ -202,14 +202,22 @@ class MiGA::Daemon < MiGA::MiGA
     while jobs_running.size < maxjobs
       break if jobs_to_run.empty?
       job = @jobs_to_run.shift
+      # Launch job
       if runopts(:type) == "bash"
         job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid]
+        Process.detach job[:pid] unless job[:pid].nil? or job[:pid].empty?
       else
         job[:pid] = `#{job[:cmd]}`.chomp
       end
-      @jobs_running << job
-      say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
+      # Check if registered
+      if job[:pid].nil? or job[:pid].empty?
+        job[:pid] = nil
+        @jobs_to_run << job
+        say "Unsuccessful #{job[:task_name]}, rescheduling."
+      else
+        @jobs_running << job
+        say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
+      end
     end
   end
 
