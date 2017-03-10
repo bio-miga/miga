@@ -36,6 +36,7 @@ OptionParser.new do |opt|
   opt.on("-f", "--force", "Force operation"){ o[:daemon_opts] << '-f' }
   opt.on("-n", "--no_wait",
     "Do not wait for processes to stop"){ o[:daemon_opts] << '-n' }
+  opt.on("--shush", "Silence the daemon."){ o[:daemon_opts] << '--shush' }
 end.parse!
 
 ##=> Main <=
