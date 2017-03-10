@@ -106,8 +106,8 @@ class MiGA::Dataset < MiGA::MiGA
     @project = project
     @name = name
     metadata[:ref] = is_ref
-    @metadata = MiGA::Metadata.new(project.path + "/metadata/" + name + ".json",
-      metadata)
+    @metadata = MiGA::Metadata.new(
+      File.expand_path("metadata/#{name}.json", project.path), metadata )
   end
   
   ##

@@ -77,8 +77,7 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Project-wide tasks for :clade projects.
   def self.INCLADE_TASKS ; @@INCLADE_TASKS ; end
-  @@INCLADE_TASKS = [:subclades, :ogs, :ess_phylogeny, :core_phylogeny,
-    :clade_metadata]
+  @@INCLADE_TASKS = [:subclades, :ogs]
   
   ##
   # Does the project at +path+ exist?
