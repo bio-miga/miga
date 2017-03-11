@@ -3,12 +3,15 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true}
+o = {q:true, try_load:false}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt, :result])
   opt.on("--compute-and-save",
     "Computes and saves the statistics."){ |v| o[:compute] = v }
+  opt.on("--try-load",
+    "Checks if stat exists instead of computing on --compute-and-save."
+    ){ |v| o[:try_load] = v }
   opt_common(opt, o)
 end.parse!
 
@@ -28,6 +31,9 @@ else
   r = d.add_result(o[:name], false)
 end
 raise "Cannot load result." if r.nil?
+
+o[:compute] = false if o[:try_load] and
+  (not r[:stats].nil?) and (not r[:stats].empty?)
 
 if o[:compute]
   $stderr.puts "Computing statistics." unless o[:q]
