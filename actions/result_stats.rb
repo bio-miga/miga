@@ -7,6 +7,8 @@ o = {q:true, try_load:false}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt, :result])
+  opt.on("--key STRING",
+    "Returns only the value of the requested key."){ |v| o[:key] = v }
   opt.on("--compute-and-save",
     "Computes and saves the statistics."){ |v| o[:compute] = v }
   opt.on("--try-load",
@@ -84,8 +86,13 @@ if o[:compute]
   end
 end
 
-r[:stats].each do |k,v|
-  puts "#{k.to_s.unmiga_name.capitalize}: #{v.is_a?(Array) ? v.join(" ") : v}."
+if o[:key].nil?
+  r[:stats].each do |k,v|
+    puts "#{k.to_s.unmiga_name.capitalize}: #{v.is_a?(Array) ? v.join(" ") : v}."
+  end
+else
+  v = r[:stats][o[:key].miga_name.to_sym]
+  puts v.is_a?(Array) ? v.first : v
 end
 
 $stderr.puts "Done." unless o[:q]
