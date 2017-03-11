@@ -25,6 +25,7 @@ module MiGA::DatasetResult
         {:pair1=>".1.clipped.fastq", :pair2=>".2.clipped.fastq"}) if
         result_files_exist?(base, ".2.clipped.fastq")
       r.add_file(:single, name + ".1.clipped.single.fastq")
+      r.add_file(:trimming_sumary, name + ".1.fastq.trimmed.summary.txt")
       add_result(:raw_reads) #-> Post gunzip
       r
     end
@@ -60,7 +61,7 @@ module MiGA::DatasetResult
       return nil unless result_files_exist?(base, ".LargeContigs.fna")
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
-        :allcontigs=>".AllContigs.fna"})
+        :allcontigs=>".AllContigs.fna", :assembly_data=>""})
       add_result(:trimmed_fasta) #-> Post interposing
       r
     end
