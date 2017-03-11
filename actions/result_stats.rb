@@ -88,10 +88,11 @@ end
 
 if o[:key].nil?
   r[:stats].each do |k,v|
-    puts "#{k.to_s.unmiga_name.capitalize}: #{v.is_a?(Array) ? v.join(" ") : v}."
+    puts "#{k.to_s.unmiga_name.capitalize}: #{
+      v.is_a?(Array) ? v.join(" ") : v}."
   end
 else
-  v = r[:stats][o[:key].miga_name.to_sym]
+  v = r[:stats][o[:key].downcase.miga_name.to_sym]
   puts v.is_a?(Array) ? v.first : v
 end
 
