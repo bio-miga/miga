@@ -23,6 +23,22 @@ OptionParser.new do |opt|
   opt.on("--update",
     "Updates the dataset if it already exists."){ o[:update]=true }
   opt_common(opt, o)
+  opt.separator ""
+  opt.separator "External input data"
+  opt.on("--raw-reads FILE1,FILE2", Array,
+    "Comma-delimited paths to the raw reads in FastQ format.",
+    "One file is assumed to be single reads, two are assumed to be paired."
+    ){ |v| o[:raw_reads] = v }
+  opt.on("--trimmed-fasta-single FILE",
+    "Path to the single trimmed reads in FastA format."
+    ){ |v| o[:trimmed_fasta_single] = v }
+  opt.on("--trimmed-fasta-coupled FILE1,FILE2", Array,
+    "Comma-delimited paths to the coupled trimmed reads in FastA format.",
+    "One file is assumed to be interposed, two are assumed to contain sisters."
+    ){ |v| o[:trimmed_fasta_coupled] = v }
+  opt.on("--assembly FILE",
+    "Path to the contigs (or scaffolds) of the assembly in FastA format."
+    ){ |v| o[:assembly] = v }
 end.parse!
 
 ##=> Main <=
@@ -38,16 +54,53 @@ $stderr.puts "Loading dataset." unless o[:q]
 d = o[:update] ? p.dataset(o[:dataset]) :
   MiGA::Dataset.new(p, o[:dataset], o[:ref], {})
 raise "Dataset does not exist." if d.nil?
+
+in_files = [:raw_reads,:trimmed_fasta_single,:trimmed_fasta_coupled,:assembly]
+def result_path(r, d, p)
+  File.expand_path("data/#{MiGA::Dataset.RESULT_DIRS[r]}/#{d.name}", p)
+end
+def result_done(path)
+  File.open("#{path}.done", "w") { |f| f.print Time.now.to_s }
+end
+if in_files.any? { |i| not o[i].nil? }
+  $stderr.puts "Copying files." unless o[:q]
+  # :raw_reads
+  r_path = result_path(:raw_reads, d, p)
+  unless o[:raw_reads].nil? or o[:raw_reads].empty?
+    FileUtils.cp o[:raw_reads][0], "#{r_path}.1.fastq"
+    FileUtils.cp o[:raw_reads][1], "#{r_path}.2.fastq" if o[:raw_reads].size > 1
+    result_done(r_path)
+  end
+  # :trimmed_fasta
+  r_path = result_path(:trimmed_fasta, d, p)
+  unless o[:trimmed_fasta_single].nil? or o[:trimmed_fasta_single].empty?
+    FileUtils.cp o[:trimmed_fasta_single], "#{r_path}.SingleReads.fa"
+    result_done(r_path)
+  end
+  unless o[:trimmed_fasta_coupled].nil? or o[:trimmed_fasta_coupled].empty?
+    if o[:trimmed_fasta_coupled].size == 1
+      FileUtils.cp o[:trimmed_fasta_coupled][0], "#{r_path}.CoupledReads.fa"
+    else
+      FileUtils.cp o[:trimmed_fasta_coupled][0], "#{r_path}.1.fasta"
+      FileUtils.cp o[:trimmed_fasta_coupled][0], "#{r_path}.2.fasta"
+    end
+    result_done(r_path)
+  end
+  # :assembly
+  r_path = result_path(:assembly, d, p)
+  unless o[:assembly].nil? or o[:assembly].empty?
+    FileUtils.cp o[:assembly], "#{r_path}.LargeContigs.fna"
+    result_done(r_path)
+  end
+end
+
 unless o[:metadata].nil?
   o[:metadata].split(",").each do |pair|
     (k,v) = pair.split("=")
     case v
-    when "true"
-      v = true
-    when "false"
-      v = false
-    when "nil"
-      v = nil
+      when "true";  v = true
+      when "false"; v = false
+      when "nil";   v = nil
     end
     d.metadata[k] = v
   end
