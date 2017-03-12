@@ -32,10 +32,10 @@ OptionParser.new do |opt|
   opt_common(opt, o)
   opt.separator "Daemon options:"
   opt.on("-t", "--ontop",
-    "Stay on top (does not daemonize)"){ o[:daemon_opts] << '-t' }
-  opt.on("-f", "--force", "Force operation"){ o[:daemon_opts] << '-f' }
+    "Stay on top (does not daemonize)."){ o[:daemon_opts] << '-t' }
+  opt.on("-f", "--force", "Force operation."){ o[:daemon_opts] << '-f' }
   opt.on("-n", "--no_wait",
-    "Do not wait for processes to stop"){ o[:daemon_opts] << '-n' }
+    "Do not wait for processes to stop."){ o[:daemon_opts] << '-n' }
   opt.on("--shush", "Silence the daemon."){ o[:daemon_opts] << '--shush' }
 end.parse!
 
