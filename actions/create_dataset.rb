@@ -57,7 +57,7 @@ raise "Dataset does not exist." if d.nil?
 
 in_files = [:raw_reads,:trimmed_fasta_single,:trimmed_fasta_coupled,:assembly]
 def result_path(r, d, p)
-  File.expand_path("data/#{MiGA::Dataset.RESULT_DIRS[r]}/#{d.name}", p)
+  File.expand_path("data/#{MiGA::Dataset.RESULT_DIRS[r]}/#{d.name}", p.path)
 end
 def result_done(path)
   File.open("#{path}.done", "w") { |f| f.print Time.now.to_s }
