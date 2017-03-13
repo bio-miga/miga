@@ -57,8 +57,8 @@ class DaemonTest < Test::Unit::TestCase
     end
     assert_equal(DateTime, d.last_alive.class)
     assert(out.string =~ /-{20}\n.*MiGA:#{p.name} launched/)
-    10.times{ d.in_loop }
-    assert_equal(11, d.loop_i)
+    2.times{ d.in_loop }
+    assert_equal(3, d.loop_i)
     out = capture_stdout do
       d.in_loop
     end
