@@ -244,7 +244,7 @@ class MiGA::Daemon < MiGA::MiGA
     check_datasets
     check_project
     flush!
-    if loop_i==12
+    if loop_i==4
       say "Housekeeping for sanity"
       @loop_i = 0
       purge!
