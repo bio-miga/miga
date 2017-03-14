@@ -11,7 +11,7 @@ module MiGA::ProjectResult
     # Internal alias for all add_result_*_distances.
     def add_result_distances(base)
       return nil unless result_files_exist?(base, %w[.Rdata .log .txt])
-      r = Result.new(base + ".json")
+      r = MiGA::Result.new(base + ".json")
       r.add_file(:rdata, "miga-project.Rdata")
       r.add_file(:matrix, "miga-project.txt")
       r.add_file(:log, "miga-project.log")
@@ -41,7 +41,7 @@ module MiGA::ProjectResult
     end
 
     def add_result_iter_clades(base)
-      r = Result.new(base + ".json")
+      r = MiGA::Result.new(base + ".json")
       r.add_file(:report,	"miga-project.pdf")
       r.add_file(:class_table,	"miga-project.class.tsv")
       r.add_file(:class_tree,	"miga-project.class.nwk")
@@ -52,7 +52,7 @@ module MiGA::ProjectResult
 
     def add_result_ogs(base)
       return nil unless result_files_exist?(base, %w[.ogs .stats])
-      r = Result.new(base + ".json")
+      r = MiGA::Result.new(base + ".json")
       r.add_file(:ogs, "miga-project.ogs")
       r.add_file(:stats, "miga-project.stats")
       r.add_file(:rbm, "miga-project.rbm")
