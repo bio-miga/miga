@@ -63,16 +63,22 @@ class MiGA::RemoteDataset < MiGA::MiGA
         @@UNIVERSE[universe][:dbs][db][:map_to]
       url = sprintf @@UNIVERSE[universe][:url],
         db, ids.join(","), format, map_to
-      response = RestClient::Request.execute(:method=>:get,  :url=>url,
-        :timeout=>600)
-      raise "Unable to reach #{universe} client, error code "+
+      response = RestClient::Request.execute(method: :get, url:url, timeout:600)
+      raise "Unable to reach #{universe} client, error code " +
         "#{response.code}." unless response.code == 200
       doc = response.to_s
     when :net
-      url = sprintf @@UNIVERSE[universe][:url],
-        db, ids.join(","), format, map_to
+      url = sprintf @@UNIVERSE[universe][:url],db,ids.join(","),format,map_to
       doc = ""
-      open(url) { |f| doc = f.read }
+      @timeout_try = 0
+      begin
+        open(url) { |f| doc = f.read }
+      rescue Net::ReadTimeout
+        @timeout_try += 1
+        if @timeout_try > 3 ; raise Net::ReadTimeout
+        else ; retry
+        end
+      end
     end
     unless file.nil?
       ofh = File.open(file, "w")
