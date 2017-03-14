@@ -205,7 +205,7 @@ class MiGA::Daemon < MiGA::MiGA
       # Launch job
       if runopts(:type) == "bash"
         job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid] unless job[:pid].nil? or job[:pid].empty?
+        Process.detach job[:pid] unless [nil,"",0].include? job[:pid]
       else
         job[:pid] = `#{job[:cmd]}`.chomp
       end
