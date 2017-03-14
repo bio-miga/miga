@@ -205,12 +205,12 @@ class MiGA::Daemon < MiGA::MiGA
       # Launch job
       if runopts(:type) == "bash"
         job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid] unless [nil,"",0].include? job[:pid]
+        Process.detach job[:pid] unless [nil, "", 0].include? job[:pid]
       else
         job[:pid] = `#{job[:cmd]}`.chomp
       end
       # Check if registered
-      if job[:pid].nil? or job[:pid].empty?
+      if [nil, "", 0].include? job[:pid].nil?
         job[:pid] = nil
         @jobs_to_run << job
         say "Unsuccessful #{job[:task_name]}, rescheduling."
