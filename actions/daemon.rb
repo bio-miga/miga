@@ -22,6 +22,10 @@ OptionParser.new do |opt|
   opt.separator ""
   opt.separator "MiGA options:"
   opt_object(opt, o, [:project])
+  opt.on("--shutdown-when-done",
+    "If passed, the daemon will exit when all processing is done.",
+    "Otherwise (default), it will stay idle awaiting for new data."
+    ){ |v| o[:shutdown_when_done] = v }
   opt.on("--latency INT",
     "Number of seconds the daemon will be sleeping."
     ){ |v| o[:latency]=v.to_i }
@@ -45,7 +49,7 @@ opt_require(o, project:"-P")
 raise "Project doesn't exist, aborting." unless MiGA::Project.exist? o[:project]
 p = MiGA::Project.new(o[:project])
 d = MiGA::Daemon.new(p)
-[:latency, :maxjobs, :ppn].each do |k|
+[:latency, :maxjobs, :ppn, :shutdown_when_done].each do |k|
   d.runopts(k, o[k]) unless o[k].nil?
 end
 d.daemon(task, o[:daemon_opts])

@@ -66,6 +66,7 @@ class MiGA::Daemon < MiGA::MiGA
       v = v.to_i if [:latency, :maxjobs, :ppn].include? k
       raise "Daemon's #{k} cannot be set to zero." if
         !force and v.is_a? Integer and v==0
+      v = !!v if [:shutdown_when_done].include? k
       @runopts[k] = v
     end
     @runopts[k]
@@ -82,6 +83,11 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Returns Integer indicating the number of CPUs per job.
   def ppn() runopts(:ppn) ; end
+
+  ##
+  # Returns Boolean indicating if the daemon should shutdown when processing is
+  # complete.
+  def shutdown_when_done?() !!runopts(:shutdown_when_done) ; end
 
   ##
   # Initializes the daemon with +opts+.
@@ -106,7 +112,9 @@ class MiGA::Daemon < MiGA::MiGA
     options = default_options
     opts.unshift(task)
     options[:ARGV] = opts
-    Daemons.run_proc("MiGA:#{project.name}", options) { loop { in_loop } }
+    Daemons.run_proc("MiGA:#{project.name}", options) do
+      loop { break unless in_loop }
+    end
   end
 
   ##
@@ -230,7 +238,7 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Run one loop step.
+  # Run one loop step. Returns a Boolean indicating if the loop should continue.
   def in_loop
     if loop_i == -1
       say "-----------------------------------"
@@ -250,6 +258,10 @@ class MiGA::Daemon < MiGA::MiGA
       purge!
     end
     sleep(latency)
+    if shutdown_when_done? and jobs_running.size+jobs_to_run.size == 0
+      return false
+    end
+    true
   end
 
   ##
