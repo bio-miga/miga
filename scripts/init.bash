@@ -162,7 +162,7 @@ case "$dtype" in
       dmaxjobs=$(ask_user "How many jobs can I launch at once?" "6")
       dppn=$(ask_user "How many CPUs can I use per job?" "2")
       echo "Setting up internal daemon defaults, if you don't understand this just leave default values:" >&2
-      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, %3\$d for CPUs, %4\$s for log file, and %5\$s for task name." "%2\$s '%1\$s' &> '%4\$s'")
+      dcmd=$(ask_user "How should I launch tasks? Use %1\$s for script path, %2\$s for variables, %3\$d for CPUs, %4\$s for log file, and %5\$s for task name." "%2\$s '%1\$s' > '%4\$s' 2>&1")
       dvar=$(ask_user "How should I pass variables? Use %1\$s for keys and %2\$s for values." "%1\$s=%2\$s")
       dsep=$(ask_user "What should I use to separate variables?" " ")
       dalive=$(ask_user "How can I know that a process is still alive? Use %1\$s for PID, output should be 1 for running and 0 for non-running." "ps -p '%1\$s'|tail -n+2|wc -l|awk '{print \$1}'")
