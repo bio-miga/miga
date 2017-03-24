@@ -43,7 +43,7 @@ end.parse!
 
 ##=> Main <=
 opt_require(o)
-opt_require(o, type:"-t")
+opt_require(o, type:"-t") unless o[:update]
 
 $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])

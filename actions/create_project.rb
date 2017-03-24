@@ -20,7 +20,8 @@ OptionParser.new do |opt|
 end.parse!
 
 ##=> Main <=
-opt_require(o, project:"-P", type:"-t")
+opt_require(o, project:"-P")
+opt_require(o, type:"-t") unless o[:update]
 
 unless File.exist? "#{ENV["HOME"]}/.miga_rc" and
       File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
