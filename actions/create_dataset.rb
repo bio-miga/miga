@@ -6,7 +6,7 @@
 o = {q:true, ref:true, update:false}
 OptionParser.new do |opt|
   opt_banner(opt)
-  opt_object(opt, o, [:project, :dataset, :dataset_type])
+  opt_object(opt, o, [:project, :dataset, :dataset_type_req])
   opt.on("-q", "--query",
     "If set, the dataset is registered as a query, not a reference dataset."
     ){ |v| o[:ref]=!v }
@@ -43,6 +43,7 @@ end.parse!
 
 ##=> Main <=
 opt_require(o)
+opt_require(o, type:"-t")
 
 $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])

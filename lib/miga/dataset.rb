@@ -43,9 +43,10 @@ class MiGA::Dataset < MiGA::MiGA
     metagenome: {description: "A metagenome (excluding viromes).",
       multi: true},
     virome: {description: "A viral metagenome.", multi: true},
-    scgenome: {description: "A genome from a single cell.", multi: false},
-    popgenome: {description: "The genome of a population (including " +
-      "microdiversity).", :multi=>false}
+    scgenome: {description: "A Single-cell Genome Amplification (SGA).",
+      multi: false},
+    popgenome: {description: "A population genome (including " +
+      "metagenomic bins).", :multi=>false}
   }
 
   ##
@@ -108,6 +109,8 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:ref] = is_ref
     @metadata = MiGA::Metadata.new(
       File.expand_path("metadata/#{name}.json", project.path), metadata )
+    raise "Unrecognized dataset type: #{type}." if
+      !type.nil? and @@KNOWN_TYPES[type].nil?
   end
   
   ##
@@ -117,6 +120,10 @@ class MiGA::Dataset < MiGA::MiGA
       !metadata[:tax][:ns].nil? and metadata[:tax][:ns]=="COMMUNITY"
     self.metadata.save
   end
+  
+  ##
+  # Get the type of dataset as Symbol.
+  def type ; metadata[:type] ; end
   
   ##
   # Delete the dataset with all it's contents (including results) and returns

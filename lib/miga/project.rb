@@ -65,7 +65,7 @@ class MiGA::Project < MiGA::MiGA
       single: true, multi: true},
     genomes: {description: "Collection of genomes.",
       single: true, multi: false},
-    clade: {description: "Collection of closely-related genomes (ANI <= 90%).",
+    clade: {description: "Collection of closely-related genomes (ANI >= 90%).",
       single: true, multi: false},
     metagenomes: {description: "Collection of metagenomes and/or viromes.",
       single: false, multi: true}
@@ -115,6 +115,8 @@ class MiGA::Project < MiGA::MiGA
     self.create if not update and not Project.exist? self.path
     self.load if self.metadata.nil?
     self.load_plugins
+    self.metadata[:type] = :mixed if type.nil?
+    raise "Unrecognized project type: #{type}." if @@KNOWN_TYPES[type].nil?
   end
 
   ##

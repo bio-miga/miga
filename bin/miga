@@ -53,18 +53,24 @@ end
 def opt_object(opt, o, what=[:project, :dataset])
   opt.on("-P", "--project PATH", "(Mandatory) Path to the project."
     ){ |v| o[:project]=v } if what.include? :project
-  opt.on("-D", "--dataset PATH", "(Mandatory) Name of the dataset."
-    ){ |v| o[:dataset]=v } if what.include? :dataset
-  opt.on("-D", "--dataset PATH", "Name of the dataset."
+  opt.on("-D", "--dataset STRING",
+    (what.include?(:dataset) ? "(Mandatory) " : "") +
+    "Name of the dataset."){ |v| o[:dataset]=v } if what.include? :dataset or
+      what.include? :dataset_opt
+  opt.on("-D", "--dataset STRING", "Name of the dataset."
     ){ |v| o[:dataset]=v } if what.include? :dataset_opt
   opt.on("-t", "--type STRING",
+    (what.include?(:dataset_type_req) ? "(Mandatory) " : "")+
     "Type of dataset. Recognized types include:",
     *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}" }
-    ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type
+    ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type or
+      what.include? :dataset_type_req
   opt.on("-t", "--type STRING",
+    (what.include?(:project_type_req) ? "(Mandatory) " : "") +
     "Type of dataset. Recognized types include:", 
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
-    ){ |v| o[:type]=v.to_sym } if what.include? :project_type
+    ){ |v| o[:type]=v.to_sym } if what.include? :project_type or
+      what.include? :project_type_req
   opt.on("-r", "--result STRING",
     "(Mandatory) Name of the result to add.",
     "Recognized names for dataset-specific results include:",

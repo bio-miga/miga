@@ -6,7 +6,7 @@
 o = {q:true, update:false}
 OptionParser.new do |opt|
   opt_banner(opt)
-  opt_object(opt, o, [:project, :project_type])
+  opt_object(opt, o, [:project, :project_type_req])
   opt.on("-n", "--name STRING",
     "Name of the project."){ |v| o[:name]=v }
   opt.on("-d", "--description STRING",
@@ -20,7 +20,7 @@ OptionParser.new do |opt|
 end.parse!
 
 ##=> Main <=
-opt_require(o, project:"-P")
+opt_require(o, project:"-P", type:"-t")
 
 unless File.exist? "#{ENV["HOME"]}/.miga_rc" and
       File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
