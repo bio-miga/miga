@@ -109,7 +109,7 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:ref] = is_ref
     @metadata = MiGA::Metadata.new(
       File.expand_path("metadata/#{name}.json", project.path), metadata )
-    raise "Unrecognized dataset type: #{type}." if
+    warn "Warning: Unrecognized dataset type: #{type}." if
       !type.nil? and @@KNOWN_TYPES[type].nil?
   end
   
@@ -148,14 +148,16 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Is this dataset known to be multi-organism?
   def is_multi?
-    return false if self.metadata[:type].nil?
+    return false if self.metadata[:type].nil? or
+      @@KNOWN_TYPES[self.metadata[:type]].nil?
     @@KNOWN_TYPES[self.metadata[:type]][:multi]
   end
   
   ##
   # Is this dataset known to be single-organism?
   def is_nonmulti?
-    return false if self.metadata[:type].nil?
+    return false if self.metadata[:type].nil? or
+      @@KNOWN_TYPES[self.metadata[:type]].nil?
     !@@KNOWN_TYPES[self.metadata[:type]][:multi]
   end
   
