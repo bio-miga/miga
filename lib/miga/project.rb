@@ -272,7 +272,7 @@ class MiGA::Project < MiGA::MiGA
     return MiGA::Result.load(base + ".json") unless save
     return nil unless result_files_exist?(base, ".done")
     r = send("add_result_#{name}", base)
-    r.save
+    r.save unless r.nil?
     r
   end
   

@@ -75,4 +75,60 @@ class ProjectTest < Test::Unit::TestCase
       File.expand_path("metadata/#{d1.name}.json", p2.path)))
   end
 
+  def test_add_result
+    p1 = $p1
+    assert_nil(p1.add_result(:doom))
+    %w[.Rdata .log .txt .done].each do |x|
+      assert_nil(p1.add_result(:haai_distances))
+      FileUtils.touch(
+        File.expand_path("data/09.distances/01.haai/miga-project#{x}",p1.path))
+    end
+    assert_equal(MiGA::Result, p1.add_result(:haai_distances).class)
+  end
+
+  def test_preprocessing
+    p1 = $p1
+    assert(p1.done_preprocessing?)
+    d1 = p1.add_dataset("BAH")
+    assert(! p1.done_preprocessing?)
+    FileUtils.touch(File.expand_path("data/90.stats/#{d1.name}.done", p1.path))
+    assert(p1.done_preprocessing?)
+    # Distances
+    [:haai_distances, :aai_distances, :ani_distances].each do |r|
+      assert_equal(Symbol, p1.next_distances.class)
+      d = MiGA::Project.RESULT_DIRS[r]
+      %w[.done .Rdata .log .txt].each do |x|
+        assert_nil(p1.add_result(r),
+          "Premature registration of result #{r} at extension #{x}.")
+        FileUtils.touch(File.expand_path("data/#{d}/miga-project#{x}", p1.path))
+      end
+      assert_equal(MiGA::Result, p1.add_result(r).class,
+        "Imposible to add #{r} result.")
+    end
+    assert_equal(:clade_finding, p1.next_distances)
+    
+    # Clades
+    assert_nil(p1.next_inclade)
+    p1.metadata[:type] = :clade
+    res = [
+      [:clade_finding,
+        %w[.pdf .classif .medoids .class.tsv .class.nwk .proposed-clades]],
+      [:subclades, %w[.pdf .classif .medoids .class.tsv .class.nwk]],
+      [:ogs, %w[.ogs .stats]]
+    ]
+    res.each do |rr|
+      (r, xs) = rr
+      d = MiGA::Project.RESULT_DIRS[r]
+      assert_equal(Symbol, p1.next_inclade.class)
+      ([".done"] + xs).each do |x|
+        assert_nil(p1.add_result(r),
+          "Premature registration of result #{r} at extension #{x}.")
+        FileUtils.touch(File.expand_path("data/#{d}/miga-project#{x}", p1.path))
+      end
+      assert_equal(MiGA::Result, p1.add_result(r).class,
+        "Impossible to add #{r} result.")
+    end
+    assert_nil(p1.next_inclade)
+  end
+
 end

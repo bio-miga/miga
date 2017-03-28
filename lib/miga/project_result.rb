@@ -20,8 +20,7 @@ module MiGA::ProjectResult
     end
 
     def add_result_clade_finding(base)
-      return nil unless result_files_exist?(base,
-        %w[.proposed-clades])
+      return nil unless result_files_exist?(base, %w[.proposed-clades])
       return nil unless is_clade? or result_files_exist?(base,
         %w[.pdf .classif .medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
