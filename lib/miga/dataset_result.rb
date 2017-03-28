@@ -10,7 +10,7 @@ module MiGA::DatasetResult
     def add_result_raw_reads(base)
       return nil unless result_files_exist?(base, ".1.fastq")
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name,
+      r = add_files_to_ds_result(r, name,
         ( result_files_exist?(base, ".2.fastq") ?
           {:pair1=>".1.fastq", :pair2=>".2.fastq"} :
           {:single=>".1.fastq"} ))
@@ -62,6 +62,10 @@ module MiGA::DatasetResult
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
         :allcontigs=>".AllContigs.fna", :assembly_data=>""})
+      unless r.clean?
+        MiGA::MiGA.clean_fasta_file(r.file_path :largecontigs)
+        r.clean!
+      end
       add_result(:trimmed_fasta) #-> Post interposing
       r
     end
@@ -71,8 +75,14 @@ module MiGA::DatasetResult
     def add_result_cds(base)
       return nil unless result_files_exist?(base, %w[.faa .fna])
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name, {:proteins=>".faa", :genes=>".fna",
+      r = add_files_to_ds_result(r, name, {:proteins=>".faa", :genes=>".fna",
         :gff2=>".gff2", :gff3=>".gff3", :tab=>".tab"})
+      unless r.clean?
+        MiGA::MiGA.clean_fasta_file(r.file_path :proteins)
+        MiGA::MiGA.clean_fasta_file(r.file_path :genes)
+        r.clean!
+      end
+      r
     end
 
     ##
@@ -80,7 +90,7 @@ module MiGA::DatasetResult
     def add_result_essential_genes(base)
       return nil unless result_files_exist?(base, %w[.ess.faa .ess .ess/log])
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name, {:ess_genes=>".ess.faa",
+      r = add_files_to_ds_result(r, name, {:ess_genes=>".ess.faa",
         :collection=>".ess", :report=>".ess/log"})
     end
 
@@ -90,8 +100,13 @@ module MiGA::DatasetResult
       return MiGA::Result.new(base + ".json") if result(:assembly).nil?
       return nil unless result_files_exist?(base, ".ssu.fa")
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name, {:longest_ssu_gene=>".ssu.fa",
+      r = add_files_to_ds_result(r, name, {:longest_ssu_gene=>".ssu.fa",
         :gff=>".ssu.gff", :all_ssu_genes=>".ssu.all.fa"})
+      unless r.clean?
+        MiGA::MiGA.clean_fasta_file(r.file_path :longest_ssu_gene)
+        r.clean!
+      end
+      r
     end
 
     ##
@@ -103,7 +118,7 @@ module MiGA::DatasetResult
         add_files_to_ds_result(r, name, {:mytaxa=>".mytaxa", :blast=>".blast",
           :mytaxain=>".mytaxain"})
       else
-        MiGA::Result.new base + ".json"
+        MiGA::Result.new(base + ".json")
       end
     end
 
@@ -140,7 +155,7 @@ module MiGA::DatasetResult
     ##
     # Add result type +:stats+ at +base+.
     def add_result_stats(base)
-      MiGA::Result.new(base + ".json")
+      MiGA::Result.new "#{base}.json"
     end
     
     ##
@@ -168,7 +183,7 @@ module MiGA::DatasetResult
         result_files_exist?(base, %w[.aai-medoids.tsv .aai.db]) or
         result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
       r = MiGA::Result.new(base + ".json")
-      add_files_to_ds_result(r, name, {
+      r = add_files_to_ds_result(r, name, {
         :aai_medoids=>".aai-medoids.tsv",
         :haai_db=>".haai.db", :aai_db=>".aai.db",
         :ani_medoids=>".ani-medoids.tsv", :ani_db=>".ani.db"})

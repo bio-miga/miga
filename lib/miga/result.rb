@@ -41,6 +41,14 @@ class MiGA::Result < MiGA::MiGA
     @path = path
     MiGA::Result.exist?(path) ? self.load : create
   end
+  
+  ##
+  # Is the result clean? Returns Boolean.
+  def clean? ; !! self[:clean] ; end
+
+  ##
+  # Register the result as cleaned.
+  def clean! ; self[:clean] = true ; end
 
   ##
   # Directory containing the result.

@@ -3,6 +3,7 @@
 
 require "miga/version"
 require "json"
+require "tempfile"
 
 ##
 # Generic class used to handle system-wide information and methods, and parent
@@ -76,6 +77,35 @@ class MiGA::MiGA
   end
 
   ##
+  # Cleans a FastA file in place.
+  def self.clean_fasta_file(file)
+    tmp = Tempfile.new("MiGA")
+    begin
+      File.open(file, "r") do |fh|
+        buffer = ""
+        fh.each_line do |ln|
+          ln.chomp!
+          if ln =~ /^>\s*(\S+)(.*)/
+            (id, df) = [$1, $2]
+            tmp.print buffer.wrap_width(80)
+            buffer = ""
+            tmp.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
+          else
+            buffer += ln.gsub(/[^A-Za-z\.\-]/, "")
+          end
+        end
+        tmp.print buffer.wrap_width(80)
+      end
+      tmp.close
+      FileUtils.cp(tmp.path, file)
+    ensure
+      tmp.close
+      tmp.unlink
+    end
+  end
+
+
+  ##
   # Check if the result files exist with +base+ name (String) followed by the
   # +ext+ values (Array of String).
   def result_files_exist?(base, ext)
@@ -129,4 +159,8 @@ class String
   # Replace underscores by spaces.
   def unmiga_name ; tr("_", " ") ; end
   
+  ##
+  # Wraps the string with fixed Integer +width+.
+  def wrap_width(width) ; gsub(/([^\n\r]{1,#{width}})/,"\\1\n") ; end
+
 end
