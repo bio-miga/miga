@@ -15,7 +15,7 @@ module MiGA::DatasetResult
       db = r.file_path(db_type)
       next if db.nil? or not File.size? db
       sqlite_db = SQLite3::Database.new db
-      table = db_type[0..-4]
+      table = db_type[-6..-4]
       val = sqlite_db.execute "select seq2 from #{table}"
       next if val.empty?
       (val.map{ |i| i.first } - project.dataset_names).each do |extra|
