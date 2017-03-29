@@ -1,8 +1,29 @@
 
+require "sqlite3"
+
 ##
 # Helper module including specific functions to add dataset results.
 module MiGA::DatasetResult
   
+  ##
+  # Clean-up all the stored distances, removing values for datasets no longer in
+  # the project as reference datasets.
+  def cleanup_distances!
+    r = get_result(:distances)
+    return if r.nil?
+    [:haai_db, :aai_db, :ani_db].each do |db_type|
+      db = r.file_path(db_type)
+      next if db.nil? or not File.size? db
+      sqlite_db = SQLite3::Database.new db
+      table = db_type[0..-4]
+      val = sqlite_db.execute "select seq2 from #{table}"
+      next if val.empty?
+      (val.map{ |i| i.first } - project.dataset_names).each do |extra|
+        sqlite_db.execute "delete from #{table} where seq2=?", extra
+      end
+    end
+  end
+
   private
 
     ##

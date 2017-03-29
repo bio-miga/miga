@@ -199,6 +199,11 @@ class MiGA::Dataset < MiGA::MiGA
   end
 
   ##
+  # Gets a result as MiGA::Result for the datasets with +result_type+. This is
+  # equivalent to +add_result(result_type, false)+.
+  def get_result(result_type) ; add_result(result_type, false) ; end
+
+  ##
   # Returns the key symbol of the first registered result (sorted by the
   # execution order). This typically corresponds to the result used as the
   # initial input. Passes +save+ to #add_result.

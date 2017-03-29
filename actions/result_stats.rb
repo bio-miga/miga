@@ -77,6 +77,8 @@ if o[:compute]
       end
     end
     stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
+  when :distances
+    d.cleanup_distances! unless d.nil?
   else
     stats = nil
   end
