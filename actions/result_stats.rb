@@ -26,6 +26,7 @@ p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 $stderr.puts "Loading result." unless o[:q]
+d = nil
 if o[:dataset].nil?
   r = p.add_result(o[:name], false)
 else
