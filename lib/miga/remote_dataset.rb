@@ -147,6 +147,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
     result = dataset.add_result @@UNIVERSE[universe][:dbs][db][:stage]
     raise "Empty dataset created: seed result was not added due to "+
       "incomplete files." if result.nil?
+    result.clean!
+    result.save
     dataset
   end
 
