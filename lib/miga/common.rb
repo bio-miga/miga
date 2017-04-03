@@ -157,7 +157,7 @@ class String
 
   ##
   # Replace underscores by spaces.
-  def unmiga_name ; tr("_", " ") ; end
+  def unmiga_name ; gsub(/_(str|sp|subsp|pv)__/,"_\\1._").tr("_", " ") ; end
   
   ##
   # Wraps the string with fixed Integer +width+.
