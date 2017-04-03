@@ -27,8 +27,8 @@ module MiGA::DatasetResult
   private
 
     ##
-    # Add result type +:raw_reads+ at +base+.
-    def add_result_raw_reads(base)
+    # Add result type +:raw_reads+ at +base+ (no +opts+ supported).
+    def add_result_raw_reads(base, opts)
       return nil unless result_files_exist?(base, ".1.fastq")
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name,
@@ -38,8 +38,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:trimmed_reads+ at +base+.
-    def add_result_trimmed_reads(base)
+    # Add result type +:trimmed_reads+ at +base+ (no +opts+ supported).
+    def add_result_trimmed_reads(base, opts)
       return nil unless result_files_exist?(base, ".1.clipped.fastq")
       r = MiGA::Result.new base + ".json"
       r = add_files_to_ds_result(r, name,
@@ -52,8 +52,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:read_quality+ at +base+.
-    def add_result_read_quality(base)
+    # Add result type +:read_quality+ at +base+ (no +opts+ supported).
+    def add_result_read_quality(base, opts)
       return nil unless result_files_exist?(base, %w[.solexaqa .fastqc])
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name,
@@ -63,8 +63,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:trimmed_fasta+ at +base+.
-    def add_result_trimmed_fasta(base)
+    # Add result type +:trimmed_fasta+ at +base+ (no +opts+ supported).
+    def add_result_trimmed_fasta(base, opts)
       return nil unless
         result_files_exist?(base, ".CoupledReads.fa") or
         result_files_exist?(base, ".SingleReads.fa") or
@@ -77,12 +77,15 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:assembly+ at +base+.
-    def add_result_assembly(base)
+    # Add result type +:assembly+ at +base+. Hash +opts+ supports
+    # +is_clean: Boolean+.
+    def add_result_assembly(base, opts)
       return nil unless result_files_exist?(base, ".LargeContigs.fna")
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:largecontigs=>".LargeContigs.fna",
         :allcontigs=>".AllContigs.fna", :assembly_data=>""})
+      opts[:is_clean] ||= false
+      r.clean! if opts[:is_clean]
       unless r.clean?
         MiGA::MiGA.clean_fasta_file(r.file_path :largecontigs)
         r.clean!
@@ -92,12 +95,14 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:cds+ at +base+.
-    def add_result_cds(base)
+    # Add result type +:cds+ at +base+. Hash +opts+ supports +is_clean: Boolean+
+    def add_result_cds(base, opts)
       return nil unless result_files_exist?(base, %w[.faa .fna])
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:proteins=>".faa", :genes=>".fna",
         :gff2=>".gff2", :gff3=>".gff3", :tab=>".tab"})
+      opts[:is_clean] ||= false
+      r.clean! if opts[:is_clean]
       unless r.clean?
         MiGA::MiGA.clean_fasta_file(r.file_path :proteins)
         MiGA::MiGA.clean_fasta_file(r.file_path :genes)
@@ -107,8 +112,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:essential_genes+ at +base+.
-    def add_result_essential_genes(base)
+    # Add result type +:essential_genes+ at +base+ (no +opts+ supported).
+    def add_result_essential_genes(base, opts)
       return nil unless result_files_exist?(base, %w[.ess.faa .ess .ess/log])
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:ess_genes=>".ess.faa",
@@ -116,13 +121,15 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:ssu+ at +base+.
-    def add_result_ssu(base)
+    # Add result type +:ssu+ at +base+. Hash +opts+ supports +is_clean: Boolean+
+    def add_result_ssu(base, opts)
       return MiGA::Result.new(base + ".json") if result(:assembly).nil?
       return nil unless result_files_exist?(base, ".ssu.fa")
       r = MiGA::Result.new(base + ".json")
       r = add_files_to_ds_result(r, name, {:longest_ssu_gene=>".ssu.fa",
         :gff=>".ssu.gff", :all_ssu_genes=>".ssu.all.fa"})
+      opts[:is_clean] ||= false
+      r.clean! if opts[:is_clean]
       unless r.clean?
         MiGA::MiGA.clean_fasta_file(r.file_path :longest_ssu_gene)
         r.clean!
@@ -131,8 +138,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:mytaxa+ at +base+.
-    def add_result_mytaxa(base)
+    # Add result type +:mytaxa+ at +base+ (no +opts+ supported).
+    def add_result_mytaxa(base, opts)
       if is_multi?
         return nil unless result_files_exist?(base, ".mytaxa")
         r = MiGA::Result.new(base + ".json")
@@ -144,8 +151,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:mytaxa_scan+ at +base+.
-    def add_result_mytaxa_scan(base)
+    # Add result type +:mytaxa_scan+ at +base+ (no +opts+ supported).
+    def add_result_mytaxa_scan(base, opts)
       if is_nonmulti?
         return nil unless
           result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
@@ -160,8 +167,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:distances+ at +base+.
-    def add_result_distances(base)
+    # Add result type +:distances+ at +base+ (no +opts+ supported).
+    def add_result_distances(base, opts)
       if is_nonmulti?
         if is_ref?
           add_result_distances_ref(base)
@@ -174,8 +181,8 @@ module MiGA::DatasetResult
     end
 
     ##
-    # Add result type +:stats+ at +base+.
-    def add_result_stats(base)
+    # Add result type +:stats+ at +base+ (no +opts+ supported).
+    def add_result_stats(base, opts)
       MiGA::Result.new "#{base}.json"
     end
     

@@ -184,16 +184,18 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Look for the result with symbol key +result_type+ and register it in the
   # dataset. If +save+ is false, it doesn't register the result, but it still
-  # returns a result if the expected files are complete. Returns MiGA::Result
-  # or nil.
-  def add_result(result_type, save=true)
+  # returns a result if the expected files are complete. The +opts+ array
+  # controls result creation (if necessary). Supported values include:
+  # * +is_clean+: A Boolean indicating if the input files are clean.
+  # Returns MiGA::Result or nil.
+  def add_result(result_type, save=true, opts={})
     return nil if @@RESULT_DIRS[result_type].nil?
     base = File.expand_path("data/#{@@RESULT_DIRS[result_type]}/#{name}",
               project.path)
     r_pre = MiGA::Result.load("#{base}.json")
     return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
     return nil unless result_files_exist?(base, ".done")
-    r = self.send("add_result_#{result_type}", base)
+    r = self.send("add_result_#{result_type}", base, opts)
     r.save unless r.nil?
     r
   end
