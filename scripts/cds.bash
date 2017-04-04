@@ -17,8 +17,8 @@ case "$TYPE" in
   metagenome|virome) PROCEDURE=meta ;;
   *) PROCEDURE=single ;;
 esac
-prodigal -d "$DATASET.fna" -f gff -o "$DATASET.gff3" -p $PROCEDURE -q \
-  -i "../05.assembly/$DATASET.LargeContigs.fna"
+prodigal -a "$DATASET.faa" -d "$DATASET.fna" -f gff -o "$DATASET.gff3" \
+  -p $PROCEDURE -q -i "../05.assembly/$DATASET.LargeContigs.fna"
 
 # Gzip
 gzip -9 -f "$DATASET.gff3"
