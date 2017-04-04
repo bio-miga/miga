@@ -28,6 +28,7 @@ $task_desc = {
   result_stats: "Extracts statistics for the given result.",
   list_files: "Lists all registered files from the results of a dataset or a "+
     "project.",
+  run_local: "Executes locally one step analysis producing the given result.",
   # System
   daemon: "Controls the daemon of a MiGA project.",
   date: "Returns the current date in standard MiGA format.",
