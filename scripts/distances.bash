@@ -1,5 +1,5 @@
 #!/bin/bash
-# Available variables: $PROJECT, $DATASET, $RUNTYPE, $MIGA, $CORES
+# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES, $DATASET
 set -e
 SCRIPT="distances"
 echo "MiGA: $MIGA"

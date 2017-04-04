@@ -1,5 +1,5 @@
 #!/bin/bash
-# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
+# Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES, $DATASET
 set -e
 SCRIPT="trimmed_reads"
 echo "MiGA: $MIGA"
