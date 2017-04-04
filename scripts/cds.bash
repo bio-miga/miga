@@ -25,7 +25,8 @@ for i in faa fna ; do
   perl -pe 's/>.*ID=([^;]+);.*/>gene_$1/' "$DATASET.$i" > "$DATASET.$i.t"
   mv "$DATASET.$i.t" "$DATASET.$i"
 done
-perl -pe 's/\tID=(\d+_\d+);/\tID=gene_$1;/' "$DATASET.gff3" > "$DATASET.gff3.t"
+perl -pe 's/	ID=([0-9]+_[0-9]+);/	ID=gene_$1;/' "$DATASET.gff3" \
+  > "$DATASET.gff3.t"
 mv "$DATASET.gff3.t" "$DATASET.gff3"
 
 # Gzip
