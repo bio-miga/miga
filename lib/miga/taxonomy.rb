@@ -84,16 +84,16 @@ class MiGA::Taxonomy < MiGA::MiGA
   # Add +value+ to the hierarchy, that can be an Array, a String, or a Hash, as
   # described in #initialize.
   def <<(value)
-    if value.is_a? Array
-      value.each{ |v| self << v }
-    elsif value.is_a? String
-      (rank, name) = value.split(/:/)
-      self << { rank => name }
-    elsif value.is_a? Hash
+    if value.is_a? Hash
       value.each_pair do |rank_i, name_i|
         next if name_i.nil? or name_i == ""
         @ranks[ Taxonomy.normalize_rank rank_i ] = name_i.tr("_"," ")
       end
+    elsif value.is_a? Array
+      value.each{ |v| self << v }
+    elsif value.is_a? String
+      (rank, name) = value.split(/:/)
+      self << { rank => name }
     else
       raise "Unsupported class: #{value.class.name}."
     end
