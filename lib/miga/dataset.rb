@@ -109,8 +109,6 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:ref] = is_ref
     @metadata = MiGA::Metadata.new(
       File.expand_path("metadata/#{name}.json", project.path), metadata )
-    warn "Warning: Unrecognized dataset type: #{type}." if
-      !type.nil? and @@KNOWN_TYPES[type].nil?
   end
   
   ##
