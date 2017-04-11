@@ -59,16 +59,19 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Tasks to be excluded from query datasets.
   @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan]
+  @@_EXCLUDE_NOREF_TASKS_H = Hash[@@EXCLUDE_NOREF_TASKS.map{ |i| [i,true] }]
   
   ##
   # Tasks to be executed only in datasets that are not multi-organism. These
   # tasks are ignored for multi-organism datasets or for unknown types.
   @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
+  @@_ONLY_NONMULTI_TASKS_H = Hash[@@ONLY_NONMULTI_TASKS.map{ |i| [i,true] }]
 
   ##
   # Tasks to be executed only in datasets that are multi-organism. These
   # tasks are ignored for single-organism datasets or for unknwon types.
   @@ONLY_MULTI_TASKS = [:mytaxa]
+  @@_ONLY_MULTI_TASKS_H = Hash[@@ONLY_MULTI_TASKS.map{ |i| [i,true] }]
 
   ##
   # Does the +project+ already have a dataset with that +name+?
@@ -232,9 +235,9 @@ class MiGA::Dataset < MiGA::MiGA
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
-    ( (@@EXCLUDE_NOREF_TASKS.include?(task) and not is_ref?) or
-      (@@ONLY_MULTI_TASKS.include?(task) and not is_multi?) or
-      (@@ONLY_NONMULTI_TASKS.include?(task) and not is_nonmulti?))
+    ( (@@_EXCLUDE_NOREF_TASKS_H[task] and not is_ref?) or
+      (@@_ONLY_MULTI_TASKS_H[task] and not is_multi?) or
+      (@@_ONLY_NONMULTI_TASKS_H[task] and not is_nonmulti?))
   end
   
   ##
