@@ -9,7 +9,7 @@ class MiGA::Result < MiGA::MiGA
   
   ##
   # Check if the result described by the JSON in +path+ already exists.
-  def self.exist?(path) File.size? path end
+  def self.exist?(path) File.exist? path end
 
   ##
   # Load the result described by the JSON in +path+. Returns MiGA::Result if it

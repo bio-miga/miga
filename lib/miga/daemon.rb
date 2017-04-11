@@ -14,7 +14,7 @@ class MiGA::Daemon < MiGA::MiGA
   # active? Returns DateTime.
   def self.last_alive(project)
     f = File.expand_path("daemon/alive", project.path)
-    return nil unless File.size? f
+    return nil unless File.exist? f
     DateTime.parse(File.read(f))
   end
   

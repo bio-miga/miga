@@ -9,7 +9,7 @@ class MiGA::Metadata < MiGA::MiGA
 
   ##
   # Does the metadata described in +path+ already exist?
-  def self.exist?(path) File.size? path end
+  def self.exist?(path) File.exist? path end
 
   ##
   # Load the metadata described in +path+ and return MiGA::Metadata if it
@@ -31,7 +31,7 @@ class MiGA::Metadata < MiGA::MiGA
   def initialize(path, defaults={})
     @data = nil
     @path = File.absolute_path(path)
-    unless File.size? path
+    unless File.exist? path
       @data = {}
       defaults.each_pair{ |k,v| self[k]=v }
       create
