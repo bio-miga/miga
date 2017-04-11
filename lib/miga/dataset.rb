@@ -26,9 +26,6 @@ class MiGA::Dataset < MiGA::MiGA
     ssu: "07.annotation/01.function/02.ssu",
     mytaxa: "07.annotation/02.taxonomy/01.mytaxa",
     mytaxa_scan: "07.annotation/03.qa/02.mytaxa_scan",
-    # Mapping
-    mapping_on_contigs: "08.mapping/01.read-ctg",
-    mapping_on_genes: "08.mapping/02.read-gene",
     # Distances (for single-species datasets)
     distances: "09.distances",
     # General statistics
