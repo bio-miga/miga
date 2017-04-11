@@ -64,12 +64,12 @@ class MiGA::Metadata < MiGA::MiGA
       sleep(sleeper.to_i)
     end
     FileUtils.touch lock_file
-    ofh = File.open(path + ".tmp", "w")
+    ofh = File.open("#{path}.tmp", "w")
     ofh.puts json
     ofh.close
     raise "Lock-racing detected for #{path}." unless
-      File.exist?(path + ".tmp") and File.exist?(lock_file)
-    File.rename(path + ".tmp", path)
+      File.exist?("#{path}.tmp") and File.exist?(lock_file)
+    File.rename("#{path}.tmp", path)
     File.unlink(lock_file)
   end
 
@@ -98,7 +98,7 @@ class MiGA::Metadata < MiGA::MiGA
 
   ##
   # Lock file for the metadata.
-  def lock_file ; path + ".lock" ; end
+  def lock_file ; "#{path}.lock" ; end
 
   ##
   # Return the value of +k+ in #data.

@@ -85,7 +85,7 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Does the project at +path+ exist?
   def self.exist?(path)
-    Dir.exist?(path) and File.exist?(path + "/miga.project.json")
+    Dir.exist?(path) and File.exist?("#{path}/miga.project.json")
   end
 
   ##
@@ -130,7 +130,7 @@ class MiGA::Project < MiGA::MiGA
     dirs.each{ |d| Dir.mkdir(d) unless Dir.exist? d }
     @metadata = MiGA::Metadata.new(self.path + "/miga.project.json",
       {datasets: [], name: File.basename(path)})
-    FileUtils.cp(ENV["MIGA_HOME"] + "/.miga_daemon.json",
+    FileUtils.cp("#{ENV["MIGA_HOME"]}/.miga_daemon.json",
       "#{path}/daemon/daemon.json") unless
         File.exist? "#{path}/daemon/daemon.json"
     self.load
@@ -252,9 +252,9 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Get result identified by Symbol +name+, returns MiGA::Result.
   def result(name)
-    return nil if @@RESULT_DIRS[name.to_sym].nil?
-    MiGA::Result.load "#{path}/data/" + @@RESULT_DIRS[name.to_sym] + 
-      "/miga-project.json"
+    dir = @@RESULT_DIRS[name.to_sym]
+    return nil if dir.nil?
+    MiGA::Result.load("#{path}/data/#{dir}/miga-project.json")
   end
   
   ##
@@ -269,7 +269,7 @@ class MiGA::Project < MiGA::MiGA
   def add_result(name, save=true)
     return nil if @@RESULT_DIRS[name].nil?
     base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
-    return MiGA::Result.load(base + ".json") unless save
+    return MiGA::Result.load("#{base}.json") unless save
     return nil unless result_files_exist?(base, ".done")
     r = send("add_result_#{name}", base)
     r.save unless r.nil?

@@ -115,13 +115,13 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
   ##
   # Get the number of datasets in the taxon (including children).
   def datasets_count
-    datasets.size + children.map{ |it| it.datasets_count }.reduce(0, :+)
+    children.map{ |it| it.datasets_count }.reduce(datasets.size, :+)
   end
 
   ##
   # Get all the datasets in the taxon (including children).
   def all_datasets
-    datasets + children.map{ |it| it.datasets }.reduce([], :+)
+    children.map{ |it| it.datasets }.reduce(datasets, :+)
   end
 
   ##
@@ -142,11 +142,11 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
   # Tabular String of the taxon.
   def to_tab(unknown, indent=0)
     o = ""
-    o = (" " * indent) + tax_str + ": " + datasets_count.to_s + "\n" if
+    o = "#{" " * indent}#{tax_str}: #{datasets_count}\n" if
       unknown or not datasets.empty? or not name.nil?
     indent += 2
-    datasets.each{ |ds| o += (" " * indent) + "# " + ds.name + "\n" }
-    children.each{ |it| o += it.to_tab(unknown, indent) }
+    datasets.each{ |ds| o << "#{" " * indent}# #{ds.name}\n" }
+    children.each{ |it| o << it.to_tab(unknown, indent) }
     o
   end
 

@@ -9,6 +9,7 @@ require "open-uri"
 class MiGA::RemoteDataset < MiGA::MiGA
   # Class-level
 
+  @@_EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
   ##
   # Structure of the different database Universes or containers. The structure
   # is a Hash with universe names as keys as Symbol and values being a Hash with
@@ -37,16 +38,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
     },
     ncbi:{
       dbs: { nuccore:{stage: :assembly, format: :fasta} },
-      url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
-        "efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
+      url: "#{@@_EUTILS}efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
       method: :rest
     },
     ncbi_map:{
       dbs: { assembly:{map_to: :nuccore, format: :text} },
-      url: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/" +
         # FIXME ncbi_map is intended to do internal NCBI mapping between
         # databases.
-        "elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",
+      url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%3$s - - - - -",
       method: :rest,
       map_to_universe: :ncbi
     }
@@ -127,8 +126,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
     metadata = get_metadata(metadata)
     case @@UNIVERSE[universe][:dbs][db][:stage]
     when :assembly
-      base = project.path + "/data/" + MiGA::Dataset.RESULT_DIRS[:assembly] +
-        "/" + name
+      dir = MiGA::Dataset.RESULT_DIRS[:assembly]
+      base = "#{project.path}/data/#{dir}/#{name}"
       File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
       if @@UNIVERSE[universe][:dbs][db][:format] == :fasta_gz
         download("#{base}.LargeContigs.fna.gz")

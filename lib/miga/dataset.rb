@@ -73,7 +73,7 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Does the +project+ already have a dataset with that +name+?
   def self.exist?(project, name)
-    File.exist? project.path + "/metadata/" + name + ".json"
+    File.exist? "#{project.path}/metadata/#{name}.json"
   end
 
   ##
@@ -163,8 +163,8 @@ class MiGA::Dataset < MiGA::MiGA
   # Get the result MiGA::Result in this dataset identified by the symbol +k+.
   def result(k)
     return nil if @@RESULT_DIRS[k.to_sym].nil?
-    MiGA::Result.load(project.path + "/data/" + @@RESULT_DIRS[k.to_sym] +
-      "/" + name + ".json")
+    MiGA::Result.load(
+      "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json" )
   end
   
   ##

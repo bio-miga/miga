@@ -91,7 +91,7 @@ class MiGA::MiGA
             buffer = ""
             tmp.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
           else
-            buffer += ln.gsub(/[^A-Za-z\.\-]/, "")
+            buffer << ln.gsub(/[^A-Za-z\.\-]/, "")
           end
         end
         tmp.print buffer.wrap_width(80)
@@ -111,7 +111,7 @@ class MiGA::MiGA
   def result_files_exist?(base, ext)
     ext = [ext] unless ext.kind_of? Array
     ext.all? do |f|
-      File.exist?(base + f) or File.exist?(base + f + ".gz")
+      File.exist?(base + f) or File.exist?("#{base}#{f}.gz")
     end
   end
 
@@ -156,7 +156,7 @@ class String
   def miga_name? ; not(self !~ /^[A-Za-z0-9_]+$/) ; end
 
   ##
-  # Replace underscores by spaces.
+  # Replace underscores by spaces or dots (depending on context).
   def unmiga_name ; gsub(/_(str|sp|subsp|pv)__/,"_\\1._").tr("_", " ") ; end
   
   ##

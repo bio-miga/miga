@@ -80,8 +80,8 @@ class MiGA::Result < MiGA::MiGA
     k = k.to_sym
     @data[:files] ||= {}
     @data[:files][k] = file if File.exist? File.expand_path(file, dir)
-    @data[:files][k] = file + ".gz" if
-      File.exist? File.expand_path(file + ".gz", dir)
+    @data[:files][k] = "#{file}.gz" if
+      File.exist? File.expand_path("#{file}.gz", dir)
   end
 
   ##
