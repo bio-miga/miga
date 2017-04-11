@@ -44,7 +44,7 @@ end.parse!
 ##=> Main <=
 opt_require(o)
 opt_require(o, type:"-t") unless o[:update]
-raise "Unrecognized dataset type: #{type}." if
+raise "Unrecognized dataset type: #{o[:type]}." if
   MiGA::Dataset.KNOWN_TYPES[o[:type]].nil?
 
 $stderr.puts "Loading project." unless o[:q]
