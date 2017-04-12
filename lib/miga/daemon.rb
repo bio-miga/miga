@@ -63,10 +63,9 @@ class MiGA::Daemon < MiGA::MiGA
   def runopts(k, v=nil, force=false)
     k = k.to_sym
     unless v.nil?
-      v = v.to_i if [:latency, :maxjobs, :ppn].include? k
-      raise "Daemon's #{k} cannot be set to zero." if
-        !force and v.is_a? Integer and v==0
-      v = !!v if [:shutdown_when_done].include? k
+      v = [:latency, :maxjobs, :ppn].include?(k) ? v.to_i :
+          [:shutdown_when_done].include?(k) ? !!v : v
+      raise "Daemon's #{k} cannot be set to zero." if !force and v==0
       @runopts[k] = v
     end
     @runopts[k]
@@ -209,23 +208,7 @@ class MiGA::Daemon < MiGA::MiGA
     # Launch as many +jobs_to_run+ as possible
     while jobs_running.size < maxjobs
       break if jobs_to_run.empty?
-      job = @jobs_to_run.shift
-      # Launch job
-      if runopts(:type) == "bash"
-        job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid] unless [nil, "", 0].include? job[:pid]
-      else
-        job[:pid] = `#{job[:cmd]}`.chomp
-      end
-      # Check if registered
-      if [nil, "", 0].include? job[:pid].nil?
-        job[:pid] = nil
-        @jobs_to_run << job
-        say "Unsuccessful #{job[:task_name]}, rescheduling."
-      else
-        @jobs_running << job
-        say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
-      end
+      launch_job @jobs_to_run.shift
     end
   end
 
@@ -269,5 +252,29 @@ class MiGA::Daemon < MiGA::MiGA
   def say(*opts)
     print "[#{Time.new.inspect}] ", *opts, "\n"
   end
+
+  private
+    
+    def launch_job(job)
+      # Execute job
+      if runopts(:type) == "bash"
+        # Local job
+        job[:pid] = spawn job[:cmd]
+        Process.detach job[:pid] unless [nil, "", 0].include?(job[:pid])
+      else
+        # Schedule cluster job
+        job[:pid] = `#{job[:cmd]}`.chomp
+      end
+      
+      # Check if registered
+      if [nil, "", 0].include?(job[:pid])
+        job[:pid] = nil
+        @jobs_to_run << job
+        say "Unsuccessful #{job[:task_name]}, rescheduling."
+      else
+        @jobs_running << job
+        say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
+      end
+    end
 
 end
