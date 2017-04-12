@@ -1,7 +1,7 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
-SCRIPT="essential"
+SCRIPT="essential_genes"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
 source "$MIGA/scripts/miga.bash" || exit 1
