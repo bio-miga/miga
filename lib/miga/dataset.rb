@@ -192,8 +192,8 @@ class MiGA::Dataset < MiGA::MiGA
     base = File.expand_path("data/#{dir}/#{name}", project.path)
     r_pre = MiGA::Result.load("#{base}.json")
     return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
-    return nil unless File.exist?("#{base}.done")
-    r = self.send("add_result_#{result_type}", base, opts)
+    r = File.exist?("#{base}.done") ?
+        self.send("add_result_#{result_type}", base, opts) : nil
     r.save unless r.nil?
     r
   end
@@ -232,11 +232,12 @@ class MiGA::Dataset < MiGA::MiGA
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
-    ( (@@_EXCLUDE_NOREF_TASKS_H[task] and not is_ref?) or
-      (@@_ONLY_MULTI_TASKS_H[task] and not is_multi?) or
-      (@@_ONLY_NONMULTI_TASKS_H[task] and not is_nonmulti?))
+    pattern = [true, false]
+    ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ]==pattern or
+      [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ]==pattern or
+      [@@_ONLY_NONMULTI_TASKS_H[task], is_nonmulti?]==pattern )
   end
-  
+
   ##
   # Are all the dataset-specific tasks done? Passes +save+ to #add_result.
   def done_preprocessing?(save=false)
