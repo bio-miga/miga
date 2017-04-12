@@ -92,13 +92,24 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal(:trimmed_reads, d2.first_preprocessing(true))
     assert_equal(:read_quality, d2.next_preprocessing(true))
     assert(! d2.done_preprocessing?(true))
+    # Ref and undeclared multi
     assert(d2.ignore_task?(:mytaxa))
+    assert(d2.ignore_task?(:mytaxa_scan))
     assert(d2.ignore_task?(:distances))
+    # Ref and multi
     d2.metadata[:type] = :metagenome
     assert(! d2.ignore_task?(:mytaxa))
+    assert(d2.ignore_task?(:mytaxa_scan))
     assert(d2.ignore_task?(:distances))
+    # Ref and nonmulti
     d2.metadata[:type] = :genome
     assert(d2.ignore_task?(:mytaxa))
+    assert(! d2.ignore_task?(:mytaxa_scan))
+    assert(! d2.ignore_task?(:distances))
+    # Qry and nonmulti
+    d2.metadata[:ref] = false
+    assert(d2.ignore_task?(:mytaxa))
+    assert(d2.ignore_task?(:mytaxa_scan))
     assert(! d2.ignore_task?(:distances))
   end
 

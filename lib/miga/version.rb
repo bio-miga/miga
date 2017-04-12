@@ -42,8 +42,7 @@ class MiGA::MiGA
   ##
   # Complete version with nickname and date as string.
   def self.LONG_VERSION
-    "MiGA " + VERSION.join(".") + " - " + VERSION_NAME + " - " +
-      VERSION_DATE.to_s
+    "MiGA #{VERSION.join(".")} - #{VERSION_NAME} - #{VERSION_DATE}"
   end
 
   ##

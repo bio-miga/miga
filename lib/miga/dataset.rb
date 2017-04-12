@@ -26,9 +26,6 @@ class MiGA::Dataset < MiGA::MiGA
     ssu: "07.annotation/01.function/02.ssu",
     mytaxa: "07.annotation/02.taxonomy/01.mytaxa",
     mytaxa_scan: "07.annotation/03.qa/02.mytaxa_scan",
-    # Mapping
-    mapping_on_contigs: "08.mapping/01.read-ctg",
-    mapping_on_genes: "08.mapping/02.read-gene",
     # Distances (for single-species datasets)
     distances: "09.distances",
     # General statistics
@@ -59,21 +56,24 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Tasks to be excluded from query datasets.
   @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan]
+  @@_EXCLUDE_NOREF_TASKS_H = Hash[@@EXCLUDE_NOREF_TASKS.map{ |i| [i,true] }]
   
   ##
   # Tasks to be executed only in datasets that are not multi-organism. These
   # tasks are ignored for multi-organism datasets or for unknown types.
   @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
+  @@_ONLY_NONMULTI_TASKS_H = Hash[@@ONLY_NONMULTI_TASKS.map{ |i| [i,true] }]
 
   ##
   # Tasks to be executed only in datasets that are multi-organism. These
   # tasks are ignored for single-organism datasets or for unknwon types.
   @@ONLY_MULTI_TASKS = [:mytaxa]
+  @@_ONLY_MULTI_TASKS_H = Hash[@@ONLY_MULTI_TASKS.map{ |i| [i,true] }]
 
   ##
   # Does the +project+ already have a dataset with that +name+?
   def self.exist?(project, name)
-    File.exist? project.path + "/metadata/" + name + ".json"
+    File.exist? "#{project.path}/metadata/#{name}.json"
   end
 
   ##
@@ -109,8 +109,6 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:ref] = is_ref
     @metadata = MiGA::Metadata.new(
       File.expand_path("metadata/#{name}.json", project.path), metadata )
-    warn "Warning: Unrecognized dataset type: #{type}." if
-      !type.nil? and @@KNOWN_TYPES[type].nil?
   end
   
   ##
@@ -165,8 +163,8 @@ class MiGA::Dataset < MiGA::MiGA
   # Get the result MiGA::Result in this dataset identified by the symbol +k+.
   def result(k)
     return nil if @@RESULT_DIRS[k.to_sym].nil?
-    MiGA::Result.load(project.path + "/data/" + @@RESULT_DIRS[k.to_sym] +
-      "/" + name + ".json")
+    MiGA::Result.load(
+      "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json" )
   end
   
   ##
@@ -186,16 +184,16 @@ class MiGA::Dataset < MiGA::MiGA
   # dataset. If +save+ is false, it doesn't register the result, but it still
   # returns a result if the expected files are complete. The +opts+ array
   # controls result creation (if necessary). Supported values include:
-  # * +is_clean+: A Boolean indicating if the input files are clean.
+  # - +is_clean+: A Boolean indicating if the input files are clean.
   # Returns MiGA::Result or nil.
   def add_result(result_type, save=true, opts={})
-    return nil if @@RESULT_DIRS[result_type].nil?
-    base = File.expand_path("data/#{@@RESULT_DIRS[result_type]}/#{name}",
-              project.path)
+    dir = @@RESULT_DIRS[result_type]
+    return nil if dir.nil?
+    base = File.expand_path("data/#{dir}/#{name}", project.path)
     r_pre = MiGA::Result.load("#{base}.json")
     return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
-    return nil unless result_files_exist?(base, ".done")
-    r = self.send("add_result_#{result_type}", base, opts)
+    r = File.exist?("#{base}.done") ?
+        self.send("add_result_#{result_type}", base, opts) : nil
     r.save unless r.nil?
     r
   end
@@ -234,11 +232,12 @@ class MiGA::Dataset < MiGA::MiGA
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
-    ( (@@EXCLUDE_NOREF_TASKS.include?(task) and not is_ref?) or
-      (@@ONLY_MULTI_TASKS.include?(task) and not is_multi?) or
-      (@@ONLY_NONMULTI_TASKS.include?(task) and not is_nonmulti?))
+    pattern = [true, false]
+    ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ]==pattern or
+      [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ]==pattern or
+      [@@_ONLY_NONMULTI_TASKS_H[task], is_nonmulti?]==pattern )
   end
-  
+
   ##
   # Are all the dataset-specific tasks done? Passes +save+ to #add_result.
   def done_preprocessing?(save=false)

@@ -9,7 +9,7 @@ class MiGA::Metadata < MiGA::MiGA
 
   ##
   # Does the metadata described in +path+ already exist?
-  def self.exist?(path) File.size? path end
+  def self.exist?(path) File.exist? path end
 
   ##
   # Load the metadata described in +path+ and return MiGA::Metadata if it
@@ -24,34 +24,39 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Path to the JSON file describing the metadata.
   attr_reader :path
-  
-  ##
-  # Parsed data as a Hash.
-  attr_reader :data
 
   ##
   # Initiate a MiGA::Metadata object with description in +path+. It will create
   # it if it doesn't exist.
   def initialize(path, defaults={})
+    @data = nil
     @path = File.absolute_path(path)
-    @data = {}
-    defaults.each_pair{ |k,v| self[k]=v }
-    self.create unless File.size? self.path
-    self.load
+    unless File.exist? path
+      @data = {}
+      defaults.each_pair{ |k,v| self[k]=v }
+      create
+    end
+  end
+  
+  ##
+  # Parsed data as a Hash.
+  def data
+    self.load if @data.nil?
+    @data
   end
 
   ##
   # Reset :created field and save the current data.
   def create
-    @data[:created] = Time.now.to_s
-    self.save
+    self[:created] = Time.now.to_s
+    save
   end
 
   ##
   # Save the metadata into #path.
   def save
     MiGA.DEBUG "Metadata.save #{path}"
-    @data[:updated] = Time.now.to_s
+    self[:updated] = Time.now.to_s
     json = JSON.pretty_generate(data)
     sleeper = 0.0
     while File.exist?(lock_file)
@@ -59,12 +64,12 @@ class MiGA::Metadata < MiGA::MiGA
       sleep(sleeper.to_i)
     end
     FileUtils.touch lock_file
-    ofh = File.open(path + ".tmp", "w")
+    ofh = File.open("#{path}.tmp", "w")
     ofh.puts json
     ofh.close
     raise "Lock-racing detected for #{path}." unless
-      File.exist?(path + ".tmp") and File.exist?(lock_file)
-    File.rename(path + ".tmp", path)
+      File.exist?("#{path}.tmp") and File.exist?(lock_file)
+    File.rename("#{path}.tmp", path)
     File.unlink(lock_file)
   end
 
@@ -86,14 +91,14 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Delete file at #path.
   def remove!
-    MiGA.DEBUG "Metadata.remove! #{self.path}"
-    File.unlink(self.path)
+    MiGA.DEBUG "Metadata.remove! #{path}"
+    File.unlink(path)
     nil
   end
 
   ##
   # Lock file for the metadata.
-  def lock_file ; path + ".lock" ; end
+  def lock_file ; "#{path}.lock" ; end
 
   ##
   # Return the value of +k+ in #data.
@@ -102,6 +107,7 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Set the value of +k+ to +v+.
   def []=(k,v)
+    self.load if @data.nil?
     k = k.to_sym
     # Protect the special field :name
     v=v.miga_name if k==:name

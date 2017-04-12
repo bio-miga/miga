@@ -10,6 +10,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # Cannonical ranks.
   def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
   @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
+  @@_KNOWN_RANKS_H = Hash[ @@KNOWN_RANKS.map{ |i| [i,true] } ]
 
   ##
   # Long names of the cannonical ranks.
@@ -42,11 +43,12 @@ class MiGA::Taxonomy < MiGA::MiGA
   ##
   # Returns cannonical rank (Symbol) for the +rank+ String.
   def self.normalize_rank(rank)
+    return rank.to_sym if @@_KNOWN_RANKS_H[rank.to_sym]
     rank = rank.to_s.downcase
     return nil if rank=="no rank"
     rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
     rank = rank.to_sym
-    return nil unless @@KNOWN_RANKS.include? rank
+    return nil unless @@_KNOWN_RANKS_H[rank]
     rank
   end
 
@@ -84,16 +86,16 @@ class MiGA::Taxonomy < MiGA::MiGA
   # Add +value+ to the hierarchy, that can be an Array, a String, or a Hash, as
   # described in #initialize.
   def <<(value)
-    if value.is_a? Array
-      value.each{ |v| self << v }
-    elsif value.is_a? String
-      (rank, name) = value.split(/:/)
-      self << { rank => name }
-    elsif value.is_a? Hash
+    if value.is_a? Hash
       value.each_pair do |rank_i, name_i|
         next if name_i.nil? or name_i == ""
         @ranks[ Taxonomy.normalize_rank rank_i ] = name_i.tr("_"," ")
       end
+    elsif value.is_a? Array
+      value.each{ |v| self << v }
+    elsif value.is_a? String
+      (rank, name) = value.split(/:/)
+      self << { rank => name }
     else
       raise "Unsupported class: #{value.class.name}."
     end
