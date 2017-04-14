@@ -58,6 +58,15 @@ module MiGA::ProjectResult
       r
     end
 
+    def add_result_project_stats(base)
+      return nil unless
+        result_files_exist?(base, %w[.taxonomy.json .metadata.db])
+      r = MiGA::Result.new("#{base}.json")
+      r.add_file(:taxonomy_index, "miga-project.taxonomy.json")
+      r.add_file(:metadata_index, "miga-project.metadata.db")
+      r
+    end
+
     alias add_result_haai_distances add_result_distances
     alias add_result_aai_distances add_result_distances
     alias add_result_ani_distances add_result_distances
