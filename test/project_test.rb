@@ -93,8 +93,21 @@ class ProjectTest < Test::Unit::TestCase
     assert(! p1.done_preprocessing?)
     FileUtils.touch(File.expand_path("data/90.stats/#{d1.name}.done", p1.path))
     assert(p1.done_preprocessing?)
+
+    # Project stats
+    assert_equal(:project_stats, p1.next_distances)
+    d = MiGA::Project.RESULT_DIRS[:project_stats]
+    %w[.done .taxonomy.json .metadata.db].each do |x|
+      assert_nil(p1.add_result(:project_stats),
+        "Premature registration of result project_stats at extension #{x}.")
+      FileUtils.touch(File.expand_path("data/#{d}/miga-project#{x}", p1.path))
+    end
+    assert_equal(MiGA::Result, p1.add_result(:project_stats).class,
+      "Imposible to add project_stats result.")
+
     # Distances
     [:haai_distances, :aai_distances, :ani_distances].each do |r|
+      assert_equal(r, p1.next_distances)
       assert_equal(Symbol, p1.next_distances.class)
       d = MiGA::Project.RESULT_DIRS[r]
       %w[.done .Rdata .log .txt].each do |x|
