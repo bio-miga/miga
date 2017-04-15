@@ -16,7 +16,7 @@ miga date > "miga-project.start"
 miga index_taxonomy -P "$PROJECT" -i "miga-project.taxonomy.json" --ref
 
 # Index metadata
-ruby -I "$MIGA/lib"
+ruby -I "$MIGA/lib" \
   "$MIGA/utils/index_metadata.rb" "$PROJECT" "miga-project.metadata.db"
 
 # Finalize
