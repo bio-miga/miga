@@ -75,7 +75,7 @@ class MiGA::Project < MiGA::MiGA
   # Project-wide distance estimations.
   def self.DISTANCE_TASKS ; @@DISTANCE_TASKS ; end
   @@DISTANCE_TASKS = [:haai_distances, :aai_distances, :ani_distances,
-    :clade_finding]
+    :clade_finding, :project_stats]
   
   ##
   # Project-wide tasks for :clade projects.
