@@ -40,6 +40,7 @@ class MiGA::Project < MiGA::MiGA
   # Directories containing the results from project-wide tasks.
   def self.RESULT_DIRS ; @@RESULT_DIRS ; end
   @@RESULT_DIRS = {
+    project_stats: "90.stats",
     # Distances
     haai_distances: "09.distances/01.haai",
     aai_distances: "09.distances/02.aai",
@@ -49,11 +50,10 @@ class MiGA::Project < MiGA::MiGA
     clade_finding: "10.clades/01.find",
     # Clade analysis
     subclades: "10.clades/02.ani",
-    ogs: "10.clades/03.ogs",
+    ogs: "10.clades/03.ogs"
     #ess_phylogeny: "10.clades/04.phylogeny/01.essential",
     #core_phylogeny: "10.clades/04.phylogeny/02.core",
     #clade_metadata: "10.clades/05.metadata"
-    project_stats: "90.stats"
   }
 
   ##
