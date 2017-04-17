@@ -11,18 +11,18 @@ db = SQLite3::Database.new(ARGV[1])
 db.execute "create table metadata(" +
   "`name` varchar(256), `field` varchar(256), `value` text)"
 
-def searchable(db, k, v)
+def searchable(db, d, k, v)
   db.execute "insert into metadata values(?,?,?)",
-    k.to_s, " #{v.to_s.downcase.gsub(/[^A-Za-z0-9\-]+/, " ")} "
+    d.name, k.to_s, " #{v.to_s.downcase.gsub(/[^A-Za-z0-9\-]+/, " ")} "
 end
 
 p.each_dataset do |name, d|
   next unless d.is_ref?
-  searchable(db, :name, d.name)
+  searchable(db, d, :name, d.name)
   d.metadata.each do |k, v|
     next if [:created, :updated].include? k
     v = v.sorted_ranks.map{ |r| r[1] }.join(" ") if k==:tax
-    searchable(db, k, v)
+    searchable(db, d, k, v)
   end
 end
 
