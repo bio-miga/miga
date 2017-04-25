@@ -129,18 +129,7 @@ done
 # Check for other files
 echo "
 Looking for additional files:
-+ MetaGeneMark license key" >&2
-GM=$(dirname -- $(which gmhmmp))
-if [[ ! -e "$GM/gm_key" && ! -e "$GM/gm_key_64" && ! -e "$GM/gm_key_32" && ! -e "$GM/.gm_key" && ! -e "$HOME/.gm_key" ]] ; then
-   echo "Cannot find it, please place your license key in '$GM/gm_key'. Aborting..." >&2
-   exit 1
-fi
-echo "+ MetaGeneMark scripts" >&2
-if [[ ! -e "$GM/aa_from_gff.pl" || ! -e "$GM/nt_from_gff.pl" ]] ; then
-   echo "Cannot find it, please place aa_from_gff.pl and nt_from_gff.pl in '$GM/'. Aborting..." >&2
-   exit 1
-fi
-echo "+ MyTaxa scores database" >&2
++ MyTaxa scores database" >&2
 MT=$(dirname -- $(which MyTaxa))
 if [[ ! -d "$MT/db" ]] ; then
    echo "Cannot find it, please execute 'python $MT/utils/download_db.py'. Aborting..." >&2

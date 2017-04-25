@@ -5,7 +5,7 @@ SolexaQA++		SolexaQA++		http://solexaqa.sourceforge.net					Required version: v3
 Scythe			scythe			https://github.com/vsbuffalo/scythe				Required version: 0.991+
 FastQC			fastqc			http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 IDBA			idba_ud			http://i.cs.hku.hk/~alse/hkubrg/projects/idba
-MetaGeneMark		gmhmmp			http://exon.gatech.edu/genemark/license_download.cgi		The folder must contain the key and the scripts
+Prodigal		prodigal		http://prodigal.ornl.gov
 HMMer 3.0+		hmmsearch		http://hmmer.janelia.org/software
 NCBI BLAST+		blastp			ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST
 R			R			http://www.r-project.org/
