@@ -214,7 +214,8 @@ module MiGA::DatasetResult
       r = add_files_to_ds_result(r, name, {
         :aai_medoids=>".aai-medoids.tsv",
         :haai_db=>".haai.db", :aai_db=>".aai.db",
-        :ani_medoids=>".ani-medoids.tsv", :ani_db=>".ani.db"})
+        :ani_medoids=>".ani-medoids.tsv", :ani_db=>".ani.db",
+        :ref_tree=>".nwk", :ref_tree_pdf=>".nwk.pdf"})
     end
 
     ##

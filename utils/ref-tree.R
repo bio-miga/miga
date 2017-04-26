@@ -14,11 +14,13 @@ suppressPackageStartupMessages(library(enveomics.R))
 #= Main function
 ref_tree <- function(ani_file, out_base, q_dataset) {
   a <- read.table(ani_file, sep="\t", header=TRUE, as.is=TRUE)
-  ani.d <- enve.df2dist(a[,1:3], default.d=0.1, max.sim=100)
+  ani.d <- enve.df2dist(a[,1:3], default.d=0.9, max.sim=100)
   ani.ph <- midpoint(bionj(ani.d))
   write.tree(ani.ph, paste(out_base, ".nwk", sep=""))
-  pdf(paste(out_base, ".nwk.pdf", sep=""))
-  plot(ani.ph)
+  pdf(paste(out_base, ".nwk.pdf", sep=""), 7, 7)
+  plot(ani.ph, cex=1/3, type='fan',
+    tip.color=c('red', 'black')[ifelse(ani.ph$tip.label==q_dataset, 1, 2)])
+  add.scale.bar()
   dev.off()
 }
 
