@@ -42,18 +42,18 @@ fx_exists miga-noref_ani || function miga-noref_ani {
     "$CORES" "$TMPDIR/$Q.ani.db"
 }
 
-
-
 # Calculate the classification-informed AAI/ANI traverse (if not classified)
 ESS="../07.annotation/01.function/01.essential"
 if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
   CLADES="../10.clades/01.find"
   METRIC="aai"
+  REF_TABLE="02.aai/miga-project.txt.gz"
 else
   # Classify ani-clade (if project type is clade)
   CLADES="../10.clades/02.ani"
   METRIC="ani"
+  REF_TABLE="03.ani/miga-project.txt.gz"
 fi
 
 CLASSIF="."
@@ -101,6 +101,23 @@ if [[ "$CLASSIF" != "." ]] ; then
   fi
 fi
 
-#Finalize
+# Build tree with medoids
+echo "select seq2 from $METRIC;" | sqlite3 "${DATASET}.${METRIC}.db" \
+  | sort | uniq > "${DATASET}.tmp0"
+cat "${DATASET}.tmp0" | perl -pe "s/^/^/" | perl -pe "s/$/\\t/" \
+  > "${DATASET}.tmp1"
+cat "${DATASET}.tmp0" | perl -pe "s/^/\\t/" | perl -pe "s/$/\\t/" \
+  > "${DATASET}.tmp2"
+echo "a b value" | tr " " "\\t" > "${DATASET}.txt"
+gzip -c -d "$REF_TABLE" | cut -f 2-4 \
+  | grep -f "${DATASET}.tmp1" | grep -f "${DATASET}.tmp2" \
+  >> "${DATASET}.txt"
+echo "select seq1, seq2, $METRIC from $METRIC;" \
+  | sqlite3 "${DATASET}.${METRIC}.db"  | tr "\\|" "\\t" \
+  >> "${DATASET}.txt"
+"$MIGA/utils/ref-tree.R" "${DATASET}.txt" "$DATASET" "$DATASET"
+rm "$DATASET".tmp[012] "${DATASET}.txt"
+
+# Finalize
 N=11
 miga-checkpoint_n
