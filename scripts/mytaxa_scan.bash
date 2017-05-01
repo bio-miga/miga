@@ -4,6 +4,7 @@ set -e
 SCRIPT="mytaxa_scan"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 DIR="$PROJECT/data/07.annotation/03.qa/02.mytaxa_scan"
 [[ -d "$DIR" ]] || mkdir -p "$DIR"

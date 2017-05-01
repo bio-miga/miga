@@ -4,6 +4,7 @@ set -e
 SCRIPT="ogs"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/10.clades/03.ogs"
 

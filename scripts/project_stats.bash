@@ -4,6 +4,7 @@ set -e
 SCRIPT="project_stats"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 DIR="$PROJECT/data/90.stats"
 [[ -d "$DIR" ]] || mkdir -p "$DIR"

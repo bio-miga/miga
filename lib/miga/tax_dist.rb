@@ -25,7 +25,7 @@ module MiGA::TaxDist
     Zlib::GzipReader.open(aai_path(test)) do |fh|
       keys = nil
       fh.each_line do |ln|
-        row = ln.chomp.split /\t/
+        row = ln.chomp.split(/\t/)
         if fh.lineno==1
           keys = row[1, row.size-1].map{ |i| i.to_i }
         elsif row.shift.to_f >= aai
@@ -56,7 +56,7 @@ module MiGA::TaxDist
       min = pv.values.select{ |v| v < upr }.max
       return out if min.nil?
       if min >= lwr
-        v = pv.select{ |_,v| v==min }
+        v = pv.select{ |_,vj| vj==min }
         out[phrase] = (test==:intax ? v.reverse_each : v).first
       end
     end

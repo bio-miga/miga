@@ -38,13 +38,13 @@ raise "#{res_n} not yet calculated." if res.nil?
 matrix = res.file_path(:matrix)
 raise "#{res_n} has no matrix." if matrix.nil?
 dist = {}
-fh = matrix=~/\.gz$/ ? Zlib::GzipReader.open(matrix) : File.open(matrix,"r")
-fh.each_line do |ln|
-  next if fh.lineno==1
+mfh = matrix=~/\.gz$/ ? Zlib::GzipReader.open(matrix) : File.open(matrix,"r")
+mfh.each_line do |ln|
+  next if mfh.lineno==1
   row = ln.chomp.split(/\t/)
   dist[cannid(row[1], row[2])] = [row[3], 0, ["root:biota"]]
 end
-fh.close
+mfh.close
 
 Dir.mktmpdir do |dir|
   if o[:index].nil?

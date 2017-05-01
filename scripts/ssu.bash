@@ -4,6 +4,7 @@ set -e
 SCRIPT="ssu"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 DIR="$PROJECT/data/07.annotation/01.function/02.ssu"
 [[ -d "$DIR" ]] || mkdir -p "$DIR"

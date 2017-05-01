@@ -28,8 +28,10 @@ fx_exists miga-aai || function miga-aai {
   local F2=$2
   local TH=$3
   local DB=$4
-  local N1=$(miga-ds_name "$F1")
-  local N2=$(miga-ds_name "$F2")
+  local N1
+  N1=$(miga-ds_name "$F1")
+  local N2
+  N2=$(miga-ds_name "$F2")
   aai.rb -1 "$F1" -2 "$F2" -t "$TH" -a --lookup-first -S "$DB" --name1 "$N1" \
     --name2 "$N2" --$MIGA_AAI_SAVE_RBM || echo "0"
 }
@@ -39,8 +41,10 @@ fx_exists miga-ani || function miga-ani {
   local F2=$2
   local TH=$3
   local DB=$4
-  local N1=$(miga-ds_name "$F1")
-  local N2=$(miga-ds_name "$F2")
+  local N1
+  N1=$(miga-ds_name "$F1")
+  local N2
+  N2=$(miga-ds_name "$F2")
   ani.rb -1 "$F1" -2 "$F2" -t "$TH" -a --no-save-regions --no-save-rbm \
     --lookup-first -S "$DB" --name1 "$N1" --name2 "$N2" || echo "0"
 }
@@ -51,11 +55,15 @@ fx_exists miga-haai || function miga-haai {
   local TH=$3
   local DB=$4
   local AAI_DB=$5
-  local N1=$(miga-ds_name "$F1")
-  local N2=$(miga-ds_name "$F2")
-  local HAAI=$(MIGA_AAI_SAVE_RBM="no-save-rbm" miga-aai "$F1" "$F2" "$TH" "$DB")
+  local N1
+  N1=$(miga-ds_name "$F1")
+  local N2
+  N2=$(miga-ds_name "$F2")
+  local HAAI
+  HAAI=$(MIGA_AAI_SAVE_RBM="no-save-rbm" miga-aai "$F1" "$F2" "$TH" "$DB")
   if [[ "$HAAI" != "" && $(perl -e "print 1 if '$HAAI' <= 90") == "1" ]] ; then
-    local AAI=$(perl -e "print (100-exp(2.435076 + 0.4275193*log(100-$HAAI)))")
+    local AAI
+    AAI=$(perl -e "print (100-exp(2.435076 + 0.4275193*log(100-$HAAI)))")
     [[ ! -s $AAI_DB ]] && miga-make_empty_aai_db "$AAI_DB"
     echo "insert into aai values('$N1','$N2','$AAI',0,0,0);" | sqlite3 "$AAI_DB"
     echo "$AAI"
@@ -70,6 +78,7 @@ fx_exists miga-haai_or_aai || function miga-haai_or_aai {
   local  F2=$5
   local  DB=$6
   local  TH=$7
+  local AAI
   AAI=$(miga-haai "$FH1" "$FH2" "$TH" "$DBH" "$DB")
   [[ "${AAI%.*}" -le 0 ]] && AAI=$(miga-aai "$F1" "$F2" "$TH" "$DB")
   echo "$AAI"

@@ -4,6 +4,7 @@ set -e
 SCRIPT="ani_distances"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/09.distances/03.ani"
 

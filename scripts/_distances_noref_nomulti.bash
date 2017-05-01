@@ -36,8 +36,8 @@ fx_exists miga-noref_haai_or_aai || function miga-noref_haai_or_aai {
 fx_exists miga-noref_ani || function miga-noref_ani {
   local Q=$1
   local S=$2
-  [[ -s $TMPDIR/$Q.LargeContigs.fna ]] \
-    || cp ../05.assembly/$Q.LargeContigs.fna "$TMPDIR/$Q.LargeContigs.fna"
+  [[ -s "$TMPDIR/$Q.LargeContigs.fna" ]] \
+    || cp "../05.assembly/$Q.LargeContigs.fna" "$TMPDIR/$Q.LargeContigs.fna"
   miga-ani "$TMPDIR/$Q.LargeContigs.fna" "../05.assembly/$S.LargeContigs.fna" \
     "$CORES" "$TMPDIR/$Q.ani.db"
 }
@@ -63,7 +63,7 @@ while [[ -e "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
   VAL_MED=""
   VAL_CLS=""
   i_n=0
-  while read i ; do
+  while read -r i ; do
     let i_n=$i_n+1
     if [[ $METRIC == "aai" ]] ; then
       VAL=$(miga-noref_haai_or_aai "$DATASET" "$i")
@@ -87,7 +87,7 @@ done
 if [[ "$CLASSIF" != "." ]] ; then
   PAR=$(dirname "$CLADES/$CLASSIF")/miga-project.classif
   if [[ -s "$PAR" ]] ; then
-    while read i ; do
+    while read -r i ; do
       if [[ $METRIC == "aai" ]] ; then
         AAI=$(miga-noref_haai_or_aai "$DATASET" "$i")
       else

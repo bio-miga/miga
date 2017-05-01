@@ -58,31 +58,46 @@ class MiGA::RemoteDataset < MiGA::MiGA
     ids = [ids] unless ids.is_a? Array
     case @@UNIVERSE[universe][:method]
     when :rest
-      map_to = @@UNIVERSE[universe][:dbs][db].nil? ? nil :
-        @@UNIVERSE[universe][:dbs][db][:map_to]
-      url = sprintf @@UNIVERSE[universe][:url],
-        db, ids.join(","), format, map_to
-      response = RestClient::Request.execute(method: :get, url:url, timeout:600)
-      raise "Unable to reach #{universe} client, error code " +
-        "#{response.code}." unless response.code == 200
-      doc = response.to_s
+      doc = download_rest(universe, db, ids, format)
     when :net
-      url = sprintf @@UNIVERSE[universe][:url],db,ids.join(","),format,map_to
-      doc = ""
-      @timeout_try = 0
-      begin
-        open(url) { |f| doc = f.read }
-      rescue Net::ReadTimeout
-        @timeout_try += 1
-        if @timeout_try > 3 ; raise Net::ReadTimeout
-        else ; retry
-        end
-      end
+      doc = download_net(universe, db, ids, format)
     end
     unless file.nil?
       ofh = File.open(file, "w")
       ofh.print doc
       ofh.close
+    end
+    doc
+  end
+
+  ##
+  # Download data usint a REST method from the +universe+ in the database +db+
+  # with IDs +ids+ and in +format+. Returns the doc as String.
+  def self.download_rest(universe, db, ids, format)
+    u = @@UNIVERSE[universe]
+    map_to = u[:dbs][db].nil? ? nil : u[:dbs][db][:map_to]
+    url = sprintf(u[:url], db, ids.join(","), format, map_to)
+    response = RestClient::Request.execute(method: :get, url:url, timeout:600)
+    unless response.code == 200
+      raise "Unable to reach #{universe} client, error code #{response.code}."
+    end
+    response.to_s
+  end
+  
+  ##
+  # Download data usint a REST method from the +universe+ in the database +db+
+  # with IDs +ids+ and in +format+. Returns the doc as String.
+  def self.download_net(universe, db, ids, format)
+    url = sprintf(@@UNIVERSE[universe][:url], db, ids.join(","), format, map_to)
+    doc = ""
+    @timeout_try = 0
+    begin
+      open(url) { |f| doc = f.read }
+    rescue Net::ReadTimeout
+      @timeout_try += 1
+      if @timeout_try > 3 ; raise Net::ReadTimeout
+      else ; retry
+      end
     end
     doc
   end
@@ -119,33 +134,34 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Save dataset to the MiGA::Project +project+ identified with +name+. +is_ref+
   # indicates if it should be a reference dataset, and contains +metadata+.
   def save_to(project, name=nil, is_ref=true, metadata={})
-    name = ids.join("_").miga_name if name.nil?
+    name ||= ids.join("_").miga_name
     project = MiGA::Project.new(project) if project.is_a? String
-    raise "Dataset #{name} exists in the project, aborting..." if
-      MiGA::Dataset.exist?(project, name)
+    if MiGA::Dataset.exist?(project, name)
+      raise "Dataset #{name} exists in the project, aborting..."
+    end
     metadata = get_metadata(metadata)
-    case @@UNIVERSE[universe][:dbs][db][:stage]
+    udb = @@UNIVERSE[universe][:dbs][db]
+    case udb[:stage]
     when :assembly
       dir = MiGA::Dataset.RESULT_DIRS[:assembly]
       base = "#{project.path}/data/#{dir}/#{name}"
+      l_ctg = "#{base}.LargeContigs.fna"
       File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
-      if @@UNIVERSE[universe][:dbs][db][:format] == :fasta_gz
-        download("#{base}.LargeContigs.fna.gz")
-        system("gzip -d #{base}.LargeContigs.fna.gz")
+      if udb[:format] == :fasta_gz
+        download "#{l_ctg}.gz"
+        system "gzip -d '#{l_ctg}.gz'"
       else
-        download("#{base}.LargeContigs.fna")
+        download l_ctg
       end
-      File.symlink(
-        File.basename("#{base}.LargeContigs.fna"), "#{base}.AllContigs.fna")
+      File.symlink(File.basename(l_ctg), "#{base}.AllContigs.fna")
       File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
     else
       raise "Unexpected error: Unsupported result for database #{db}."
     end
     dataset = MiGA::Dataset.new(project, name, is_ref, metadata)
     project.add_dataset(dataset.name)
-    result = dataset.add_result(@@UNIVERSE[universe][:dbs][db][:stage],
-      true, is_clean:true)
-    raise "Empty dataset created: seed result was not added due to "+
+    result = dataset.add_result(udb[:stage], true, is_clean:true)
+    raise "Empty dataset created: seed result was not added due to " +
       "incomplete files." if result.nil?
     result.clean!
     result.save
@@ -212,4 +228,5 @@ class MiGA::RemoteDataset < MiGA::MiGA
       return nil unless ln =~ /^\d+$/
       ln
     end
+
 end

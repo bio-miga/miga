@@ -4,6 +4,7 @@ set -e
 SCRIPT="read_quality"
 echo "MiGA: $MIGA"
 echo "Project: $PROJECT"
+# shellcheck source=scripts/miga.bash
 source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/03.read_quality"
 
