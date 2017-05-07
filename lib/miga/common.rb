@@ -103,6 +103,24 @@ class MiGA::MiGA
       tmp.unlink
     end
   end
+  
+  ##
+  # Path to a script to be executed for +task+. Supported +opts+ are:
+  # - +:miga+ Path to the MiGA home to use. If not passed, the home of the
+  #   library is used).
+  # - +:project+ MiGA::Project object to check within plugins. If not passed,
+  #   only core scripts are supported.
+  def self.script_path(task, opts={})
+    opts[:miga] ||= root_path
+    unless opts[:project].nil?
+      opts[:project].plugins.each do |pl|
+        if File.exist? File.expand_path("scripts/#{task}.bash", pl)
+          opts[:miga] = pl
+        end
+      end
+    end
+    File.expand_path("scripts/#{task}.bash", opts[:miga])
+  end
 
 
   ##

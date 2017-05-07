@@ -167,7 +167,7 @@ class MiGA::Daemon < MiGA::MiGA
     to_run = {ds: ds, job: job, task_name: task_name,
       cmd: sprintf(runopts(:cmd),
         # 1: script
-        File.expand_path("scripts/#{job}.bash", vars["MIGA"]),
+        MiGA::MiGA.script_path(job, miga:vars["MIGA"], project:project),
         # 2: vars
         vars.keys.map { |k|
 	  sprintf(runopts(:var), k, vars[k]) }.join(runopts(:varsep)),

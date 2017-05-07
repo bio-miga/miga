@@ -36,7 +36,7 @@ else
 end
 raise "Unsupported #{type.to_s.gsub(/.*::/,"")} result: #{o[:name]}." if
   type.RESULT_DIRS[o[:name].to_sym].nil?
-cmd << "#{miga}/scripts/#{o[:name]}.bash".shellescape
+cmd << MiGA::MiGA.script_path(o[:name], miga:miga, project:p).shellescape
 pid = spawn cmd.join(" ")
 Process.wait pid
 
