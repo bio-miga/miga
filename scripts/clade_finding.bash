@@ -9,7 +9,7 @@ source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/10.clades/01.find"
 
 # Initialize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
+miga date > "miga-project.start"
 
 # Markov-cluster genomes by ANI
 gunzip -c ../../09.distances/03.ani/miga-project.txt.gz | tail -n+2 \
@@ -31,9 +31,9 @@ cat miga-project.ani95-clades | tail -n +2 | tr "," "\\t" | awk 'NF >= 5' \
 
 # Run R code (except in projects type clade)
 if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
-  $MIGA/utils/subclades.R \
+  "$MIGA/utils/subclades.R" \
     ../../09.distances/02.aai/miga-project.txt.gz \
-    miga-project $CORES
+    miga-project "$CORES"
   mv miga-project.nwk miga-project.aai.nwk
   
   # Compile
@@ -43,5 +43,5 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
 fi
 
 # Finalize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
+miga date > "miga-project.done"
 miga add_result -P "$PROJECT" -r "$SCRIPT"

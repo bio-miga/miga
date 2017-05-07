@@ -9,7 +9,7 @@ source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/09.distances/03.ani"
 
 # Initialize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.start"
+miga date > "miga-project.start"
 
 echo -n "" > miga-project.log
 DS=$(miga list_datasets -P "$PROJECT" --ref --no-multi)
@@ -40,5 +40,5 @@ if(sum(ani[,'a'] != ani[,'b']) > 0){
 gzip -9 -f miga-project.txt
 
 # Finalize
-date "+%Y-%m-%d %H:%M:%S %z" > "miga-project.done"
+miga date > "miga-project.done"
 miga add_result -P "$PROJECT" -r "$SCRIPT"

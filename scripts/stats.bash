@@ -11,7 +11,7 @@ DIR="$PROJECT/data/90.stats"
 cd "$DIR"
 
 # Initialize
-date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
+miga date > "$DATASET.start"
 
 # Calculate statistics
 for i in raw_reads trimmed_fasta assembly cds essential_genes distances ; do
@@ -20,5 +20,5 @@ for i in raw_reads trimmed_fasta assembly cds essential_genes distances ; do
 done
 
 # Finalize
-date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
+miga date > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"

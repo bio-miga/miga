@@ -104,9 +104,9 @@ fi
 # Build tree with medoids
 echo "select seq2 from $METRIC;" | sqlite3 "${DATASET}.${METRIC}.db" \
   | sort | uniq > "${DATASET}.tmp0"
-cat "${DATASET}.tmp0" | perl -pe "s/^/^/" | perl -pe "s/$/\\t/" \
+perl -pe "s/^/^/" "${DATASET}.tmp0" | perl -pe "s/$/\\t/" \
   > "${DATASET}.tmp1"
-cat "${DATASET}.tmp0" | perl -pe "s/^/\\t/" | perl -pe "s/$/\\t/" \
+perl -pe "s/^/\\t/" "${DATASET}.tmp0" | perl -pe "s/$/\\t/" \
   > "${DATASET}.tmp2"
 echo "a b value" | tr " " "\\t" > "${DATASET}.txt"
 gzip -c -d "$REF_TABLE" | cut -f 2-4 \

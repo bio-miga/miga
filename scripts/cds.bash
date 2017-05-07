@@ -9,7 +9,7 @@ source "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/06.cds"
 
 # Initialize
-date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.start"
+miga date > "$DATASET.start"
 
 # Run Prodigal
 TYPE=$(miga list_datasets -P "$PROJECT" -D "$DATASET" \
@@ -34,5 +34,5 @@ mv "$DATASET.gff3.t" "$DATASET.gff3"
 gzip -9 -f "$DATASET.gff3"
 
 # Finalize
-date "+%Y-%m-%d %H:%M:%S %z" > "$DATASET.done"
+miga date > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
