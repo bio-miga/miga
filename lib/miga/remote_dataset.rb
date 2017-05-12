@@ -141,6 +141,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     end
     metadata = get_metadata(metadata)
     udb = @@UNIVERSE[universe][:dbs][db]
+    metadata["#{universe}_#{db}"] = ids.join(",")
     case udb[:stage]
     when :assembly
       dir = MiGA::Dataset.RESULT_DIRS[:assembly]
