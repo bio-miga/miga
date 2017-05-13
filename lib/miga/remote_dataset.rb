@@ -147,6 +147,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       dir = MiGA::Dataset.RESULT_DIRS[:assembly]
       base = "#{project.path}/data/#{dir}/#{name}"
       l_ctg = "#{base}.LargeContigs.fna"
+      a_ctg = "#{base}.AllContigs.fna"
       File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
       if udb[:format] == :fasta_gz
         download "#{l_ctg}.gz"
@@ -154,7 +155,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
       else
         download l_ctg
       end
-      File.symlink(File.basename(l_ctg), "#{base}.AllContigs.fna")
+      File.unlink(a_ctg) if File.exist? a_ctg
+      File.symlink(File.basename(l_ctg), a_ctg)
       File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
     else
       raise "Unexpected error: Unsupported result for database #{db}."
