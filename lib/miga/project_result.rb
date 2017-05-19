@@ -55,6 +55,8 @@ module MiGA::ProjectResult
       r.add_file(:ogs, "miga-project.ogs")
       r.add_file(:stats, "miga-project.stats")
       r.add_file(:rbm, "miga-project.rbm")
+      r.add_file(:core_pan, "miga-project.core-pan.tsv")
+      r.add_file(:core_pan_plot, "miga-project.core-pan.pdf")
       r
     end
 
