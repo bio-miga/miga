@@ -18,8 +18,11 @@ plot_core_pan <- function(core_pan, pdf){
   lines(a$genomes, a$pan_avg, col=rgb(96,11,64,max=255), lty=2)
   lines(a$genomes, a$pan_q2, col=rgb(96,11,64,max=255), lty=1)
   # Legend
-  legend("topleft", legend=c("pangenome","core genome"), pch=16,
-    col=c(rgb(96,11,64,max=255), rgb(0,121,166,max=255)), bty="n")
+  legend("topleft",
+    legend=c("pangenome","core genome","Inter-Quartile","Median","Average"),
+    pch=c(16,16,15,NA,NA),lty=c(NA,NA,NA,1,2), pt.cex=c(1,1,2,NA,NA),
+    col=c(rgb(96,11,64,max=255), rgb(0,121,166,max=255),
+      rgb(0.5,0.5,0.5,166/255), rep(rgb(0.5,0.5,0.5),2)), bty="n")
   dev.off()
 }
 
