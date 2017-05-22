@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, info:false, processing:false}
+o = {q:true, info:false, processing:false, silent:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt])
@@ -15,11 +15,15 @@ OptionParser.new do |opt|
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only. If set, ignores -i."
     ){ |v| o[:datum]=v }
+  opt.on("-s", "--silent",
+    "No output and exit with non-zero status if the dataset list is empty."
+    ){ |v| o[:silent] = v }
   opt_common(opt, o)
 end.parse!
 
 ##=> Main <=
 opt_require(o, project:"-P")
+o[:q] = true if o[:silent]
 
 $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])
@@ -34,6 +38,7 @@ else
   ds = []
 end
 ds = filter_datasets!(ds, o)
+exit(1) if o[:silent] and ds.empty?
 
 if not o[:datum].nil?
   ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum] ] || "?"}"}
