@@ -25,7 +25,7 @@ ds = p.dataset(o[:dataset])
 $stderr.puts "Finding closest relative." unless o[:q]
 cr = ds.closest_relatives(1)
 
-unless cr[:ds].nil? or cr[:ds].empty?
+unless cr.empty?
   $stderr.puts "Querying probability distributions." unless o[:q]
   cr = cr[0]
   tax = p.dataset(cr[0]).metadata[:tax]
