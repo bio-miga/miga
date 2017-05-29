@@ -4,6 +4,7 @@
 require "miga/metadata"
 require "miga/result"
 require "miga/dataset_result"
+require "sqlite3"
 
 ##
 # Dataset representation in MiGA.
@@ -135,28 +136,32 @@ class MiGA::Dataset < MiGA::MiGA
   # Get standard metadata values for the dataset as Array.
   def info
     MiGA::Dataset.INFO_FIELDS.map do |k|
-      (k=="name") ? self.name : self.metadata[k.to_sym]
+      (k=="name") ? self.name : metadata[k.to_sym]
     end
   end
   
   ##
   # Is this dataset a reference?
-  def is_ref? ; !!self.metadata[:ref] ; end
+  def is_ref? ; !!metadata[:ref] ; end
+
+  ##
+  # Is this dataset a query (non-reference)?
+  def is_query? ; !metadata[:ref] ; end
   
   ##
   # Is this dataset known to be multi-organism?
   def is_multi?
-    return false if self.metadata[:type].nil? or
-      @@KNOWN_TYPES[self.metadata[:type]].nil?
-    @@KNOWN_TYPES[self.metadata[:type]][:multi]
+    return false if metadata[:type].nil? or
+      @@KNOWN_TYPES[type].nil?
+    @@KNOWN_TYPES[type][:multi]
   end
   
   ##
   # Is this dataset known to be single-organism?
   def is_nonmulti?
-    return false if self.metadata[:type].nil? or
-      @@KNOWN_TYPES[self.metadata[:type]].nil?
-    !@@KNOWN_TYPES[self.metadata[:type]][:multi]
+    return false if metadata[:type].nil? or
+      @@KNOWN_TYPES[type].nil?
+    !@@KNOWN_TYPES[type][:multi]
   end
   
   ##
@@ -263,6 +268,30 @@ class MiGA::Dataset < MiGA::MiGA
       adv << state
     end
     adv
+  end
+  
+  ##
+  # Returns a Hash indicating the closest relatives with key-value pairs:
+  # - +:ds+: An Array of String with the name(s) of the closest relative(s),
+  #   or +nil+.
+  # - +:value+: An array of Float with the ANI or ANI to the closest relatives,
+  #   or +nil+.
+  # - +:metric+: A symbol +:ani+ or +:aai+ indicating the metric of relatedness.
+  #   It can be +nil+ if the project doesn't support this analysis
+  # This function is currently only supported for query datasets.
+  def closest_relatives(how_many=1)
+    o = {ds: nil, value: nil, metric: nil}
+    return o if is_ref? or project.is_multi?
+    o[:metric] = (project.is_clade? ? :ani : :aai)
+    r = result :distances
+    return o if r.nil?
+    db = SQLite3::Database.new(r.file_path :ani_db)
+    rq = db.execute("SELECT seq2, #{o[:metric]} FROM #{o[:metric]} " +
+      "WHERE seq2 != ? GROUP BY seq2 ORDER BY #{o[:metric]} DESC LIMIT ?",
+      [name, how_many])
+    o[:ds] = rq.map{ |i| i[0] }
+    o[:value] = rq.map{ |i| i[1].to_f }
+    o
   end
 
 end # class MiGA::Dataset

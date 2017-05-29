@@ -162,6 +162,10 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Is this a clade project?
   def is_clade? ; type==:clade ; end
+
+  ##
+  # Is this a project for multi-organism datasets?
+  def is_multi? ; @@KNOWN_TYPES[type][:multi] ; end
   
   ##
   # Returns Array of MiGA::Dataset.
