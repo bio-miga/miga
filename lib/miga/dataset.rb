@@ -285,7 +285,7 @@ class MiGA::Dataset < MiGA::MiGA
     o[:metric] = (project.is_clade? ? :ani : :aai)
     r = result :distances
     return o if r.nil?
-    db = SQLite3::Database.new(r.file_path :ani_db)
+    db = SQLite3::Database.new(r.file_path "#{o[:metric]}_db")
     rq = db.execute("SELECT seq2, #{o[:metric]} FROM #{o[:metric]} " +
       "WHERE seq2 != ? GROUP BY seq2 ORDER BY #{o[:metric]} DESC LIMIT ?",
       [name, how_many])
