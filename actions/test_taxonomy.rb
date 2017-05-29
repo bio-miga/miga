@@ -28,7 +28,10 @@ ds = p.dataset(o[:dataset])
 $stderr.puts "Finding closest relative." unless o[:q]
 cr = ds.closest_relatives(1)
 
-unless cr.empty?
+if cr.nil? or cr.empty?
+  raise "This action is not supported for the project or dataset." if cr.nil?
+  raise "No close relatives found."
+else
   $stderr.puts "Querying probability distributions." unless o[:q]
   cr = cr[0]
   puts "Closest relative: #{cr[0]} with AAI: #{cr[1]}."
