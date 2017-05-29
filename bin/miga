@@ -34,6 +34,7 @@ $task_desc = {
   date: "Returns the current date in standard MiGA format.",
   # Taxonomy
   add_taxonomy: "Registers taxonomic information for datasets.",
+  test_taxonomy: "Returns test of taxonomic distributions for query datasets.",
   index_taxonomy: "Creates a taxonomy-indexed list of the datasets.",
   tax_distributions: "Estimates distributions of distance by taxonomy.",
 }

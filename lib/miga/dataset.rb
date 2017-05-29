@@ -271,27 +271,18 @@ class MiGA::Dataset < MiGA::MiGA
   end
   
   ##
-  # Returns a Hash indicating the closest relatives with key-value pairs:
-  # - +:ds+: An Array of String with the name(s) of the closest relative(s),
-  #   or +nil+.
-  # - +:value+: An array of Float with the ANI or ANI to the closest relatives,
-  #   or +nil+.
-  # - +:metric+: A symbol +:ani+ or +:aai+ indicating the metric of relatedness.
-  #   It can be +nil+ if the project doesn't support this analysis
-  # This function is currently only supported for query datasets.
+  # Returns an Array of duples (Arrays) sorted by ANI:
+  # - +0+: A String with the name(s) of the reference dataset.
+  # - +1+: A Float with the AAI.
+  # This function is currently only supported for query datasets. It returns
+  # +nil+ if this analysis is not supported.
   def closest_relatives(how_many=1)
-    o = {ds: nil, value: nil, metric: nil}
-    return o if is_ref? or project.is_multi?
-    o[:metric] = (project.is_clade? ? :ani : :aai)
+    return nil if is_ref? or project.is_multi?
     r = result :distances
-    return o if r.nil?
+    return nil if r.nil?
     db = SQLite3::Database.new(r.file_path "#{o[:metric]}_db")
-    rq = db.execute("SELECT seq2, #{o[:metric]} FROM #{o[:metric]} " +
-      "WHERE seq2 != ? GROUP BY seq2 ORDER BY #{o[:metric]} DESC LIMIT ?",
-      [name, how_many])
-    o[:ds] = rq.map{ |i| i[0] }
-    o[:value] = rq.map{ |i| i[1].to_f }
-    o
+    db.execute("SELECT seq2, aai FROM aai WHERE seq2 != ? " +
+      "GROUP BY seq2 ORDER BY aai DESC LIMIT ?", [name, how_many])
   end
 
 end # class MiGA::Dataset
