@@ -58,7 +58,7 @@ fi
 
 CLASSIF="."
 [[ -e "$DATASET.$METRIC-medoids.tsv" ]] && rm "$DATASET.$METRIC-medoids.tsv"
-while [[ -e "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
+while [[ -s "$CLADES/$CLASSIF/miga-project.medoids" ]] ; do
   MAX_VAL=0
   VAL_MED=""
   VAL_CLS=""
