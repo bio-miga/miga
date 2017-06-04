@@ -32,6 +32,7 @@ $task_desc = {
   # System
   daemon: "Controls the daemon of a MiGA project.",
   date: "Returns the current date in standard MiGA format.",
+  console: "Opens an IRB console with MiGA (alias: c).",
   # Taxonomy
   add_taxonomy: "Registers taxonomic information for datasets.",
   test_taxonomy: "Returns test of taxonomic distributions for query datasets.",
@@ -137,6 +138,11 @@ when "-V", "--long-version"
   puts MiGA::MiGA.LONG_VERSION
 when "-C", "--citation"
   puts MiGA::MiGA.CITATION
+when "console", "c"
+  require "irb"
+  require "irb/completion"
+  ARGV.shift
+  IRB.start
 when *execs
   $task = ARGV.shift.to_sym
   ARGV << "-h" if ARGV.empty? and not [:date].include? $task
