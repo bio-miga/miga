@@ -1,0 +1,3 @@
+[submodule "utils/enveomics"]
+	path = utils/enveomics
+	url = https://github.com/lmrodriguezr/enveomics.git

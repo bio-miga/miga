@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   # Files
   s.files = Dir[
     "lib/**/*.rb", "test/**/*.rb", "lib/miga/_data/**/*",
-    "scripts/*.bash", "utils/*", "bin/*", "actions/*",
+    "scripts/*.bash", "utils/**/*", "bin/*", "actions/*",
     "Gemfile", "Rakefile", "README.md", "LICENSE"
   ]
   s.executables	<< "miga"

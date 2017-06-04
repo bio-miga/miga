@@ -21,13 +21,14 @@ for sis in 1 2 ; do
 done
 
 # FastQ -> FastA
-FastQ.toFastA.awk < "../02.trimmed_reads/$b.1.clipped.fastq" > "$b.1.fasta"
+FQ2A="$MIGA/utils/enveomics/Scripts/FastQ.toFastA.awk"
+awk -f "$FQ2A" < "../02.trimmed_reads/$b.1.clipped.fastq" > "$b.1.fasta"
 if [[ -e "../02.trimmed_reads/$b.2.clipped.fastq" ]] ; then
-  FastQ.toFastA.awk < "../02.trimmed_reads/$b.2.clipped.fastq" > "$b.2.fasta"
+  awk -f "$FQ2A" < "../02.trimmed_reads/$b.2.clipped.fastq" > "$b.2.fasta"
   FastA.interpose.pl "$b.CoupledReads.fa" "$b".[12].fasta
   gzip -9 -f "$b.2.fasta"
   gzip -9 -f "$b.1.fasta"
-  FastQ.toFastA.awk < "../02.trimmed_reads/$b".[12].clipped.single.fastq \
+  awk -f "$FQ2A" < "../02.trimmed_reads/$b".[12].clipped.single.fastq \
     > "$b.SingleReads.fa"
   gzip -9 -f "$b.SingleReads.fa"
 else
