@@ -109,7 +109,7 @@ echo "export PATH=\$MIGA_PATH\$PATH" >> "$HOME/.miga_rc"
 # Check for R packages
 echo "
 Looking for R packages:" >&2
-RLIBS="enveomics.R ape phangorn phytools ggdendro ggplot2 gridExtra cluster dendextend vegan scatterplot3d"
+RLIBS="enveomics.R ape phangorn phytools cluster vegan"
 for lib in $RLIBS ; do
   if ! check_rlib "$lib" ; then
     echo "+ Installing $lib" >&2
