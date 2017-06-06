@@ -26,7 +26,7 @@ ogs.mcl.rb -d . -o miga-project.ani95-clades -t "$CORES" -b \
 rm genome-genome.ani95.rbm
 
 # Propose clade projects
-cat miga-project.ani95-clades | tail -n +2 | tr "," "\\t" | awk 'NF >= 5' \
+tail -n +2 miga-project.ani95-clades | tr "," "\\t" | awk 'NF >= 5' \
   > miga-project.proposed-clades
 
 # Run R code (except in projects type clade)

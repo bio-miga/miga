@@ -37,7 +37,7 @@ fi
 # Calculate Statistics
 ogs.stats.rb -o miga-project.ogs -j miga-project.stats
 ogs.core-pan.rb -o miga-project.ogs -s miga-project.core-pan.tsv -t "$CORES"
-Rscript $MIGA/utils/core-pan-plot.R \
+Rscript "$MIGA/utils/core-pan-plot.R" \
   miga-project.core-pan.tsv miga-project.core-pan.pdf
 
 # Finalize
