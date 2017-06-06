@@ -23,7 +23,7 @@ $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
-miga = File.expand_path("../..", __FILE__)
+miga = MiGA::MiGA.root_path
 cmd = ["PROJECT=#{p.path.shellescape}", "RUNTYPE=bash",
   "MIGA=#{miga.shellescape}", "CORES=#{o[:thr]}"]
 if o[:dataset].nil?

@@ -3,7 +3,7 @@ set -e
 #MIGA=${MIGA:-$(cd "$(dirname "$0")/.."; pwd)}
 # shellcheck source=/dev/null
 source "$HOME/.miga_rc"
-export PATH="$MIGA/bin:$PATH"
+export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
 SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 
 function exists { [[ -e "$1" ]] ; }
