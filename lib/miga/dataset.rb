@@ -38,13 +38,13 @@ class MiGA::Dataset < MiGA::MiGA
   def self.KNOWN_TYPES ; @@KNOWN_TYPES end
   @@KNOWN_TYPES = {
     genome: {description: "The genome from an isolate.", multi: false},
-    metagenome: {description: "A metagenome (excluding viromes).",
-      multi: true},
-    virome: {description: "A viral metagenome.", multi: true},
     scgenome: {description: "A Single-cell Genome Amplification (SGA).",
       multi: false},
     popgenome: {description: "A population genome (including " +
-      "metagenomic bins).", :multi=>false}
+      "metagenomic bins).", :multi=>false},
+    metagenome: {description: "A metagenome (excluding viromes).",
+      multi: true},
+    virome: {description: "A viral metagenome.", multi: true}
   }
 
   ##

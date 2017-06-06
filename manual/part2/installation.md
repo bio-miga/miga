@@ -47,7 +47,8 @@ export PATH="$HOME/shared3/apps/MyTaxa:$PATH"
 alias fastqc="perl $(which --skip-alias --skip-functions fastqc)"
 
 # Workaround for broken KronaTools in the cluster
-alias ktImportText="perl -I$HOME/shared3/apps/KronaTools-2.5/lib/ $HOME/shared3/bin/ktImportText"
+alias ktImportText="perl -I$HOME/shared3/apps/KronaTools-2.5/lib/ \
+  $HOME/shared3/bin/ktImportText"
 ```
 
 If all of the requirements are readily available (*e.g.*, if you already
