@@ -19,7 +19,6 @@ For additional information on MiGA, visit:
 * [MiGA manual][gitbook]: The definitive guide to MiGA.
 * [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
 * [MiGA Web][miga-web]: MiGA on Rails!
-* [MiGA GUI][miga-gui]: MiGA on Shoes!
 
 # For the impatient
 
