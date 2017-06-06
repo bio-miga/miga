@@ -142,10 +142,11 @@ module MiGA::DatasetResult
     # Add result type +:mytaxa+ at +base+ (no +_opts+ supported).
     def add_result_mytaxa(base, _opts)
       if is_multi?
-        return nil unless result_files_exist?(base, ".mytaxa")
+        return nil unless result_files_exist?(base, ".mytaxa") or
+          result_files_exist?(base, ".nomytaxa.txt")
         r = MiGA::Result.new("#{base}.json")
         add_files_to_ds_result(r, name, mytaxa:".mytaxa", blast:".blast",
-          mytaxain:".mytaxain")
+          mytaxain:".mytaxain", nomytaxa:".nomytaxa.txt")
       else
         MiGA::Result.new("#{base}.json")
       end
@@ -156,11 +157,13 @@ module MiGA::DatasetResult
     def add_result_mytaxa_scan(base, _opts)
       if is_nonmulti?
         return nil unless
-          result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg])
+          result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg]) or
+          result_files_exist?(base, ".nomytaxa.txt")
         r = MiGA::Result.new("#{base}.json")
         add_files_to_ds_result(r, name, mytaxa:".mytaxa", wintax:".wintax",
           blast:".blast", mytaxain:".mytaxain", report:".pdf", regions:".reg",
-          gene_ids:".wintax.genes", region_ids:".wintax.regions")
+          gene_ids:".wintax.genes", region_ids:".wintax.regions",
+          nomytaxa:".nomytaxa.txt")
       else
         MiGA::Result.new("#{base}.json")
       end
