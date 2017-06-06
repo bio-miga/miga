@@ -59,6 +59,26 @@ To install MiGA itself, you'll just need: `gem install miga-base`. If necessary,
 you can use `sudo gem install miga-base` or `gem install --user miga-base`
 instead.
 
+### Getting MiGA source
+
+If you want to get MiGA working from source instead of using the gem, you can
+use:
+
+```bash
+# Get the source. Make sure you use --recursive, so you also clone submodules:
+git clone --recursive https://github.com/bio-miga/miga.git
+cd miga
+
+# You can use bundle to make sure you have the required gems, or simply install
+# them manually:
+bundle
+
+# And finally make MiGA available in the PATH. This is not completely necessary,
+# but it saves time and effort:
+echo "export PATH=\"$(pwd)/bin:\$PATH\"" >> ~/.bashrc
+source ~/.bashrc
+```
+
 ## Initializing MiGA
 
 To initialize MiGA for data processing, simply execute and follow the
