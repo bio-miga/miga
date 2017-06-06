@@ -51,7 +51,7 @@ alias ktImportText="perl -I$HOME/shared3/apps/KronaTools-2.5/lib/ $HOME/shared3/
 ```
 
 If all of the requirements are readily available (*e.g.*, if you already
-registered them in your `~/.bashrc`), this file can be empty.
+registered them in your `~/.bashrc`), this file can be empty or nonexistent.
 
 ## Getting MiGA
 
@@ -60,3 +60,12 @@ you can use `sudo gem install miga-base` or `gem install --user miga-base`
 instead.
 
 ## Initializing MiGA
+
+To initialize MiGA for data processing, simply execute and follow the
+instructions:
+
+```bash
+miga init
+```
+
+To see additional initialization parameters, use `miga init -h`.

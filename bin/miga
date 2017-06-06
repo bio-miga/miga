@@ -30,6 +30,7 @@ $task_desc = {
     "project.",
   run_local: "Executes locally one step analysis producing the given result.",
   # System
+  init: "Initialize MiGA to process new projects.",
   daemon: "Controls the daemon of a MiGA project.",
   date: "Returns the current date in standard MiGA format.",
   console: "Opens an IRB console with MiGA (alias: c).",
@@ -145,7 +146,7 @@ when "console", "c"
   IRB.start
 when *execs
   $task = ARGV.shift.to_sym
-  ARGV << "-h" if ARGV.empty? and not [:date].include? $task
+  ARGV << "-h" if ARGV.empty? and not [:date, :init].include? $task
   begin
     load File.expand_path("../actions/#{$task}.rb", File.dirname(__FILE__))
   rescue => err

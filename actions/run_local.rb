@@ -16,7 +16,6 @@ opts = OptionParser.new do |opt|
 end.parse!
 
 ##=> Main <=
-opts.parse!
 opt_require(o, project:"-P", name:"-r")
 
 $stderr.puts "Loading project." unless o[:q]

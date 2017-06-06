@@ -222,9 +222,7 @@ can either use `sudo gem ...` if you have superuser access, or
 `gem install --user ...`:
 
 ```bash
-gem install sqlite3 -- \
-  --with-sqlite3-lib=/usr/lib --with-sqlite3-include=/usr/include
-gem install rest-client daemons json
+gem install rest-client daemons json sqlite3
 ```
 
 ### R packages
