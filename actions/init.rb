@@ -189,9 +189,9 @@ $stderr.puts ""
 # Configure daemon
 $stderr.puts "Default daemon configuration:"
 v = {created:Time.now.to_s, updated:Time.now.to_s}
-dtype = ask_user("Please select the type of daemon you want to setup",
+v[:type] = ask_user("Please select the type of daemon you want to setup",
           o[:dtype], %w(bash qsub msub))
-case dtype
+case v[:type]
   when "bash"
     v[:latency] = ask_user("How long should I sleep? (in seconds)","30").to_i
     v[:maxjobs] = ask_user("How many jobs can I launch at once?", "6").to_i
@@ -220,13 +220,13 @@ case dtype
     v[:cmd]     = ask_user(
       "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
       "%3$d: CPUs, %4$d: log file, %5$s: task name.\n",
-      "#{dtype} -q '#{queue}' -v '%2$s' -l nodes=1:ppn=%3$d %1$s " +
-      "-j oe -o '%4$s' -N '%5$s' | grep .")
+      "#{v[:type]} -q '#{queue}' -v '%2$s' -l nodes=1:ppn=%3$d %1$s " +
+      "-j oe -o '%4$s' -N '%5$s' -l mem=9g -l walltime=12:00:00 | grep .")
     v[:var]     = ask_user(
       "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
       "%1$s=%2$s")
     v[:sep]     = ask_user("What should I use to separate variables?", ",")
-    if dtype == "qsub"
+    if v[:type] == "qsub"
       v[:alive] = ask_user(
         "How can I know that a process is still alive?\n  %1$s: job id, " +
         "output should be 1 for running and 0 for non-running.\n",
