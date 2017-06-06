@@ -31,7 +31,8 @@ sudo apt-get install ncbi-blast+ hmmer bedtools \
 Next, you'll need to install SolexaQA++. If you have a 64-bits Linux:
 
 ```bash
-curl -L -o SolexaQA++_v3.1.7.1.zip "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
+curl -L -o SolexaQA++_v3.1.7.1.zip \
+  "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
 unzip -p SolexaQA++_v3.1.7.1.zip Linux_x64/SolexaQA++ > SolexaQA++
 sudo install SolexaQA++ /usr/bin/
 ```
@@ -41,7 +42,8 @@ If you have 32-bits Linux, you can build SolexaQA++ from source:
 ```bash
 sudo apt-get install libboost-dev libboost-filesystem-dev \
       libboost-regex-dev libboost-iostreams-dev
-curl -L -o SolexaQA++_v3.1.7.1.zip "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
+curl -L -o SolexaQA++_v3.1.7.1.zip \
+  "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
 unzip SolexaQA++_v3.1.7.1.zip 'source/*'
 cd source && make
 sudo install source/SolexaQA++ /usr/bin/
@@ -83,19 +85,24 @@ directory if you prefer:
 cd $HOME/apps
 
 # Install Diamond
-curl -L http://github.com/bbuchfink/diamond/releases/download/v0.9.4/diamond-linux64.tar.gz | tar zx
+curl -L \
+  http://github.com/bbuchfink/diamond/releases/download/v0.9.4/diamond-linux64.tar.gz \
+  | tar zx
 mv diamond diamond-sse2 bin/
 
 # Install MyTaxa
-curl -L https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
+curl -L \
+  https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
 cd MyTaxa-master
 make
 python utils/download_db.py
-curl -O http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
+curl -O \
+  http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
 cd ..
 
 # Install Krona
-curl -L https://github.com/marbl/Krona/archive/master.tar.gz | tar zx
+curl -L \
+  https://github.com/marbl/Krona/archive/master.tar.gz | tar zx
 cd bin
 for i in ../Krona-master/KronaTools/scripts/*.pl ; do
   ln -sf "$i" "kt$(basename $i .pl)"
@@ -175,15 +182,18 @@ cd $HOME/apps
 brew install diamond
 
 # Install MyTaxa
-curl -L https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
+curl -L \
+  https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
 cd MyTaxa-master
 make
 python utils/download_db.py
-curl -O http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
+curl -O \
+  http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
 cd ..
 
 # Install Krona
-curl -L -o Krona.tar.gz https://github.com/marbl/Krona/archive/master.tar.gz
+curl -L -o Krona.tar.gz \
+  https://github.com/marbl/Krona/archive/master.tar.gz
 tar zxf Krona.tar.gz
 cd bin
 for i in ../Krona-master/KronaTools/scripts/*.pl ; do
@@ -255,19 +265,24 @@ directory if you prefer:
 cd $HOME/apps
 
 # Install Diamond (for 64-bits Linux)
-curl -L http://github.com/bbuchfink/diamond/releases/download/v0.9.4/diamond-linux64.tar.gz | tar zx
+curl -L \
+  http://github.com/bbuchfink/diamond/releases/download/v0.9.4/diamond-linux64.tar.gz \
+  | tar zx
 mv diamond diamond-sse2 bin/
 
 # Install MyTaxa
-curl -L https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
+curl -L \
+  https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
 cd MyTaxa-master
 make
 python utils/download_db.py
-curl -O http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
+curl -O \
+  http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
 cd ..
 
 # Install Krona
-curl -L https://github.com/marbl/Krona/archive/master.tar.gz | tar zx
+curl -L \
+  https://github.com/marbl/Krona/archive/master.tar.gz | tar zx
 cd bin
 for i in ../Krona-master/KronaTools/scripts/*.pl ; do
   ln -sf "$i" "kt$(basename $i .pl)"
