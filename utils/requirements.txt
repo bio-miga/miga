@@ -1,5 +1,7 @@
 Software	Test exec	Website								Notes
 --------	---------	-------								-----
+Ruby		ruby		https://www.ruby-lang.org/					Required version: 1.9+
+Python		python		https://www.python.org/
 R		R		http://www.r-project.org/
 SQLite3		sqlite3		https://www.sqlite.org/
 NCBI BLAST+	blastp		ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST

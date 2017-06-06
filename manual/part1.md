@@ -16,7 +16,7 @@ stored. Moreover, MiGA projects can be easily browsed, with descriptive folder
 names and a simple structure that is easy to understand.
 
 **MiGA is not**: MiGA is not designed to support versioning or database storage,
-other than individual file-based databases, in order to keep the overhead on 
+other than individual file-based databases, in order to keep the overhead on
 any of the tasks above (and the system requirements) at a minimum.
 
 ## Processing
@@ -54,13 +54,13 @@ purposes, but thread carefully.
 ## Standards
 
 MiGA has a general-purpose design, with some presets designed for the different
-[data types](../part2/types.md) supported. All the internal configuration and
+[data types](part2/types.md) supported. All the internal configuration and
 metadata are stored as individual JSON files. Sequence quality is stored as
 FastQ, and sequences are stored as FastA, and these two cover most of the data
 in the system. There are also some graphic reports in PDF and HTML, raw-text
 reports and logs, and a few general statistics in JSON. Finally, all of the
-[pair-wise comparisons](../part2/distances.md) are stored in SQLite3 files
-[described here](../part2/distances.md#sqlite3-schema).
+[pair-wise comparisons](part2/distances.md) are stored in SQLite3 files
+[described here](part2/distances.md#sqlite3-schema).
 
 ### Filesystem structure
 
