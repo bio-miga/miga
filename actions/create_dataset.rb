@@ -12,8 +12,6 @@ OptionParser.new do |opt|
     ){ |v| o[:ref]=!v }
   opt.on("-d", "--description STRING",
     "Description of the dataset."){ |v| o[:description]=v }
-  opt.on("-u", "--user STRING",
-    "Owner of the dataset."){ |v| o[:user]=v }
   opt.on("-c", "--comments STRING",
     "Comments on the dataset."){ |v| o[:comments]=v }
   opt.on("-m", "--metadata STRING",
@@ -43,9 +41,7 @@ end.parse!
 
 ##=> Main <=
 opt_require(o)
-opt_require(o, type:"-t") unless o[:update]
-raise "Unrecognized dataset type: #{o[:type]}." if
-  (not o[:update]) and MiGA::Dataset.KNOWN_TYPES[o[:type]].nil?
+opt_require_type(o, MiGA::Dataset) unless o[:update]
 
 $stderr.puts "Loading project." unless o[:q]
 p = MiGA::Project.load(o[:project])
@@ -55,7 +51,7 @@ raise "Dataset already exists, aborting." unless
   o[:update] or not MiGA::Dataset.exist?(p, o[:dataset])
 $stderr.puts "Loading dataset." unless o[:q]
 d = o[:update] ? p.dataset(o[:dataset]) :
-  MiGA::Dataset.new(p, o[:dataset], o[:ref], {})
+  MiGA::Dataset.new(p, o[:dataset], o[:ref])
 raise "Dataset does not exist." if d.nil?
 
 in_files = [:raw_reads, :trimmed_fasta_s, :trimmed_fasta_c, :assembly]
@@ -83,21 +79,7 @@ if in_files.any? { |i| not o[i].nil? }
   cp_result(o, d, p, :assembly, :assembly, %w[.LargeContigs.fna])
 end
 
-unless o[:metadata].nil?
-  o[:metadata].split(",").each do |pair|
-    (k,v) = pair.split("=")
-    case v
-      when "true";  v = true
-      when "false"; v = false
-      when "nil";   v = nil
-    end
-    d.metadata[k] = v
-  end
-end
-[:type, :description, :user, :comments].each do |k|
-  d.metadata[k]=o[k] unless o[k].nil?
-end
-
+d = add_metadata(o, d)
 d.save
 p.add_dataset(o[:dataset]) unless o[:update]
 res = d.first_preprocessing(true)

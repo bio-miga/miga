@@ -11,7 +11,6 @@ OptionParser.new do |opt|
     "Name of the project."){ |v| o[:name]=v }
   opt.on("-d", "--description STRING",
     "Description of the project."){ |v| o[:description]=v }
-  opt.on("-u", "--user STRING", "Owner of the project."){ |v| o[:user]=v }
   opt.on("-c", "--comments STRING",
     "Comments on the project."){ |v| o[:comments]=v }
   opt.on("-m", "--metadata STRING",
@@ -25,9 +24,7 @@ end.parse!
 
 ##=> Main <=
 opt_require(o, project:"-P")
-opt_require(o, type:"-t") unless o[:update]
-raise "Unrecognized project type: #{o[:type]}." if
-  (not o[:update]) and MiGA::Project.KNOWN_TYPES[o[:type]].nil?
+opt_require_type(o, MiGA::Project) unless o[:update]
 
 unless File.exist? "#{ENV["HOME"]}/.miga_rc" and
       File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
@@ -41,22 +38,8 @@ raise "Project already exists, aborting." unless
 p = MiGA::Project.new(o[:project], o[:update])
 # The following check is redundant with MiGA::Project#create,
 # but allows upgrading projects from (very) early code versions
-o[:name] = File.basename(p.path) if
-  o[:update] and o[:name].nil?
-unless o[:metadata].nil?
-  o[:metadata].split(",").each do |pair|
-    (k,v) = pair.split("=")
-    case v
-      when "true";  v = true
-      when "false"; v = false
-      when "nil";   v = nil
-    end
-    p.metadata[k] = v
-  end
-end
-[:name, :description, :user, :comments, :type].each do |k|
-  p.metadata[k] = o[k] unless o[k].nil?
-end
+o[:name] = File.basename(p.path) if o[:update] and o[:name].nil?
+p = add_metadata(o, p)
 p.save
 
 $stderr.puts "Done." unless o[:q]

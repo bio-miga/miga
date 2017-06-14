@@ -71,7 +71,7 @@ def opt_object(opt, o, what=[:project, :dataset])
       what.include? :dataset_type_req
   opt.on("-t", "--type STRING",
     (what.include?(:project_type_req) ? "(Mandatory) " : "") +
-    "Type of dataset. Recognized types include:", 
+    "Type of project. Recognized types include:", 
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
     ){ |v| o[:type]=v.to_sym } if what.include? :project_type or
       what.include? :project_type_req
@@ -116,6 +116,11 @@ def opt_require(o, req={project:"-P", dataset:"-D"})
   end
 end
 
+def opt_require_type(o, klass)
+  opt_require(o, type:"-t")
+  raise "Unrecognized type: #{o[:type]}." if klass.KNOWN_TYPES[o[:type]].nil?
+end
+
 # Filters datasets by keys set in +opt_filter_datasets+.
 def filter_datasets!(ds, o)
   ds.select!{|d| d.is_ref? == o[:ref] } unless o[:ref].nil?
@@ -126,6 +131,22 @@ def filter_datasets!(ds, o)
     (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
   end unless o[:taxonomy].nil?
   ds
+end
+
+def add_metadata(o, obj)
+  o[:metadata].split(",").each do |pair|
+    (k,v) = pair.split("=")
+    case v
+      when "true";  v = true
+      when "false"; v = false
+      when "nil";   v = nil
+    end
+    obj.metadata[k] = v
+  end
+  [:type, :name, :user, :description, :comments].each do |k|
+    obj.metadata[k] = o[k] unless o[k].nil?
+  end
+  obj
 end
 
 ##=> Main <=
