@@ -7,7 +7,7 @@ require "shellwords"
 
 o = {q:true, mytaxa:nil, config:File.expand_path(".miga_modules", ENV["HOME"]),
   ask: false, auto:false, dtype: "bash"}
-opts = OptionParser.new do |opt|
+OptionParser.new do |opt|
   opt_banner(opt)
   opt.on("-c","--config PATH",
     "Path to the Bash configuration file.",
@@ -83,7 +83,7 @@ unless File.exist? o[:config]
   o[:config] = ask_user(
     "Is there a script I need to load at startup?", o[:config])
 end
-if File.exists? o[:config]
+if File.exist? o[:config]
   o[:config] = File.expand_path o[:config]
   $stderr.puts "Found bash configuration script: #{o[:config]}."
   rc_fh.puts "MIGA_STARTUP='#{o[:config]}'"

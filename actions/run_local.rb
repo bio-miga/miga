@@ -6,7 +6,7 @@
 require "shellwords"
 
 o = {q:true, try_load:false, thr:1}
-opts = OptionParser.new do |opt|
+OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt, :result])
   opt.on("-t", "--threads INT",
