@@ -283,16 +283,26 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Get the next distances task, saving intermediate results if +save+. Returns
   # a Symbol.
-  def next_distances(save=true)
-    @@DISTANCE_TASKS.find{ |t| add_result(t, save).nil? }
-  end
+  def next_distances(save=true) ; next_task(@@DISTANCE_TASKS, save) ; end
   
   ##
   # Get the next inclade task, saving intermediate results if +save+. Returns a
   # Symbol.
-  def next_inclade(save=true)
-    return nil unless metadata[:type]==:clade
-    @@INCLADE_TASKS.find{ |t| add_result(t, save).nil? }
+  def next_inclade(save=true) ; next_task(@@INCLADE_TASKS, save) ; end
+
+  ##
+  # Get the next task from +tasks+, saving intermediate results if +save+.
+  # Returns a Symbol.
+  def next_task(tasks=@@DISTANCE_TASKS+@@INCLADE_TASKS, save=true)
+    tasks.find do |t|
+      if metadata["run_#{t}"]==false or
+            (!is_clade? and @@INCLADE_TASKS.include?(t) and
+                  metadata["run_#{t}"]!=true)
+        false
+      else
+        add_result(t, save).nil?
+      end
+    end
   end
   
   ##

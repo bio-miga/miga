@@ -86,6 +86,16 @@ class ProjectTest < Test::Unit::TestCase
     assert_equal(MiGA::Result, p1.add_result(:haai_distances).class)
   end
 
+  def test_result
+    p1 = $p1
+    assert_nil(p1.result :n00b)
+    assert_nil(p1.result :project_stats)
+    File.open(File.expand_path("data/90.stats/miga-project.json",p1.path),
+      "w"){ |fh| fh.puts "{}" }
+    assert_not_nil(p1.result :project_stats)
+    assert_equal(1, p1.results.size)
+  end
+
   def test_preprocessing
     p1 = $p1
     assert(p1.done_preprocessing?)
@@ -142,6 +152,7 @@ class ProjectTest < Test::Unit::TestCase
         "Impossible to add #{r} result.")
     end
     assert_nil(p1.next_inclade)
+
   end
 
 end

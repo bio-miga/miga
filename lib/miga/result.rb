@@ -114,7 +114,7 @@ class MiGA::Result < MiGA::MiGA
     json = File.read(path)
     @data = JSON.parse(json, {:symbolize_names=>true})
     @data[:files] ||= {}
-    @results = self[:results].map{ |rs| MiGA::Result.new rs }
+    @results = (self[:results] || []).map{ |rs| MiGA::Result.new rs }
   end
 
   ##
