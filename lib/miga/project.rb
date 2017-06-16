@@ -380,6 +380,8 @@ class MiGA::Project < MiGA::MiGA
   # List plugins installed in the project.
   def plugins ; metadata[:plugins] ||= [] ; end
 
+  ##
+  # Loads the plugins installed in the project.
   def load_plugins
     plugins.each { |pl| require File.expand_path("lib-plugin.rb", pl) }
   end

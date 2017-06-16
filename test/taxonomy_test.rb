@@ -31,6 +31,7 @@ class TaxonomyTest < Test::Unit::TestCase
     assert_equal("v3", tx[:g])
     tx << "s:v3_0"
     assert(tx.is_in? MiGA::Taxonomy.new("species:v3_0"))
+    assert_raise(RuntimeError) { tx << 123 }
   end
 
   def test_init_methods
