@@ -44,9 +44,11 @@ module MiGA::DatasetResult
       r = MiGA::Result.new("#{base}.json")
       if result_files_exist?(base, ".2.clipped.fastq")
         r = add_files_to_ds_result(r, name,
-          pair1:".1.clipped.fastq", pair2:".2.clipped.fastq")
+          pair1:".1.clipped.fastq", pair2:".2.clipped.fastq",
+          single:".1.clipped.single.fastq")
+      else
+        r = add_files_to_ds_result(r, name, single:".1.clipped.fastq")
       end
-      r.add_file(:single, "#{name}.1.clipped.single.fastq")
       r.add_file(:trimming_sumary, "#{name}.1.fastq.trimmed.summary.txt")
       add_result(:raw_reads) #-> Post gunzip
       r
