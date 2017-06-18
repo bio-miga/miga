@@ -142,7 +142,7 @@ def add_metadata(o, obj)
       when "nil";   v = nil
     end
     obj.metadata[k] = v
-  end
+  end unless o[:metadata].nil?
   [:type, :name, :user, :description, :comments].each do |k|
     obj.metadata[k] = o[k] unless o[k].nil?
   end
