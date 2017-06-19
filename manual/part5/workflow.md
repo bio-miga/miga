@@ -13,6 +13,8 @@ continue with the analysis (marked with *req*), some can be gzipped during or
 after the analysis (marked with *gz*), and some are directories (marked with
 *dir*).
 
+# Dataset Results
+
 ## Raw Reads
 
 This step is never actually performed by MiGA, instead it serves as the entry
@@ -20,13 +22,13 @@ point for raw reads input.
 
 Supported file keys:
 
-* **For single reads only**:
+* **For single reads only**
   * `single` (*req*, *gz*): FastQ file containing the raw reads.
-* **For paired-end reads only**:
+* **For paired-end reads only**
   * `pair1` (*req*, *gz*): FastQ file containing the raw forward reads.
   * `pair2` (*req*, *gz*): FastQ file containing the raw reverse reads.
 
-MiGA symbol: `:raw_reads`.
+MiGA symbol: `raw_reads`.
 
 ## Trimmed Reads
 
@@ -38,14 +40,14 @@ If the reads are paired, only pairs passing the filters are used.
 
 Supported file keys:
 
-* **For single reads only**:
+* **For single reads only**
   * `single` (*req*, *gz*): FastQ file containing trimmed/clipped reads.
-* **For paired-end reads only**:
+* **For paired-end reads only**
   * `pair1` (*req*, *gz*): FastQ file containing trimmed/clipped forward reads.
   * `pair2` (*req*, *gz*): FastQ file containing trimmed/clipped reverse reads.
   * `single` (*req*, *gz*): FastQ file containing trimmed/clipped reads with
     only one sister passing quality control.
-* **For either type**:
+* **For either type**
   * `trimming_summary`: Raw text file containing a summary of the trimmed
     sequences.
 
@@ -64,7 +66,7 @@ Supported file keys:
   summaries.
 * `fastqc` (*dir*): Folder containing the FastQC quality-control analyses.
 
-MiGA symbol: `:read_quality`.
+MiGA symbol: `read_quality`.
 
 ## Trimmed FastA
 
@@ -83,12 +85,12 @@ Supported file keys:
 * `pair2` (*gz*): FastA file containing reverse sisters of quality-checked
   paired-end reads.
 
-MiGA symbol: `:trimmed_fasta`.
+MiGA symbol: `trimmed_fasta`.
 
 ## Assembly
 
-This step corresponds to *Assembly* in the diagram above, and it uses trimmed
-FastA reads to generate a dataset assembly with [IDBA-UD](external.md$idba-ud).
+This step corresponds to *Assembly* in the diagram above, and assembles trimmed
+FastA reads using [IDBA-UD](external.md#idba-ud).
 
 Supported file keys:
 
@@ -99,7 +101,7 @@ Supported file keys:
 * `assembly_data` (*dir*): Folder containing some intermediate files generated
   during the assembly.
 
-MiGA symbol: `:assembly`.
+MiGA symbol: `assembly`.
 
 ## CDS
 
@@ -117,9 +119,17 @@ MiGA symbol: `:assembly`.
 
 ## Stats
 
+# Project Results
+
+## hAAI Distances
+
+## AAI Distances
+
+## ANI Distances
+
 ## Clade Finding
 
-## ANI Clades
+## Subclades
 
 ## OGS
 

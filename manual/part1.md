@@ -68,34 +68,51 @@ reports and logs, and a few general statistics in JSON. Finally, all of the
   + **daemon.json**: Daemon settings.
   + ...: Several daemon log files.
 + **data/**: All the data is stored here.
-  + **01.raw_reads/**: Raw reads in FastQ format.
-  + **02.trimmed_reads/**: Trimmed/clipped reads in FastQ format.
-  + **03.read_quality/**: Read quality reports in HTML and PDF formats.
-  + **04.trimmed_fasta/**: Trimmed/clipped and interposed reads in FastA format.
-  + **05.assembly/**: Assemblies in FastA format.
-  + **06.cds/**: Gene predictions in FastA (genes and proteins) and GFF formats.
+  + **01.raw_reads/**: Raw reads in FastQ format
+    ([raw_reads](part5/workflow.md#raw-reads)).
+  + **02.trimmed_reads/**: Trimmed/clipped reads in FastQ format
+    ([trimmed_reads](part5/workflow.md#trimmed-reads)).
+  + **03.read_quality/**: Read quality reports in HTML and PDF formats
+    ([read_quality](part5/workflow.md#read-quality)).
+  + **04.trimmed_fasta/**: Trimmed/clipped and interposed reads in FastA format
+    ([trimmed_fasta](part5/workflow.md#trimmed-fasta)).
+  + **05.assembly/**: Assemblies in FastA format
+    ([assembly](part5/workflow.md#assembly)).
+  + **06.cds/**: Gene predictions in FastA (genes and proteins) and GFF formats
+    ([cds](part5/workflow.md#cds)).
   + **07.annotation/**: Data annotations.
     + **01.function/**: Functional annotations.
-      + **01.essential/**: Essential prokaryotic gene detections.
-      + **02.ssu/**: Ribosomal RNA (small subunit) sequence annotations.
+      + **01.essential/**: Essential prokaryotic gene detections
+        ([essential_genes](part5/workflow.md#essential-genes)).
+      + **02.ssu/**: Ribosomal RNA (small subunit) sequence annotations
+        ([ssu](part5/workflow.md#ssu)).
     + **02.taxonomy/**: Taxonomic annotations.
-      + **01.mytaxa/**: MyTaxa fragment annotations.
+      + **01.mytaxa/**: MyTaxa fragment annotations
+        ([mytaxa](part5/workflow.md#mytaxa)).
     + **03.qa/**: Quality assessments.
       + **01.checkm/**: (Currently not in use).
-      + **02.mytaxa_scan/**: Gene-window assessment of taxonomic distributions.
+      + **02.mytaxa_scan/**: Gene-window assessment of taxonomic distributions
+        ([mytaxa_scan](part5/workflow.md#mytaxa-scan)).
   + **08.mapping/**: (Currently not in use).
-  + **09.distances/**: Pair-wise comparisons.
-    + **01.haai/**: Heuristic Average Amino Acid Identity (essential proteins).
-    + **02.aai/**: Average Amino Acid Identity (all proteins).
-    + **03.ani/**: Average Nucleotide Identity (genomic fragments).
+  + **09.distances/**: Pair-wise comparisons
+    ([distances](part5/workflow.md#distances)).
+    + **01.haai/**: Heuristic Average Amino Acid Identity (essential proteins;
+      [distances](part5/workflow.md#distances) and
+      [haai_distances](part5/workflow.md#haai-distances)).
+    + **02.aai/**: Average Amino Acid Identity (all proteins;
+      [distances](part5/workflow.md#distances) and
+      [aai_distances](part5/workflow.md#aai-distances)).
+    + **03.ani/**: Average Nucleotide Identity (genomic fragments;
+      [distances](part5/workflow.md#distances) and
+      [ani_distances](part5/workflow.md#ani-distances)).
     + **04.ssu/**: (Currently not in use).
   + **10.clades/**: Dataset clustering at various resolution levels.
     + **01.find/**: Identification of naturally-forming AAI clades at species
-      level and above.
+      level and above ([clade_finding](part5/workflow.md#clade-finding)).
     + **02.ani/**: Identification of naturally-forming ANI clades at species
-      level and below.
+      level and below ([subclades](part5/workflow.md#subclades)).
     + **03.ogs/**: Extraction of orthologous groups of proteins and pan-genome
-      statistics.
+      statistics ([ogs](part5/workflow.md#ogs)).
     + **04.phylogeny/**: (Currently not in use).
     + **05.metadata/**: (Currently not in use).
 + **metadata/**: Collection of JSON files with datasets metadata.
@@ -140,7 +157,7 @@ allows many advanced analyses, including (but not restricted to):
 
 The [intermediate analyses](part5/workflow.md) performed by MiGA can be used for
 many other purposes. For example, we use MiGA's initial pre-processing (like
-[read trimming](part5/workflow.md#trimmed_reads)/[quality check](part5/workflow.md#read_quality),
+[read trimming](part5/workflow.md#trimmed-reads)/[quality check](part5/workflow.md#read-quality),
 [assembly](part5/workflow.md#assembly), and
 [gene prediction](part5/workflow.md#cds)) in most of our genomic and metagenomic
 projects.
