@@ -12,34 +12,64 @@ require "miga"
 
 $task_desc = {
   # Projects
-  create_project: "Creates an empty MiGA project.",
-  project_info: "Displays information about a MiGA project.",
+  new: "Creates an empty MiGA project.",
+  about: "Displays information about a MiGA project.",
   plugins: "Lists or (un)installs plugins in a MiGA project.",
   # Datasets
-  create_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
-  download_dataset: "Creates an empty dataset in a pre-existing MiGA project.",
-  unlink_dataset: "Removes a dataset from an MiGA project.",
-  find_datasets: "Finds unregistered datasets based on result files.",
-  import_datasets: "Link datasets (including results) from one project to "+
-    "another.",
-  list_datasets: "Lists all registered datasets in an MiGA project.",
+  add: "Creates an empty dataset in a pre-existing MiGA project.",
+  get: "Creates an empty dataset in a pre-existing MiGA project.",
+  rm: "Removes a dataset from an MiGA project.",
+  find: "Finds unregistered datasets based on result files.",
+  ln: "Link datasets (including results) from one project to another.",
+  ls: "Lists all registered datasets in an MiGA project.",
   # Results
   add_result: "Registers a result.",
-  result_stats: "Extracts statistics for the given result.",
-  list_files: "Lists all registered files from the results of a dataset or a "+
-    "project.",
-  run_local: "Executes locally one step analysis producing the given result.",
+  stats: "Extracts statistics for the given result.",
+  files: "Lists all registered files from the results of a dataset or project.",
+  run: "Executes locally one step analysis producing the given result.",
   # System
   init: "Initialize MiGA to process new projects.",
   daemon: "Controls the daemon of a MiGA project.",
   date: "Returns the current date in standard MiGA format.",
-  console: "Opens an IRB console with MiGA (alias: c).",
+  console: "Opens an IRB console with MiGA.",
   # Taxonomy
-  add_taxonomy: "Registers taxonomic information for datasets.",
-  test_taxonomy: "Returns test of taxonomic distributions for query datasets.",
-  index_taxonomy: "Creates a taxonomy-indexed list of the datasets.",
-  tax_distributions: "Estimates distributions of distance by taxonomy.",
+  tax_set: "Registers taxonomic information for datasets.",
+  tax_test: "Returns test of taxonomic distributions for query datasets.",
+  tax_index: "Creates a taxonomy-indexed list of the datasets.",
+  tax_dist: "Estimates distributions of distance by taxonomy.",
 }
+
+$task_alias = {
+  # Projects
+  create_project: :new,
+  project_info: :about,
+  # Datasets
+  create_dataset: :add,
+  download_dataset: :get,
+  unlink_dataset: :rm,
+  find_datasets: :find,
+  import_datasets: :ln,
+  list_datasets: :ls,
+  # Results
+  result_stats: :stats,
+  list_files: :files,
+  run_local: :run,
+  # System
+  c: :console,
+  # Taxonomy
+  add_taxonomy: :tax_set,
+  test_taxonomy: :tax_test,
+  index_taxonomy: :tax_index,
+  tax_distributions: :tax_dist,
+}
+
+$task_alias.each do |nick, task|
+  $task_desc[task] = (
+    ($task_desc[task] =~ /\(alias: .*\)\./) ?
+        $task_desc[task].sub(/\)\.$/, ", #{nick}).") :
+        $task_desc[task].sub(/\.$/, " (alias: #{nick}).")
+  )
+end
 
 ##=> Functions <=
 
@@ -153,14 +183,17 @@ end
 
 execs = $task_desc.keys.map{ |k| k.to_s }
 
-case ARGV[0]
+ARGV[0] = $task_alias[ARGV[0].to_sym] unless
+  ARGV[0].nil? or $task_alias[ARGV[0].to_sym].nil?
+
+case ARGV[0].to_s
 when "-v", "--version"
   puts MiGA::MiGA.VERSION
 when "-V", "--long-version"
   puts MiGA::MiGA.LONG_VERSION
 when "-C", "--citation"
   puts MiGA::MiGA.CITATION
-when "console", "c"
+when "console"
   require "irb"
   require "irb/completion"
   ARGV.shift

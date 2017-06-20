@@ -89,8 +89,8 @@ MiGA symbol: `trimmed_fasta`.
 
 ## Assembly
 
-This step corresponds to *Assembly* in the diagram above, and assembles trimmed
-FastA reads using [IDBA-UD](external.md#idba-ud).
+In this step MiGA assembles trimmed FastA reads using
+[IDBA-UD](external.md#idba-ud).
 
 Supported file keys:
 
@@ -105,19 +105,101 @@ MiGA symbol: `assembly`.
 
 ## CDS
 
+This step corresponds to *Gene prediction* in the diagram above. MiGA predicts
+coding sequences (putative genes and proteins) using
+[Prodigal](external.md#prodigal).
 
+Supported file keys:
+
+* `proteins` (*req*): FastA file containing translated protein sequences.
+* `genes` (*req*): FastA file containing putative gene sequences.
+* `gff3` (*gz*): GFF v3 file containing the coordinates of coding sequences.
+  This file is not required, but [MyTaxa](#mytaxa) depends on it (or `gff2` or
+  `tab`, whichever is available).
+* `gff2` (*gz*): GFF v2 file containing the coordinates of coding sequences.
+  This file is not produced by MiGA, but it's supported for backwards
+  compatibility with earlier versions using MetaGeneMark.
+* `tab` (*gz*): Tabular-delimited file containing the columns: gene ID, gene
+  length, and contig ID. This file is not produced by MiGA, but it's supported
+  to allow [MyTaxa](#mytaxa) to run when more detailed information about the
+  gene prediction is missing.
+
+MiGA symbol: `cds`.
 
 ## Essential Genes
 
+In this step, MiGA uses `HMM.essential.rb` from the
+[Enveomics Collection](external.md#enveomics-collection) to identify a set of
+genes typically present in single-copy in Bacterial and Archaeal genomes. In
+this step, protein translations of those *essential* genes are extracted for
+other analyses in MiGA (*e.g.*, hAAI in [distances](#distances)) or outside
+(*e.g.*, phylogeny or MLSA for [diversity analyses](../part1.md#diversity)). In
+addition, this step generates a report that can be used for quality control
+including estimations of completeness and contamination (for genomes) and
+median number of copies of single-copy genes (for metagenomes and viromes).
+
+Supported file keys:
+
+* `ess_genes` (*req*): FastA file containing all extracted protein translations
+  from *essential* genes.
+* `collection` (*req*): Folder containing individual FastA files with protein
+  translations from *essential* genes.
+* `report` (*req*): Raw text report including derived statistics, as well as
+  *essential* genes missing or detected in multiple copies (for genomes) or
+  copy counts (for metagenomes and viromes).
+
+MiGA symbol: `essential_genes`.
+
 ## SSU
+
+In this step, MiGA detects small-subunit rRNA genes (16S) using
+[Barrnap](external.md#barrnap) and extracts their sequences using
+[Bedtools](external.md#bedtools).
+
+Supported file keys:
+
+* `longest_ssu_gene` (*req*): FastA file containing the longest detected SSU
+  gene.
+* `gff` (*gz*): GFF v3 file containing the location of detected SSU genes.
+* `all_ssu_genes` (*gz*): FastA file containing all the detected SSU genes.
+
+MiGA symbol: `ssu`.
 
 ## MyTaxa
 
+This step is only supported for metagenomes and viromes.
+
+
+
+Supported file keys:
+
+*
+
+MiGA symbol: `mytaxa`.
+
 ## MyTaxa Scan
+
+Supported file keys:
+
+*
+
+MiGA symbol: `mytaxa_scan`.
 
 ## Distances
 
+Supported file keys:
+
+*
+
+MiGA symbol: `distances`.
+
 ## Stats
+
+Supported file keys:
+
+*
+
+MiGA symbol: `stats`.
 
 # Project Results
 
