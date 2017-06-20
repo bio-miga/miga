@@ -26,4 +26,4 @@
   * [Advanced configuration](part5/advanced-configuration.md)
   * [MiGA workflow](part5/workflow.md)
   * [Extending MiGA](part5/extending.md)
-  * [External Software and Citations](part5/external.md)
+  * [External Software](part5/external.md)
