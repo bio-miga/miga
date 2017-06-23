@@ -22,8 +22,10 @@ Hyatt D, Chen GL, Locascio PF, Land ML, Larimer FW, Hauser LJ. Prodigal: prokary
 
 ## Bedtools
 
+## MyTaxa
+Chengwei Luo, Luis M. Rodriguez-R, Konstantinos T. Konstantinidis; MyTaxa: an advanced taxonomic classifier for genomic and metagenomic sequences. Nucleic Acids Res 2014; 42 (8): e73. [Web Link](https://doi.org/10.1093/nar/gku169)
+
 ## MCL
 Enright A.J., Van Dongen S., Ouzounis C.A., An efficient algorithm for large-scale detection of protein families, Nucleic Acids Research 30(7):1575-1584 (2002).
 
-## MyTaxa
-Chengwei Luo, Luis M. Rodriguez-R, Konstantinos T. Konstantinidis; MyTaxa: an advanced taxonomic classifier for genomic and metagenomic sequences. Nucleic Acids Res 2014; 42 (8): e73. [Web Link](https://doi.org/10.1093/nar/gku169)
+## Krona
