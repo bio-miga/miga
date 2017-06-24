@@ -2,15 +2,15 @@
 
 ## Enveomics Collection
 
-Rodriguez-R LM, Konstantinidis KT. (2016) The enveomics collection: a toolbox
-for specialized analyses of microbial genomes and metagenomes.
+Rodriguez-R LM, and Konstantinidis KT. (2016) The enveomics collection: a
+toolbox for specialized analyses of microbial genomes and metagenomes.
 [PeerJ Preprints 4:e1900v1](https://doi.org/10.7287/peerj.preprints.1900v1)
 
 ## SolexaQA++
 
-Cox, M.P., D.A. Peterson, and P.J. Biggs. 2010. SolexaQA: At-a-glance quality
-assessment of Illumina second-generation sequencing data. BMC Bioinformatics
-11:485. [Web Link](http://www.biomedcentral.com/1471-2105/11/485).
+Cox MP., DA. Peterson, and Biggs PJ. (2010). SolexaQA: At-a-glance quality
+assessment of Illumina second-generation sequencing data.
+[BMC Bioinformatics 11:485](https://doi.org/10.1186/1471-2105-11-485).
 
 ## Scythe
 
@@ -24,16 +24,15 @@ by Simon Andrews.
 
 ## IDBA-UD
 
-Peng, Y., et al. (2012) IDBA-UD: a de novo assembler for single-cell and
-metagenomic sequencing data with highly uneven depth, Bioinformatics, 28,
-1420-1428.
+Peng Y. Leung HC, Yiu SM, and Chin FY. (2012). IDBA-UD: a de novo assembler for
+single-cell and metagenomic sequencing data with highly uneven depth.
+[Bioinformatics, 28:1420-1428](https://doi.org/10.1093/bioinformatics/bts174).
 
 ## Prodigal
 
-Hyatt D, Chen GL, Locascio PF, Land ML, Larimer FW, Hauser LJ. Prodigal:
-prokaryotic gene recognition and translation initiation site identification. BMC
-Bioinformatics. 2010 Mar 8;11(1):119.
-[Web Link](http://www.biomedcentral.com/1471-2105/11/119).
+Hyatt D, Chen GL, Locascio PF, Land ML, Larimer FW, Hauser LJ. (2010). Prodigal:
+prokaryotic gene recognition and translation initiation site identification.
+[BMC Bioinformatics, 11(1):119](https://doi.org/10.1186/1471-2105-11-119).
 
 ## Barrnap
 
@@ -47,18 +46,18 @@ Laboratory.
 
 ## MyTaxa
 
-Chengwei Luo, Luis M. Rodriguez-R, Konstantinos T. Konstantinidis; MyTaxa: an
-advanced taxonomic classifier for genomic and metagenomic sequences. Nucleic
-Acids Res 2014; 42 (8): e73. [Web Link](https://doi.org/10.1093/nar/gku169).
+Luo C, Rodriguez-R LM, and Konstantinidis KT. (2014). MyTaxa: an advanced
+taxonomic classifier for genomic and metagenomic sequences.
+[Nucleic Acids Res, 42(8):e73](https://doi.org/10.1093/nar/gku169).
 
 ## Krona
 
-Ondov B.D., Bergman N.H., Phillippy A.M., Interactive metagenomic visualization
-in a Web browser, BMC Bioinformatics 12:385 (2011).
-[Web Link](https://dx.doi.org/10.1186/1471-2105-12-385).
+Ondov BD, Bergman NH, and Phillippy AM. (2011). Interactive metagenomic
+visualization in a Web browser.
+[BMC Bioinformatics 12:385](https://dx.doi.org/10.1186/1471-2105-12-385).
 
 ## MCL
 
-Enright A.J., Van Dongen S., Ouzounis C.A., An efficient algorithm for
-large-scale detection of protein families, Nucleic Acids Research
-30(7):1575-1584 (2002).
+Enright AJ, Van Dongen S, Ouzounis CA. (2002). An efficient algorithm for
+large-scale detection of protein families.
+[Nucleic Acids Res 30(7):1575-1584](https://doi.org/10.1093/nar/30.7.1575).
