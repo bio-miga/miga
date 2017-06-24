@@ -213,11 +213,33 @@ MiGA symbol: `mytaxa_scan`.
 
 ## Distances
 
-**Upcoming Additional Information**
+This step is only supported for genomes
+([dataset types](../part2/types.md#dataset-types) genome, popgenome, and
+scgenome). In this step, each dataset is compared against all other datasets
+in the project. If the dataset is a
+[reference dataset](../part2/types.md#query-vs-reference-datasets), it is
+compared against all other reference datasets in the project. If it's a query
+dataset, it is compared iteratively against medoids. For more details on the
+strategy used in this step, see the manual
+[section on distances](../part2/distances.md).
 
 Supported file keys:
 
-...
+* **For reference datasets**
+  * `haai_db` (*req*): SQLite3 database containing hAAI values.
+  * `aai_db`: SQLite3 database containing AAI values.
+  * `ani_db`: SQLite3 database containing ANI values.
+* **For query datasets**
+  * `aai_medoids` (*req* except for clades projects): Best hits among medoids
+    at different hierarchical levels in the AAI indexing.
+  * `ani_medoids` (*req* for clades projects): Best hits among medoids at
+    different hierarchical levels in the ANI indexing.
+  * `haai_db` (*req*): SQLite3 database containing hAAI values.
+  * `aai_db`: SQLite3 database containing AAI values.
+  * `ani_db`: SQLite3 database containing ANI values.
+  * `ref_tree`: Newick file with the Bio-NJ tree including queried medoids and
+    the query dataset.
+  * `ref_tree_pdf`: PDF rendering of `ref_tree`.
 
 MiGA symbol: `distances`.
 

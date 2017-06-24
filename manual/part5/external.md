@@ -42,16 +42,23 @@ Seemann.
 
 ## Bedtools
 
+[Link to tool site](http://bedtools.readthedocs.io/en/latest), by the Quinlan
+Laboratory.
+
 ## MyTaxa
 
 Chengwei Luo, Luis M. Rodriguez-R, Konstantinos T. Konstantinidis; MyTaxa: an
 advanced taxonomic classifier for genomic and metagenomic sequences. Nucleic
 Acids Res 2014; 42 (8): e73. [Web Link](https://doi.org/10.1093/nar/gku169).
 
+## Krona
+
+Ondov B.D., Bergman N.H., Phillippy A.M., Interactive metagenomic visualization
+in a Web browser, BMC Bioinformatics 12:385 (2011).
+[Web Link](https://dx.doi.org/10.1186/1471-2105-12-385).
+
 ## MCL
 
 Enright A.J., Van Dongen S., Ouzounis C.A., An efficient algorithm for
 large-scale detection of protein families, Nucleic Acids Research
 30(7):1575-1584 (2002).
-
-## Krona

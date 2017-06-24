@@ -66,3 +66,16 @@ A metagenome (excluding viromes).
 ### Virome
 
 A viral metagenome.
+
+# Query vs reference datasets
+
+In addition to the dataset types, some analyses may differ depending on the
+status of a dataset as query or reference. Reference datasets are those that
+integrate the database of the project; *i.e.*, those that can be queried by
+analyses with other datasets like [distances](../part5/workflow.md#distances).
+In contrast, query datasets are more isolated: they can use data from other
+datasets (or the project), but don't get to form part of the project database.
+Defining query datasets is useful when, for example, you have a reference
+framework for taxonomy (formed by reference datasets) and want to find the best
+classification for a genome without affecting the project itself. By default,
+datasets are created as reference datasets.
