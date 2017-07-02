@@ -4,7 +4,7 @@
 
 Rodriguez-R LM, and Konstantinidis KT. (2016) The enveomics collection: a
 toolbox for specialized analyses of microbial genomes and metagenomes.
-[PeerJ Preprints 4:e1900v1](https://doi.org/10.7287/peerj.preprints.1900v1)
+[PeerJ Preprints 4:e1900v1](https://doi.org/10.7287/peerj.preprints.1900v1).
 
 ## SolexaQA++
 
