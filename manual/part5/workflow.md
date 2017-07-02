@@ -245,83 +245,151 @@ MiGA symbol: `distances`.
 
 ## Stats
 
-**Upcoming Additional Information**
+In this step, MiGA traces back all the results of the dataset and estimates
+summary statistics. In addition, it cleans any stored values in the distances
+database including datasets no longer registered in the project.
 
-Supported file keys:
-
-...
+No supported file keys.
 
 MiGA symbol: `stats`.
 
 # Project Results
 
+Once all datasets have been pre-processed (*i.e.*, once all the results above
+are available for all reference datasets), MiGA executes the following
+project-wide steps:
+
 ## hAAI Distances
 
-**Upcoming Additional Information**
+Consolidation of hAAI distances.
 
 Supported file keys:
 
-...
+* `rdata` (*req*): Pairwise values in a `data.frame` for `R`.
+* `matrix` (*req*): Pairwise values in a raw tab-delimited file.
+* `log` (*req*): List of datasets included in the matrix.
+* `hist`: Histogram of hAAI values as raw tab-delimited file.
 
 MiGA symbol: `haai_distances`.
 
 ## AAI Distances
 
-**Upcoming Additional Information**
+Consolidation of AAI distances.
 
 Supported file keys:
 
-...
+* `rdata` (*req*): Pairwise values in a `data.frame` for `R`.
+* `matrix` (*req*): Pairwise values in a raw tab-delimited file.
+* `log` (*req*): List of datasets included in the matrix.
+* `hist`: Histogram of AAI values as raw tab-delimited file.
 
 MiGA symbol: `aai_distances`.
 
 ## ANI Distances
 
-**Upcoming Additional Information**
+Consolidation of ANI distances.
 
 Supported file keys:
 
-...
+* `rdata` (*req*): Pairwise values in a `data.frame` for `R`.
+* `matrix` (*req*): Pairwise values in a raw tab-delimited file.
+* `log` (*req*): List of datasets included in the matrix.
+* `hist`: Histogram of ANI values as raw tab-delimited file.
 
 MiGA symbol: `ani_distances`.
 
 ## Clade Finding
 
-**Upcoming Additional Information**
+This step is only supported for project types
+[genomes](../part2/types.md#genomes) and [clade](../part2/types.md#clade).
+
+In this step, MiGA attempts to identify clades at species level or above using
+a combination of ANI and AAI values. MiGA generates
+[AAI clades](../part2/clustering.md#aai-clades) in this step for
+[genomes projects](../part2/types.md#genomes). Clades proposed at AAI > 90% and
+ANI > 95% are formed using the Markov Clustering algorithm implemented in
+[MCL](external.md#mcl). Most distance manipulation and tree estimation and
+manipulation utilities use the R packages [Ape](external.md#ape) and
+[Vegan](external.md#vegan).
 
 Supported file keys:
 
-...
+* `report` (*req* for `genomes`): PDF file including a graphic report for the
+  clustering.
+* `class_table` (*req* for `genomes`): Tab-delimited file containing the
+  classification of all datasets in AAI clusters.
+* `class_tree` (*req* for `genomes`): Newick file containing the classification
+  of all datasets in AAI clusters as a dendrogram.
+* `classif` (*req* for `genomes`): Tab-delimited file containing the
+  highest-level classification of each dataset, the medoid of the cluster, and
+  the AAI against the corresponding medoid.
+* `medoids` (*req* for `genomes`): List of medoids per cluster.
+* `aai_tree`: Bio-NJ tree based on AAI distances in Newick format.
+* `proposal` (*req*): Proposed species-level clades in the project. One line per
+  proposed clade, with comma-delimited dataset names.
+* `clades_aai90`: Clades formed at AAI > 90% in the same format as `proposal`.
+* `clades_ani95`: Same as `proposal`.
 
 MiGA symbol: `clade_finding`.
 
 ## Subclades
 
-**Upcoming Additional Information**
+This step is only supported for project type [clade](../part2/types.md#clade).
+
+In this step, MiGA attempts to identify clades below species level using ANI
+values. MiGA generates [ANI clades](../part2/clustering.md#ani-clades) in this
+step. Most distance manipulation and tree estimation and manipulation utilities
+use the R packages [Ape](external.md#ape) and [Vegan](external.md#vegan).
 
 Supported file keys:
 
-...
+* `report` (*req*): PDF file including a graphic report for the clustering.
+* `class_table` (*req*): Tab-delimited file containing the classification of all
+  datasets in ANI clusters.
+* `class_tree` (*req*): Newick file containing the classification of all
+  datasets in ANI clusters as a dendrogram.
+* `classif` (*req*): Tab-delimited file containing the highest-level
+  classification of each dataset, the medoid of the cluster, and
+  the ANI against the corresponding medoid.
+* `medoids` (*req*): List of medoids per cluster.
+* `ani_tree`: Bio-NJ tree based on AAI distances in Newick format.
 
 MiGA symbol: `subclades`.
 
 ## OGS
 
-**Upcoming Additional Information**
+This step is only supported for project type [clade](../part2/types.md#clade).
+
+In this step, MiGA generates groups of orthology using reciprocal best matches
+between all pairs of datasets in the project. Groups are generated using
+[MCL](external.md#mcl) with pairs weighted by bit score. Once computed, MiGA
+uses the matrix of OGS to estimate summary and rarefied statistics.
 
 Supported file keys:
 
-...
+* `ogs` (*req*): Matrix of orthology groups, as tab-delimited raw file.
+* `stats` (*req*): Summary statistics in JSON format.
+* `rbm` (*dir*): When available, it includes all the individual RBM files (one
+  per pair). This folder is typically produced as intermediate result and
+  removed before finishing, but can be maintained using
+  `miga new -P . -m clean_ogs=false --update` in the project folder using the
+  [CLI](../part3/CLI.md).
+* `core_pan`: Summary statistics of rarefied core-genome/pangenome sizes in
+  tab-delimited format.
+* `core_pan_plot`: Plot of rarefied core-genome/pangenome sizes in PDF.
 
 MiGA symbol: `ogs`.
 
 ## Project Stats
 
-**Upcoming Additional Information**
+In this step, MiGA traces back all the results of the project and estimates
+summary statistics.
 
 Supported file keys:
 
-...
+* `taxonomy_index` (*req*): Index of datasets per taxonomy in JSON format.
+* `metadata_index` (*req*): Searchable index of datasets metadata as SQLite3
+  database.
 
 MiGA symbol: `project_stats`.
 
