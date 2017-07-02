@@ -10,7 +10,7 @@ OptionParser.new do |opt|
   opt.on("-p", "--processing",
     "Print information on processing advance."){ |v| o[:processing]=v }
   opt.on("-m", "--metadata STRING",
-    "Print name and metadata field only. If set, ignores -i."
+    "Print name and metadata field only."
     ){ |v| o[:datum]=v }
   opt_common(opt, o)
 end.parse!
@@ -24,7 +24,8 @@ p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 if not o[:datum].nil?
-  puts (p.metadata[ o[:datum] ] || "?")
+  v = o.metadata[ o[:datum] ]
+  puts v.nil? ? "?" : v
 elsif o[:processing]
   keys = MiGA::Project.DISTANCE_TASKS + MiGA::Project.INCLADE_TASKS
   puts MiGA::MiGA.tabulate([:task, :status], keys.map do |k|
