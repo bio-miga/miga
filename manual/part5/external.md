@@ -54,10 +54,23 @@ taxonomic classifier for genomic and metagenomic sequences.
 
 Ondov BD, Bergman NH, and Phillippy AM. (2011). Interactive metagenomic
 visualization in a Web browser.
-[BMC Bioinformatics 12:385](https://dx.doi.org/10.1186/1471-2105-12-385).
+[BMC Bioinformatics 12:385](https://doi.org/10.1186/1471-2105-12-385).
 
 ## MCL
 
-Enright AJ, Van Dongen S, Ouzounis CA. (2002). An efficient algorithm for
+Enright AJ, Van Dongen S, and Ouzounis CA. (2002). An efficient algorithm for
 large-scale detection of protein families.
 [Nucleic Acids Res 30(7):1575-1584](https://doi.org/10.1093/nar/30.7.1575).
+
+## Ape
+
+Paradis E, Claude J, and Strimmer K. (2004). APE: Analyses of Phylogenetics and
+Evolution in R language.
+[Bioinformatics 20(2):289-290](https://doi.org/10.1093/bioinformatics/btg412).
+
+## Vegan
+
+Oksanen J, Blanchet FG, Friendly M, Kindt R, Legendre P, McGlinn D, Minchin PR,
+O'Hara RB, Simpson GL, Solymos P, Stevens MHM, Szoecs E, and Wagner H. (2017).
+Vegan: Community Ecology Package.
+[R package](https://CRAN.R-project.org/package=vegan).
