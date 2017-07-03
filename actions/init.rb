@@ -210,6 +210,8 @@ case v[:type]
       "How can I know that a process is still alive?\n  %1$s: PID, " +
       "output should be 1 for running and 0 for non-running.\n",
       "ps -p '%1$s'|tail -n+2|wc -l")
+    v[:kill]    = ask_user(
+      "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
   else # [qm]sub
     queue       = ask_user("What queue should I use?", nil, nil, true)
     v[:latency] = ask_user("How long should I sleep? (in seconds)", "150").to_i
@@ -232,6 +234,8 @@ case v[:type]
         "output should be 1 for running and 0 for non-running.\n",
         "qstat -f '%1$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'" +
         "|tail -n1|wc -l|awk '{print $1}'")
+    v[:kill]    = ask_user(
+      "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
     else
       v[:alive] = ask_user(
         "How can I know that a process is still alive?\n  %1$s: job id, " +
@@ -239,6 +243,8 @@ case v[:type]
         "checkjob '%1$s'|grep '^State:'|perl -pe 's/.*: //'" +
         "|grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'"+
         "|tail -n1|wc -l|awk '{print $1}'")
+    v[:kill]    = ask_user(
+      "How should I terminate tasks?\n  %s: process ID.", "canceljob '%s'")
     end
 end
 File.open(File.expand_path(".miga_daemon.json", ENV["HOME"]), "w") do |fh|

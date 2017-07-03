@@ -17,6 +17,10 @@ class MiGA::Daemon < MiGA::MiGA
     return nil unless File.exist? f
     DateTime.parse(File.read(f))
   end
+
+  # Shutdown all spawned daemons before exit.
+  $_MIGA_DAEMON_LAIR = []
+  END { $_MIGA_DAEMON_LAIR.each{ |d| d.terminate } }
   
   # MiGA::Project in which the daemon is running.
   attr_reader :project
@@ -33,6 +37,7 @@ class MiGA::Daemon < MiGA::MiGA
   # Initialize an unactive daemon for the MiGA::Project +project+. See #daemon
   # to wake the daemon.
   def initialize(project)
+    $_MIGA_DAEMON_LAIR << self
     @project = project
     @runopts = JSON.parse(
       File.read(File.expand_path("daemon/daemon.json", project.path)),
@@ -67,6 +72,13 @@ class MiGA::Daemon < MiGA::MiGA
           [:shutdown_when_done].include?(k) ? !!v : v
       raise "Daemon's #{k} cannot be set to zero." if !force and v==0
       @runopts[k] = v
+    end
+    if k==:kill and v.nil?
+      case @runopts[:type].to_s
+        when "bash" ; return "kill -9 '%s'"
+        when "qsub" ; return "qdel '%s'"
+        else        ; return "canceljob '%s'"
+      end
     end
     @runopts[k]
   end
@@ -117,13 +129,23 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Tell the world that you're alive
+  # Tell the world that you're alive.
   def declare_alive
     f = File.open(File.expand_path("daemon/alive", project.path), "w")
     f.print Time.now.to_s
     f.close
+    report_status
   end
 
+  ##
+  # Report status in a JSON file.
+  def report_status
+    f = File.open(File.expand_path("daemon/status.json", project.path), "w")
+    f.print JSON.pretty_generate(
+      jobs_running:@jobs_running, jobs_to_run:@jobs_to_run)
+    f.close
+  end
+  
   ##
   # Traverse datasets
   def check_datasets
@@ -242,6 +264,7 @@ class MiGA::Daemon < MiGA::MiGA
     end
     sleep(latency)
     if shutdown_when_done? and jobs_running.size+jobs_to_run.size == 0
+      say "Nothing else to do, shutting down."
       return false
     end
     true
@@ -251,6 +274,15 @@ class MiGA::Daemon < MiGA::MiGA
   # Send a datestamped message to the log.
   def say(*opts)
     print "[#{Time.new.inspect}] ", *opts, "\n"
+  end
+
+  ##
+  # Terminates a daemon.
+  def terminate
+    say "Terminating daemon..."
+    @jobs_running.select!{ |i| kill_job(i) }
+    f = File.expand_path("daemon/alive", project.path)
+    File.unlink(f) if File.exist? f
   end
 
   private
@@ -275,6 +307,12 @@ class MiGA::Daemon < MiGA::MiGA
         @jobs_running << job
         say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
       end
+    end
+
+    def kill_job(job)
+      `#{runopts(:kill) % job[:pid]}`
+      say "Terminated pid:#{job[:pid]} for #{job[:task_name]}"
+      false
     end
 
 end

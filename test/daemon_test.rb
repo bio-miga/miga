@@ -10,7 +10,7 @@ class DaemonTest < Test::Unit::TestCase
     FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
     File.open("#{ENV["MIGA_HOME"]}/.miga_daemon.json", "w") do |fh|
       fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ","var":"%s=%s",
-        "cmd":"%5$s","alive":"echo 1 # %s"}'
+        "cmd":"%5$s","alive":"echo 1 # %s","type":"bash"}'
     end
     $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
     $d1 = MiGA::Daemon.new($p1)
@@ -113,6 +113,12 @@ class DaemonTest < Test::Unit::TestCase
     assert_raise do
       $d1.runopts(:latency, "!")
     end
+    assert_equal("bash", $d1.runopts(:type))
+    assert_equal("kill -9 '%s'", $d1.runopts(:kill))
+    $d1.runopts(:type, "qsub")
+    assert_equal("qdel '%s'", $d1.runopts(:kill))
+    $d1.runopts(:type, "msub")
+    assert_equal("canceljob '%s'", $d1.runopts(:kill))
   end
 
   def test_say
@@ -120,6 +126,17 @@ class DaemonTest < Test::Unit::TestCase
       $d1.say "Olm"
     end
     assert(out.string =~ /^\[.*\] Olm/)
+  end
+
+  def test_terminate
+    d = $d1
+    d.declare_alive
+    assert_not_nil(d.last_alive)
+    out = capture_stdout do
+      d.terminate
+    end
+    assert(out.string =~ /Terminating daemon/)
+    assert_nil(d.last_alive)
   end
 
 end
