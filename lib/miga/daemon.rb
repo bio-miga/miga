@@ -134,7 +134,6 @@ class MiGA::Daemon < MiGA::MiGA
     f = File.open(File.expand_path("daemon/alive", project.path), "w")
     f.print Time.now.to_s
     f.close
-    report_status
   end
 
   ##
@@ -262,6 +261,7 @@ class MiGA::Daemon < MiGA::MiGA
       @loop_i = 0
       purge!
     end
+    report_status
     sleep(latency)
     if shutdown_when_done? and jobs_running.size+jobs_to_run.size == 0
       say "Nothing else to do, shutting down."
