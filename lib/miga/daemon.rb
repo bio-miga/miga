@@ -280,7 +280,11 @@ class MiGA::Daemon < MiGA::MiGA
   # Terminates a daemon.
   def terminate
     say "Terminating daemon..."
-    @jobs_running.select!{ |i| kill_job(i) }
+    k = runopts(:kill)
+    @jobs_running.each do |i|
+      spawn(k % i[:pid])
+      puts "Terminating pid:#{i[:pid]} for #{job[:task_name]}"
+    end
     f = File.expand_path("daemon/alive", project.path)
     File.unlink(f) if File.exist? f
   end
@@ -307,12 +311,6 @@ class MiGA::Daemon < MiGA::MiGA
         @jobs_running << job
         say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
       end
-    end
-
-    def kill_job(job)
-      `#{runopts(:kill) % job[:pid]}`
-      say "Terminated pid:#{job[:pid]} for #{job[:task_name]}"
-      false
     end
 
 end
