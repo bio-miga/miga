@@ -24,7 +24,7 @@ p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 if not o[:datum].nil?
-  v = o.metadata[ o[:datum] ]
+  v = p.metadata[ o[:datum] ]
   puts v.nil? ? "?" : v
 elsif o[:processing]
   keys = MiGA::Project.DISTANCE_TASKS + MiGA::Project.INCLADE_TASKS
