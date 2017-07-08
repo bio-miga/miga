@@ -109,7 +109,7 @@ File.open(File.expand_path("utils/requirements.txt", miga), "r") do |fh|
     loop do
       d_path = File.dirname(`which "#{r[1]}"`)
       if o[:ask] or d_path=="."
-        path = ask_user("Where can I find it?", d_path, nil, true) 
+        path = ask_user("Where can I find it?", d_path, nil, true)
       else
         path = d_path
         $stderr.puts path
@@ -205,7 +205,7 @@ case v[:type]
     v[:var]     = ask_user(
       "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
       "%1$s=%2$s")
-    v[:sep]     = ask_user("What should I use to separate variables?", " ")
+    v[:varsep]  = ask_user("What should I use to separate variables?", " ")
     v[:alive]   = ask_user(
       "How can I know that a process is still alive?\n  %1$s: PID, " +
       "output should be 1 for running and 0 for non-running.\n",
@@ -227,7 +227,7 @@ case v[:type]
     v[:var]     = ask_user(
       "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
       "%1$s=%2$s")
-    v[:sep]     = ask_user("What should I use to separate variables?", ",")
+    v[:varsep]  = ask_user("What should I use to separate variables?", ",")
     if v[:type] == "qsub"
       v[:alive] = ask_user(
         "How can I know that a process is still alive?\n  %1$s: job id, " +
