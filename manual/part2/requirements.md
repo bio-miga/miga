@@ -8,7 +8,7 @@ please continue these instructions.
 
 MiGA has a relatively long list of requirements, but most of them are easy to
 install. Find your system below and follow the instructions for:
-[Linux users with `apt-get`](#for-linux-users-with-apt-get),
+[Linux users with `apt-get`](#for-linux-users-with-aptget),
 [MacOS users (or others with Homebrew)](#for-macos-users-or-others-with-homebrew),
 or [any other users](#for-any-other-users).
 
@@ -20,10 +20,23 @@ If you have `apt-get`, execute:
 
 ```bash
 # General-purpose software
-sudo apt-get install ruby r-base sqlite3 python
+sudo apt-get install ruby ruby-sqlite3 r-base sqlite3 python
 # Bioinformatics software
 sudo apt-get install ncbi-blast+ hmmer bedtools \
-      prodigal idba mcl barrnap scythe fastqc
+      prodigal mcl barrnap scythe fastqc
+```
+
+### IDBA-UD
+
+Now install IDBA-UD (the one in `apt-get` is only for IDBA-Hybrid):
+
+```bash
+wget https://github.com/loneknightpy/idba/releases/download/1.1.3/idba-1.1.3.tar.gz
+tar zxvf idba-1.1.3.tar.gz
+cd idba-1.1.3
+./configure
+make
+sudo install bin/idba_ud /usr/bin/
 ```
 
 ### SolexaQA++
@@ -61,7 +74,9 @@ gem install rest-client daemons json sqlite3
 
 ### R packages
 
-This may take a while:
+This may take a while (you may need to change the last line for
+`| sudo R --vanilla -q` if your user doesn't have privileges to install
+R packages):
 
 ```bash
 echo "
@@ -112,8 +127,8 @@ cd ..
 
 ## For MacOS users (or others with Homebrew)
 
-If you have MacOS, we'll use Homebrew to install most of the software. If
-you don't have Homebrew, execute (and follow the instructions):
+If you have MacOS, we'll use [Homebrew](https://brew.sh/) to install most of the
+software. If you don't have Homebrew, execute (and follow the instructions):
 
 ```bash
 /usr/bin/ruby -e "$(curl -fsSL \
@@ -155,7 +170,9 @@ gem install rest-client daemons json
 
 ### R packages
 
-This may take a while:
+This may take a while (you may need to change the last line for
+`| sudo R --vanilla -q` if your user doesn't have privileges to install
+R packages):
 
 ```bash
 echo "
@@ -237,7 +254,9 @@ gem install rest-client daemons json sqlite3
 
 ### R packages
 
-This may take a while:
+This may take a while (you may need to change the last line for
+`| sudo R --vanilla -q` if your user doesn't have privileges to install
+R packages):
 
 ```bash
 echo "

@@ -36,7 +36,7 @@ tail -n +2 rep_genomes.tsv | cut -f 3,4 \
   > rep_genomes_miga.tsv
 
 # Download remote entries:
-miga download_dataset -P . --file rep_genomes_miga.tsv \
+miga get -P . --file rep_genomes_miga.tsv \
   --universe ncbi --db nuccore --ignore-dup --verbose -t genome
 ```
 
@@ -48,4 +48,3 @@ data. For additional details, see [launching daemons](daemons.md):
 ```bash
 miga daemon start -P .
 ```
-
