@@ -9,7 +9,7 @@ including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
 ## 0. Initialize the project
 
 ```bash
-miga create_project -P E_coli -t clade
+miga new -P E_coli -t clade
 cd E_coli
 ```
 
@@ -58,7 +58,7 @@ tail -n +2 ref_genomes.tsv | cut -f 1,11 \
   > ref_genomes_miga.tsv
 
 # Download remote entries:
-miga download_dataset -P . --file ref_genomes_miga.tsv \
+miga get -P . --file ref_genomes_miga.tsv \
   --universe ncbi --db nuccore --ignore-dup --verbose -t genome
 ```
 
@@ -95,7 +95,7 @@ cat draft_genomes.tsv | tail -n +2 | cut -f 1,8,20 \
   > draft_genomes_miga.tsv
 
 # Download remote entries:
-miga download_dataset -P . --file draft_genomes_miga.tsv \
+miga get -P . --file draft_genomes_miga.tsv \
   --universe web --db assembly_gz --ignore-dup --verbose -t genome
 ```
 
@@ -119,7 +119,7 @@ gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > data/01.raw_reads/$DS.2.fastq
 miga date > data/01.raw_reads/$DS.done
 
 # Register the dataset:
-miga create_dataset -P . -D $DS -t genome
+miga add -P . -D $DS -t genome
 ```
 
 ## 3. Launch the daemon

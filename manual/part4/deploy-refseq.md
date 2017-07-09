@@ -2,12 +2,12 @@
 
 In this tutorial, we will create a genomes project including all the
 representative genomes available in RefSeq. For this tutorial you'll need some
-*nix utilities, including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
+\*nix utilities, including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
 
 ## 0. Initialize the project
 
 ```bash
-miga create_project -P RefSeq -t genomes
+miga new -P RefSeq -t genomes
 cd RefSeq
 ```
 
