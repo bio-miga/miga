@@ -69,7 +69,7 @@ can either use `sudo gem ...` if you have superuser access, or
 `gem install --user ...`:
 
 ```bash
-gem install rest-client daemons json sqlite3
+gem install rest-client daemons json
 ```
 
 ### R packages
