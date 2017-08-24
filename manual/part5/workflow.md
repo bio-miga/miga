@@ -181,6 +181,14 @@ Supported file keys:
 * `mytaxain` (*gz*): Re-formatted BLAST used as input for MyTaxa.
 * `nomytaxa`: If it exists, MiGA assumes no support for MyTaxa modules, and none
   of the above files are required.
+* `species`: Profile of species composition (in permil) as raw tab-delimited
+  text.
+* `genus`: Profile of genus composition (in permil) as raw tab-delimited text.
+* `phylum`: Profile of phylum composition (in permil) as raw tab-delimited text.
+* `innominate`: List of innominate taxa (groups without a name but containing
+  lower-rank classifications) as raw text.
+* `kronain`: Raw-text list of taxa used as input for Krona.
+* `krona`: HTML output produced by Krona.
 
 MiGA symbol: `mytaxa`.
 
