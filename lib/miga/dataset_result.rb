@@ -148,7 +148,10 @@ module MiGA::DatasetResult
           result_files_exist?(base, ".nomytaxa.txt")
         r = MiGA::Result.new("#{base}.json")
         add_files_to_ds_result(r, name, mytaxa:".mytaxa", blast:".blast",
-          mytaxain:".mytaxain", nomytaxa:".nomytaxa.txt")
+          mytaxain:".mytaxain", nomytaxa:".nomytaxa.txt",
+          species:".mytaxa.Species.txt", genus:".mytaxa.Genus.txt",
+          phylum:".mytaxa.Phylum.txt", innominate:".mytaxa.innominate",
+          kronain:".mytaxa.krona", krona:".html")
       else
         MiGA::Result.new("#{base}.json")
       end
