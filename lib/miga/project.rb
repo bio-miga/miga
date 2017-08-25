@@ -273,9 +273,10 @@ class MiGA::Project < MiGA::MiGA
   def add_result(name, save=true)
     return nil if @@RESULT_DIRS[name].nil?
     base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
-    return MiGA::Result.load("#{base}.json") unless save
-    return nil unless result_files_exist?(base, ".done")
-    r = send("add_result_#{name}", base)
+    r_pre = MiGA::Result.load("#{base}.json")
+    return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+    r = result_files_exist?(base, ".done") ?
+        send("add_result_#{name}", base) : nil
     r.save unless r.nil?
     r
   end
