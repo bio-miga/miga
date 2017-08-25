@@ -112,6 +112,7 @@ class MiGA::Result < MiGA::MiGA
   # Load (or reload) result data in the JSON file #path.
   def load
     json = File.read(path)
+    raise "Impossible to load result, empty descriptor: #{path}." if json.empty?
     @data = JSON.parse(json, {:symbolize_names=>true})
     @data[:files] ||= {}
     @results = (self[:results] || []).map{ |rs| MiGA::Result.new rs }
