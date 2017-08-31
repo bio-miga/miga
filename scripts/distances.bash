@@ -14,9 +14,9 @@ TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
 trap "rm -rf '$TMPDIR'; exit" SIGHUP SIGINT SIGTERM
 
 # Check type of dataset
-NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+NOMULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --no-multi \
   | wc -l | awk '{print $1}')
-REF=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --ref \
+REF=$(miga ls -P "$PROJECT" -D "$DATASET" --ref \
   | wc -l | awk '{print $1}')
 
 # Call submodules
@@ -26,6 +26,7 @@ if [[ "$NOMULTI" -eq "1" && "$REF" -eq "1" ]] ; then
   # shellcheck source=scripts/_distances_ref_nomulti.bash
   source "$MIGA/scripts/_distances_ref_nomulti.bash"
 elif [[ "$NOMULTI" -eq "1" ]] ; then
+  S_PROJ=$PROJECT
   # shellcheck source=scripts/_distances_noref_nomulti.bash
   source "$MIGA/scripts/_distances_noref_nomulti.bash"
 fi

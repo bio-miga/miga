@@ -30,7 +30,7 @@ fx_exists miga-noref_haai_or_aai || function miga-noref_haai_or_aai {
   [[ -s $TMPDIR/$Q.faa ]] \
     || cp "../06.cds/$Q.faa" "$TMPDIR/$Q.faa"
   miga-haai_or_aai "$ESS/$Q.ess.faa" "$ESS/$S.ess.faa" "$TMPDIR/$Q.haai.db" \
-    "$TMPDIR/$Q.faa" "../06.cds/$S.faa" "$TMPDIR/$Q.aai.db" "$CORES"
+    "$TMPDIR/$Q.faa" "$S_PROJ/data/06.cds/$S.faa" "$TMPDIR/$Q.aai.db" "$CORES"
 }
 
 fx_exists miga-noref_ani || function miga-noref_ani {
@@ -38,22 +38,23 @@ fx_exists miga-noref_ani || function miga-noref_ani {
   local S=$2
   [[ -s "$TMPDIR/$Q.LargeContigs.fna" ]] \
     || cp "../05.assembly/$Q.LargeContigs.fna" "$TMPDIR/$Q.LargeContigs.fna"
-  miga-ani "$TMPDIR/$Q.LargeContigs.fna" "../05.assembly/$S.LargeContigs.fna" \
+  miga-ani "$TMPDIR/$Q.LargeContigs.fna" \
+    "$S_PROJ/data/05.assembly/$S.LargeContigs.fna" \
     "$CORES" "$TMPDIR/$Q.ani.db"
 }
 
 # Calculate the classification-informed AAI/ANI traverse (if not classified)
 ESS="../07.annotation/01.function/01.essential"
-if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
+if [[ $(miga about -P "$S_PROJ" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
-  CLADES="../10.clades/01.find"
+  CLADES="$S_PROJ/data/10.clades/01.find"
   METRIC="aai"
-  REF_TABLE="02.aai/miga-project.txt.gz"
+  REF_TABLE="$S_PROJ/data/09.distances/02.aai/miga-project.txt.gz"
 else
   # Classify ani-clade (if project type is clade)
-  CLADES="../10.clades/02.ani"
+  CLADES="$S_PROJ/data/10.clades/02.ani"
   METRIC="ani"
-  REF_TABLE="03.ani/miga-project.txt.gz"
+  REF_TABLE="$S_PROJ/data/09.distances/03.ani/miga-project.txt.gz"
 fi
 
 CLASSIF="."
