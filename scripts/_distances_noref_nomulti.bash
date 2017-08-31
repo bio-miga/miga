@@ -29,8 +29,9 @@ fx_exists miga-noref_haai_or_aai || function miga-noref_haai_or_aai {
   local S=$2
   [[ -s $TMPDIR/$Q.faa ]] \
     || cp "$PROJECT/data/06.cds/$Q.faa" "$TMPDIR/$Q.faa"
-  miga-haai_or_aai "$ESS/$Q.ess.faa" "$ESS/$S.ess.faa" "$TMPDIR/$Q.haai.db" \
-    "$TMPDIR/$Q.faa" "$S_PROJ/data/06.cds/$S.faa" "$TMPDIR/$Q.aai.db" "$CORES"
+  miga-haai_or_aai "$PROJECT/$ESS/$Q.ess.faa" "$S_PROJ/$ESS/$S.ess.faa" \
+    "$TMPDIR/$Q.haai.db" "$TMPDIR/$Q.faa" "$S_PROJ/data/06.cds/$S.faa" \
+    "$TMPDIR/$Q.aai.db" "$CORES"
 }
 
 fx_exists miga-noref_ani || function miga-noref_ani {
@@ -45,7 +46,7 @@ fx_exists miga-noref_ani || function miga-noref_ani {
 }
 
 # Calculate the classification-informed AAI/ANI traverse (if not classified)
-ESS="$PROJECT/data/07.annotation/01.function/01.essential"
+ESS="data/07.annotation/01.function/01.essential"
 if [[ $(miga about -P "$S_PROJ" -m type) != "clade" ]] ; then
   # Classify aai-clade (if project type is not clade)
   CLADES="$S_PROJ/data/10.clades/01.find"
