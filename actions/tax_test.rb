@@ -5,10 +5,13 @@
 
 require "miga/tax_dist"
 
-o = {q:true, test:"both"}
+o = {q:true, test:"both", ref_project:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset])
+  opt.on("--ref-project",
+    "Use the taxonomy from the reference project, not the current project."
+    ){ |v| o[:ref_project]=v }
   opt.on("-t", "--test STRING",
     "Test to perform. Supported values: intax, novel, both."
     ){ |v| o[:test]=v.downcase }
@@ -26,7 +29,7 @@ $stderr.puts "Loading dataset." unless o[:q]
 ds = p.dataset(o[:dataset])
 
 $stderr.puts "Finding closest relative." unless o[:q]
-cr = ds.closest_relatives(1)
+cr = ds.closest_relatives(1, o[:ref_project])
 
 if cr.nil? or cr.empty?
   raise "This action is not supported for the project or dataset." if cr.nil?
@@ -35,7 +38,15 @@ else
   $stderr.puts "Querying probability distributions." unless o[:q]
   cr = cr[0]
   puts "Closest relative: #{cr[0]} with AAI: #{cr[1]}."
-  tax = p.dataset(cr[0]).metadata[:tax]
+  if o[:ref_project]
+    ref = p.metadata[:ref_project]
+    raise "--ref-project requested, but no reference project has been set." if ref.nil?
+    q = MiGA::Project.load(ref)
+    raise "--ref-project requested, but reference project doesn't exist." if q.nil?
+    tax = q.dataset(cr[0]).metadata[:tax]
+  else
+    tax = p.dataset(cr[0]).metadata[:tax]
+  end
   tax ||= {}
   
   if %w[intax both].include? o[:test]

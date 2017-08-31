@@ -28,7 +28,7 @@ class MiGA::Dataset < MiGA::MiGA
     mytaxa: "07.annotation/02.taxonomy/01.mytaxa",
     mytaxa_scan: "07.annotation/03.qa/02.mytaxa_scan",
     # Distances (for single-species datasets)
-    distances: "09.distances",
+    distances: "09.distances", taxonomy: "09.distances/05.taxonomy",
     # General statistics
     stats: "90.stats"
   }
@@ -56,13 +56,13 @@ class MiGA::Dataset < MiGA::MiGA
   
   ##
   # Tasks to be excluded from query datasets.
-  @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan]
+  @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan, :taxonomy]
   @@_EXCLUDE_NOREF_TASKS_H = Hash[@@EXCLUDE_NOREF_TASKS.map{ |i| [i,true] }]
   
   ##
   # Tasks to be executed only in datasets that are not multi-organism. These
   # tasks are ignored for multi-organism datasets or for unknown types.
-  @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances]
+  @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances, :taxonomy]
   @@_ONLY_NONMULTI_TASKS_H = Hash[@@ONLY_NONMULTI_TASKS.map{ |i| [i,true] }]
 
   ##
@@ -237,6 +237,7 @@ class MiGA::Dataset < MiGA::MiGA
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
+    return true if task==:taxonomy and project.metadata[:ref_project].nil?
     pattern = [true, false]
     ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ]==pattern or
       [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ]==pattern or
@@ -271,14 +272,15 @@ class MiGA::Dataset < MiGA::MiGA
   end
   
   ##
-  # Returns an Array of duples (Arrays) sorted by AAI:
+  # Returns an Array of +how_many+ duples (Arrays) sorted by AAI:
   # - +0+: A String with the name(s) of the reference dataset.
   # - +1+: A Float with the AAI.
-  # This function is currently only supported for query datasets. It returns
+  # This function is currently only supported for query datasets when +ref_project+ is false
+  # (default), and only for reference dataset when +ref_project+ is true. It returns
   # +nil+ if this analysis is not supported.
-  def closest_relatives(how_many=1)
-    return nil if is_ref? or project.is_multi?
-    r = result :distances
+  def closest_relatives(how_many=1, ref_project=false)
+    return nil if (is_ref? != ref_project) or project.is_multi?
+    r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
     db = SQLite3::Database.new(r.file_path :aai_db)
     db.execute("SELECT seq2, aai FROM aai WHERE seq2 != ? " +

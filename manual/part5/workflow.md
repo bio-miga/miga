@@ -251,6 +251,33 @@ Supported file keys:
 
 MiGA symbol: `distances`.
 
+## Taxonomy
+
+This step is only supported for genomes
+([dataset types](../part2/types.md#dataset-types) genome, popgenome, and
+scgenome) that are
+[reference datasets](../part2/types.md#query-vs-reference-datasets), in projects
+with a set reference project (`:ref_project` in metadata).
+
+In this step, MiGA compares the genome against a reference project using the
+query search method, and imports the resulting taxonomy with p-value below 0.05
+(or whichever value is set as `:tax_pvalue` in metadata).
+
+Supported file keys:
+* `intax`: Raw text result of the taxonomy test against the reference genome.
+* `aai_medoids` (*req* except for reference clades projects): Best hits among
+  medoids at different hierarchical levels in the AAI indexing.
+* `ani_medoids` (*req* for reference clades projects): Best hits among medoids
+  at different hierarchical levels in the ANI indexing.
+* `haai_db` (*req*): SQLite3 database containing hAAI values.
+* `aai_db`: SQLite3 database containing AAI values.
+* `ani_db`: SQLite3 database containing ANI values.
+* `ref_tree`: Newick file with the Bio-NJ tree including queried medoids and
+  the query dataset.
+* `ref_tree_pdf`: PDF rendering of `ref_tree`.
+
+MiGA symbol: `taxonomy`.
+
 ## Stats
 
 In this step, MiGA traces back all the results of the dataset and estimates
