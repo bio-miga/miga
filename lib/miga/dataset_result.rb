@@ -190,7 +190,7 @@ module MiGA::DatasetResult
 
     ##
     # Add result type +:taxonomy+ at +base+ (no +_opts+ supported).
-    def add_result_taxonomy(base)
+    def add_result_taxonomy(base, _opts)
       r = add_result_distances_nonref(base)
       add_files_to_ds_result(r, name, intax_test:".intax.txt")
     end

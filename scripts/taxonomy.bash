@@ -22,8 +22,8 @@ if [[ "$S_PROJ" != "?" ]] ; then
   NOMULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --no-multi \
     | wc -l | awk '{print $1}')
 
-  # Call submodules
   if [[ "$NOMULTI" -eq "1" ]] ; then
+    # Call submodules
     TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
     trap "rm -rf '$TMPDIR'; exit" SIGHUP SIGINT SIGTERM
     # shellcheck source=scripts/_distances_functions.bash
