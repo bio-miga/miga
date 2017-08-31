@@ -34,7 +34,7 @@ if [[ "$S_PROJ" != "?" ]] ; then
     
     # Test taxonomy
     TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
-    [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.1"
+    [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.05"
     miga tax_test -P "$PROJECT" --ref-project -D "$DATASET" -t intax \
       > "$DATASET.intax.txt"
   
