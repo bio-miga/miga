@@ -19,7 +19,7 @@ S_PROJ=$(miga about -P "$PROJECT" -m ref_project)
 if [[ "$S_PROJ" != "?" ]] ; then
 
   # Check type of dataset
-  NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+  NOMULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --no-multi \
     | wc -l | awk '{print $1}')
 
   # Call submodules
@@ -39,6 +39,8 @@ if [[ "$S_PROJ" != "?" ]] ; then
       > "$DATASET.intax.txt"
   
     # Transfer taxonomy
+    miga date > "$DATASET.done"
+    miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
     NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
       | awk "\$3<$TAX_PVALUE{print \$1\":\"\$2}" | tr "\n" " ")
     miga tax_set -P "$PROJECT" -D "$DATASET" -s "$NEW_TAX"
