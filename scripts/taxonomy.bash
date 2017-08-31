@@ -14,7 +14,7 @@ cd "$DIR"
 miga date > "$DATASET.start"
 
 # Check if there is a reference project
-S_PROJ=$(miga about -P "$PROJECT" -m ref_project -q)
+S_PROJ=$(miga about -P "$PROJECT" -m ref_project)
 
 if [[ "$S_PROJ" != "?" ]] ; then
 
@@ -33,14 +33,14 @@ if [[ "$S_PROJ" != "?" ]] ; then
     rm -R "$TMPDIR"
     
     # Test taxonomy
-    TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue -q)
+    TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
     [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.1"
-    miga tax_test -P "$PROJECT" --ref-project -D "$DATASET" -t intax -q \
+    miga tax_test -P "$PROJECT" --ref-project -D "$DATASET" -t intax \
       > "$DATASET.intax.txt"
   
     # Transfer taxonomy
     NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
-      | awk "\$3<$TAX_PVALUE{print \$1':'\$2}" | tr "\n" " ")
+      | awk "\$3<$TAX_PVALUE{print \$1\":\"\$2}" | tr "\n" " ")
     miga tax_set -P "$PROJECT" -D "$DATASET" -s "$NEW_TAX"
   fi
 
