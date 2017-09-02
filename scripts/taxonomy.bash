@@ -35,15 +35,15 @@ if [[ "$S_PROJ" != "?" ]] ; then
     # Test taxonomy
     TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
     [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.05"
-    miga tax_test -P "$PROJECT" --ref-project -D "$DATASET" -t intax \
-      > "$DATASET.intax.txt"
+    miga tax_test -P "$PROJECT" -D "$DATASET" \
+      --ref-project -t intax > "$DATASET.intax.txt"
   
     # Transfer taxonomy
     miga date > "$DATASET.done"
     miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
     NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
-      | awk "\$3<$TAX_PVALUE{print \$1\":\"\$2}" | tr "\n" " " \
-      | perl -pe "s/ *$//")
+      | awk '$3<'$TAX_PVALUE'{print $1":"$2}' | tr '\n' ' ' \
+      | perl -pe 's/ *$//')
     miga tax_set -P "$PROJECT" -D "$DATASET" -s "$NEW_TAX"
   fi
 
