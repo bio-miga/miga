@@ -33,14 +33,17 @@ if [[ "$S_PROJ" != "?" ]] ; then
     rm -R "$TMPDIR"
     
     # Test taxonomy
+    (
+      trap 'rm "$DATASET.json" "$DATASET.done"' EXIT
+      miga date > "$DATASET.done"
+      miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
+      miga tax_test -P "$PROJECT" -D "$DATASET" \
+        --ref-project -t intax > "$DATASET.intax.txt"
+    )
+    
+    # Transfer taxonomy
     TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
     [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.05"
-    miga tax_test -P "$PROJECT" -D "$DATASET" \
-      --ref-project -t intax > "$DATASET.intax.txt"
-  
-    # Transfer taxonomy
-    miga date > "$DATASET.done"
-    miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
     NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
       | awk '$3<'$TAX_PVALUE'{print $1":"$2}' | tr '\n' ' ' \
       | perl -pe 's/ *$//')

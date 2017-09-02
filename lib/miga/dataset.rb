@@ -279,7 +279,7 @@ class MiGA::Dataset < MiGA::MiGA
   # (default), and only for reference dataset when +ref_project+ is true. It returns
   # +nil+ if this analysis is not supported.
   def closest_relatives(how_many=1, ref_project=false)
-    return nil if (is_ref? != ref_project) or project.is_multi?
+    return nil if (is_ref? != ref_project) or is_multi?
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
     db = SQLite3::Database.new(r.file_path :aai_db)
