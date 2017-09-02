@@ -45,8 +45,8 @@ if [[ "$S_PROJ" != "?" ]] ; then
     TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
     [[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.05"
     NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
-      | awk '$3<'$TAX_PVALUE'{print $1":"$2}' | tr "\\n" ' ' \
-      | perl -pe 's/ *$//')
+      | awk '$3<'$TAX_PVALUE'{print $1":"$2}' | grep -v "?" \
+      | tr "\\n" ' ' | perl -pe 's/ *$//')
     miga tax_set -P "$PROJECT" -D "$DATASET" -s "$NEW_TAX"
   fi
 
