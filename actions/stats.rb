@@ -83,8 +83,8 @@ if o[:compute]
       if not d.metadata[:tax].nil? and
             d.metadata[:tax].is_in? MiGA::Taxonomy.new("d:Archaea") and
             r.file_path(:bac_report).nil?
-        `ruby '#{MiGA.root}/utils/arch-ess-genes.rb' '#{r.file_path(:report)}' \
-          > '#{r.file_path(:report)}.archaea'`
+        `ruby '#{MiGA::MiGA.root}/utils/arch-ess-genes.rb' \
+          '#{r.file_path(:report)}' > '#{r.file_path(:report)}.archaea'`
         r.add_file(:bac_report, "#{d.name}.ess/log")
         r.add_file(:report, "#{d.name}.ess/log.archaea")
         r.save
