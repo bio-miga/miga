@@ -128,3 +128,22 @@ if [[ -s "${DATASET}.${METRIC}.db" ]] ; then
   "$MIGA/utils/ref-tree.R" "${DATASET}.txt" "$DATASET" "$DATASET"
   rm "$DATASET".tmp[012] "${DATASET}.txt"
 fi
+
+# Test taxonomy
+(
+  trap 'rm "$DATASET.json" "$DATASET.done"' EXIT
+  FLAGS=""
+  [[ "$PROJECT" == "$S_PROJ" ]] || FLAGS="--ref-project"
+  miga date > "$DATASET.done"
+  miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
+  miga tax_test -P "$PROJECT" -D "$DATASET" -t intax \
+    $FLAGS > "$DATASET.intax.txt"
+)
+
+# Transfer taxonomy
+TAX_PVALUE=$(miga about -P "$PROJECT" -m tax_pvalue)
+[[ "$TAX_PVALUE" == "?" ]] && TAX_PVALUE="0.05"
+NEW_TAX=$(tail -n +6 "$DATASET.intax.txt" | head -n -3 \
+  | awk '$3<'$TAX_PVALUE'{print $1":"$2}' | grep -v "?" \
+  | tr "\\n" ' ' | perl -pe 's/ *$//')
+miga tax_set -P "$PROJECT" -D "$DATASET" -s "$NEW_TAX"
