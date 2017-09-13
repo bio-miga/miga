@@ -133,7 +133,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   ##
   # Generate cannonical String for the taxonomy.
   def to_s
-    sorted_ranks.map{ |r| "#{r[0]}:#{r[1].gsub(/\s/,"_")}" }.join(" ")
+    sorted_ranks.map{ |r| "#{r[0]}:#{r[1].gsub(/[\s:]/,"_")}" }.join(" ")
   end
   
   ##
