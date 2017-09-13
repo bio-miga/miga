@@ -88,7 +88,6 @@ if o[:compute]
         $stderr.print `ruby '#{scr}' '#{rep}' '#{rep}.archaea'`
         r.add_file(:bac_report, "#{d.name}.ess/log")
         r.add_file(:report, "#{d.name}.ess/log.archaea")
-        r.save
       end
       # Extract/compute quality values
       stats = {completeness:[0.0,"%"], contamination:[0.0,"%"]}
@@ -100,6 +99,11 @@ if o[:compute]
         end
       end
       stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
+      q_range = stats[:quality] > 80.0 ? :excellent :
+        stats[:quality] > 50.0 ? :high :
+        stats[:quality] > 20.0 ? :intermediate : :low
+      d.metadata[:quality_interval] = q_range
+      d.save
     end
   when :distances
     d.cleanup_distances! unless d.nil?
