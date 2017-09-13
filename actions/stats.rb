@@ -74,7 +74,7 @@ if o[:compute]
       File.open(r.file_path(:report), "r") do |fh|
         fh.each_line do |ln|
           if /^! (Mean|Median) number of copies per model: (.*)\./.match(ln)
-            stats["#{$1.downcase}_copies".to_sym] = $2.to_i
+            stats["#{$1.downcase}_copies".to_sym] = $2.to_f
           end
         end
       end
