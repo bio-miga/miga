@@ -69,15 +69,37 @@ if o[:compute]
     s = `FastA.length.pl '#{f}' | #{scr}`.chomp.split(" ")
     stats = {predicted_proteins: s[0].to_i, average_length: [s[1].to_f, "aa"]}
   when :essential_genes
-    stats = {completeness:[0.0,"%"], contamination:[0.0,"%"]}
-    File.open(r.file_path(:report), "r") do |fh|
-      fh.each_line do |ln|
-        if /^! (Completeness|Contamination): (.*)%/.match(ln)
-          stats[$1.downcase.to_sym][0] = $2.to_f
+    if d.is_multi?
+      stats = {median_copies:0, mean_copies:0}
+      File.open(r.file_path(:report), "r") do |fh|
+        fh.each_line do |ln|
+          if /^! (Mean|Median) number of copies per model: (.*)\./.match(ln)
+            stats["#{$1.downcase}_copies".to_sym] = $2.to_i
+          end
         end
       end
+    else
+      # Fix estimate for Archaea
+      if not d.metadata[:tax].nil? and
+            d.metadata[:tax].is_in? MiGA::Taxonomy.new("d:Archaea") and
+            r.file_path(:bac_report).nil?
+        `ruby '#{MiGA.root}/utils/arch-ess-genes.rb' '#{r.file_path(:report)}' \
+          > '#{r.file_path(:report)}.archaea'`
+        r.add_file(:bac_report, "#{d.name}.ess/log")
+        r.add_file(:report, "#{d.name}.ess/log.archaea")
+        r.save
+      end
+      # Extract/compute quality values
+      stats = {completeness:[0.0,"%"], contamination:[0.0,"%"]}
+      File.open(r.file_path(:report), "r") do |fh|
+        fh.each_line do |ln|
+          if /^! (Completeness|Contamination): (.*)%/.match(ln)
+            stats[$1.downcase.to_sym][0] = $2.to_f
+          end
+        end
+      end
+      stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
     end
-    stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
   when :distances
     d.cleanup_distances! unless d.nil?
   else
