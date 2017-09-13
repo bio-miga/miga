@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 esslog = ARGV.shift
+outlog = ARGV.shift
 l_all = `HMM.essential.rb -l -q`.chomp.split("\n").map{ |i| i.gsub(/\t.*/,"") }
 n_arc = Hash[
   `HMM.essential.rb -l -q -A`.chomp.split("\n").map{ |i| i.split("\t") }
@@ -41,16 +42,16 @@ cnt_arc = {}
 l_arc.each{ |i| cnt_arc[i] = cnt_ref[i] }
 
 q = quality(cnt_arc)
-
-puts "! Essential genes found: #{q[:found]}/#{cnt_arc.size}."
-puts "! Completeness: #{q[:cmp].round(1)}%."
-puts "! Contamination: #{q[:cnt].round(1)}%."
-if q[:multi] > 0
-  puts "! Multiple copies: "
-  cnt_arc.each{ |k,v| puts "!   #{v} #{k}: #{n_arc[k]}." if v>1 }
+File.open(outlog, "w") do |ofh|
+  ofh.puts "! Essential genes found: #{q[:found]}/#{cnt_arc.size}."
+  ofh.puts "! Completeness: #{q[:cmp].round(1)}%."
+  ofh.puts "! Contamination: #{q[:cnt].round(1)}%."
+  if q[:multi] > 0
+    ofh.puts "! Multiple copies: "
+    cnt_arc.each{ |k,v| ofh.puts "!   #{v} #{k}: #{n_arc[k]}." if v>1 }
+  end
+  if q[:found] < cnt_arc.size
+    ofh.puts "! Missing genes: "
+    cnt_arc.each{ |k,v| ofh.puts "!   #{k}: #{n_arc[k]}." if v==0 }
+  end
 end
-if q[:found] < cnt_arc.size
-  puts "! Missing genes: "
-  cnt_arc.each{ |k,v| puts "!   #{k}: #{n_arc[k]}." if v==0 }
-end
-
