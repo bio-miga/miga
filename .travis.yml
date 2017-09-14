@@ -1,4 +1,5 @@
 language: ruby
+before_install: gem install bundler
 matrix:
   include:
     # Run remote tests in only one version
