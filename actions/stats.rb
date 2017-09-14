@@ -102,7 +102,7 @@ if o[:compute]
       q_range = stats[:quality] > 80.0 ? :excellent :
         stats[:quality] > 50.0 ? :high :
         stats[:quality] > 20.0 ? :intermediate : :low
-      d.metadata[:quality_interval] = q_range
+      d.metadata[:quality] = q_range
       d.save
     end
   when :distances

@@ -191,8 +191,7 @@ module MiGA::DatasetResult
     ##
     # Add result type +:taxonomy+ at +base+ (no +_opts+ supported).
     def add_result_taxonomy(base, _opts)
-      r = add_result_distances_nonref(base)
-      add_files_to_ds_result(r, name, intax_test:".intax.txt")
+      add_result_distances_nonref(base)
     end
 
     ##
@@ -228,7 +227,8 @@ module MiGA::DatasetResult
       r = MiGA::Result.new("#{base}.json")
       add_files_to_ds_result(r, name, aai_medoids:".aai-medoids.tsv",
         haai_db:".haai.db", aai_db:".aai.db", ani_medoids:".ani-medoids.tsv",
-        ani_db:".ani.db", ref_tree:".nwk", ref_tree_pdf:".nwk.pdf")
+        ani_db:".ani.db", ref_tree:".nwk", ref_tree_pdf:".nwk.pdf",
+        intax_test:".intax.txt")
     end
 
     ##

@@ -147,6 +147,9 @@ Supported file keys:
 * `report` (*req*): Raw text report including derived statistics, as well as
   *essential* genes missing or detected in multiple copies (for genomes) or
   copy counts (for metagenomes and viromes).
+* `bac_report`: If present, this is the original report, and it indicates that a
+  corrected report has been generated to accomodate particular features of the
+  dataset.
 
 MiGA symbol: `essential_genes`.
 
@@ -248,6 +251,7 @@ Supported file keys:
   * `ref_tree`: Newick file with the Bio-NJ tree including queried medoids and
     the query dataset.
   * `ref_tree_pdf`: PDF rendering of `ref_tree`.
+  * `intax`: Raw text result of the taxonomy test against the reference genome.
 
 MiGA symbol: `distances`.
 
