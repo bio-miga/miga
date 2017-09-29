@@ -95,7 +95,7 @@ In this step MiGA assembles trimmed FastA reads using
 Supported file keys:
 
 * `largecontigs` (*req*): FastA file containing large contigs or scaffolds
-  (>500bp).
+  (>1Kbp).
 * `allcontigs`: FastA file containing all contigs or scaffolds (including
   large).
 * `assembly_data` (*dir*): Folder containing some intermediate files generated
