@@ -9,3 +9,7 @@ The following metadata fields are recognized by different interfaces:
 | tax        | Dataset | MiGA::Taxonomy   | Taxonomy of the dataset
 | run_`step` | Dataset | Boolean          | Forces running or not `step`
 | quality    | Dataset | String           | Description of genome quality
+| ncbi_tax_id  | Dataset | String         | Linking ID(s)* for NCBI Taxonomy
+| ncbi_nuccore | Dataset | String         | Linking ID(s)* for NCBI Nucleotide
+
+\* Multiple IDs can be provided separated by commas.

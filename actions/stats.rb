@@ -64,10 +64,15 @@ if o[:compute]
     s = `FastA.N50.pl '#{f}'`.chomp.split("\n").map{|i| i.gsub(/.*: /,'').to_i}
     stats = {contigs: s[1], n50: [s[0], "bp"], total_length: [s[2], "bp"]}
   when :cds
-    scr = "awk '{L+=$2} END{print NR, L/NR}'"
+    scr = "awk '{L+=$2} END{print NR, L/NR, L}'"
     f = r.file_path :proteins
     s = `FastA.length.pl '#{f}' | #{scr}`.chomp.split(" ")
     stats = {predicted_proteins: s[0].to_i, average_length: [s[1].to_f, "aa"]}
+    asm = d.add_result(:assembly, false)
+    unless asm.nil? or asm[:stats][:total_length].nil?
+      stats[:coding_density] =
+        [100.0*s[2].to_f/asm[:stats][:total_length][0], "%"]
+    end
   when :essential_genes
     if d.is_multi?
       stats = {median_copies:0, mean_copies:0}
