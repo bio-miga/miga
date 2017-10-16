@@ -79,7 +79,7 @@ if o[:compute]
     asm = d.add_result(:assembly, false)
     unless asm.nil? or asm[:stats][:total_length].nil?
       stats[:coding_density] =
-        [100.0*s[2].to_f/asm[:stats][:total_length][0], "%"]
+        [300.0*s[2].to_f/asm[:stats][:total_length][0], "%"]
     end
   when :essential_genes
     if d.is_multi?
