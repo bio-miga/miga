@@ -62,7 +62,15 @@ if o[:compute]
   when :assembly
     f = r.file_path :largecontigs
     s = `FastA.N50.pl '#{f}'`.chomp.split("\n").map{|i| i.gsub(/.*: /,'').to_i}
-    stats = {contigs: s[1], n50: [s[0], "bp"], total_length: [s[2], "bp"]}
+    gc = 0
+    File.open(f, "r") do |fh|
+      fh.each_line do |ln|
+        next if ln =~ /^>/
+        gc += ln.scan(/[GCgc]/).count
+      end
+    end
+    stats = {contigs: s[1], n50: [s[0], "bp"], total_length: [s[2], "bp"],
+      g_c_content: [100.0*gc.to_f/s[2], "%"]}
   when :cds
     scr = "awk '{L+=$2} END{print NR, L/NR, L}'"
     f = r.file_path :proteins
@@ -123,7 +131,7 @@ end
 
 if o[:key].nil?
   r[:stats].each do |k,v|
-    puts "#{k.to_s.unmiga_name.capitalize}: #{
+    puts "#{k==:g_c_content ? "G+C content" : k.to_s.unmiga_name.capitalize}: #{
       v.is_a?(Array) ? v.join(" ") : v}."
   end
 else
