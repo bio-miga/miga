@@ -3,10 +3,13 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true}
+o = {q:true, force:false}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt, :result])
+  opt.on("-f", "--force",
+    "Forces re-indexing of the result even if it's already registered."
+    ){ |v| o[:force]=v }
   opt_common(opt, o)
 end.parse!
 
@@ -19,12 +22,8 @@ p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 $stderr.puts "Registering result." unless o[:q]
-if o[:dataset].nil?
-  r = p.add_result o[:name].to_sym
-else
-  d = p.dataset(o[:dataset])
-  r = d.add_result o[:name].to_sym
-end
+obj = o[:dataset].nil? ? p : p.dataset(o[:dataset])
+r = obj.add_result(o[:name].to_sym, true, force: o[:force])
 
 raise "Cannot add result, incomplete expected files." if r.nil?
 

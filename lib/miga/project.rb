@@ -269,12 +269,17 @@ class MiGA::Project < MiGA::MiGA
   
   ##
   # Add the result identified by Symbol +name+, and return MiGA::Result. Save
-  # the result if +save+.
-  def add_result(name, save=true)
+  # the result if +save+. The +opts+ hash controls result creation (if necessary).
+  # Supported values include:
+  # - +force+: A Boolean indicating if the result must be re-indexed. If true, it
+  # implies save=true.
+  def add_result(name, save=true, opts={})
     return nil if @@RESULT_DIRS[name].nil?
     base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
-    r_pre = MiGA::Result.load("#{base}.json")
-    return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+    unless opts[:force]
+      r_pre = MiGA::Result.load("#{base}.json")
+      return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+    end
     r = result_files_exist?(base, ".done") ?
         send("add_result_#{name}", base) : nil
     r.save unless r.nil?
