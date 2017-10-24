@@ -130,19 +130,17 @@ class MiGA::MiGA
     
     o = { n: l.size, tot: l.inject(:+) }
     o[:avg] = o[:tot].to_f/l.size
-    o[:var] = l.map{ |i| i ** 2 }.inject(:+).to_f/l.size - o[:avg]**2
+    o[:var] = l.map{ |a| a ** 2 }.inject(:+).to_f/l.size - o[:avg]**2
     o[:sd]  = Math.sqrt o[:var]
     o[:gc]  = 100.0*gc/o[:tot] if opts[:gc]
     if opts[:n50]
       l.sort!
       thr = o[:tot]/2
       pos = 0
-      l.each do |i|
-        pos += i
-        if pos >= thr
-          o[:n50] = i
-          break
-        end
+      l.each do |a|
+        pos += a
+        o[:n50] = a
+        break if pos >= thr
       end
       o[:med] = o[:n].even? ?
         0.5*( l[o[:n]/2-1,2].inject(:+) ) : l[(o[:n]-1)/2]
