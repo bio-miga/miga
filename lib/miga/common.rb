@@ -4,6 +4,7 @@
 require "miga/version"
 require "json"
 require "tempfile"
+require "zlib"
 
 ##
 # Generic class used to handle system-wide information and methods, and parent
@@ -103,6 +104,52 @@ class MiGA::MiGA
       tmp.unlink
     end
   end
+
+  ##
+  # Calculates the average and standard deviation of the sequence lengths in
+  # a FastA or FastQ file (supports gzipped files). The +format+ must be a
+  # Symbol, one of +:fasta+ or +:fastq+. Additional estimations can be
+  # controlled via the +opts+ Hash. Supported options include:
+  # - +:n50+: If true, it also returns the N50 and the median (in bp).
+  # - +gc+: If true, it also returns the G+C content (in %).
+  def self.seqs_length(file, format, opts={})
+    fh = (file =~ /\.gz/) ? Zlib::GzipReader.open(file) : File.open(file, "r")
+    l = []
+    gc = 0
+    i = 0 # <- Zlib::GzipReader doesn't set $.
+    fh.each_line do |ln|
+      i += 1
+      if (format==:fasta and ln =~ /^>/) or (format==:fastq and (i % 4)==1)
+        l << 0
+      elsif format==:fasta or (i % 4)==2
+        l[l.size-1] += ln.chomp.size
+        gc += ln.scan(/[GCgc]/).count if opts[:gc]
+      end
+    end
+    fh.close
+    
+    o = { n: l.size, tot: l.inject(:+) }
+    o[:avg] = o[:tot].to_f/l.size
+    o[:var] = l.map{ |i| i ** 2 }.inject(:+).to_f/l.size - o[:avg]**2
+    o[:sd]  = Math.sqrt o[:var]
+    o[:gc]  = 100.0*gc/o[:tot] if opts[:gc]
+    if opts[:n50]
+      l.sort!
+      thr = o[:tot]/2
+      pos = 0
+      l.each do |i|
+        pos += i
+        if pos >= thr
+          o[:n50] = i
+          break
+        end
+      end
+      o[:med] = o[:n].even? ?
+        0.5*( l[o[:n]/2-1,2].inject(:+) ) : l[(o[:n]-1)/2]
+    end
+    o
+  end
+  
   
   ##
   # Path to a script to be executed for +task+. Supported +opts+ are:

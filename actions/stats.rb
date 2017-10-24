@@ -43,43 +43,42 @@ if o[:compute]
   stats = {}
   case o[:name]
   when :raw_reads
-    scr = "awk 'NR%4==2{L+=length($0)} END{print NR/4, L*4/NR}'"
     if r[:files][:pair1].nil?
-      s = `#{scr} '#{r.file_path :single}'`.chomp.split(" ")
-      stats = {reads: s[0].to_i, average_length: [s[1].to_f, "bp"]}
+      s = MiGA::MiGA.seqs_length(r.file_path(:single), :fastq, gc: true)
+      stats = {reads: s[:n],
+        length_average: [s[:avg], "bp"],
+        length_standard_deviation: [s[:sd], "bp"],
+        g_c_content: [s[:gc], "%"]}
     else
-      s1 = `#{scr} '#{r.file_path :pair1}'`.chomp.split(" ")
-      s2 = `#{scr} '#{r.file_path :pair2}'`.chomp.split(" ")
-      stats = {read_pairs: s1[0].to_i,
-        average_length_forward: [s1[1].to_f, "bp"],
-        average_length_reverse: [s2[1].to_f, "bp"]}
+      s1 = MiGA::MiGA.seqs_length(r.file_path(:pair1), :fastq, gc: true)
+      s2 = MiGA::MiGA.seqs_length(r.file_path(:pair2), :fastq, gc: true)
+      stats = {read_pairs: s1[:n],
+        forward_length_average: [s1[:avg], "bp"],
+        forward_length_standard_deviation: [s1[:sd], "bp"],
+        forward_g_c_content: [s1[:gc], "%"],
+        reverse_length_average: [s2[:avg], "bp"],
+        reverse_length_standard_deviation: [s2[:sd], "bp"],
+        reverse_g_c_content: [s2[:gc], "%"]}
     end
   when :trimmed_fasta
-    scr = "awk '{L+=$2} END{print NR, L/NR}'"
     f = r[:files][:coupled].nil? ? r.file_path(:single) : r.file_path(:coupled)
-    s = `FastA.length.pl '#{f}' | #{scr}`.chomp.split(" ")
-    stats = {reads: s[0].to_i, average_length: [s[1].to_f, "bp"]}
+    s = MiGA::MiGA.seqs_length(f, :fasta, gc: true)
+    stats = {reads: s[:n],
+      length_average: [s[:avg], "bp"],
+      length_standard_deviation: [s[:sd], "bp"],
+      g_c_content: [s[:gc], "%"]}
   when :assembly
-    f = r.file_path :largecontigs
-    s = `FastA.N50.pl '#{f}'`.chomp.split("\n").map{|i| i.gsub(/.*: /,'').to_i}
-    gc = 0
-    File.open(f, "r") do |fh|
-      fh.each_line do |ln|
-        next if ln =~ /^>/
-        gc += ln.scan(/[GCgc]/).count
-      end
-    end
-    stats = {contigs: s[1], n50: [s[0], "bp"], total_length: [s[2], "bp"],
-      g_c_content: [100.0*gc.to_f/s[2], "%"]}
+    s = MiGA::MiGA.seqs_length(r.file_path(:largecontigs), :fasta,
+      n50:true, gc:true)
+    stats = {contigs: s[:n], n50: [s[:n50], "bp"],
+      total_length: [s[:tot], "bp"], g_c_content: [s[:gc], "%"]}
   when :cds
-    scr = "awk '{L+=$2} END{print NR, L/NR, L}'"
-    f = r.file_path :proteins
-    s = `FastA.length.pl '#{f}' | #{scr}`.chomp.split(" ")
-    stats = {predicted_proteins: s[0].to_i, average_length: [s[1].to_f, "aa"]}
+    s = MiGA::MiGA.seqs_length(r.file_path(:proteins), :fasta)
+    stats = {predicted_proteins: s[:n], average_length: [s[:avg], "aa"]}
     asm = d.add_result(:assembly, false)
     unless asm.nil? or asm[:stats][:total_length].nil?
       stats[:coding_density] =
-        [300.0*s[2].to_f/asm[:stats][:total_length][0], "%"]
+        [300.0*s[:tot]/asm[:stats][:total_length][0], "%"]
     end
   when :essential_genes
     if d.is_multi?
