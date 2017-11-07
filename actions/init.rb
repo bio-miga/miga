@@ -188,67 +188,70 @@ $stderr.puts ""
 
 # Configure daemon
 $stderr.puts "Default daemon configuration:"
-v = {created:Time.now.to_s, updated:Time.now.to_s}
-v[:type] = ask_user("Please select the type of daemon you want to setup",
-          o[:dtype], %w(bash qsub msub))
-case v[:type]
-  when "bash"
-    v[:latency] = ask_user("How long should I sleep? (in seconds)","30").to_i
-    v[:maxjobs] = ask_user("How many jobs can I launch at once?", "6").to_i
-    v[:ppn]     = ask_user("How many CPUs can I use per job?", "2").to_i
-    $stderr.puts "Setting up internal daemon defaults."
-    $stderr.puts "If you don't understand this just leave default values:"
-    v[:cmd]     = ask_user(
-      "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
-      "%3$d: CPUs, %4$s: log file, %5$s: task name.\n",
-      "%2$s '%1$s' > '%4$s' 2>&1")
-    v[:var]     = ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
-    v[:varsep]  = ask_user("What should I use to separate variables?", " ")
-    v[:alive]   = ask_user(
-      "How can I know that a process is still alive?\n  %1$s: PID, " +
-      "output should be 1 for running and 0 for non-running.\n",
-      "ps -p '%1$s'|tail -n+2|wc -l")
-    v[:kill]    = ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
-  else # [qm]sub
-    queue       = ask_user("What queue should I use?", nil, nil, true)
-    v[:latency] = ask_user("How long should I sleep? (in seconds)", "150").to_i
-    v[:maxjobs] = ask_user("How many jobs can I launch at once?", "300").to_i
-    v[:ppn]     = ask_user("How many CPUs can I use per job?", "4").to_i
-    $stderr.puts "Setting up internal daemon defaults."
-    $stderr.puts "If you don't understand this just leave default values:"
-    v[:cmd]     = ask_user(
-      "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
-      "%3$d: CPUs, %4$d: log file, %5$s: task name.\n",
-      "#{v[:type]} -q '#{queue}' -v '%2$s' -l nodes=1:ppn=%3$d %1$s " +
-      "-j oe -o '%4$s' -N '%5$s' -l mem=9g -l walltime=12:00:00 | grep .")
-    v[:var]     = ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
-    v[:varsep]  = ask_user("What should I use to separate variables?", ",")
-    if v[:type] == "qsub"
-      v[:alive] = ask_user(
-        "How can I know that a process is still alive?\n  %1$s: job id, " +
+daemon_f = File.expand_path(".miga_daemon.json", ENV["HOME"])
+unless File.exists(daemon_f) and ask_user(
+          "A template daemon already exists, do you want to preserve it?",
+          "yes", %w(yes no))=="yes"
+  v = {created:Time.now.to_s, updated:Time.now.to_s}
+  v[:type] = ask_user("Please select the type of daemon you want to setup",
+            o[:dtype], %w(bash qsub msub))
+  case v[:type]
+    when "bash"
+      v[:latency] = ask_user("How long should I sleep? (in seconds)","30").to_i
+      v[:maxjobs] = ask_user("How many jobs can I launch at once?", "6").to_i
+      v[:ppn]     = ask_user("How many CPUs can I use per job?", "2").to_i
+      $stderr.puts "Setting up internal daemon defaults."
+      $stderr.puts "If you don't understand this just leave default values:"
+      v[:cmd]     = ask_user(
+        "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
+        "%3$d: CPUs, %4$s: log file, %5$s: task name.\n",
+        "%2$s '%1$s' > '%4$s' 2>&1")
+      v[:var]     = ask_user(
+        "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
+        "%1$s=%2$s")
+      v[:varsep]  = ask_user("What should I use to separate variables?", " ")
+      v[:alive]   = ask_user(
+        "How can I know that a process is still alive?\n  %1$s: PID, " +
         "output should be 1 for running and 0 for non-running.\n",
-        "qstat -f '%1$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'" +
-        "|tail -n1|wc -l|awk '{print $1}'")
-    v[:kill]    = ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
-    else
-      v[:alive] = ask_user(
-        "How can I know that a process is still alive?\n  %1$s: job id, " +
-        "output should be 1 for running and 0 for non-running.\n",
-        "checkjob '%1$s'|grep '^State:'|perl -pe 's/.*: //'" +
-        "|grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'"+
-        "|tail -n1|wc -l|awk '{print $1}'")
-    v[:kill]    = ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "canceljob '%s'")
-    end
-end
-File.open(File.expand_path(".miga_daemon.json", ENV["HOME"]), "w") do |fh|
-  fh.puts JSON.pretty_generate(v)
+        "ps -p '%1$s'|tail -n+2|wc -l")
+      v[:kill]    = ask_user(
+        "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
+    else # [qm]sub
+      queue       = ask_user("What queue should I use?", nil, nil, true)
+      v[:latency] = ask_user("How long should I sleep? (in seconds)","150").to_i
+      v[:maxjobs] = ask_user("How many jobs can I launch at once?", "300").to_i
+      v[:ppn]     = ask_user("How many CPUs can I use per job?", "4").to_i
+      $stderr.puts "Setting up internal daemon defaults."
+      $stderr.puts "If you don't understand this just leave default values:"
+      v[:cmd]     = ask_user(
+        "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
+        "%3$d: CPUs, %4$d: log file, %5$s: task name.\n",
+        "#{v[:type]} -q '#{queue}' -v '%2$s' -l nodes=1:ppn=%3$d %1$s " +
+        "-j oe -o '%4$s' -N '%5$s' -l mem=9g -l walltime=12:00:00 | grep .")
+      v[:var]     = ask_user(
+        "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
+        "%1$s=%2$s")
+      v[:varsep]  = ask_user("What should I use to separate variables?", ",")
+      if v[:type] == "qsub"
+        v[:alive] = ask_user(
+          "How can I know that a process is still alive?\n  %1$s: job id, " +
+          "output should be 1 for running and 0 for non-running.\n",
+          "qstat -f '%1$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'"+
+          "|tail -n1|wc -l|awk '{print $1}'")
+      v[:kill]    = ask_user(
+        "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
+      else
+        v[:alive] = ask_user(
+          "How can I know that a process is still alive?\n  %1$s: job id, " +
+          "output should be 1 for running and 0 for non-running.\n",
+          "checkjob '%1$s'|grep '^State:'|perl -pe 's/.*: //'" +
+          "|grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'"+
+          "|tail -n1|wc -l|awk '{print $1}'")
+      v[:kill]    = ask_user(
+        "How should I terminate tasks?\n  %s: process ID.", "canceljob '%s'")
+      end
+  end
+  File.open(daemon_f, "w"){ |fh| fh.puts JSON.pretty_generate(v) }
 end
 $stderr.puts ""
 
