@@ -107,7 +107,11 @@ File.open(File.expand_path("utils/requirements.txt", miga), "r") do |fh|
     $stderr.print "Testing #{r[0]}#{" (#{r[3]})" if r[3]}... "
     path = nil
     loop do
-      d_path = File.dirname(`which "#{r[1]}"`)
+      if File.exist? o[:config]
+        d_path = File.dirname(`source "#{o[:config]}" && which "#{r[1]}"`)
+      else
+        d_path = File.dirname(`which "#{r[1]}"`)
+      end
       if o[:ask] or d_path=="."
         path = ask_user("Where can I find it?", d_path, nil, true)
       else
