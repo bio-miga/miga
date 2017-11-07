@@ -193,7 +193,7 @@ $stderr.puts ""
 # Configure daemon
 $stderr.puts "Default daemon configuration:"
 daemon_f = File.expand_path(".miga_daemon.json", ENV["HOME"])
-unless File.exists(daemon_f) and ask_user(
+unless File.exist?(daemon_f) and ask_user(
           "A template daemon already exists, do you want to preserve it?",
           "yes", %w(yes no))=="yes"
   v = {created:Time.now.to_s, updated:Time.now.to_s}
