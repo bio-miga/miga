@@ -141,7 +141,7 @@ median number of copies of single-copy genes (for metagenomes and viromes).
 Supported file keys:
 
 * `ess_genes` (*req*): FastA file containing all extracted protein translations
-  from *essential* genes.
+  from *essential* genes (.faa) or archived collection (proteins.tar.gz).
 * `collection` (*req*): Folder containing individual FastA files with protein
   translations from *essential* genes.
 * `report` (*req*): Raw text report including derived statistics, as well as
