@@ -37,11 +37,7 @@ else
 fi
 
 # Reduce files
-(
-  cd "${DATASET}.ess"
-  tar -zcf proteins.tar.gz *.faa
-  rm *.faa
-)
+( cd "${DATASET}.ess" && tar -zcf proteins.tar.gz *.faa && rm *.faa )
 
 # Finalize
 miga date > "$DATASET.done"
