@@ -133,22 +133,27 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Iterate +blk+ for each registered file. If +blk+ calls for one argument, the
-  # relative path to the file is passed. If it calls for two arguments, the
-  # symbol describing the file is passed first and the path second. Note that
-  # multiple files may have the same symbol, since arrays of files are
-  # supported.
+  # Iterate +blk+ for each registered file. Depending on the number of
+  # arguments of +blk+ (arity), it's called as:
+  # - blk[file_rel]
+  # - blk[file_sym, file_rel]
+  # - blk[file_sym, file_rel, file_abs]
+  # Note that multiple files may have the same symbol (file_sym), since
+  # arrays of files are supported.
   def each_file(&blk)
     @data[:files] ||= {}
     self[:files].each do |k,files|
       files = [files] unless files.kind_of? Array
       files.each do |file|
-        if blk.arity==1
+        case blk.arity
+        when 1
           blk.call(file)
-        elsif blk.arity==2
+        when 2
           blk.call(k, file)
+        when 3
+          blk.call(k, file, File.expand_path(file, dir))
         else
-          raise "Wrong number of arguments: #{blk.arity} for one or two"
+          raise "Wrong number of arguments: #{blk.arity} for 1..3"
         end
       end
     end
