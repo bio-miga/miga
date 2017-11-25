@@ -15,9 +15,10 @@ $task_desc = {
   new: "Creates an empty MiGA project.",
   about: "Displays information about a MiGA project.",
   plugins: "Lists or (un)installs plugins in a MiGA project.",
+  doctor: "Performs consistency checks on a MiGA project.",
   # Datasets
   add: "Creates an empty dataset in a pre-existing MiGA project.",
-  get: "Creates an empty dataset in a pre-existing MiGA project.",
+  get: "Downloads a dataset from public databases into a MiGA project.",
   rm: "Removes a dataset from an MiGA project.",
   find: "Finds unregistered datasets based on result files.",
   ln: "Link datasets (including results) from one project to another.",
