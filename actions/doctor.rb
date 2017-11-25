@@ -68,8 +68,11 @@ end
 
 #$stderr.puts "o Looking for unarchived essential genes." unless o[:q]
 #p.each_dataset do |d|
-#  
+#  TODO: Check unarchived protein files
 #end
+
+#$stderr.puts "o Checking for taxonomy/distances consistency" unless o[:q]
+# TODO: Find 95%ANI clusters with entries from different species
 
 $stderr.puts "Done" unless o[:q]
 
