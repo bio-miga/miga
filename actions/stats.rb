@@ -111,10 +111,12 @@ if o[:compute]
         end
       end
       stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
-      q_range = stats[:quality] > 80.0 ? :excellent :
-        stats[:quality] > 50.0 ? :high :
-        stats[:quality] > 20.0 ? :intermediate : :low
-      d.metadata[:quality] = q_range
+      d.metadata[:quality] = case stats[:quality]
+        when 80..100 ; :excellent
+        when 50..80  ; :high
+        when 20..50  ; :intermediate
+        else         ; :low
+      end
       d.save
     end
   when :distances
