@@ -38,4 +38,26 @@ class RemoteDatasetTest < Test::Unit::TestCase
     assert_equal("Lentivirus", tx[:g])
   end
 
+  def test_net_ftp
+    cjac = "ftp://ftp.ebi.ac.uk/pub/databases/ena/tsa/public/ga/GAPJ01.fasta.gz"
+    n = "Cjac_L14"
+    rd = MiGA::RemoteDataset.new(cjac, :assembly_gz, :web)
+    assert_equal([cjac], rd.ids)
+    omit_if(!$remote_tests, "Remote access is error-prone.")
+    p = $p1
+    assert_nil(p.dataset(n))
+    rd.save_to(p, n)
+    p.add_dataset(n)
+    assert_equal(MiGA::Dataset, p.dataset(n).class)
+    assert_equal(MiGA::Result, p.dataset(n).result(:assembly).class)
+  end
+
+  # This test is too expensive (too much time to run it!)
+  #def test_net_timeout
+  #  omit_if(!$remote_tests, "Remote access is error-prone.")
+  #  bad = "ftp://example.com/miga"
+  #  rd = MiGA::RemoteDataset.new(bad, :assembly, :web)
+  #  assert_raise(Net::ReadTimeout) { rd.save_to($p1, "bad") }
+  #end
+
 end

@@ -71,7 +71,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   ##
-  # Download data usint a REST method from the +universe+ in the database +db+
+  # Download data using a REST method from the +universe+ in the database +db+
   # with IDs +ids+ and in +format+. Returns the doc as String.
   def self.download_rest(universe, db, ids, format)
     u = @@UNIVERSE[universe]
@@ -85,10 +85,12 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
   
   ##
-  # Download data usint a REST method from the +universe+ in the database +db+
+  # Download data using a GET request from the +universe+ in the database +db+
   # with IDs +ids+ and in +format+. Returns the doc as String.
   def self.download_net(universe, db, ids, format)
-    url = sprintf(@@UNIVERSE[universe][:url], db, ids.join(","), format, map_to)
+    u = @@UNIVERSE[universe]
+    map_to = u[:dbs][db].nil? ? nil : u[:dbs][db][:map_to]
+    url = sprintf(u[:url], db, ids.join(","), format, map_to)
     doc = ""
     @timeout_try = 0
     begin
