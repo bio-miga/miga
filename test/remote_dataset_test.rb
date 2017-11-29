@@ -28,14 +28,16 @@ class RemoteDatasetTest < Test::Unit::TestCase
     assert_raise { MiGA::RemoteDataset.new("ids", :google, :ebi) }
   end
 
-  def test_ebi
+  def test_rest
     hiv2 = "M30502.1"
-    rd = MiGA::RemoteDataset.new(hiv2, :embl, :ebi)
-    assert_equal([hiv2], rd.ids)
-    omit_if(!$remote_tests, "Remote access is error-prone.")
-    tx = rd.get_ncbi_taxonomy
-    assert_equal(MiGA::Taxonomy, tx.class)
-    assert_equal("Lentivirus", tx[:g])
+    {embl: :ebi, nuccore: :ncbi}.each do |db, universe|
+      rd = MiGA::RemoteDataset.new(hiv2, db, universe)
+      assert_equal([hiv2], rd.ids)
+      omit_if(!$remote_tests, "Remote access is error-prone.")
+      tx = rd.get_ncbi_taxonomy
+      assert_equal(MiGA::Taxonomy, tx.class, "Failed on #{universe}:#{db}")
+      assert_equal("Lentivirus", tx[:g], "Failed on #{universe}:#{db}")
+    end
   end
 
   def test_net_ftp

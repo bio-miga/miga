@@ -1,10 +1,75 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require "miga/result"
+require "miga/project/base"
+
 ##
 # Helper module including specific functions to add project results.
-module MiGA::ProjectResult
+module MiGA::Project::Result
 
+  include MiGA::Project::Base
+  
+  ##
+  # Get result identified by Symbol +name+, returns MiGA::Result.
+  def result(name)
+    dir = @@RESULT_DIRS[name.to_sym]
+    return nil if dir.nil?
+    MiGA::Result.load("#{path}/data/#{dir}/miga-project.json")
+  end
+
+  ##
+  # Get all results, an Array of MiGA::Result.
+  def results
+    @@RESULT_DIRS.keys.map{ |k| result(k) }.reject{ |r| r.nil? }
+  end
+  
+  ##
+  # Add the result identified by Symbol +name+, and return MiGA::Result. Save
+  # the result if +save+. The +opts+ hash controls result creation (if
+  # necessary).
+  # Supported values include:
+  # - +force+: A Boolean indicating if the result must be re-indexed. If true,
+  #   it implies save=true.
+  def add_result(name, save=true, opts={})
+    return nil if @@RESULT_DIRS[name].nil?
+    base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
+    unless opts[:force]
+      r_pre = MiGA::Result.load("#{base}.json")
+      return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+    end
+    r = result_files_exist?(base, ".done") ?
+        send("add_result_#{name}", base) : nil
+    r.save unless r.nil?
+    r
+  end
+  
+  ##
+  # Get the next distances task, saving intermediate results if +save+. Returns
+  # a Symbol.
+  def next_distances(save=true) ; next_task(@@DISTANCE_TASKS, save) ; end
+  
+  ##
+  # Get the next inclade task, saving intermediate results if +save+. Returns a
+  # Symbol.
+  def next_inclade(save=true) ; next_task(@@INCLADE_TASKS, save) ; end
+
+  ##
+  # Get the next task from +tasks+, saving intermediate results if +save+.
+  # Returns a Symbol.
+  def next_task(tasks=@@DISTANCE_TASKS+@@INCLADE_TASKS, save=true)
+    tasks.find do |t|
+      if metadata["run_#{t}"]==false or
+            (!is_clade? and @@INCLADE_TASKS.include?(t) and
+                  metadata["run_#{t}"]!=true)
+        false
+      else
+        add_result(t, save).nil?
+      end
+    end
+  end
+  
+  
   private
 
     ##
