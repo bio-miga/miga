@@ -3,6 +3,9 @@ exclude_paths:
 engines:
   rubocop:
     enabled: true
+    checks:
+      Rubocop/Style/AndOr:
+        enabled: false
   duplication:
     enabled: true
     config:
