@@ -105,19 +105,19 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # Initializes the daemon with +opts+.
-  def start(opts=[]) daemon("start", opts); end
+  def start(opts=[]) daemon('start', opts); end
 
   ##
   # Stops the daemon with +opts+.
-  def stop(opts=[]) daemon("stop", opts); end
+  def stop(opts=[]) daemon('stop', opts); end
 
   ##
   # Restarts the daemon with +opts+.
-  def restart(opts=[]) daemon("restart", opts); end
+  def restart(opts=[]) daemon('restart', opts); end
 
   ##
   # Returns the status of the daemon with +opts+.
-  def status(opts=[]) daemon("status", opts); end
+  def status(opts=[]) daemon('status', opts); end
 
   ##
   # Launches the +task+ with options +opts+ (as command-line arguments).
@@ -134,7 +134,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Tell the world that you're alive.
   def declare_alive
-    f = File.open(File.expand_path("daemon/alive", project.path), "w")
+    f = File.open(File.expand_path('daemon/alive', project.path), 'w')
     f.print Time.now.to_s
     f.close
   end
@@ -142,12 +142,12 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Report status in a JSON file.
   def report_status
-    f = File.open(File.expand_path("daemon/status.json", project.path), "w")
+    f = File.open(File.expand_path('daemon/status.json', project.path), 'w')
     f.print JSON.pretty_generate(
       jobs_running:@jobs_running, jobs_to_run:@jobs_to_run)
     f.close
   end
-  
+
   ##
   # Traverse datasets
   def check_datasets
@@ -172,7 +172,7 @@ class MiGA::Daemon < MiGA::MiGA
     to_run = project.next_inclade(true) if to_run.nil?
     queue_job(to_run) unless to_run.nil?
   end
-  
+
   ##
   # Add the task to the internal queue with symbol key +job+. If the task is
   # dataset-specific, +ds+ specifies the dataset. To submit jobs to the
@@ -180,14 +180,14 @@ class MiGA::Daemon < MiGA::MiGA
   def queue_job(job, ds=nil)
     return nil unless get_job(job, ds).nil?
     ds_name = (ds.nil? ? 'miga-project' : ds.name)
-    say "Queueing ", ds_name, ":#{job}"
+    say 'Queueing %s:%s' % [ds_name, job]
     vars = {
       'PROJECT' => project.path,
       'RUNTYPE' => runopts(:type),
       'CORES'   => ppn,
       'MIGA'    => MiGA::MiGA.root_path
     }
-    vars["DATASET"] = ds.name unless ds.nil?
+    vars['DATASET'] = ds.name unless ds.nil?
     log_dir = File.expand_path("daemon/#{job}", project.path)
     Dir.mkdir(log_dir) unless Dir.exist? log_dir
     task_name = "#{project.metadata[:name][0..9]}:#{job}:#{ds_name}"
@@ -219,7 +219,7 @@ class MiGA::Daemon < MiGA::MiGA
       end
     end
   end
-  
+
   ##
   # Remove finished jobs from the internal queue and launch as many as
   # possible respecting #maxjobs.
@@ -251,9 +251,9 @@ class MiGA::Daemon < MiGA::MiGA
   # Run one loop step. Returns a Boolean indicating if the loop should continue.
   def in_loop
     if loop_i == -1
-      say "-----------------------------------"
-      say "MiGA:#{project.name} launched."
-      say "-----------------------------------"
+      say '-----------------------------------'
+      say 'MiGA:%s launched.' % project.name
+      say '-----------------------------------'
       @loop_i = 0
     end
     @loop_i += 1
@@ -263,14 +263,14 @@ class MiGA::Daemon < MiGA::MiGA
     check_project
     flush!
     if loop_i==4
-      say "Housekeeping for sanity"
+      say 'Housekeeping for sanity'
       @loop_i = 0
       purge!
     end
     report_status
     sleep(latency)
     if shutdown_when_done? and jobs_running.size+jobs_to_run.size == 0
-      say "Nothing else to do, shutting down."
+      say 'Nothing else to do, shutting down.'
       return false
     end
     true
@@ -292,12 +292,12 @@ class MiGA::Daemon < MiGA::MiGA
       `#{k % i[:pid]}`
       puts "Terminating pid:#{i[:pid]} for #{i[:task_name]}"
     end
-    f = File.expand_path("daemon/alive", project.path)
+    f = File.expand_path('daemon/alive', project.path)
     File.unlink(f) if File.exist? f
   end
 
   private
-    
+
     def launch_job(job)
       # Execute job
       if runopts(:type) == 'bash'
@@ -308,7 +308,7 @@ class MiGA::Daemon < MiGA::MiGA
         # Schedule cluster job
         job[:pid] = `#{job[:cmd]}`.chomp
       end
-      
+
       # Check if registered
       if [nil, '', 0].include? job[:pid]
         job[:pid] = nil
