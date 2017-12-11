@@ -17,7 +17,7 @@ class MiGA::Dataset < MiGA::MiGA
     ##
     # Does the +project+ already have a dataset with that +name+?
     def exist?(project, name)
-      File.exist? "#{project.path}/metadata/#{name}.json"
+      project.dataset_names.include? name
     end
 
     ##
