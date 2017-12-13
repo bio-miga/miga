@@ -139,6 +139,8 @@ def opt_filter_datasets(opt, o, what=[:ref, :multi, :taxonomy])
     ){ |v| o[:multi]=v } if what.include? :multi
   opt.on("-t", "--taxonomy RANK:TAXON", "Filter by taxonomy."
     ){ |v| o[:taxonomy]=MiGA::Taxonomy.new v } if what.include? :taxonomy
+  opt.on("-k", "--key INTEGER",
+    "Returns only the k-th dataset in the list."){ |v| o[:key]=v.to_i }
 end
 
 def opt_require(o, req={project:"-P", dataset:"-D"})
@@ -161,7 +163,7 @@ def filter_datasets!(ds, o)
   ds.select! do |d|
     (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
   end unless o[:taxonomy].nil?
-  ds
+  o[:key].nil? ? ds : ds.values_at(o[:key]-1)
 end
 
 def add_metadata(o, obj)

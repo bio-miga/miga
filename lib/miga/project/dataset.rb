@@ -27,7 +27,7 @@ module MiGA::Project::Dataset
     @datasets[name] ||= MiGA::Dataset.new(self, name)
     @datasets[name]
   end
-  
+
   ##
   # Iterate through datasets, with one or two variables passed to +blk+.
   # If one, the dataset MiGA::Dataset object is passed. If two, the name and
