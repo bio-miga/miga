@@ -11,6 +11,13 @@ cd "$PROJECT/data/06.cds"
 # Initialize
 miga date > "$DATASET.start"
 
+# Gunzip (if necessary)
+if [[ -e "../05.assembly/$DATASET.LargeContigs.fna.gz" \
+      && ! -e "../05.assembly/$DATASET.LargeContigs.fna" ]] ; then
+  gzip -d "../05.assembly/$DATASET.LargeContigs.fna.gz"
+  miga add_result -P "$PROJECT" -D "$DATASET" -r assembly -f
+fi
+
 # Run Prodigal
 TYPE=$(miga list_datasets -P "$PROJECT" -D "$DATASET" \
    --metadata "type" | awk '{print $2}')
