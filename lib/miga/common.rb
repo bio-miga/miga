@@ -111,7 +111,7 @@ class MiGA::MiGA
       begin
         tmp_fh.close unless tmp_fh.nil?
         File.unlink(tmp_path) unless tmp_path.nil?
-      catch
+      rescue
       end
     end
   end
