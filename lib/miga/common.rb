@@ -108,8 +108,11 @@ class MiGA::MiGA
       fh.close
       FileUtils.cp(tmp_path, file)
     ensure
-      tmp_fh.close unless tmp_fh.nil?
-      File.unlink(tmp_path) unless tmp_path.nil?
+      begin
+        tmp_fh.close unless tmp_fh.nil?
+        File.unlink(tmp_path) unless tmp_path.nil?
+      catch
+      end
     end
   end
 
