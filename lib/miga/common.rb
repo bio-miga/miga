@@ -80,28 +80,36 @@ class MiGA::MiGA
   ##
   # Cleans a FastA file in place.
   def self.clean_fasta_file(file)
-    tmp = Tempfile.new("MiGA")
+    tmp_fh = nil
     begin
-      File.open(file, "r") do |fh|
-        buffer = ""
-        fh.each_line do |ln|
-          ln.chomp!
-          if ln =~ /^>\s*(\S+)(.*)/
-            (id, df) = [$1, $2]
-            tmp.print buffer.wrap_width(80)
-            buffer = ""
-            tmp.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
-          else
-            buffer << ln.gsub(/[^A-Za-z\.\-]/, "")
-          end
-        end
-        tmp.print buffer.wrap_width(80)
+      if (file =~ /\.gz/)
+        tmp_path = Tempfile.new("MiGA.gz").tap{ |i| i.close }.path
+        tmp_fh = Zlib::GzipWriter.open(tmp_path)
+        fh = Zlib::GzipReader.open(file)
+      else
+        tmp_fh = Tempfile.new("MiGA")
+        tmp_path = tmp_fh.path
+        fh = File.open(file, "r")
       end
-      tmp.close
-      FileUtils.cp(tmp.path, file)
+      buffer = ""
+      fh.each_line do |ln|
+        ln.chomp!
+        if ln =~ /^>\s*(\S+)(.*)/
+          (id, df) = [$1, $2]
+          tmp_fh.print buffer.wrap_width(80)
+          buffer = ""
+          tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
+        else
+          buffer << ln.gsub(/[^A-Za-z\.\-]/, "")
+        end
+      end
+      tmp_fh.print buffer.wrap_width(80)
+      tmp_fh.close
+      fh.close
+      FileUtils.cp(tmp_path, file)
     ensure
-      tmp.close
-      tmp.unlink
+      tmp_fh.close unless tmp_fh.nil?
+      File.unlink(tmp_path) unless tmp_path.nil?
     end
   end
 
