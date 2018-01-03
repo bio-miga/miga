@@ -7,7 +7,7 @@ o = {q:true, ld:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
-  opt.on("-l", "--dataset-list",
+  opt.on("-l", "--list-datasets",
     "List all fixed datasets on advance."){ |v| o[:ld]=v }
   opt_common(opt, o)
 end.parse!
@@ -71,10 +71,15 @@ p.each_dataset do |d|
   res = d.result(:essential_genes)
   next if res.nil?
   dir = res.file_path(:collection)
-  if Dir["#{dir}/*"].any?{ |f| f =~ /\.faa/ }
+  if dir.nil?
+    $stderr.puts "    > Incomplete ess_genes for #{d.name}, removing" if o[:ld]
+    res.remove!
+    next
+  end
+  unless Dir["#{dir}/*.faa"].empty?
     $stderr.puts "    > Fixing #{d.name}." if o[:ld]
-    o = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
-    warn o unless o.empty?
+    cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
+    warn cmdo unless cmdo.empty?
   end
 end
 
