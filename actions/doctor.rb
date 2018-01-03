@@ -3,12 +3,12 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, v:false}
+o = {q:true, ld:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
-  opt.on("-v", "--verbose",
-    "Print additional information on advance."){ |v| o[:v]=v }
+  opt.on("-l", "--dataset-list",
+    "List all fixed datasets on advance."){ |v| o[:ld]=v }
   opt_common(opt, o)
 end.parse!
 
@@ -20,12 +20,12 @@ p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 [:ani, :aai].each do |dist|
-  r = p.result("#{dist}_distances")
-  next if r.nil?
+  res = p.result("#{dist}_distances")
+  next if res.nil?
   $stderr.puts "o Checking #{dist} table for consistent datasets" unless o[:q]
   ok = true
   fix = {}
-  Zlib::GzipReader.open(r.file_path(:matrix)) do |fh|
+  Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
     fh.each_line do |ln|
       next if $.==1
       r = ln.split("\t")
@@ -39,13 +39,13 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
   
   $stderr.puts "  - Fixing #{fix.size} datasets" unless fix.empty? or o[:q]
   fix.keys.each do |d_n|
-    $stderr.puts "    > Fixing #{d_n}." if o[:v]
+    $stderr.puts "    > Fixing #{d_n}." if o[:ld]
     p.dataset(d_n).cleanup_distances!
   end
   
   unless ok
     $stderr.puts "  - Removing tables, recompute" unless o[:q]
-    r.remove!
+    res.remove!
   end
 end
 
@@ -66,10 +66,17 @@ p.each_dataset do |d|
   end
 end
 
-#$stderr.puts "o Looking for unarchived essential genes." unless o[:q]
-#p.each_dataset do |d|
-#  TODO: Check unarchived protein files
-#end
+$stderr.puts "o Looking for unarchived essential genes." unless o[:q]
+p.each_dataset do |d|
+  res = d.result(:essential_genes)
+  next if res.nil?
+  dir = res.file_path(:collection)
+  if Dir["#{dir}/*"].any?{ |f| f =~ /\.faa/ }
+    $stderr.puts "    > Fixing #{d.name}." if o[:ld]
+    o = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
+    warn o unless o.empty?
+  end
+end
 
 #$stderr.puts "o Checking for taxonomy/distances consistency" unless o[:q]
 # TODO: Find 95%ANI clusters with entries from different species
