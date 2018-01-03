@@ -3,12 +3,20 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, ld:false}
+o = {q:true, ld:false, dist: true, files: true, ess: true, tax: true}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
   opt.on("-l", "--list-datasets",
     "List all fixed datasets on advance."){ |v| o[:ld]=v }
+  opt.on("--ignore-distances",
+    "Do not check distance tables."){ |v| o[:dist]=!v }
+  opt.on("--ignore-files",
+    "Do not check for outdated files."){ |v| o[:files]=!v }
+  opt.on("--ignore-essential-genes",
+    "Do not check unarchived essential genes."){ |v| o[:ess]=!v }
+  opt.on("--ignore-taxonomy",
+    "Do not check taxonomy consistency."){ |v| o[:tax]=!v }
   opt_common(opt, o)
 end.parse!
 
@@ -47,44 +55,50 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
     $stderr.puts "  - Removing tables, recompute" unless o[:q]
     res.remove!
   end
-end
+end if o[:dist]
 
-$stderr.puts "o Looking for outdated files in results" unless o[:q]
-p.each_dataset do |d|
-  d.each_result do |r_k, r|
-    ok = true
-    r.each_file do |_f_sym, _f_rel, f_abs|
-      unless File.exist? f_abs
-        ok = false
-        break
+if o[:files]
+  $stderr.puts "o Looking for outdated files in results" unless o[:q]
+  p.each_dataset do |d|
+    d.each_result do |r_k, r|
+      ok = true
+      r.each_file do |_f_sym, _f_rel, f_abs|
+        unless File.exist? f_abs
+          ok = false
+          break
+        end
+      end
+      unless ok
+        $stderr.puts "  - Registering again #{d.name}:#{r_k}" if o[:ld]
+        d.add_result(r_k, true, force:true)
       end
     end
-    unless ok
-      $stderr.puts "  - Registering again #{d.name}:#{r_k}" if o[:ld]
-      d.add_result(r_k, true, force:true)
+  end
+end
+
+if o[:ess]
+  $stderr.puts "o Looking for unarchived essential genes." unless o[:q]
+  p.each_dataset do |d|
+    res = d.result(:essential_genes)
+    next if res.nil?
+    dir = res.file_path(:collection)
+    if dir.nil?
+      $stderr.puts "    > Incomplete ess_genes for #{d.name}, removing" if o[:ld]
+      res.remove!
+      next
+    end
+    unless Dir["#{dir}/*.faa"].empty?
+      $stderr.puts "    > Fixing #{d.name}." if o[:ld]
+      cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
+      warn cmdo unless cmdo.empty?
     end
   end
 end
 
-$stderr.puts "o Looking for unarchived essential genes." unless o[:q]
-p.each_dataset do |d|
-  res = d.result(:essential_genes)
-  next if res.nil?
-  dir = res.file_path(:collection)
-  if dir.nil?
-    $stderr.puts "    > Incomplete ess_genes for #{d.name}, removing" if o[:ld]
-    res.remove!
-    next
-  end
-  unless Dir["#{dir}/*.faa"].empty?
-    $stderr.puts "    > Fixing #{d.name}." if o[:ld]
-    cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
-    warn cmdo unless cmdo.empty?
-  end
+if o[:tax]
+  #$stderr.puts "o Checking for taxonomy/distances consistency" unless o[:q]
+  # TODO: Find 95%ANI clusters with entries from different species
 end
-
-#$stderr.puts "o Checking for taxonomy/distances consistency" unless o[:q]
-# TODO: Find 95%ANI clusters with entries from different species
 
 $stderr.puts "Done" unless o[:q]
 
