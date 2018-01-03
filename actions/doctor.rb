@@ -69,7 +69,7 @@ if o[:files]
         end
       end
       unless ok
-        $stderr.puts "  - Registering again #{d.name}:#{r_k}" if o[:ld]
+        $stderr.puts "    > Registering again #{d.name}:#{r_k}" if o[:ld]
         d.add_result(r_k, true, force:true)
       end
     end
@@ -83,7 +83,7 @@ if o[:ess]
     next if res.nil?
     dir = res.file_path(:collection)
     if dir.nil?
-      $stderr.puts "    > Incomplete ess_genes for #{d.name}, removing" if o[:ld]
+      $stderr.puts "    > Removing #{d.name}:essential_genes" if o[:ld]
       res.remove!
       next
     end
