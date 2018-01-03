@@ -60,7 +60,7 @@ p.each_dataset do |d|
       end
     end
     unless ok
-      $stderr.puts "  - Registering again #{d.name}:#{r_k}" if o[:v]
+      $stderr.puts "  - Registering again #{d.name}:#{r_k}" if o[:ld]
       d.add_result(r_k, true, force:true)
     end
   end
