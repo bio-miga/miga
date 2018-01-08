@@ -3,7 +3,8 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, ld:false, dist: true, files: true, ess: true, tax: true}
+o = {q:true, ld:false,
+  dist: true, files: true, ess: true, mts: true, tax: true}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -15,6 +16,8 @@ OptionParser.new do |opt|
     "Do not check for outdated files."){ |v| o[:files]=!v }
   opt.on("--ignore-essential-genes",
     "Do not check unarchived essential genes."){ |v| o[:ess]=!v }
+  opt.on("--ignore-mytaxa-scan",
+    "Do not check unarchived MyTaxa scan."){ |v| o[:mts]=!v }
   opt.on("--ignore-taxonomy",
     "Do not check taxonomy consistency."){ |v| o[:tax]=!v }
   opt_common(opt, o)
@@ -91,6 +94,34 @@ if o[:ess]
       $stderr.puts "    > Fixing #{d.name}." if o[:ld]
       cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
       warn cmdo unless cmdo.empty?
+    end
+  end
+end
+
+if o[:mts]
+  $stderr.puts "o Looking for unarchived MyTaxa Scan runs." unless o[:q]
+  p.each_dataset do |d|
+    res = d.result(:mytaxa_scan)
+    next if res.nil?
+    dir = res.file_path(:regions)
+    fix = false
+    unless dir.nil?
+      cmdo = `cd '#{dir}/..' \
+            && tar -zcf '#{d.name}.reg.tar.gz' '#{d.name}.reg' \
+            && rm -r '#{d.name}.reg'`.chomp
+      warn cmdo unless cmdo.empty?
+      fix = true
+    end
+    %w[blast mytaxain wintax gene_ids region_ids].each do |ext|
+      file = res.file_path(ext.to_sym)
+      unless file.nil?
+        FileUtils.rm(file)
+        fix = true
+      end
+    end
+    if fix
+      $stderr.puts "    > Fixing #{d.name}." if o[:ld]
+      d.add_result(:mytaxa_scan, true, force: true)
     end
   end
 end

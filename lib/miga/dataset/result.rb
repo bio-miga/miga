@@ -266,13 +266,15 @@ module MiGA::Dataset::Result
     def add_result_mytaxa_scan(base, _opts)
       if is_nonmulti?
         return nil unless
-          result_files_exist?(base, %w[.pdf .wintax .mytaxa .reg]) or
-          result_files_exist?(base, ".nomytaxa.txt")
+          result_files_exist?(base, %w[.pdf .mytaxa]) or
+          result_files_exist?(base, '.nomytaxa.txt')
         r = MiGA::Result.new("#{base}.json")
-        add_files_to_ds_result(r, name, mytaxa:".mytaxa", wintax:".wintax",
-          blast:".blast", mytaxain:".mytaxain", report:".pdf", regions:".reg",
-          gene_ids:".wintax.genes", region_ids:".wintax.regions",
-          nomytaxa:".nomytaxa.txt")
+        add_files_to_ds_result(r, name, nomytaxa: '.nomytaxa.txt',
+          mytaxa: '.mytaxa', report: '.pdf', regions_arch: '.reg.tar',
+          # Intermediate / Deprecated
+          blast: '.blast', mytaxain: '.mytaxain', wintax: '.wintax',
+          gene_ids: '.wintax.genes', region_ids: '.wintax.regions',
+          regions: '.reg')
       else
         MiGA::Result.new("#{base}.json")
       end

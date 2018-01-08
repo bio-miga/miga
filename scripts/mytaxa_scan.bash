@@ -75,14 +75,17 @@ else
         FastA.filter.pl -q "$DATASET.reg/$i.ids" \
           "../../../06.cds/$DATASET.faa" > "$DATASET.reg/$i.faa"
       done
+      # Archive regions
+      tar zcf "$DATASET.reg.tar.gz" "$DATASET.reg"
+      rm -r "$DATASET.reg"
     fi
 
     # Clean
-    [[ -e "$DATASET.daa" ]] && rm "$DATASET.daa"
-    [[ -s "$DATASET.blast" && ! -s "$DATASET.blast.gz" ]] \
-      && gzip -9 -f "$DATASET.blast"
-    [[ -s "$DATASET.mytaxain" && ! -s "$DATASET.mytaxain.gz" ]] \
-      && gzip -9 -f "$DATASET.mytaxain"
+    for x in daa blast mytaxain wintax wintax.genes wintax.regions ; do
+      [[ -e "$DATASET.$x" ]] && rm "$DATASET.$x"
+    done
+    [[ -s "$DATASET.mytaxa" && ! -s "$DATASET.mytaxa.gz" ]] \
+      && gzip -9 -f "$DATASET.mytaxa"
   fi
 
 fi
