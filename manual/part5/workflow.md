@@ -212,6 +212,8 @@ Supported file keys:
 * `report` (*req*): PDF file containing the graphic report.
 * `regions_archive` (*gz*): Archived folder containing FastA files with the
   sequences of the genes in regions identified as abnormal.
+* `nomytaxa`: If it exists, MiGA assumes no support for MyTaxa modules, and none
+  of the above files are required.
 
 Deprecated file keys:
 
@@ -222,8 +224,6 @@ Deprecated file keys:
   genes in regions identified as abnormal.
 * `gene_ids`: List of genes per window.
 * `region_ids`: List of regions identified as abnormal.
-* `nomytaxa`: If it exists, MiGA assumes no support for MyTaxa modules, and none
-  of the above files are required.
 
 MiGA symbol: `mytaxa_scan`.
 
