@@ -272,7 +272,7 @@ module MiGA::Dataset::Result
           result_files_exist?(base, '.nomytaxa.txt')
         r = MiGA::Result.new("#{base}.json")
         add_files_to_ds_result(r, name, nomytaxa: '.nomytaxa.txt',
-          mytaxa: '.mytaxa', report: '.pdf', regions_arch: '.reg.tar',
+          mytaxa: '.mytaxa', report: '.pdf', regions_archive: '.reg.tar',
           # Intermediate / Deprecated
           blast: '.blast', mytaxain: '.mytaxain', wintax: '.wintax',
           gene_ids: '.wintax.genes', region_ids: '.wintax.regions',

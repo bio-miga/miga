@@ -209,10 +209,15 @@ quality-control step for manual curation.
 Supported file keys:
 
 * `mytaxa` (*req*): MyTaxa output.
-* `wintax` (*req*): Taxonomic distribution of each window.
+* `report` (*req*): PDF file containing the graphic report.
+* `regions_archive` (*gz*): Archived folder containing FastA files with the
+  sequences of the genes in regions identified as abnormal.
+
+Deprecated file keys:
+
+* `wintax`: Taxonomic distribution of each window.
 * `blast` (*gz*): BLAST against the reference genomes database.
 * `mytaxain` (*gz*): Re-formatted BLAST used as input for MyTaxa.
-* `report` (*req*): PDF file containing the graphic report.
 * `regions` (*dir*): Folder containing FastA files with the sequences of the
   genes in regions identified as abnormal.
 * `gene_ids`: List of genes per window.
