@@ -117,7 +117,7 @@ if o[:mts]
     %w[blast mytaxain wintax gene_ids region_ids].each do |ext|
       file = res.file_path(ext.to_sym)
       unless file.nil?
-        FileUtils.rm(file)
+        FileUtils.rm(file) if File.exist? file
         fix = true
       end
     end
