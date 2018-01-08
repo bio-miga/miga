@@ -106,10 +106,12 @@ if o[:mts]
     dir = res.file_path(:regions)
     fix = false
     unless dir.nil?
-      cmdo = `cd '#{dir}/..' \
-            && tar -zcf '#{d.name}.reg.tar.gz' '#{d.name}.reg' \
-            && rm -r '#{d.name}.reg'`.chomp
-      warn cmdo unless cmdo.empty?
+      if Dir.exist? dir
+        cmdo = `cd '#{dir}/..' \
+              && tar -zcf '#{d.name}.reg.tar.gz' '#{d.name}.reg' \
+              && rm -r '#{d.name}.reg'`.chomp
+        warn cmdo unless cmdo.empty?
+      end
       fix = true
     end
     %w[blast mytaxain wintax gene_ids region_ids].each do |ext|
