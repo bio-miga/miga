@@ -42,7 +42,9 @@ module MiGA::Dataset::Result
     dir = @@RESULT_DIRS[result_type]
     return nil if dir.nil?
     base = File.expand_path("data/#{dir}/#{name}", project.path)
-    unless opts[:force]
+    if opts[:force]
+      FileUtils.rm("#{base}.json") if File.exist?("#{base}.json")
+    else
       r_pre = MiGA::Result.load("#{base}.json")
       return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
     end
