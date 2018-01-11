@@ -34,16 +34,21 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
   res = p.result("#{dist}_distances")
   next if res.nil?
   $stderr.puts "o Checking #{dist} table for consistent datasets" unless o[:q]
-  ok = true
+  notok = {}
   fix = {}
   Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
+    lineno = 0
     fh.each_line do |ln|
-      next if $.==1
+      next if (lineno+=1)==1
       r = ln.split("\t")
-      if p.dataset(r[1]).nil? or p.dataset(r[2]).nil?
-        fix[r[2]] = true unless p.dataset(r[2]).nil?
-        fix[r[1]] = true unless p.dataset(r[1]).nil?
-        ok = false
+      if [1,2].map{ |i| p.dataset(r[i]).nil? }.any?
+        [1,2].each do |i|
+          if p.dataset(r[i]).nil?
+            notok[r[i]] = true
+          else
+            fix[r[i]] = true
+          end
+        end
       end
     end
   end
@@ -54,8 +59,16 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
     p.dataset(d_n).cleanup_distances!
   end
   
-  unless ok
-    $stderr.puts "  - Removing tables, recompute" unless o[:q]
+  unless notok.empty?
+    unless o[:q]
+      $stderr.puts "  - Unregistered datasets detected: "
+      if notok.size < 3
+        $stderr.puts "    - #{notok.keys.join(", ")}"
+      else
+        $stderr.puts "    - #{notok.keys.first} and other #{notok.size-1}"
+      end
+      $stderr.puts "  - Removing tables, recompute"
+    end
     res.remove!
   end
 end if o[:dist]
