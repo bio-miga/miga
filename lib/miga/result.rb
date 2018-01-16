@@ -22,10 +22,6 @@ class MiGA::Result < MiGA::MiGA
   # Instance-level
 
   ##
-  # Path to the JSON file describing the result.
-  attr_reader :path
-  
-  ##
   # Hash with the result metadata.
   attr_reader :data
 
@@ -47,6 +43,22 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Register the result as cleaned.
   def clean! ; self[:clean] = true ; end
+
+  ##
+  # Path to the standard files of the result. +which+ must be one of:
+  # - :json (default) : JSON file describing the result.
+  # - :start : File with the date when the processing started.
+  # - :done : File with the date when the processing ended.
+  def path(which=:json)
+    case which.to_sym
+    when :json
+      @path
+    when :start
+      @path.sub(/\.json$/, ".start")
+    when :done
+      @path.sub(/\.json$/, ".done")
+    end
+  end
 
   ##
   # Directory containing the result.

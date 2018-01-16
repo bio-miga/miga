@@ -3,13 +3,17 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require "sqlite3"
+
 o = {q:true, ld:false,
-  dist: true, files: true, ess: true, mts: true, tax: true}
+  db: true, dist: true, files: true, ess: true, mts: true, tax: true}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
   opt.on("-l", "--list-datasets",
     "List all fixed datasets on advance."){ |v| o[:ld]=v }
+  opt.on("--ignore-databases",
+    "Do not check database files integrity."){ |v| o[:db]=!v }
   opt.on("--ignore-distances",
     "Do not check distance tables."){ |v| o[:dist]=!v }
   opt.on("--ignore-files",
@@ -29,6 +33,35 @@ opt_require(o, project:"-P")
 $stderr.puts "Loading project" unless o[:q]
 p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
+
+def check_sqlite3_database(db_file, metric)
+  begin
+    SQLite3::Database.new(db_file) do |conn|
+      conn.execute("select count(*) from #{metric}").first
+    end
+  rescue SQLite3::SQLException
+    yield
+  end
+end
+
+if o[:db]
+  $stderr.puts "o Checking databases integrity" unless o[:q]
+  p.each_dataset do |d|
+    [:distances, :taxonomy].each do |r_key|
+      r = d.result(r_key) or next
+      {haai_db: :aai, aai_db: :aai, ani_db: :ani}.each do |db_key, metric|
+        db_file = r.file_path(db_key) or next
+        check_sqlite3_database(db_file, metric) do
+          $stderr.puts(
+            "    > Removing #{db_key} #{r_key} table for #{d.name}.") if o[:ld]
+          [db_file, r.path(:done), r.path].each do |f|
+            File.unlink f if File.exist? f
+          end # each |f|
+        end # check_sqlite3_database
+      end # each |db_key, metric|
+    end # each |r_key|
+  end # each |d|
+end
 
 [:ani, :aai].each do |dist|
   res = p.result("#{dist}_distances")
