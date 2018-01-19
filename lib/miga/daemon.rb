@@ -191,7 +191,7 @@ class MiGA::Daemon < MiGA::MiGA
     log_dir = File.expand_path("daemon/#{job}", project.path)
     Dir.mkdir(log_dir) unless Dir.exist? log_dir
     task_name = "#{project.metadata[:name][0..9]}:#{job}:#{ds_name}"
-    to_run = {ds: ds, job: job, task_name: task_name,
+    to_run = {ds: ds, ds_name: ds_name, job: job, task_name: task_name,
       cmd: sprintf(runopts(:cmd),
         # 1: script
         MiGA::MiGA.script_path(job, miga:vars['MIGA'], project:project),
