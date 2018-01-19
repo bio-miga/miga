@@ -1,21 +1,23 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require "miga/version"
-require "json"
-require "tempfile"
-require "zlib"
+require 'miga/version'
+require 'json'
+require 'tempfile'
+require 'zlib'
 
 ##
 # Generic class used to handle system-wide information and methods, and parent
 # of all other MiGA::* classes.
 class MiGA::MiGA
   
-  ENV["MIGA_HOME"] ||= ENV["HOME"]
+  ENV['MIGA_HOME'] ||= ENV['HOME']
 
   ##
   # Root path to MiGA (as estimated from the location of the current file).
-  def self.root_path ; File.expand_path("../../..", __FILE__) ; end
+  def self.root_path
+    File.expand_path('../../..', __FILE__)
+  end
 
   ##
   # Should debugging information be reported?
@@ -48,32 +50,32 @@ class MiGA::MiGA
 
   ##
   # Send debug message.
-  def self.DEBUG *args
+  def self.DEBUG(*args)
     $stderr.puts(*args) if @@DEBUG
-    $stderr.puts caller.map{|v| v.gsub(/^/,"    ")}.join("\n") if
-      @@DEBUG_TRACE
+    if @@DEBUG_TRACE
+      $stderr.puts caller.map{ |v| v.gsub(/^/,'     ') }.join("\n")
+    end
   end
 
   ##
   # Has MiGA been initialized?
   def self.initialized?
-    File.exist?(File.expand_path(".miga_rc", ENV["MIGA_HOME"])) and
-      File.exist?(File.expand_path(".miga_daemon.json", ENV["MIGA_HOME"]))
+    File.exist?(File.expand_path('.miga_rc', ENV['MIGA_HOME'])) and
+      File.exist?(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
   end
 
   ##
   # Tabulates an +values+, and Array of Arrays, all with the same number of
   # entries as +header+. Returns an Array of String, one per line.
   def self.tabulate(header, values)
-    fields = [header.map{ |h| h.to_s }]
-    fields << fields.first.map{ |h| h.gsub(/\S/, "-") }
-    fields += values.map{ |row| row.map{ |cell| cell.nil? ? "?" : cell.to_s } }
-    clen = fields.map{ |row|
-      row.map{ |cell| cell.length } }.transpose.map{ |col| col.max }
+    fields = [header.map(&:to_s)]
+    fields << fields.first.map{ |h| h.gsub(/\S/, '-') }
+    fields += values.map{ |row| row.map{ |cell| cell.nil? ? '?' : cell.to_s } }
+    clen = fields.map{ |row| row.map(&:length) }.transpose.map(&:max)
     fields.map do |row|
       (0 .. clen.size-1).map do |col_n|
         col_n==0 ? row[col_n].rjust(clen[col_n]) : row[col_n].ljust(clen[col_n])
-      end.join("  ")
+      end.join('  ')
     end
   end
 
@@ -82,25 +84,25 @@ class MiGA::MiGA
   def self.clean_fasta_file(file)
     tmp_fh = nil
     begin
-      if (file =~ /\.gz/)
-        tmp_path = Tempfile.new("MiGA.gz").tap{ |i| i.close }.path
+      if file =~ /\.gz/
+        tmp_path = Tempfile.new('MiGA.gz').tap(&:close).path
         tmp_fh = Zlib::GzipWriter.open(tmp_path)
         fh = Zlib::GzipReader.open(file)
       else
-        tmp_fh = Tempfile.new("MiGA")
+        tmp_fh = Tempfile.new('MiGA')
         tmp_path = tmp_fh.path
-        fh = File.open(file, "r")
+        fh = File.open(file, 'r')
       end
-      buffer = ""
+      buffer = ''
       fh.each_line do |ln|
         ln.chomp!
         if ln =~ /^>\s*(\S+)(.*)/
           (id, df) = [$1, $2]
           tmp_fh.print buffer.wrap_width(80)
-          buffer = ""
+          buffer = ''
           tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
         else
-          buffer << ln.gsub(/[^A-Za-z\.\-]/, "")
+          buffer << ln.gsub(/[^A-Za-z\.\-]/, '')
         end
       end
       tmp_fh.print buffer.wrap_width(80)
@@ -124,7 +126,7 @@ class MiGA::MiGA
   # - +:n50+: If true, it also returns the N50 and the median (in bp).
   # - +gc+: If true, it also returns the G+C content (in %).
   def self.seqs_length(file, format, opts={})
-    fh = (file =~ /\.gz/) ? Zlib::GzipReader.open(file) : File.open(file, "r")
+    fh = (file =~ /\.gz/) ? Zlib::GzipReader.open(file) : File.open(file, 'r')
     l = []
     gc = 0
     i = 0 # <- Zlib::GzipReader doesn't set $.
@@ -154,12 +156,11 @@ class MiGA::MiGA
         break if pos >= thr
       end
       o[:med] = o[:n].even? ?
-        0.5*( l[o[:n]/2-1,2].inject(:+) ) : l[(o[:n]-1)/2]
+        0.5*l[o[:n]/2-1,2].inject(:+) : l[(o[:n]-1)/2]
     end
     o
   end
-  
-  
+
   ##
   # Path to a script to be executed for +task+. Supported +opts+ are:
   # - +:miga+ Path to the MiGA home to use. If not passed, the home of the
@@ -178,17 +179,15 @@ class MiGA::MiGA
     File.expand_path("scripts/#{task}.bash", opts[:miga])
   end
 
-
   ##
   # Check if the result files exist with +base+ name (String) followed by the
   # +ext+ values (Array of String).
   def result_files_exist?(base, ext)
-    ext = [ext] unless ext.kind_of? Array
+    ext = [ext] unless ext.is_a? Array
     ext.all? do |f|
       File.exist?(base + f) or File.exist?("#{base}#{f}.gz")
     end
   end
-
 end
 
 ##
@@ -212,29 +211,36 @@ class File
       raise "Unknown transfer method: #{method}."
     end
   end
-  
 end
 
 ##
 # MiGA extensions to the String class.
 class String
-  
+
   ##
   # Replace any character not allowed in a MiGA name for underscore (_). This
   # results in a MiGA-compliant name EXCEPT for empty strings, that results in
   # empty strings.
-  def miga_name ; gsub(/[^A-Za-z0-9_]/, "_") ; end
+  def miga_name
+    gsub(/[^A-Za-z0-9_]/, '_')
+  end
 
   ##
   # Is the string a MiGA-compliant name?
-  def miga_name? ; not(self !~ /^[A-Za-z0-9_]+$/) ; end
+  def miga_name?
+    !(self !~ /^[A-Za-z0-9_]+$/)
+  end
 
   ##
   # Replace underscores by spaces or dots (depending on context).
-  def unmiga_name ; gsub(/_(str|sp|subsp|pv)__/,"_\\1._").tr("_", " ") ; end
-  
+  def unmiga_name
+    gsub(/_(str|sp|subsp|pv)__/,"_\\1._").tr('_', ' ')
+  end
+
   ##
   # Wraps the string with fixed Integer +width+.
-  def wrap_width(width) ; gsub(/([^\n\r]{1,#{width}})/,"\\1\n") ; end
-
+  def wrap_width(width)
+    gsub(/([^\n\r]{1,#{width}})/,"\\1\n")
+  end
 end
+
