@@ -24,6 +24,12 @@ OptionParser.new do |opt|
   opt.on("--chromosome", "Download complete chromosomes."){ |v| o[:chromosome]=v }
   opt.on("--scaffold", "Download genomes in scaffolds."){ |v| o[:scaffold]=v }
   opt.on("--contig", "Download genomes in contigs."){ |v| o[:contig]=v }
+  opt.on("--all", "Download all genomes (in any status).") do
+    o[:complete] = true
+    o[:chromosome] = true
+    o[:scaffold] = true
+    o[:contig] = true
+  end
   opt.on("-q", "--query",
         "If set, the datasets are registered as queries, not reference datasets."
         ){ |v| o[:query]=v }
