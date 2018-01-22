@@ -106,6 +106,8 @@ reports and logs, and a few general statistics in JSON. Finally, all of the
       [distances](part5/workflow.md#distances) and
       [ani_distances](part5/workflow.md#ani-distances)).
     + **04.ssu/**: (Currently not in use).
+    + **05.taxonomy/**: Taxonomy based on reference projects
+      ([taxonomy](part5/workflow.md#taxonomy)).
   + **10.clades/**: Dataset clustering at various resolution levels.
     + **01.find/**: Identification of naturally-forming AAI clades at species
       level and above ([clade_finding](part5/workflow.md#clade-finding)).
@@ -115,6 +117,9 @@ reports and logs, and a few general statistics in JSON. Finally, all of the
       statistics ([ogs](part5/workflow.md#ogs)).
     + **04.phylogeny/**: (Currently not in use).
     + **05.metadata/**: (Currently not in use).
+  + **90.stats/**: Results metadata for dataset stats
+    ([stats](part5/workflow.md#stats) and project-wide indexing and statistics
+    ([project_stats](part5/workflow.md#project-stats)).
 + **metadata/**: Collection of JSON files with datasets metadata.
 + **miga.project.json**: JSON file with project metadata.
 
@@ -157,7 +162,9 @@ allows many advanced analyses, including (but not restricted to):
 
 The [intermediate analyses](part5/workflow.md) performed by MiGA can be used for
 many other purposes. For example, we use MiGA's initial pre-processing (like
-[read trimming](part5/workflow.md#trimmed-reads)/[quality check](part5/workflow.md#read-quality),
+[read trimming](part5/workflow.md#trimmed-reads) /
+[quality check](part5/workflow.md#read-quality),
 [assembly](part5/workflow.md#assembly), and
 [gene prediction](part5/workflow.md#cds)) in most of our genomic and metagenomic
 projects.
+

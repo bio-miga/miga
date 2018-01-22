@@ -11,5 +11,6 @@ The following metadata fields are recognized by different interfaces:
 | quality    | Dataset | String           | Description of genome quality
 | ncbi_tax_id  | Dataset | String         | Linking ID(s)* for NCBI Taxonomy
 | ncbi_nuccore | Dataset | String         | Linking ID(s)* for NCBI Nucleotide
+| user       | Dataset | String           | Deprecated
 
 \* Multiple IDs can be provided separated by commas.

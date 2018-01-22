@@ -112,7 +112,7 @@ coding sequences (putative genes and proteins) using
 Supported file keys:
 
 * `proteins` (*req*): FastA file containing translated protein sequences.
-* `genes` (*req*): FastA file containing putative gene sequences.
+* `genes`: FastA file containing putative gene sequences.
 * `gff3` (*gz*): GFF v3 file containing the coordinates of coding sequences.
   This file is not required, but [MyTaxa](#mytaxa) depends on it (or `gff2` or
   `tab`, whichever is available).

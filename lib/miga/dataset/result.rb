@@ -206,7 +206,7 @@ module MiGA::Dataset::Result
     ##
     # Add result type +:cds+ at +base+. Hash +opts+ supports +is_clean: Boolean+
     def add_result_cds(base, opts)
-      return nil unless result_files_exist?(base, %w[.faa .fna])
+      return nil unless result_files_exist?(base, %w[.faa])
       r = MiGA::Result.new("#{base}.json")
       r = add_files_to_ds_result(r, name, proteins:".faa", genes:".fna",
         gff2:".gff2", gff3:".gff3", tab:".tab")
