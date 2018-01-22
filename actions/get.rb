@@ -30,8 +30,6 @@ OptionParser.new do |opt|
     "If set, ignores datasets that already exist."){ |v| o[:ignore_dup]=v }
   opt.on("-d", "--description STRING",
     "Description of the dataset."){ |v| o[:description]=v }
-  opt.on("-u", "--user STRING",
-    "Owner of the dataset."){ |v| o[:user]=v }
   opt.on("-c", "--comments STRING",
     "Comments on the dataset."){ |v| o[:comments]=v }
   opt_common(opt, o)
@@ -68,7 +66,7 @@ glob.each do |o_i|
   raise "Impossible to load project: #{o_i[:project]}" if p.nil?
 
   next if o_i[:ignore_dup] and not p.dataset(o_i[:dataset]).nil?
-  
+
   $stderr.puts "Locating remote dataset." unless o_i[:q]
   rd = MiGA::RemoteDataset.new(o_i[:ids], o_i[:db], o_i[:universe])
 

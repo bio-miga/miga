@@ -19,6 +19,7 @@ $task_desc = {
   # Datasets
   add: "Creates an empty dataset in a pre-existing MiGA project.",
   get: "Downloads a dataset from public databases into a MiGA project.",
+  ncbi_get: "Downloads all genomes in a taxon or RefSeq from NCBI into a MiGA project.",
   rm: "Removes a dataset from an MiGA project.",
   find: "Finds unregistered datasets based on result files.",
   ln: "Link datasets (including results) from one project to another.",
@@ -102,7 +103,7 @@ def opt_object(opt, o, what=[:project, :dataset])
       what.include? :dataset_type_req
   opt.on("-t", "--type STRING",
     (what.include?(:project_type_req) ? "(Mandatory) " : "") +
-    "Type of project. Recognized types include:", 
+    "Type of project. Recognized types include:",
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
     ){ |v| o[:type]=v.to_sym } if what.include? :project_type or
       what.include? :project_type_req
@@ -228,4 +229,3 @@ generic options:
 
 HELP
 end
-
