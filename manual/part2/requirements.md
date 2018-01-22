@@ -135,10 +135,11 @@ software. If you don't have Homebrew, execute (and follow the instructions):
       https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-Next, make sure you have the science tap:
+Next, make sure you have the brewsci/science and brewsci/bio taps:
 
 ```bash
-brew tap homebrew/science
+brew tap brewsci/science
+brew tap brewsci/bio
 ```
 
 ### Essentials
@@ -147,13 +148,15 @@ Now that you have Homebrew and the science tap, execute:
 
 ```bash
 # General-purpose software
-brew install r sqlite3 libsqlite3-dev python
+brew install r sqlite3 python
+brew cask install java
 # Bioinformatics software
 brew install blast hmmer bedtools \
       prodigal idba mcl barrnap fastqc
 brew install jonchang/biology/scythe
-# Pending: Scythe in science (in pull request review)
+# Pending: Scythe in science (contacting authors)
 # Missing: SolexaQA++ (in pull request review)
+# See https://github.com/brewsci/homebrew-bio/pull/22
 ```
 
 ### Ruby libraries
