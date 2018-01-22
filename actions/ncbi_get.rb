@@ -71,7 +71,7 @@ if o[:reference]
   get_list(nil, :reference).each_line do |ln|
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
-    next if r[3].empty?
+    next if r[3].nil? or r[3].empty?
     ids = r[3].split(",")
     ids += r[5].split(",") unless o[:ignore_plasmids] or r[5].empty?
     n = r[2].miga_name
@@ -87,6 +87,7 @@ if o[:complete] or o[:chromosome]
   get_list(o[:taxon], status).each_line do |ln|
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
+    next if r[10].nil? or r[10].empty?
     ids = r[10].gsub(/[^:;]*:/,"").gsub(/\/[^\/;]*/,"").split(";")
     n = (r[0] + "_" + ids[0]).miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
@@ -101,6 +102,8 @@ if o[:scaffold] or o[:contig]
   get_list(o[:taxon], status).each_line do |ln|
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
+    next if r[7].nil? or r[7].empty?
+    next if r[19].nil? or r[19].empty?
     asm = r[7].gsub(/[^:;]*:/,"").gsub(/\/[^\/;]*/,"").gsub(/\s/,"")
     ids = r[19].gsub(/\s/, "").split(";").map{ |i| i + "/" + File.basename(i) + "_genomic.fna.gz" }
     n = (r[0] + "_" + asm).miga_name
