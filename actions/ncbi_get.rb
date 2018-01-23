@@ -34,8 +34,11 @@ OptionParser.new do |opt|
         "If set, the datasets are registered as queries, not reference datasets."
         ){ |v| o[:query]=v }
   opt.on("-u", "--unlink",
-        "If set, unlinks all datasets in the project missing from the download list"
+        "If set, unlinks all datasets in the project missing from the download list."
         ){ |v| o[:unlink]=v }
+  opt.on("-R", "--remote-list PATH",
+        "Path to an output file with the list of all datasets listed remotely."
+        ){ |v| o[:remote_list]=v }
   opt_common(opt, o)
 end.parse!
 
@@ -135,8 +138,14 @@ end
 # Finalize
 $stderr.puts "Datasets listed: #{d.size}" unless o[:q]
 $stderr.puts "Datasets downloaded: #{downloaded}" unless o[:q]
+unless o[:remote_list].nil?
+  File.open(o[:remote_list], 'w') do |fh|
+    d.each { |i| fh.puts i }
+  end
+end
 if o[:unlink]
   unlink = p.dataset_names - d
   unlink.each { |i| p.unlink_dataset(i).remove! }
   $stderr.puts "Datasets unlinked: #{unlink.size}" unless o[:q]
 end
+
