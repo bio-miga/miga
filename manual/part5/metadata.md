@@ -12,5 +12,8 @@ The following metadata fields are recognized by different interfaces:
 | ncbi_tax_id  | Dataset | String         | Linking ID(s)* for NCBI Taxonomy
 | ncbi_nuccore | Dataset | String         | Linking ID(s)* for NCBI Nucleotide
 | user       | Dataset | String           | Deprecated
+| aai_p      | Project | String           | Value of -p for aai.rb**
+| see_also   | Dataset | String           | Link(s)* in the format text:url
 
-\* Multiple IDs can be provided separated by commas.
+\* Multiple IDs can be provided separated by commas or colons.
+\** By default: blast+. Other supported values: blast, blat, diamond.
