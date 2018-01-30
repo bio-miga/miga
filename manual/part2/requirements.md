@@ -152,11 +152,11 @@ brew install r sqlite3 python
 brew cask install java
 # Bioinformatics software
 brew install blast hmmer bedtools \
-      prodigal idba mcl barrnap fastqc
+      prodigal idba mcl barrnap fastqc solexaqa
 brew install jonchang/biology/scythe
 # Pending: Scythe in science (contacting authors)
-# Missing: SolexaQA++ (in pull request review)
-# See https://github.com/brewsci/homebrew-bio/pull/22
+# See: https://github.com/brewsci/homebrew-bio/issues/23
+# See also: https://github.com/vsbuffalo/scythe/pull/20
 ```
 
 ### Ruby libraries
@@ -311,3 +311,4 @@ for i in ../Krona-master/KronaTools/scripts/*.pl ; do
 done
 cd ..
 ```
+
