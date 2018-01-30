@@ -1,10 +1,11 @@
 # Build a clade collection
 
 In this tutorial, we will create a clade project including all the genomes
-available for a species in RefSeq as well as any additional genomes you may
-have. We will use *Escherichia coli* as the target species, but you can use
-any species you want. For this tutorial you'll need some \*nix utilities,
-including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
+available for a species in RefSeq as well as any additional genomes you may have
+using MiGA alone. If you want to explore a more manual approach using `bash`,
+see the [Build a clade collection using BASH example](deploy-clade-bash.md).
+We will use *Escherichia coli* as the target species, but you can use any
+species (or any taxon) you want.
 
 ## 0. Initialize the project
 
@@ -15,89 +16,28 @@ cd E_coli
 
 ## 1. Download publicly available genomes
 
-There two options here: (A) use complete genomes, or (B) use draft genomes. You
-can use either depending on your needs, or both if you want to get as much data
-as possible regardless of completeness. These two options are non-redundant, so
-you can combine them if you want.
+There are different stages of completeness defined in the NCBI Genome database,
+and you may want to include only some cases depending on you analysis. The
+stages (from higher to lower quality) are:
+
+1. *Complete*: Genomes including all replicons in the organism(s) sequenced.
+2. *Chromosome*: Genomes with complete chromosome (but missing other replicons).
+3. *Scaffold*: Draft genomes with scaffold status.
+4. *Contig*: Draft genomes with contig status.
+
+In this example, we'll skip the draft genomes. However, if you want all of them,
+simply use the `--all` option of `miga ncbi_get`.
 
 **Re-running and updating**: If the following code fails at any point, for
 example due to a network interruption, you can simply re-run it, and it will
-take it from where it failed. If it fails in the last command
-(`miga download_dataset`), you can simply re-run that one command (not the whole
-thing). Also, you can simply re-run the whole code below in the future if you
-want to update your project with more recently released genomes.
-
-### 1a. Download complete genomes
-
-The first option is to download complete genomes (and/or chromosome-level) from
-NCBI, including NCBI taxonomy:
+take it from where it failed.
 
 ```bash
-# Specify the organism (use %20 instead of spaces):
-ORGN="Escherichia%20coli"
-
-# Set level of completeness:
-STATUS="50|40" # <- Complete or Chromosome
-# STATUS="50" # <- Only complete
-# STATUS="40" # <- Only chromosome
-
-# Get the list of genomes:
-NCBI_SCRIPT="https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
-NCBI_PARAMS="action=download&report=proks&group=--%20All%20Prokaryotes%20--"
-NCBI_PARAMS="$NCBI_PARAMS&subgroup=--%20All%20Prokaryotes%20--"
-NCBI_PARAMS="$NCBI_PARAMS&orgn=$ORGN\\[orgn\\]&status=$STATUS"
-curl -o ref_genomes.tsv "$NCBI_SCRIPT?$NCBI_PARAMS"
-
-# Format the list for MiGA:
-( echo -e "dataset\tids" ;
-tail -n +2 ref_genomes.tsv | cut -f 1,11 \
-  | awk 'BEGIN{FS="\t"; OFS="\t"} \
-    { gsub(/[^A-Za-z0-9]/,"_",$1); gsub(/[^:;]*:/,"",$2) } \
-    { gsub(/\/[^\/;]*/,"",$2) } {print $0}' \
-  | tr ";" "," | perl -pe 's/\t([^,\.]+)/_\1\t\1/') \
-  > ref_genomes_miga.tsv
-
-# Download remote entries:
-miga get -P . --file ref_genomes_miga.tsv \
-  --universe ncbi --db nuccore --ignore-dup --verbose -t genome
+miga ncbi_get -T "Escherichia coli" -P . --complete --chromosome -v
 ```
 
-### 1b. Download draft genomes
-
-Option B is to download draft genomes from the assembly database in NCBI.
-Unfortunately, this task doesn't link the entries with NCBI taxonomy because
-EUtils currently doesn't support WGS assemblies:
-
-```bash
-# Specify the organism (use %20 instead of spaces):
-ORGN="Escherichia%20coli"
-
-# Set level of completeness:
-STATUS="30|20" # <- Scaffold or contig
-# STATUS="30" # <- Only scaffold
-# STATUS="20" # <- Only contig
-
-# Get the list of genomes:
-NCBI_SCRIPT="https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi"
-NCBI_PARAMS="action=download&report=proks&group=--%20All%20Prokaryotes%20--"
-NCBI_PARAMS="$NCBI_PARAMS&subgroup=--%20All%20Prokaryotes%20--"
-NCBI_PARAMS="$NCBI_PARAMS&orgn=$ORGN\\[orgn\\]&status=$STATUS"
-curl -o draft_genomes.tsv "$NCBI_SCRIPT?$NCBI_PARAMS"
-
-# Format the list for MiGA:
-( echo -e "dataset\tcomments\tids" ;
-cat draft_genomes.tsv | tail -n +2 | cut -f 1,8,20 \
-  | awk 'BEGIN{FS="\t"; OFS="\t"} \
-    { gsub(/[^A-Za-z0-9]/,"_",$1); gsub(/[^:;]*:/,"",$2) } \
-    { gsub(/\/[^\/;]*/,"",$2) } {print $0}' \
-  | tr ";" "," | perl -pe 's/\t([^,\.]+)/_\1\tAssembly: \1/' ) \
-  | perl -pe 's/\/([^\/\n\r]+)[\n\r]*$/\/\1\/\1_genomic.fna.gz\n/' \
-  > draft_genomes_miga.tsv
-
-# Download remote entries:
-miga get -P . --file draft_genomes_miga.tsv \
-  --universe web --db assembly_gz --ignore-dup --verbose -t genome
-```
+Note that you can change the value of `-T` from `"Escherichia coli"` to any
+other species name, or even taxa of any rank such as genus or family.
 
 ## 2. Add your own genomes
 
@@ -105,21 +45,18 @@ If you have any unreleased genomes, you can simply add them to the same project
 to be processed together with those publicly available. You can initialize
 datasets at different points, see [input data](../part2/input.md). For the
 purposes of this tutorial, we'll assume that you have raw coupled reads from two
-sequencing lanes (1 and 2) in Gzipped FastQ:
+sequencing lanes (1 and 2) in Gzipped FastQ files:
 
 ```bash
-# Set the name of the dataset (only alphanumerics and underscores):
-DS=dataset1
+# Unzip and/or concatenate input files
+# this is not necessary if your files are ready to use:
+gzip -d -c ~/some/file/d1_ACTG_L[12]_R1.fastq.gz > /tmp/sister-1.fastq
+gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > /tmp/sister-2.fastq
 
-# Copy, cat, or move input files. Something similar to:
-gzip -d -c ~/some/file/d1_ACTG_L[12]_R1.fastq.gz > data/01.raw_reads/$DS.1.fastq
-gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > data/01.raw_reads/$DS.2.fastq
-
-# Tell MiGA your transfer is complete
-miga date > data/01.raw_reads/$DS.done
-
-# Register the dataset:
-miga add -P . -D $DS -t genome
+# Register the dataset
+# change the dataset name MyDataset to whichever name you want:
+miga add -P . -D MyDataset -t genome \
+      --trimmed-fasta-coupled /tmp/sister-1.fastq,/tmp/sister-2.fastq
 ```
 
 ## 3. Launch the daemon
@@ -130,3 +67,4 @@ data. For additional details, see [launching daemons](daemons.md):
 ```bash
 miga daemon start -P .
 ```
+
