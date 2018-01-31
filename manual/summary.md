@@ -15,7 +15,6 @@
 * [Part III: Interfaces](part3.md)
   * [MiGA API](part3/API.md)
   * [MiGA CLI](part3/CLI.md)
-  * [MiGA GUI](part3/GUI.md)
   * [MiGA Web](part3/Web.md)
 * [Part IV: Deploying examples](part4.md)
   * [RefSeq in MiGA](part4/deploy-refseq.md)
@@ -28,3 +27,4 @@
   * [Extending MiGA](part5/extending.md)
   * [Metadata](part5/metadata.md)
   * [External Software](part5/external.md)
+
