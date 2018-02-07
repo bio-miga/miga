@@ -38,15 +38,6 @@ true
 ```
 
 That's a simple example of a session checking if the `test_project` already
-exists, and then creating it.
+exists, and then creating it. For a complete documentation of the API, check
+out the [miga gem docs](docs.microbial-genomes.org).
 
-# Author
-
-[Luis M. Rodriguez-R][lrr].
-
-# License
-
-Artistic 2.0.
-
-
-[lrr]: http://lmrodriguezr.github.io/
