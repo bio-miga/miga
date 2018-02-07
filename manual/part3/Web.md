@@ -1,9 +1,9 @@
 # MiGA Web
 
-MiGA Web allows you to explore and query your projects directly from the  
-browser. We provide a publicly available server including several  
-general-purpose projects as well as some clade-specific ones:  
-[MiGA Online](http://microbial-genomes.org/). For an introduction on MiGA  
+MiGA Web allows you to explore and query your projects directly from the
+browser. We provide a publicly available server including several
+general-purpose projects as well as some clade-specific ones:
+[MiGA Online](http://microbial-genomes.org/). For an introduction on MiGA
 Online, take a look at these video tutorials:
 
 ## Introduction
@@ -24,7 +24,7 @@ Online, take a look at these video tutorials:
 
 ## Deploying MiGA Web
 
-If you want to host your own MiGA server, or just launch one from your own  
-computer to simplify browsing results, take a look at the instructions  
+If you want to host your own MiGA server, or just launch one from your own
+computer to simplify browsing results, take a look at the instructions
 to [deploy MiGA Web](http://code.microbial-genomes.org/miga-web).
 
