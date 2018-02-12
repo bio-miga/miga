@@ -38,7 +38,7 @@ to [deploy MiGA Web](http://code.microbial-genomes.org/miga-web).
 
 If you want to test the MiGA Online Web server, download a
 [test assembly](http://microbial-genomes.org/query_datasets/1626/result/assembly/largecontigs)
-and upload it to the [NCBI_Prok project](http://microbial-genomes.org/projects/8).
+and upload it to the [NCBI_Prok project](http://microbial-genomes.org/query_datasets/new?project_id=8).
 If you want to see in advance what to expect, check out the results:
 [dataset analysis complete](http://microbial-genomes.org/query_datasets/M:D98_O3E).
 

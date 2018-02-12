@@ -8,7 +8,7 @@ require 'miga/remote_dataset'
 o = {q:true, query:false, unlink:false,
       reference: false, ignore_plasmids: false,
       complete:false, chromosome:false,
-      scaffold:false, contig:false,}
+      scaffold:false, contig:false, add_version:true}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -30,6 +30,9 @@ OptionParser.new do |opt|
     o[:scaffold] = true
     o[:contig] = true
   end
+  opt.on('--no-version-name',
+        'Do not add sequence version to the dataset name.',
+        'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
   opt.on("-q", "--query",
         "If set, the datasets are registered as queries, not reference datasets."
         ){ |v| o[:query]=v }
@@ -75,14 +78,14 @@ end
 
 # Download IDs with reference status
 if o[:reference]
-  $stderr.puts "Downloading reference genomes" unless o[:q]
+  $stderr.puts 'Downloading reference genomes' unless o[:q]
   lineno = 0
   get_list(nil, :reference).each_line do |ln|
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
     next if r[3].nil? or r[3].empty?
-    ids = r[3].split(",")
-    ids += r[5].split(",") unless o[:ignore_plasmids] or r[5].empty?
+    ids = r[3].split(',')
+    ids += r[5].split(',') unless o[:ignore_plasmids] or r[5].empty?
     n = r[2].miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
   end
@@ -90,22 +93,23 @@ end
 
 # Download IDs with complete or chromosome status
 if o[:complete] or o[:chromosome]
-  status = (o[:complete] and o[:chromosome] ? "50|40" : o[:complete] ? "50" : "40")
-  $stderr.puts "Downloading complete/chromosome genomes" unless o[:q]
+  status = (o[:complete] and o[:chromosome] ? '50|40' : o[:complete] ? '50' : '40')
+  $stderr.puts 'Downloading complete/chromosome genomes' unless o[:q]
   lineno = 0
   get_list(o[:taxon], status).each_line do |ln|
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
     next if r[10].nil? or r[10].empty?
-    ids = r[10].gsub(/[^:;]*:/,"").gsub(/\/[^\/;]*/,"").split(";")
-    n = (r[0] + "_" + ids[0]).miga_name
+    ids = r[10].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').split(';')
+    acc = o[:add_version] ? ids[0] : ids[0].gsub(/\.\d+\Z/,'')
+    n = "#{r[0]}_#{acc}".miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
   end
 end
 
 # Download IDs with scaffold or contig status
 if o[:scaffold] or o[:contig]
-  status = (o[:scaffold] and o[:contig] ? "30|20" : o[:scaffold] ? "30" : "20")
+  status = (o[:scaffold] and o[:contig] ? '30|20' : o[:scaffold] ? '30' : '20')
   $stderr.puts "Downloading scaffold/contig genomes" unless o[:q]
   lineno = 0
   get_list(o[:taxon], status).each_line do |ln|
