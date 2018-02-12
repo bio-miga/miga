@@ -12,19 +12,20 @@ o = {q:true, query:false, unlink:false,
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
-  opt.on("-T", "--taxon STRING",
-        "(Mandatory unless --reference) Name of the taxon (e.g., a species binomial)."
+  opt.on('-T', '--taxon STRING',
+        '(Mandatory unless --reference) Taxon name (e.g., a species binomial).'
         ){ |v| o[:taxon]=v }
-  opt.on("--reference",
-        "Download all reference genomes (ignores -T)."){ |v| o[:reference]=v }
-  opt.on("--ref-no-plasmids",
-        "If passed, ignores plasmids (only for --reference)."
+  opt.on('--reference',
+        'Download all reference genomes (ignores -T).'){ |v| o[:reference]=v }
+  opt.on('--ref-no-plasmids',
+        'If passed, ignores plasmids (only for --reference).'
         ){ |v| o[:ignore_plasmids]=v }
-  opt.on("--complete", "Download complete genomes."){ |v| o[:complete]=v }
-  opt.on("--chromosome", "Download complete chromosomes."){ |v| o[:chromosome]=v }
-  opt.on("--scaffold", "Download genomes in scaffolds."){ |v| o[:scaffold]=v }
-  opt.on("--contig", "Download genomes in contigs."){ |v| o[:contig]=v }
-  opt.on("--all", "Download all genomes (in any status).") do
+  opt.on('--complete', 'Download complete genomes.'){ |v| o[:complete]=v }
+  opt.on('--chromosome',
+        'Download complete chromosomes.'){ |v| o[:chromosome]=v }
+  opt.on('--scaffold', 'Download genomes in scaffolds.'){ |v| o[:scaffold]=v }
+  opt.on('--contig', 'Download genomes in contigs.'){ |v| o[:contig]=v }
+  opt.on('--all', 'Download all genomes (in any status).') do
     o[:complete] = true
     o[:chromosome] = true
     o[:scaffold] = true
@@ -33,22 +34,22 @@ OptionParser.new do |opt|
   opt.on('--no-version-name',
         'Do not add sequence version to the dataset name.',
         'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
-  opt.on("-q", "--query",
-        "If set, the datasets are registered as queries, not reference datasets."
+  opt.on('-q', '--query',
+        'Register the datasets as queries, not reference datasets.'
         ){ |v| o[:query]=v }
-  opt.on("-u", "--unlink",
-        "If set, unlinks all datasets in the project missing from the download list."
+  opt.on('-u', '--unlink',
+        'Unlink all datasets in the project missing from the download list.'
         ){ |v| o[:unlink]=v }
-  opt.on("-R", "--remote-list PATH",
-        "Path to an output file with the list of all datasets listed remotely."
+  opt.on('-R', '--remote-list PATH',
+        'Path to an output file with the list of all datasets listed remotely.'
         ){ |v| o[:remote_list]=v }
   opt_common(opt, o)
 end.parse!
 
-opt_require(o, project: "-P")
-opt_require(o, taxon: "-T") unless o[:reference]
+opt_require(o, project: '-P')
+opt_require(o, taxon: '-T') unless o[:reference]
 unless %w[reference complete chromosome scaffold contig].any?{ |i| o[i.to_sym] }
-  raise "No action requested. Pick at least one type of genome"
+  raise 'No action requested. Pick at least one type of genome.'
 end
 
 ##=> Main <=
@@ -60,12 +61,12 @@ ds = {}
 downloaded = 0
 
 def get_list(taxon, status)
-  url_base = "https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?"
+  url_base = 'https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?'
   url_param = if status==:reference
-    { action: "refgenomes", download: "on" }
+    { action: 'refgenomes', download: 'on' }
   else
-    { action: "download", report: "proks", group: "-- All Prokaryotes --",
-          subgroup: "-- All Prokaryotes --", orgn: "#{taxon}[orgn]",
+    { action: 'download', report: 'proks', group: '-- All Prokaryotes --',
+          subgroup: '-- All Prokaryotes --', orgn: "#{taxon}[orgn]",
           status: status }
   end
   url = url_base + URI.encode_www_form(url_param)
@@ -86,6 +87,8 @@ if o[:reference]
     next if r[3].nil? or r[3].empty?
     ids = r[3].split(',')
     ids += r[5].split(',') unless o[:ignore_plasmids] or r[5].empty?
+    ids.delete_if(&:empty?)
+    next if ids.empty?
     n = r[2].miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
   end
@@ -93,7 +96,8 @@ end
 
 # Download IDs with complete or chromosome status
 if o[:complete] or o[:chromosome]
-  status = (o[:complete] and o[:chromosome] ? '50|40' : o[:complete] ? '50' : '40')
+  status = (o[:complete] and o[:chromosome] ?
+        '50|40' : o[:complete] ? '50' : '40')
   $stderr.puts 'Downloading complete/chromosome genomes' unless o[:q]
   lineno = 0
   get_list(o[:taxon], status).each_line do |ln|
@@ -101,6 +105,8 @@ if o[:complete] or o[:chromosome]
     r = ln.chomp.split("\t")
     next if r[10].nil? or r[10].empty?
     ids = r[10].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').split(';')
+    ids.delete_if(&:empty?)
+    next if ids.empty?
     acc = o[:add_version] ? ids[0] : ids[0].gsub(/\.\d+\Z/,'')
     n = "#{r[0]}_#{acc}".miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
@@ -117,11 +123,14 @@ if o[:scaffold] or o[:contig]
     r = ln.chomp.split("\t")
     next if r[7].nil? or r[7].empty?
     next if r[19].nil? or r[19].empty?
-    asm = r[7].gsub(/[^:;]*:/,"").gsub(/\/[^\/;]*/,"").gsub(/\s/,"")
-    ids = r[19].gsub(/\s/, "").split(";").map{ |i| i + "/" + File.basename(i) + "_genomic.fna.gz" }
-    n = (r[0] + "_" + asm).miga_name
+    asm = r[7].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').gsub(/\s/,'')
+    ids = r[19].gsub(/\s/,'').split(';').delete_if(&:empty?).
+          map{ |i| "#{i}/#{File.basename(i)}_genomic.fna.gz" }
+    next if ids.empty?
+    n = "#{r[0]}_#{asm}".miga_name
     comm = "Assembly: #{asm}"
-    ds[n] = {ids: ids, md: {type: :genome, comments: comm}, db: :assembly_gz, universe: :web}
+    ds[n] = {ids: ids, md: {type: :genome, comments: comm},
+          db: :assembly_gz, universe: :web}
   end
 end
 
@@ -131,9 +140,9 @@ ds.each do |name,body|
   d << name
   puts name
   next unless p.dataset(name).nil?
-  $stderr.puts "  Locating remote dataset." unless o[:q]
+  $stderr.puts '  Locating remote dataset.' unless o[:q]
   rd = MiGA::RemoteDataset.new(body[:ids], body[:db], body[:universe])
-  $stderr.puts "  Creating dataset." unless o[:q]
+  $stderr.puts '  Creating dataset.' unless o[:q]
   rd.save_to(p, name, !o[:query], body[:md])
   p.add_dataset(name)
   downloaded += 1
