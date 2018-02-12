@@ -87,7 +87,7 @@ if o[:reference]
     next if r[3].nil? or r[3].empty?
     ids = r[3].split(',')
     ids += r[5].split(',') unless o[:ignore_plasmids] or r[5].empty?
-    ids.delete_if(&:empty?)
+    ids.delete_if{ |i| i =~ /\A\-*\z/ }
     next if ids.empty?
     n = r[2].miga_name
     ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
@@ -105,7 +105,7 @@ if o[:complete] or o[:chromosome]
     r = ln.chomp.split("\t")
     next if r[10].nil? or r[10].empty?
     ids = r[10].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').split(';')
-    ids.delete_if(&:empty?)
+    ids.delete_if{ |i| i =~ /\A\-*\z/ }
     next if ids.empty?
     acc = o[:add_version] ? ids[0] : ids[0].gsub(/\.\d+\Z/,'')
     n = "#{r[0]}_#{acc}".miga_name
@@ -124,7 +124,7 @@ if o[:scaffold] or o[:contig]
     next if r[7].nil? or r[7].empty?
     next if r[19].nil? or r[19].empty?
     asm = r[7].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').gsub(/\s/,'')
-    ids = r[19].gsub(/\s/,'').split(';').delete_if(&:empty?).
+    ids = r[19].gsub(/\s/,'').split(';').delete_if{ |i| i =~ /\A\-*\z/ }.
           map{ |i| "#{i}/#{File.basename(i)}_genomic.fna.gz" }
     next if ids.empty?
     n = "#{r[0]}_#{asm}".miga_name
