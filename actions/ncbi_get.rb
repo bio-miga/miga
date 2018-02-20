@@ -7,8 +7,8 @@ require 'miga/remote_dataset'
 
 o = {q:true, query:false, unlink:false,
       reference: false, ignore_plasmids: false,
-      complete:false, chromosome:false,
-      scaffold:false, contig:false, add_version:true}
+      complete: false, chromosome: false,
+      scaffold: false, contig: false, add_version: true, dry: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -34,6 +34,7 @@ OptionParser.new do |opt|
   opt.on('--no-version-name',
         'Do not add sequence version to the dataset name.',
         'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
+  opt.on('--dry', 'Do not download or save the datasets.'){ |v| o[:dry] = v }
   opt.on('-q', '--query',
         'Register the datasets as queries, not reference datasets.'
         ){ |v| o[:query]=v }
@@ -140,17 +141,18 @@ ds.each do |name,body|
   d << name
   puts name
   next unless p.dataset(name).nil?
+  downloaded += 1
+  next if o[:dry]
   $stderr.puts '  Locating remote dataset.' unless o[:q]
   rd = MiGA::RemoteDataset.new(body[:ids], body[:db], body[:universe])
   $stderr.puts '  Creating dataset.' unless o[:q]
   rd.save_to(p, name, !o[:query], body[:md])
   p.add_dataset(name)
-  downloaded += 1
 end
 
 # Finalize
 $stderr.puts "Datasets listed: #{d.size}" unless o[:q]
-$stderr.puts "Datasets downloaded: #{downloaded}" unless o[:q]
+$stderr.puts "Datasets #{"to be " if o[:dry]}downloaded: #{downloaded}" unless o[:q]
 unless o[:remote_list].nil?
   File.open(o[:remote_list], 'w') do |fh|
     d.each { |i| fh.puts i }
