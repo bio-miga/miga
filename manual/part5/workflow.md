@@ -437,4 +437,4 @@ Supported file keys:
 
 MiGA symbol: `project_stats`.
 
-[workflow]: ../img/arch_v06.png "The MiGA Workflow"
+[workflow]: ../img/arch_v07.png "The MiGA Workflow"
