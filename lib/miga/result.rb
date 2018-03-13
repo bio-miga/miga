@@ -1,9 +1,13 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require "miga/result/dates"
+
 ##
 # The result from a task run. It can be project-wide or dataset-specific.
 class MiGA::Result < MiGA::MiGA
+  
+  include MiGA::Result::Dates
   
   # Class-level
   
