@@ -16,6 +16,7 @@ The following metadata fields are recognized by different interfaces:
 | haai_p     | Project | String           | Value of -p for aai.rb\*\* on hAAI
 | ani_p      | Project | String           | Value of -p for ani.rb\*\*\* on ANI
 | see_also   | Dataset | String           | Link(s)* in the format text:url
+| is_type    | Dataset | Boolean          | Indicates if it is type material
 
 \* Multiple IDs can be provided separated by commas or colons.
 \*\* By default: blast+. Other supported values: blast, blat, diamond.
