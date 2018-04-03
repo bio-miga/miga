@@ -28,9 +28,9 @@ module MiGA
 end
 
 class MiGA::MiGA
-  
+
   include MiGA
-  
+
   ##
   # Major.minor version as Float.
   def self.VERSION ; VERSION[0] ; end
