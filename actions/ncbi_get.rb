@@ -34,6 +34,8 @@ OptionParser.new do |opt|
   opt.on('--no-version-name',
         'Do not add sequence version to the dataset name.',
         'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
+  opt.on('--blacklist',
+        'A file with dataset names to blacklist.'){ |v| o[:blacklist] = v }
   opt.on('--dry', 'Do not download or save the datasets.'){ |v| o[:dry] = v }
   opt.on('-q', '--query',
         'Register the datasets as queries, not reference datasets.'
@@ -133,6 +135,12 @@ if o[:scaffold] or o[:contig]
     ds[n] = {ids: ids, md: {type: :genome, comments: comm},
           db: :assembly_gz, universe: :web}
   end
+end
+
+# Discard blacklisted
+unless o[:blacklist].nil?
+  $stderr.puts "Discarding datasets in #{o[:blacklist]}." unless o[:q]
+  File.readlines(o[:blacklist]).map(&:chomp).each{ |i| ds.delete i }
 end
 
 # Download entries
