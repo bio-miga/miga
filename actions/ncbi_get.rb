@@ -34,7 +34,7 @@ OptionParser.new do |opt|
   opt.on('--no-version-name',
         'Do not add sequence version to the dataset name.',
         'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
-  opt.on('--blacklist',
+  opt.on('--blacklist PATH',
         'A file with dataset names to blacklist.'){ |v| o[:blacklist] = v }
   opt.on('--dry', 'Do not download or save the datasets.'){ |v| o[:dry] = v }
   opt.on('-q', '--query',
