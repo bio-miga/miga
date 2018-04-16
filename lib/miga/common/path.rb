@@ -4,7 +4,7 @@ module MiGA::Common::Path
   ##
   # Root path to MiGA (as estimated from the location of the current file).
   def root_path
-    File.expand_path('../../..', __FILE__)
+    File.expand_path('../../../..', __FILE__)
   end
 
   ##
