@@ -7,9 +7,11 @@ module MiGA::DistanceRunner::Commands
     # Check if it's been calculated
     y = stored_value(target, :aai)
     return y unless y.nil? or y.zero?
-    # Try hAAI
-    y = haai(target)
-    return y unless y.nil? or y.zero?
+    # Try hAAI (except in clade projects)
+    unless @ref_project.is_clade?
+      y = haai(target)
+      return y unless y.nil? or y.zero?
+    end
     # Full AAI
     aai_cmd(
           tmp_file("proteins.fa"), target.result(:cds).file_path(:proteins),
