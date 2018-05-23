@@ -1,9 +1,9 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require "miga/metadata"
-require "miga/dataset/result"
-require "sqlite3"
+require 'miga/metadata'
+require 'miga/dataset/result'
+require 'sqlite3'
 
 ##
 # Dataset representation in MiGA.

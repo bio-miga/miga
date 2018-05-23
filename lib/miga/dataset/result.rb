@@ -1,7 +1,7 @@
 
-require "sqlite3"
-require "miga/result"
-require "miga/dataset/base"
+require 'sqlite3'
+require 'miga/result'
+require 'miga/dataset/base'
 
 ##
 # Helper module including specific functions to add dataset results.

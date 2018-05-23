@@ -79,4 +79,13 @@ class CommonTest < Test::Unit::TestCase
     assert_equal("678  90", tab[3])
   end
 
+  def test_miga_name
+    assert_equal('Xa sp. C', 'Xa_sp__C'.unmiga_name)
+    assert_equal('X_______', 'X^*.!{}!'.miga_name)
+    assert_equal('aB09', 'aB09'.miga_name)
+    assert('R2D2'.miga_name?)
+    assert(!'C3-PO'.miga_name?)
+    assert_equal("123\n1\n", '1231'.wrap_width(3))
+  end
+
 end
