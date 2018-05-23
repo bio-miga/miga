@@ -3,7 +3,7 @@ module MiGA::DistanceRunner::Commands
   # Estimates or calculates AAI against +target+
   def aai(target)
     # Check if the request makes sense
-    return nil if target.result(:essential_genes).nil?
+    return nil if target.nil? or target.result(:essential_genes).nil?
     # Check if it's been calculated
     y = stored_value(target, :aai)
     return y unless y.nil? or y.zero?
