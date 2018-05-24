@@ -69,9 +69,9 @@ class MiGA::DistanceRunner
     initialize_dbs! false
     # Calculate the classification-informed AAI/ANI traverse
     results = File.expand_path("#{dataset.name}.#{v[1]}-medoids.tsv", home)
-    File.open(results, "w") do |fh|
-      classif, val_cls = *classify(res.dir, ".", v[1], fh)
-    end
+    fh = File.open(results, "w")
+    classif, val_cls = *classify(res.dir, ".", v[1], fh)
+    fh.close
     # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
     par_dir = File.dirname(File.expand_path(classif, res.dir))
     par = File.expand_path("miga-project.classif", par_dir)
