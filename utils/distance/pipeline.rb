@@ -46,7 +46,7 @@ module MiGA::DistanceRunner::Pipeline
     end
     # Find all values among visited datasets in ref_project
     ref_r = ref_project.result("#{metric}_distances") or return
-    Gzip::Reader.open(ref_r.file_path(:matrix)) do |fh|
+    Zlib::GzipReader.open(ref_r.file_path(:matrix)) do |fh|
       fh.each_line do |ln|
         r = ln.chomp.split("\t")
         next unless seq2.include?(r[1]) or seq2.include?(r[2])
