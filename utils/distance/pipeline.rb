@@ -63,6 +63,12 @@ module MiGA::DistanceRunner::Pipeline
   def tax_test
     # Get taxonomy of closest relative
     from_ref_project = (project != ref_project)
+    res_dir = from_ref_project ?
+          File.expand_path("data/09.distances/05.taxonomy", project.path) : home
+    Dir.mkdir res_dir unless Dir.exist? res_dir
+    File.open(File.expand_path("#{dataset.name}.done", res_dir), "w") do |fh|
+      fh.puts Time.now.to_s
+    end
     dataset.add_result(from_ref_project ? :taxonomy : :distances, true)
     cr = dataset.closest_relatives(1, from_ref_project)
     return if cr.nil? or cr.empty?
