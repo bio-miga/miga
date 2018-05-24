@@ -72,9 +72,9 @@ module MiGA::DistanceRunner::Pipeline
     dataset.add_result(from_ref_project ? :taxonomy : :distances, true)
     cr = dataset.closest_relatives(1, from_ref_project)
     return if cr.nil? or cr.empty?
-    tax = ref_project.dataset(cr[0]).metadata[:tax] || {}
+    tax = ref_project.dataset(cr[0][0]).metadata[:tax] || {}
     # Run the test for each rank
-    r = MiGA::TaxDist.aai_pvalues(cr[1], :intax).map do |k,v|
+    r = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax).map do |k,v|
       sig = ""
       [0.5,0.1,0.05,0.01].each{ |i| sig << "*" if v<i }
       [MiGA::Taxonomy.LONG_RANKS[k], (tax[k] || "?"), v, sig]
