@@ -14,6 +14,6 @@ Barrnap		barrnap		http://www.vicbioinformatics.com/software.barrnap.shtml
 Scythe		scythe		https://github.com/vsbuffalo/scythe				Required version: 0.991+
 FastQC		fastqc		http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 SolexaQA++	SolexaQA++	http://solexaqa.sourceforge.net					Required version: v3.1.3+
-DIAMOND (opt)	diamond		http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.7.9+
+DIAMOND (opt)	diamond		http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.9.20+
 MyTaxa (opt)	MyTaxa		http://enve-omics.ce.gatech.edu/mytaxa				The folder must contain the db and utils dirs, and the AllGenomes.faa.dmnd database
 Krona (opt)	ktImportText	https://github.com/marbl/Krona/wiki
