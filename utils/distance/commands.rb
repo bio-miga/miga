@@ -52,7 +52,8 @@ module MiGA::DistanceRunner::Commands
   # Execute an AAI command
   def aai_cmd(f1, f2, n1, n2, db, o={})
     o = opts.merge(o)
-    v = `aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" --name1 "#{n1}" --name2 "#{n2}" \
+    v = `aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
+          --name1 "#{n1}" --name2 "#{n2}" \
           -t "#{o[:thr]}" -a --lookup-first "--#{o[:aai_save_rbm]}" \
           -p "#{o[:aai_p] || "blast+"}"`.chomp
     (v.nil? or v.empty?) ? 0 : v.to_f
@@ -61,9 +62,21 @@ module MiGA::DistanceRunner::Commands
   # Execute an ANI command
   def ani_cmd(f1, f2, n1, n2, db, o={})
     o = opts.merge(o)
-    v = `ani.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" --name1 "#{n1}" --name2 "#{n2}" \
-          -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm --lookup-first \
-          -p "#{o[:ani_p] || "blast+"}"`.chomp
+    v = nil
+    if o[:ani_p] == 'fastani'
+      out = `fastANI -r "#{f1}" -q "#{f2}" \
+            -o /dev/stdout 2>/dev/null`.chomp.split(/\s+/)
+      SQLite3::Database.new(db) do |conn|
+        conn.execute "insert into ani values(?, ?, ?, 0, ?, ?)",
+              [n1, n2, out[2], out[3], out[4]]
+      end
+      v = out[2]
+    else
+      v = `ani.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
+            --name1 "#{n1}" --name2 "#{n2}" \
+            -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm \
+            --lookup-first -p "#{o[:ani_p] || "blast+"}"`.chomp
+    end
     v.nil? or v.empty? ? 0 : v.to_f
   end
 end

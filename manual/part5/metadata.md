@@ -23,5 +23,7 @@ The following metadata fields are recognized by different interfaces:
 
 \* Multiple IDs can be provided separated by commas or colons.
 
-\*\* By default: blast+. Other supported values: blast, blat, diamond (except for ANI).
+\*\* By default: blast+. Other supported values: blast, blat, diamond (except
+for ANI), and fastani (only for ANI). If using diamond and/or fastani, the
+corresponding software must be installed.
 
