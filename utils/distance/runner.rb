@@ -31,7 +31,11 @@ class MiGA::DistanceRunner
       @ref_project = MiGA::Project.load(project.metadata[:ref_project])
     end
     @ref_project ||= project
-    [:haai_p, :aai_p, :ani_p].each{ |m| @opts[m] ||= ref_project.metadata[m] }
+    [:haai_p, :aai_p, :ani_p, :distances_checkpoint].each do |m|
+      @opts[m] ||= ref_project.metadata[m]
+    end
+    @opts[:distances_checkpoint] ||= 10
+    @opts[:distances_checkpoint] = @opts[:distances_checkpoint].to_i
   end
 
   # Launch the appropriate analysis
