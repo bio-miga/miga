@@ -117,6 +117,11 @@ class MiGA::Result < MiGA::MiGA
   # Save the result persistently (in the JSON file #path).
   def save
     @data[:updated] = Time.now.to_s
+    s = path(:start)
+    if File.exist? s
+      @data[:started] = File.read(s).chomp
+      File.unlink s
+    end
     json = JSON.pretty_generate data
     ofh = File.open(path, "w")
     ofh.puts json

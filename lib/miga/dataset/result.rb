@@ -35,8 +35,8 @@ module MiGA::Dataset::Result
   # returns a result if the expected files are complete. The +opts+ hash
   # controls result creation (if necessary). Supported values include:
   # - +is_clean+: A Boolean indicating if the input files are clean.
-  # - +force+: A Boolean indicating if the result must be re-indexed. If true, it
-  #   implies save=true.
+  # - +force+: A Boolean indicating if the result must be re-indexed. If true,
+  #   it implies save=true.
   # Returns MiGA::Result or nil.
   def add_result(result_type, save=true, opts={})
     dir = @@RESULT_DIRS[result_type]

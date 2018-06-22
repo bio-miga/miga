@@ -10,7 +10,7 @@ module MiGA
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
   # - Integer representing minor changes that require new version number.
-  VERSION = [0.3, 2, 0]
+  VERSION = [0.3, 2, 1]
   
   ##
   # Nickname for the current major.minor version.
@@ -22,8 +22,10 @@ module MiGA
   
   ##
   # Reference of MiGA.
-  CITATION = "Rodriguez-R et al, in preparation. Microbial Genomes Atlas: " +
-    "Standardizing genomic and metagenomic analyses for Archaea and Bacteria."
+  CITATION = "Rodriguez-R et al (2018). " +
+    "The Microbial Genomes Atlas (MiGA) webserver: taxonomic and gene " +
+    "diversity analysis of Archaea and Bacteria at the whole genome level. " +
+    "Nucleic Acids Research, gky467. DOI: 10.1093/nar/gky467."
 
 end
 
