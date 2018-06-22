@@ -3,18 +3,17 @@ require 'tempfile'
 require 'zlib'
 
 module MiGA::Common::Format
-
   ##
   # Tabulates an +values+, and Array of Arrays, all with the same number of
   # entries as +header+. Returns an Array of String, one per line.
   def tabulate(header, values)
     fields = [header.map(&:to_s)]
-    fields << fields.first.map{ |h| h.gsub(/\S/, '-') }
-    fields += values.map{ |row| row.map{ |cell| cell.nil? ? '?' : cell.to_s } }
-    clen = fields.map{ |row| row.map(&:length) }.transpose.map(&:max)
-    fields.map do |row|
-      (0 .. clen.size-1).map do |col_n|
-        col_n==0 ? row[col_n].rjust(clen[col_n]) : row[col_n].ljust(clen[col_n])
+    fields << fields.first.map { |h| h.gsub(/\S/, '-') }
+    fields += values.map { |r| r.map { |cell| cell.nil? ? '?' : cell.to_s } }
+    clen = fields.map { |r| r.map(&:length) }.transpose.map(&:max)
+    fields.map do |r|
+      (0 .. clen.size - 1).map do |col_n|
+        col_n == 0 ? r[col_n].rjust(clen[col_n]) : r[col_n].ljust(clen[col_n])
       end.join('  ')
     end
   end
@@ -40,7 +39,7 @@ module MiGA::Common::Format
           (id, df) = [$1, $2]
           tmp_fh.print buffer.wrap_width(80)
           buffer = ''
-          tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, "_")}#{df}"
+          tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}"
         else
           buffer << ln.gsub(/[^A-Za-z\.\-]/, '')
         end
@@ -65,30 +64,30 @@ module MiGA::Common::Format
   # controlled via the +opts+ Hash. Supported options include:
   # - +:n50+: If true, it also returns the N50 and the median (in bp).
   # - +gc+: If true, it also returns the G+C content (in %).
-  def seqs_length(file, format, opts={})
+  def seqs_length(file, format, opts = {})
     fh = (file =~ /\.gz/) ? Zlib::GzipReader.open(file) : File.open(file, 'r')
     l = []
     gc = 0
     i = 0 # <- Zlib::GzipReader doesn't set $.
     fh.each_line do |ln|
       i += 1
-      if (format==:fasta and ln =~ /^>/) or (format==:fastq and (i % 4)==1)
+      if (format == :fasta and ln =~ /^>/) or (format == :fastq and (i % 4)==1)
         l << 0
-      elsif format==:fasta or (i % 4)==2
+      elsif format == :fasta or (i % 4) == 2
         l[l.size-1] += ln.chomp.size
         gc += ln.scan(/[GCgc]/).count if opts[:gc]
       end
     end
     fh.close
-    
+
     o = { n: l.size, tot: l.inject(:+) }
-    o[:avg] = o[:tot].to_f/l.size
-    o[:var] = l.map{ |a| a ** 2 }.inject(:+).to_f/l.size - o[:avg]**2
+    o[:avg] = o[:tot].to_f / l.size
+    o[:var] = l.map { |a| a**2 }.inject(:+).to_f / l.size - o[:avg]**2
     o[:sd]  = Math.sqrt o[:var]
-    o[:gc]  = 100.0*gc/o[:tot] if opts[:gc]
+    o[:gc]  = 100.0 * gc / o[:tot] if opts[:gc]
     if opts[:n50]
       l.sort!
-      thr = o[:tot]/2
+      thr = o[:tot] / 2
       pos = 0
       l.each do |a|
         pos += a
@@ -96,7 +95,7 @@ module MiGA::Common::Format
         break if pos >= thr
       end
       o[:med] = o[:n].even? ?
-        0.5*l[o[:n]/2-1,2].inject(:+) : l[(o[:n]-1)/2]
+            0.5 * l[o[:n] / 2 - 1, 2].inject(:+) : l[(o[:n] - 1) / 2]
     end
     o
   end
@@ -105,7 +104,6 @@ end
 ##
 # MiGA extensions to the String class.
 class String
-
   ##
   # Replace any character not allowed in a MiGA name for underscore (_). This
   # results in a MiGA-compliant name EXCEPT for empty strings, that results in
@@ -123,13 +121,13 @@ class String
   ##
   # Replace underscores by spaces or dots (depending on context).
   def unmiga_name
-    gsub(/_(str|sp|subsp|pv)__/,"_\\1._").tr('_', ' ')
+    gsub(/_(str|sp|subsp|pv)__/, '_\\1._').tr('_', ' ')
   end
 
   ##
   # Wraps the string with fixed Integer +width+.
   def wrap_width(width)
-    gsub(/([^\n\r]{1,#{width}})/,"\\1\n")
+    gsub(/([^\n\r]{1,#{width}})/, "\\1\n")
   end
 end
 
