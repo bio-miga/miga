@@ -76,6 +76,20 @@ class MiGA::Dataset < MiGA::MiGA
     self.results.each{ |r| r.remove! }
     self.metadata.remove!
   end
+
+  ##
+  # Inactivate a dataset. This halts automated processing by the daemon.
+  def inactivate!
+    self.metadata[:inactive] = true
+    self.metadata.save
+  end
+
+  ##
+  # Activate a dataset. This removes the +:inactive+ flag.
+  def activate!
+    self.metadata[:inactive] = nil
+    self.metadata.save
+  end
   
   ##
   # Get standard metadata values for the dataset as Array.
@@ -96,22 +110,27 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Is this dataset known to be multi-organism?
   def is_multi?
-    return false if metadata[:type].nil? or
-      @@KNOWN_TYPES[type].nil?
+    return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
     @@KNOWN_TYPES[type][:multi]
   end
   
   ##
   # Is this dataset known to be single-organism?
   def is_nonmulti?
-    return false if metadata[:type].nil? or
-      @@KNOWN_TYPES[type].nil?
+    return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
     !@@KNOWN_TYPES[type][:multi]
+  end
+
+  ##
+  # Is this dataset active?
+  def is_active?
+    metadata[:inactive].nil? or !metadata[:inactive]
   end
   
   ##
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)
+    return true unless is_active?
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
     return true if task==:taxonomy and project.metadata[:ref_project].nil?
     pattern = [true, false]

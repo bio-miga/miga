@@ -10,6 +10,7 @@ The following metadata fields are recognized by different interfaces:
 | haai_p     | Project | String           | Value of -p for aai.rb\*\* on hAAI
 | ani_p      | Project | String           | Value of -p for ani.rb\*\* on ANI
 | run_`step` | Dataset | Boolean          | Forces running or not `step`
+| inactive   | Dataset | Boolean          | Indicates if auto-processing should stop
 | tax        | Dataset | MiGA::Taxonomy   | Taxonomy of the dataset
 | quality    | Dataset | String           | Description of genome quality
 | dprotologue  | Dataset | String         | Taxonumber in the Digital Protologue Database
