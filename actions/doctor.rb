@@ -6,7 +6,8 @@
 require "sqlite3"
 
 o = {q:true, ld:false,
-  db: true, dist: true, files: true, ess: true, mts: true, tax: true}
+  db: true, dist: true, files: true,
+  ess: true, mts: true, start: true, tax: true}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -22,6 +23,8 @@ OptionParser.new do |opt|
     "Do not check unarchived essential genes."){ |v| o[:ess]=!v }
   opt.on("--ignore-mytaxa-scan",
     "Do not check unarchived MyTaxa scan."){ |v| o[:mts]=!v }
+  opt.on("--ignore-start",
+    "Do not check lingering legacy .start files."){ |v| o[:start]=!v }
   opt.on("--ignore-taxonomy",
     "Do not check taxonomy consistency."){ |v| o[:tax]=!v }
   opt_common(opt, o)
@@ -171,6 +174,13 @@ if o[:mts]
       $stderr.puts "    > Fixing #{d.name}." if o[:ld]
       d.add_result(:mytaxa_scan, true, force: true)
     end
+  end
+end
+
+if o[:start]
+  $stderr.puts "o Looking for legacy .start files lingering." unless o[:q]
+  p.each_dataset do |d|
+    d.each_result { |_k, r| r.save if File.exist? r.path(:start) }
   end
 end
 
