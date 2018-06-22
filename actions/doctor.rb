@@ -180,7 +180,12 @@ end
 if o[:start]
   $stderr.puts "o Looking for legacy .start files lingering." unless o[:q]
   p.each_dataset do |d|
-    d.each_result { |_k, r| r.save if File.exist? r.path(:start) }
+    d.each_result do |r_k, r|
+      if File.exist? r.path(:start)
+        $stderr.puts "    > Registering again #{d.name}:#{r_k}" if o[:ld]
+        r.save
+      end
+    end
   end
 end
 
