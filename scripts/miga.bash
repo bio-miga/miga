@@ -14,6 +14,9 @@ for i in $(miga plugins -P "$PROJECT") ; do
   source "$i/scripts-plugin.bash"
 done
 
+[[ -n $DATASET ]] \
+      && miga add -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT" --update
+
 #if [[ "$RUNTYPE" == "qsub" ]] ; then
 #elif [[ "$RUNTYPE" == "msub" ]] ; then
 #fi

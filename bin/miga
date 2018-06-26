@@ -171,9 +171,13 @@ def add_metadata(o, obj)
   o[:metadata].split(",").each do |pair|
     (k,v) = pair.split("=")
     case v
-      when "true";  v = true
-      when "false"; v = false
-      when "nil";   v = nil
+      when 'true';  v = true
+      when 'false'; v = false
+      when 'nil';   v = nil
+    end
+    if k=='_step'
+      obj.metadata["_try_#{v}"] ||= 0
+      obj.metadata["_try_#{v}"]  += 1
     end
     obj.metadata[k] = v
   end unless o[:metadata].nil?

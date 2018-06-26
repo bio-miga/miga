@@ -16,11 +16,13 @@ The following metadata fields are recognized by different interfaces:
 | dprotologue  | Dataset | String         | Taxonumber in the Digital Protologue Database
 | ncbi_tax_id  | Dataset | String         | Linking ID(s)* for NCBI Taxonomy
 | ncbi_nuccore | Dataset | String         | Linking ID(s)* for NCBI Nucleotide
-| ebi_embl   | Dataset | String           | Linking ID(s)* for EBI EMBL
-| ebi_ena    | Dataset | String           | Linking ID(s)* for EBI ENA
-| see_also   | Dataset | String           | Link(s)* in the format text:url
-| is_type    | Dataset | Boolean          | Indicates if it is type material
-| ~~user~~   | Dataset | String           | Deprecated
+| ebi_embl     | Dataset | String         | Linking ID(s)* for EBI EMBL
+| ebi_ena      | Dataset | String         | Linking ID(s)* for EBI ENA
+| see_also     | Dataset | String         | Link(s)* in the format text:url
+| is_type      | Dataset | Boolean        | Indicates if it is type material
+| _step        | Dataset | String         | For internal control of processing
+| \_try_`step` | Dataset | Integer        | For internal control of processing
+| ~~user~~     | Dataset | String         | Deprecated
 
 \* Multiple IDs can be provided separated by commas or colons.
 
