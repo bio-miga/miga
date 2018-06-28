@@ -78,7 +78,13 @@ module MiGA::Dataset::Result
     return nil if first.nil?
     @@PREPROCESSING_TASKS.each do |t|
       next if ignore_task? t
-      return t if after_first and add_result(t, save).nil?
+      if after_first and add_result(t, save).nil?
+        if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
+          inactivate!
+          return nil
+        end
+        return t
+      end
       after_first = (after_first or (t==first))
     end
     nil

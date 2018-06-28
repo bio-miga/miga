@@ -9,6 +9,7 @@ The following metadata fields are recognized by different interfaces:
 | aai_p      | Project | String           | Value of -p for aai.rb\*\* on AAI
 | haai_p     | Project | String           | Value of -p for aai.rb\*\* on hAAI
 | ani_p      | Project | String           | Value of -p for ani.rb\*\* on ANI
+| max_try    | Project | Integer          | Max number of times a task is attempted
 | run_`step` | Dataset | Boolean          | Forces running or not `step`
 | inactive   | Dataset | Boolean          | Indicates if auto-processing should stop
 | tax        | Dataset | MiGA::Taxonomy   | Taxonomy of the dataset
