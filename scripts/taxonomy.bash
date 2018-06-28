@@ -14,7 +14,8 @@ cd "$DIR"
 miga date > "$DATASET.start"
 
 # Run
-ruby "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET" run_taxonomy=1
+ruby -I "$MIGA/lib" \
+      "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET" run_taxonomy=1
 
 # Finalize
 miga date > "$DATASET.done"
