@@ -17,6 +17,8 @@ done
 [[ -n $DATASET ]] \
       && miga add -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT" --update
 
+true
+
 #if [[ "$RUNTYPE" == "qsub" ]] ; then
 #elif [[ "$RUNTYPE" == "msub" ]] ; then
 #fi
