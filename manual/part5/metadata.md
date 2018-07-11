@@ -17,6 +17,7 @@ The following metadata fields are recognized by different interfaces:
 | dprotologue  | Dataset | String         | Taxonumber in the Digital Protologue Database
 | ncbi_tax_id  | Dataset | String         | Linking ID(s)* for NCBI Taxonomy
 | ncbi_nuccore | Dataset | String         | Linking ID(s)* for NCBI Nucleotide
+| ncbi_asm     | Dataset | String         | Linking ID(s)* for NCBI Assembly
 | ebi_embl     | Dataset | String         | Linking ID(s)* for EBI EMBL
 | ebi_ena      | Dataset | String         | Linking ID(s)* for EBI ENA
 | see_also     | Dataset | String         | Link(s)* in the format text:url
