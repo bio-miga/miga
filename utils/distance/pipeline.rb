@@ -25,7 +25,7 @@ module MiGA::DistanceRunner::Pipeline
         end
       end
     end
-    classif = File.expand_path("miga-project.sc-#{val_cls}", classif)
+    classif = "#{classif}/miga-project.sc-#{val_cls}"
     result_fh.puts [val_cls, val_med, max_val, classif].join("\t")
     classify(clades, classif, metric, result_fh, val_cls)
   end
