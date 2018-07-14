@@ -85,7 +85,7 @@ class MiGA::DistanceRunner
           r = ln.chomp.split("\t")
           next unless r[1].to_i==val_cls
           target = ref_project.dataset(r[0])
-          aai = (metric==:aai) ? aai(target) : 100.0
+          aai = (v[1]==:aai) ? aai(target) : 100.0
           ani(target) if aai >= 90.0
         end
       end
