@@ -17,4 +17,4 @@ ruby -I "$MIGA/lib" "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET"
 # Finalize
 rm -R "$TMPDIR"
 miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f

@@ -98,4 +98,4 @@ fi
 
 # Finalize
 miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f

@@ -44,4 +44,4 @@ fi
 
 # Finalize
 miga date > "miga-project.done"
-miga add_result -P "$PROJECT" -r "$SCRIPT"
+miga add_result -P "$PROJECT" -r "$SCRIPT" -f

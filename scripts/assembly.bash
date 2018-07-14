@@ -50,4 +50,4 @@ FastA.length.pl "$DATASET.AllContigs.fna" | awk '$2>=1000{print $1}' \
 
 # Finalize
 miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT"
+miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
