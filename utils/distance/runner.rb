@@ -21,13 +21,14 @@ class MiGA::DistanceRunner
     @project = MiGA::Project.load(project_path) or
           raise "No project at #{project_path}"
     @dataset = project.dataset(dataset_name)
-    @home = File.expand_path("data/09.distances", project.path)
+    @home = File.expand_path('data/09.distances', project.path)
     # Default opts
-    @opts[:aai_save_rbm] ||= ENV.fetch("MIGA_AAI_SAVE_RBM") do
-      project.is_clade? ? "save-rbm" : "no-save-rbm"
+    @opts[:aai_save_rbm] ||= ENV.fetch('MIGA_AAI_SAVE_RBM') do
+      project.is_clade? ? 'save-rbm' : 'no-save-rbm'
     end
     @opts[:thr] ||= ENV.fetch("CORES"){ 2 }.to_i
     if opts[:run_taxonomy] && project.metadata[:ref_project]
+      @home = File.expand_path('05.taxonomy', @home)
       @ref_project = MiGA::Project.load(project.metadata[:ref_project])
     end
     @ref_project ||= project
