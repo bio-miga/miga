@@ -20,7 +20,8 @@ if [[ ! -s miga-project.ogs ]] ; then
       file="miga-project.tmp/$i.abc"
       [[ -s "$file" ]] && continue
       echo "SELECT seq1,id1,seq2,id2,bitscore from rbm;" \
-        | sqlite3 "../../09.distances/02.aai/$i.db" | tr "\\|" "\\t" \
+        | sqlite3 "../../09.distances/02.aai/$i.db" | tr "\\|" " " \
+        | awk '{ print $1">"$2"'"\\t"'"$3">"$4"'"\\t"'"$5 }' \
         > "$file.tmp"
       mv "$file.tmp" "$file"
     done
