@@ -10,6 +10,7 @@ The following metadata fields are recognized by different interfaces:
 | haai_p     | Project | String           | Value of -p for aai.rb\*\* on hAAI
 | ani_p      | Project | String           | Value of -p for ani.rb\*\* on ANI
 | max_try    | Project | Integer          | Max number of times a task is attempted
+| clean_ogs  | Project | Boolean          | If false, keeps ABC (clades only)
 | run_`step` | Dataset | Boolean          | Forces running or not `step`
 | inactive   | Dataset | Boolean          | Indicates if auto-processing should stop
 | tax        | Dataset | MiGA::Taxonomy   | Taxonomy of the dataset

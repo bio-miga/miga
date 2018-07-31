@@ -413,8 +413,8 @@ Supported file keys:
 
 * `ogs` (*req*): Matrix of orthology groups, as tab-delimited raw file.
 * `stats` (*req*): Summary statistics in JSON format.
-* `rbm` (*dir*): When available, it includes all the individual RBM files (one
-  per pair). This folder is typically produced as intermediate result and
+* `abc` (*gz*): When available, it includes all the individual RBM files in
+  ABC format. This file is typically produced as intermediate result and
   removed before finishing, but can be maintained using
   `miga new -P . -m clean_ogs=false --update` in the project folder using the
   [CLI](../part3/CLI.md).

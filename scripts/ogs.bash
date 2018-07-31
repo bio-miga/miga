@@ -31,8 +31,11 @@ if [[ ! -s miga-project.ogs ]] ; then
 
   # Estimate OGs and Clean RBMs
   ogs.mcl.rb -o miga-project.ogs --abc miga-project.abc -t "$CORES"
-  [[ $(miga about -P "$PROJECT" -m clean_ogs) == "false" ]] \
-    || rm miga-project.abc
+  if [[ $(miga about -P "$PROJECT" -m clean_ogs) == "false" ]] ; then
+    rm miga-project.abc
+  else
+    gzip -9 miga-project.abc
+  fi
 fi
 
 # Calculate Statistics

@@ -118,8 +118,8 @@ module MiGA::Project::Result
       return nil unless result_files_exist?(base, %w[.ogs .stats])
       r = MiGA::Result.new("#{base}.json")
       r.add_file(:ogs, "miga-project.ogs")
+      r.add_file(:abc, "miga-project.abc")
       r.add_file(:stats, "miga-project.stats")
-      r.add_file(:rbm, "miga-project.rbm")
       r.add_file(:core_pan, "miga-project.core-pan.tsv")
       r.add_file(:core_pan_plot, "miga-project.core-pan.pdf")
       r
