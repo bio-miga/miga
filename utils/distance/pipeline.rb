@@ -81,6 +81,8 @@ module MiGA::DistanceRunner::Pipeline
     end
     # Save test
     File.open(File.expand_path("#{dataset.name}.intax.txt", home), "w") do |fh|
+      fh.puts "Closest relative: #{cr[0][0]} with AAI: #{cr[0][1]}."
+      fh.puts ""
       fh.puts MiGA::MiGA.tabulate(%w[Rank Taxonomy P-value Signif.], r)
       fh.puts ""
       fh.puts "Significance at p-value below: *0.5, **0.1, ***0.05, ****0.01."
