@@ -30,8 +30,10 @@ class MiGA::DistanceRunner
     if opts[:run_taxonomy] && project.metadata[:ref_project]
       @home = File.expand_path('05.taxonomy', @home)
       @ref_project = MiGA::Project.load(project.metadata[:ref_project])
+      raise "Cannot load reference project: #{project.metadata[:ref_project]}" if @ref_project.nil?
+    else
+      @ref_project = project
     end
-    @ref_project ||= project
     [:haai_p, :aai_p, :ani_p, :distances_checkpoint].each do |m|
       @opts[m] ||= ref_project.metadata[m]
     end
