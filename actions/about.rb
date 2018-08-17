@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, info:false, processing:false}
+o = {q:true, info:false, processing:false, tabular:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -12,6 +12,8 @@ OptionParser.new do |opt|
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only."
     ){ |v| o[:datum]=v }
+  opt.on("--tab STRING",
+    "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt_common(opt, o)
 end.parse!
 
@@ -30,12 +32,12 @@ elsif o[:processing]
   keys = MiGA::Project.DISTANCE_TASKS + MiGA::Project.INCLADE_TASKS
   puts MiGA::MiGA.tabulate([:task, :status], keys.map do |k|
     [k, p.add_result(k, false).nil? ? "queued" : "done"]
-  end)
+  end, o[:tabular])
 else
   puts MiGA::MiGA.tabulate([:key, :value], p.metadata.data.keys.map do |k|
     v = p.metadata[k]
     [k, k==:datasets ? v.size : v]
-  end)
+  end, o[:tabular])
 end
 
 $stderr.puts "Done." unless o[:q]

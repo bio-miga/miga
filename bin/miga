@@ -29,6 +29,7 @@ $task_desc = {
   stats: "Extracts statistics for the given result.",
   files: "Lists all registered files from the results of a dataset or project.",
   run: "Executes locally one step analysis producing the given result.",
+  summary: "Generates a summary table for the statistics of all datasets.",
   # System
   init: "Initialize MiGA to process new projects.",
   daemon: "Controls the daemon of a MiGA project.",
@@ -56,6 +57,7 @@ $task_alias = {
   result_stats: :stats,
   list_files: :files,
   run_local: :run,
+  sum_stats: :summary,
   # System
   c: :console,
   # Taxonomy
@@ -114,6 +116,10 @@ def opt_object(opt, o, what=[:project, :dataset])
     "Recognized names for project-wide results include:",
     *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
     ){ |v| o[:name]=v.downcase.to_sym } if what.include? :result
+  opt.on("-r", "--result STRING",
+    "(Mandatory) Name of the result to add. One of:",
+    *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
+    ){ |v| o[:name]=v.downcase.to_sym } if what.include? :result_dataset
 end
 
 # OptParse flags common to all actions.

@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, info:false, processing:false, silent:false}
+o = {q:true, info:false, processing:false, silent:false, tabular:false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt])
@@ -15,6 +15,8 @@ OptionParser.new do |opt|
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only. If set, ignores -i."
     ){ |v| o[:datum]=v }
+  opt.on("--tab STRING",
+    "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt.on("-s", "--silent",
     "No output and exit with non-zero status if the dataset list is empty."
     ){ |v| o[:silent] = v }
@@ -43,11 +45,12 @@ exit(1) if o[:silent] and ds.empty?
 if not o[:datum].nil?
   ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum] ] || "?"}"}
 elsif o[:info]
-  puts MiGA::MiGA.tabulate(MiGA::Dataset.INFO_FIELDS, ds.map{ |d| d.info })
+  puts MiGA::MiGA.tabulate(
+        MiGA::Dataset.INFO_FIELDS, ds.map{ |d| d.info }, o[:tabular])
 elsif o[:processing]
   comp = ["-","done","queued"]
   puts MiGA::MiGA.tabulate([:name] + MiGA::Dataset.PREPROCESSING_TASKS,
-    ds.map{ |d| [d.name] + d.profile_advance.map{ |i| comp[i] } })
+    ds.map{ |d| [d.name] + d.profile_advance.map{ |i| comp[i] } }, o[:tabular])
 else
   ds.each{|d| puts d.name}
 end

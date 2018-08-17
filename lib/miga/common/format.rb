@@ -6,15 +6,16 @@ module MiGA::Common::Format
   ##
   # Tabulates an +values+, and Array of Arrays, all with the same number of
   # entries as +header+. Returns an Array of String, one per line.
-  def tabulate(header, values)
+  def tabulate(header, values, tabular=false)
     fields = [header.map(&:to_s)]
-    fields << fields.first.map { |h| h.gsub(/\S/, '-') }
+    fields << fields.first.map { |h| h.gsub(/\S/, '-') } unless tabular
     fields += values.map { |r| r.map { |cell| cell.nil? ? '?' : cell.to_s } }
-    clen = fields.map { |r| r.map(&:length) }.transpose.map(&:max)
+    clen = tabular ? Array.new(header.size, 0) :
+          fields.map { |r| r.map(&:length) }.transpose.map(&:max)
     fields.map do |r|
       (0 .. clen.size - 1).map do |col_n|
         col_n == 0 ? r[col_n].rjust(clen[col_n]) : r[col_n].ljust(clen[col_n])
-      end.join('  ')
+      end.join(tabular ? "\t" : '  ')
     end
   end
 
