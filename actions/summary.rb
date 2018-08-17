@@ -9,7 +9,7 @@ opts = OptionParser.new do |opt|
   opt_object(opt, o, [:project, :dataset_opt])
   opt_filter_datasets(opt, o)
   opt_object(opt, o, [:result_dataset])
-  opt.on("--tab STRING",
+  opt.on("--tab",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt.on("--key STRING",
     "Returns only the value of the requested key."){ |v| o[:key] = v }

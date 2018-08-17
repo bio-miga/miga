@@ -12,7 +12,7 @@ OptionParser.new do |opt|
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only."
     ){ |v| o[:datum]=v }
-  opt.on("--tab STRING",
+  opt.on("--tab",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt_common(opt, o)
 end.parse!

@@ -15,7 +15,7 @@ OptionParser.new do |opt|
   opt.on("-m", "--metadata STRING",
     "Print name and metadata field only. If set, ignores -i."
     ){ |v| o[:datum]=v }
-  opt.on("--tab STRING",
+  opt.on("--tab",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt.on("-s", "--silent",
     "No output and exit with non-zero status if the dataset list is empty."
