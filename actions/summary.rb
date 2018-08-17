@@ -6,7 +6,9 @@
 o = {q:true, units:false, tabular:false}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
-  opt_object(opt, o, [:project, :dataset_opt, :result_dataset])
+  opt_object(opt, o, [:project, :dataset_opt])
+  opt_filter_datasets(opt, o)
+  opt_object(opt, o, [:result_dataset])
   opt.on("--tab STRING",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt.on("--key STRING",
