@@ -43,6 +43,8 @@ module MiGA::SubcladeRunner::Pipeline
     metric_res = project.result(step) or raise "Incomplete step #{step}"
     matrix = metric_res.file_path(:matrix)
     `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}'`
+    File.rename('miga-project.nwk',"miga-project.#{metric}.nwk") if
+          File.exist? 'miga-project.nwk'
   end
 
   def compile

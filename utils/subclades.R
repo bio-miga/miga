@@ -56,7 +56,8 @@ subclades <- function(ani_file, out_base, thr=1, ani.d=dist(0)) {
     medoid <- ani.medoids[i]
     ds_f <- names(ani.types)[ ani.types==i ]
     say("Analyzing subclade", i, "with medoid:", medoid)
-    dir.create(paste(out_base, ".sc-", i, sep=""))
+    dir_f <- paste(out_base, ".sc-", i, sep="")
+    if(!dir.exists(dir_f)) dir.create(dir_f)
     write.table(ds_f,
       paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
       quote=FALSE, col.names=FALSE, row.names=FALSE)
@@ -229,6 +230,7 @@ ggplotColours <- function(n=6, h=c(0, 360)+15, alpha=1){
 }
 
 #= Main
+options(warn=1)
 subclades(ani_file=argv[1], out_base=argv[2],
   thr=ifelse(is.na(argv[3]), 1, as.numeric(argv[3])))
 
