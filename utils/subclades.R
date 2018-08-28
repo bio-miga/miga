@@ -13,24 +13,81 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(enveomics.R))
 
 #= Main function
-subclades <- function(ani_file, out_base, thr=1, ani=c()) {
+subclades <- function(ani_file, out_base, thr=1, ani.d=dist(0)) {
   say("==> Out base:", out_base, "<==")
-  
-  # Input arguments
-  if(missing(ani_file)){
-    a <- as.data.frame(ani)
+
+  # Normalize input matrix
+  dist_rdata = paste(out_base, "dist.rdata", sep=".")
+  if(!missing(ani_file)){
+    if(length(ani.d)==0 && !file.exists(dist_rdata)){
+      # Read from ani_file
+      a <- read.table(gzfile(ani_file), sep="\t", header=TRUE, as.is=TRUE)
+      if(nrow(a)==0){
+        generate_empty_files(out_base)
+        return(NULL)
+      }
+      say("Distances")
+      a$d <- 1 - (a$value/100)
+      ani.d <- enve.df2dist(a, 'a', 'b', 'd', default.d=max(a$d)*1.2)
+      save(ani.d, file=dist_rdata)
+    }
+  }
+
+  # Read result if the subclade is ready, run it otherwise
+  if(file.exists(paste(out_base,"classif",sep="."))){
+    say("Loading")
+    ani.medoids <- read.table(paste(out_base, "medoids", sep="."),
+          sep=' ', as.is=TRUE)[,1]
+    a <- read.table(paste(out_base,"classif",sep="."), sep="\t", as.is=TRUE)
+    ani.types <- a[,2]
+    names(ani.types) <- a[,1]
+    if(length(ani.d)==0) load(dist_rdata)
   }else{
-    a <- read.table(gzfile(ani_file), sep="\t", header=TRUE, as.is=TRUE)
+    res <- subclade_clustering(out_base, thr, ani.d, dist_rdata)
+    if(length(res)==0) return()
+    ani.medoids <- res[['ani.medoids']]
+    ani.types <- res[['ani.types']]
+    ani.d <- res[['ani.d']]
   }
-  if(nrow(a)==0){
-    generate_empty_files(out_base)
-    return(NULL)
+
+  # Recursive search
+  say("Recursive search")
+  for(i in 1:length(ani.medoids)){
+    medoid <- ani.medoids[i]
+    ds_f <- names(ani.types)[ ani.types==i ]
+    say("Analyzing subclade", i, "with medoid:", medoid)
+    dir.create(paste(out_base, ".sc-", i, sep=""))
+    write.table(ds_f,
+      paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
+      quote=FALSE, col.names=FALSE, row.names=FALSE)
+    if(length(ds_f) > 5){
+      ani_subset <- as.dist(as.matrix(ani.d)[ds_f, ds_f])
+      subclades(out_base=paste(out_base, ".sc-", i, "/miga-project", sep=""),
+        thr=thr, ani.d=ani_subset)
+    }
   }
   
+  # Declare recursion up-to-here complete
+  write.table(date(), paste(out_base, 'ready', sep='.'),
+        quote=FALSE, row.names=FALSE, col.names=FALSE)
+}
+
+#= Heavy-lifter
+subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   # Get ANI distances
-  say("Distances")
-  a$d <- 1-a$value/100
-  ani.d <- enve.df2dist(data.frame(a$a, a$b, a$d), default.d=max(a$d)*1.2)
+  if(length(ani.d) > 0){
+    # Just use ani.d (and save in dist_rdata_
+    save(ani.d, file=dist_rdata)
+  }else if(file.exists(dist_rdata)){
+    # Read from dist_rdata
+    load(dist_rdata)
+  }else{
+    stop("Cannot find input matrix", out_base)
+  }
+  if(length(labels(ani.d)) <= 5) return(list())
+  
+  # Build tree
+  say("Tree")
   ani.ph <- bionj(ani.d)
   express.ori <- options('expressions')$expressions
   if(express.ori < ani.ph$Nnode*4){
@@ -75,7 +132,6 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   say("Text report")
   write.table(ani.medoids, paste(out_base, "medoids", sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE)
-  save(ani.d, file=paste(out_base, "dist.rdata", sep="."))
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
   ani.d.m <- 100 - as.matrix(ani.d)*100
   for(j in 1:nrow(classif)){
@@ -83,23 +139,14 @@ subclades <- function(ani_file, out_base, thr=1, ani=c()) {
   }
   write.table(classif, paste(out_base,"classif",sep="."),
     quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
-
-  # Recursive search
-  say("Recursive search")
-  for(i in 1:top.n){
-    medoid <- ani.medoids[i]
-    ds_f <- names(ani.types)[ ani.types==i ]
-    say("Analyzing subclade", i, "with medoid:", medoid)
-    dir.create(paste(out_base, ".sc-", i, sep=""))
-    write.table(ds_f,
-      paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
-      quote=FALSE, col.names=FALSE, row.names=FALSE)
-    if(length(ds_f) > 5){
-      a_f <- a[ (a$a %in% ds_f) & (a$b %in% ds_f), ]
-      subclades(out_base=paste(out_base, ".sc-", i, "/miga-project", sep=""),
-        thr=thr, ani=a_f)
-    }
-  }
+  
+  # Return data
+  say("Cluster ready")
+  return(list(
+    ani.medoids=ani.medoids,
+    ani.types=ani.types,
+    ani.d=ani.d
+  ))
 }
 
 #= Helper functions
