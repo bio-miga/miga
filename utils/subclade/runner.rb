@@ -24,7 +24,7 @@ class MiGA::SubcladeRunner
 
   # Launch the appropriate analysis
   def go!
-    return if dataset.type == :metagenomes
+    return if project.type == :metagenomes
     Dir.chdir home
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir

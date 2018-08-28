@@ -6,6 +6,10 @@ module MiGA::SubcladeRunner::Pipeline
   def cluster_species
     tasks = {ani95: [:ani_distances, 95.0], aai90: [:aai_distances, 90.0]}
     tasks.each do |k, par|
+      # Final output
+      ogs_file = "miga-project.#{k}-clades"
+      next if File.size? ogs_file
+      
       # Build ABC files
       abc_path = tmp_file("#{k}.abc")
       ofh = File.open(abc_path, 'w')
@@ -19,8 +23,7 @@ module MiGA::SubcladeRunner::Pipeline
       end
       ofh.close
       # Cluster genomes
-      `ogs.mcl.rb -o 'miga-project.#{k}-clades' --abc '#{abc_path}' \
-            -t '#{opts[:thr]}'`
+      `ogs.mcl.rb -o '#{ogs_file}' --abc '#{abc_path}' -t '#{opts[:thr]}'`
     end
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
