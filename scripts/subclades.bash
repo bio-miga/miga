@@ -12,13 +12,7 @@ cd "$PROJECT/data/10.clades/02.ani"
 miga date > "miga-project.start"
 
 # Run R code
-"$MIGA/utils/subclades.R" \
-  ../../09.distances/03.ani/miga-project.txt.gz \
-  miga-project "$CORES"
-mv miga-project.nwk miga-project.ani.nwk
-
-# Compile
-ruby "$MIGA/utils/subclades-compile.rb" . miga-project.class
+ruby -I "$MIGA/lib" "$MIGA/utils/subclades.rb" "$PROJECT" "$SCRIPT"
 
 # Finalize
 miga date > "miga-project.done"
