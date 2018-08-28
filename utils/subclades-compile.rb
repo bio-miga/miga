@@ -1,16 +1,14 @@
 #!/usr/bin/env ruby
-#
-# @author  Luis M. Rodriguez-R
-# @update  Jan-15-2016
-# @license artistic license 2.0
-#
 
 $:.push File.expand_path(File.dirname(__FILE__) + "/lib")
-dir = ARGV.shift or abort "Usage: #{$0} <classif.dir>"
+dir = ARGV.shift
+out = ARGV.shift or abort "Usage: #{$0} <classif.dir> <out.base>"
 
 def read_classif(dir, classif={})
    classif_file = File.expand_path("miga-project.classif", dir)
    return classif unless File.exist? classif_file
+   File.size?(File.expand_path('miga-project.ready', dir)) or
+         raise "Incomplete recursion found at #{dir}"
    fh = File.open(classif_file, "r")
    klass = []
    while ln = fh.gets
@@ -44,7 +42,7 @@ end
 
 c = read_classif(dir)
 max_depth = c.values.map{|i| i.count}.max
-c.each do |k,v|
-   puts ([k] + v + ["0"]*(max_depth-v.count)).join("\t")
+File.open("#{out}.tsv", 'w') do |fh|
+  c.each { |k,v| fh.puts ([k] + v + ["0"]*(max_depth-v.count)).join("\t") }
 end
-$stderr.puts print_tree(c) + ";"
+File.open("#{out}.nwk", 'w') { |fh| fh.puts print_tree(c) + ";" }

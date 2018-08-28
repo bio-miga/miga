@@ -18,9 +18,7 @@ miga date > "miga-project.start"
 mv miga-project.nwk miga-project.ani.nwk
 
 # Compile
-ruby "$MIGA/utils/subclades-compile.rb" . \
-  >  miga-project.class.tsv \
-  2> miga-project.class.nwk
+ruby "$MIGA/utils/subclades-compile.rb" . miga-project.class
 
 # Finalize
 miga date > "miga-project.done"

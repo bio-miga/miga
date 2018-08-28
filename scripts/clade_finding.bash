@@ -37,9 +37,7 @@ if [[ $(miga project_info -P "$PROJECT" -m type) != "clade" ]] ; then
   mv miga-project.nwk miga-project.aai.nwk
   
   # Compile
-  ruby "$MIGA/utils/subclades-compile.rb" . \
-    >  miga-project.class.tsv \
-    2> miga-project.class.nwk
+  ruby "$MIGA/utils/subclades-compile.rb" . miga-project.class
 fi
 
 # Finalize
