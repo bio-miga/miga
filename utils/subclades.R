@@ -61,7 +61,7 @@ subclades <- function(ani_file, out_base, thr=1, ani.d=dist(0)) {
     write.table(ds_f,
       paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
       quote=FALSE, col.names=FALSE, row.names=FALSE)
-    if(length(ds_f) > 5){
+    if(length(ds_f) > 8L){
       ani_subset <- as.dist(as.matrix(ani.d)[ds_f, ds_f])
       subclades(out_base=paste(out_base, ".sc-", i, "/miga-project", sep=""),
         thr=thr, ani.d=ani_subset)
@@ -85,7 +85,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   }else{
     stop("Cannot find input matrix", out_base)
   }
-  if(length(labels(ani.d)) <= 5) return(list())
+  if(length(labels(ani.d)) <= 8L) return(list())
   
   # Build tree
   say("Tree")
