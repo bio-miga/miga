@@ -7,8 +7,9 @@ out = ARGV.shift or abort "Usage: #{$0} <classif.dir> <out.base>"
 def read_classif(dir, classif={})
    classif_file = File.expand_path("miga-project.classif", dir)
    return classif unless File.exist? classif_file
-   File.size?(File.expand_path('miga-project.ready', dir)) or
-         raise "Incomplete recursion found at #{dir}"
+   ready = File.expand_path('miga-project.ready', dir)
+   File.size?(ready) or raise "Incomplete recursion found at #{dir}"
+   File.unlink ready
    fh = File.open(classif_file, "r")
    klass = []
    while ln = fh.gets
