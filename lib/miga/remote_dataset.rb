@@ -42,36 +42,19 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def save_to(project, name=nil, is_ref=true, metadata={})
     name ||= ids.join("_").miga_name
     project = MiGA::Project.new(project) if project.is_a? String
-    if MiGA::Dataset.exist?(project, name)
-      raise "Dataset #{name} exists in the project, aborting..."
-    end
+    MiGA::Dataset.exist?(project, name) and
+          raise "Dataset #{name} exists in the project, aborting..."
     metadata = get_metadata(metadata)
     udb = @@UNIVERSE[universe][:dbs][db]
     metadata["#{universe}_#{db}"] = ids.join(",")
-    case udb[:stage]
-    when :assembly
-      dir = MiGA::Dataset.RESULT_DIRS[:assembly]
-      base = "#{project.path}/data/#{dir}/#{name}"
-      l_ctg = "#{base}.LargeContigs.fna"
-      a_ctg = "#{base}.AllContigs.fna"
-      File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
-      if udb[:format] == :fasta_gz
-        download "#{l_ctg}.gz"
-        system "gzip -d '#{l_ctg}.gz'"
-      else
-        download l_ctg
-      end
-      File.unlink(a_ctg) if File.exist? a_ctg
-      File.symlink(File.basename(l_ctg), a_ctg)
-      File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
-    else
-      raise "Unexpected error: Unsupported result for database #{db}."
-    end
+    respond_to?("save_#{udb[:stage]}_to", true) or
+          raise "Unexpected error: Unsupported stage #{udb[:stage]} for #{db}."
+    send "save_#{udb[:stage]}_to", project, name, udb
     dataset = MiGA::Dataset.new(project, name, is_ref, metadata)
     project.add_dataset(dataset.name)
     result = dataset.add_result(udb[:stage], true, is_clean:true)
-    raise "Empty dataset created: seed result was not added due to " +
-      "incomplete files." if result.nil?
+    result.nil? and
+          raise "Empty dataset: seed result not added due to incomplete files."
     result.clean!
     result.save
     dataset
@@ -129,5 +112,22 @@ class MiGA::RemoteDataset < MiGA::MiGA
       ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, "\\1")
       return nil unless ln =~ /^\d+$/
       ln
+    end
+
+    def save_assembly_to(project, name, udb)
+      dir = MiGA::Dataset.RESULT_DIRS[:assembly]
+      base = "#{project.path}/data/#{dir}/#{name}"
+      l_ctg = "#{base}.LargeContigs.fna"
+      a_ctg = "#{base}.AllContigs.fna"
+      File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
+      if udb[:format] == :fasta_gz
+        download "#{l_ctg}.gz"
+        system "gzip -d '#{l_ctg}.gz'"
+      else
+        download l_ctg
+      end
+      File.unlink(a_ctg) if File.exist? a_ctg
+      File.symlink(File.basename(l_ctg), a_ctg)
+      File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
     end
 end
