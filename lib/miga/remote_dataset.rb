@@ -1,68 +1,12 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require 'miga/remote_dataset/base'
+require 'miga/remote_dataset/download'
 
 ##
 # MiGA representation of datasets with data in remote locations.
 class MiGA::RemoteDataset < MiGA::MiGA
-
-  include MiGA::RemoteDataset::Base
-
-  # Class-level
-
-  ##
-  # Download data from the +universe+ in the database +db+ with IDs +ids+ and
-  # in +format+. If passed, it saves the result in +file+. Returns String.
-  def self.download(universe, db, ids, format, file=nil)
-    ids = [ids] unless ids.is_a? Array
-    case @@UNIVERSE[universe][:method]
-    when :rest
-      doc = download_rest(universe, db, ids, format)
-    when :net
-      doc = download_net(universe, db, ids, format)
-    end
-    unless file.nil?
-      ofh = File.open(file, "w")
-      ofh.print doc
-      ofh.close
-    end
-    doc
-  end
-
-  ##
-  # Download data using a REST method from the +universe+ in the database +db+
-  # with IDs +ids+ and in +format+. Returns the doc as String.
-  def self.download_rest(universe, db, ids, format)
-    u = @@UNIVERSE[universe]
-    map_to = u[:dbs][db].nil? ? nil : u[:dbs][db][:map_to]
-    url = sprintf(u[:url], db, ids.join(","), format, map_to)
-    response = RestClient::Request.execute(method: :get, url:url, timeout:600)
-    unless response.code == 200
-      raise "Unable to reach #{universe} client, error code #{response.code}."
-    end
-    response.to_s
-  end
-  
-  ##
-  # Download data using a GET request from the +universe+ in the database +db+
-  # with IDs +ids+ and in +format+. Returns the doc as String.
-  def self.download_net(universe, db, ids, format)
-    u = @@UNIVERSE[universe]
-    map_to = u[:dbs][db].nil? ? nil : u[:dbs][db][:map_to]
-    url = sprintf(u[:url], db, ids.join(","), format, map_to)
-    doc = ""
-    @timeout_try = 0
-    begin
-      open(url) { |f| doc = f.read }
-    rescue Net::ReadTimeout
-      @timeout_try += 1
-      if @timeout_try > 3 ; raise Net::ReadTimeout
-      else ; retry
-      end
-    end
-    doc
-  end
+  include MiGA::RemoteDataset::Download
 
   # Instance-level
 
@@ -145,13 +89,6 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   ##
-  # Download data into +file+.
-  def download(file)
-    MiGA::RemoteDataset.download(universe, db, ids,
-      @@UNIVERSE[universe][:dbs][db][:format], file)
-  end
-
-  ##
   # Get NCBI Taxonomy ID.
   def get_ncbi_taxid
     send("get_ncbi_taxid_from_#{universe}")
@@ -174,7 +111,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   private
-    
+
     def get_ncbi_taxid_from_ncbi
       doc = MiGA::RemoteDataset.download(universe, db, ids, :gb).split(/\n/)
       ln = doc.grep(/^\s+\/db_xref="taxon:/).first
@@ -193,5 +130,4 @@ class MiGA::RemoteDataset < MiGA::MiGA
       return nil unless ln =~ /^\d+$/
       ln
     end
-
 end
