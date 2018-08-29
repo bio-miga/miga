@@ -44,7 +44,7 @@ subclades <- function(ani_file, out_base, thr=1, ani.d=dist(0)) {
     if(length(ani.d)==0) load(dist_rdata)
   }else{
     res <- subclade_clustering(out_base, thr, ani.d, dist_rdata)
-    if(length(res)==0) return()
+    if(length(res)==0) return(NULL)
     ani.medoids <- res[['ani.medoids']]
     ani.types <- res[['ani.types']]
     ani.d <- res[['ani.d']]
@@ -151,7 +151,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
 }
 
 #= Helper functions
-say <- function(...) { cat("[", date(), "]", ..., "\n") }
+say <- function(...) { message(paste("[",date(),"]",...,"\n"),appendLF=FALSE) }
 
 generate_empty_files <- function(out_base) {
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
