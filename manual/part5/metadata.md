@@ -21,6 +21,8 @@ The following metadata fields are recognized by different interfaces:
 | ncbi_asm     | Dataset | String         | Linking ID(s)* for NCBI Assembly
 | ebi_embl     | Dataset | String         | Linking ID(s)* for EBI EMBL
 | ebi_ena      | Dataset | String         | Linking ID(s)* for EBI ENA
+| web_assembly | Dataset | String         | URL to download assembly
+| web_assembly_gz | Dataset | String      | URL to download gzipped assembly
 | see_also     | Dataset | String         | Link(s)* in the format text:url
 | is_type      | Dataset | Boolean        | Indicates if it is type material
 | _step        | Dataset | String         | For internal control of processing
