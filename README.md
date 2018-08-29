@@ -30,6 +30,13 @@ You have two options:
   [installation instructions](manual/part2/installation.md). Once you have MiGA
   installed, you can [deploy some examples](manual/part4.md).
 
+# How to cite MiGA
+
+> Rodriguez-R *et al*. 2018. The Microbial Genomes Atlas (MiGA) webserver:
+> taxonomic and gene diversity analysis of Archaea and Bacteria at the whole
+> genome level. *Nucleic Acids Research* 46(W1):W282-W288.
+> [doi:10.1093/nar/gky467](https://doi.org/10.1093/nar/gky467).
+
 # Authors
 
 Developed and maintained by [Luis M. Rodriguez-R][lrr]. MiGA is the result of a
