@@ -45,7 +45,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       raise "Dataset #{name} exists in the project, aborting..."
     metadata = get_metadata(metadata)
     udb = @@UNIVERSE[universe][:dbs][db]
-    metadata["#{universe}_#{db}"] = ids.join(",")
+    metadata["#{universe}_#{db}"] = ids.join(',')
     respond_to?("save_#{udb[:stage]}_to", true) or
       raise "Unexpected error: Unsupported stage #{udb[:stage]} for #{db}."
     send "save_#{udb[:stage]}_to", project, name, udb
@@ -61,7 +61,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
   ##
   # Get metadata from the remote location.
-  def get_metadata(metadata={})
+  def get_metadata(metadata = {})
     case universe
     when :ebi, :ncbi
       # Get taxonomy
@@ -98,17 +98,17 @@ class MiGA::RemoteDataset < MiGA::MiGA
       doc = MiGA::RemoteDataset.download(universe, db, ids, :gb).split(/\n/)
       ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
       return nil if ln.nil?
-      ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, "\\1")
+      ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, '\\1')
       return nil unless ln =~ /^\d+$/
       ln
     end
 
     def get_ncbi_taxid_from_ebi
       doc = MiGA::RemoteDataset.download(universe, db, ids, :annot).split(/\n/)
-      ln = doc.grep(/^FT\s+\/db_xref="taxon:/).first
+      ln = doc.grep(%r{^FT\s+/db_xref="taxon:}).first
       ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
       return nil if ln.nil?
-      ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, "\\1")
+      ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, '\\1')
       return nil unless ln =~ /^\d+$/
       ln
     end
@@ -118,7 +118,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       base = "#{project.path}/data/#{dir}/#{name}"
       l_ctg = "#{base}.LargeContigs.fna"
       a_ctg = "#{base}.AllContigs.fna"
-      File.open("#{base}.start", "w") { |ofh| ofh.puts Time.now.to_s }
+      File.open("#{base}.start", 'w') { |ofh| ofh.puts Time.now.to_s }
       if udb[:format] == :fasta_gz
         download "#{l_ctg}.gz"
         system "gzip -d '#{l_ctg}.gz'"
@@ -127,6 +127,6 @@ class MiGA::RemoteDataset < MiGA::MiGA
       end
       File.unlink(a_ctg) if File.exist? a_ctg
       File.symlink(File.basename(l_ctg), a_ctg)
-      File.open("#{base}.done", "w") { |ofh| ofh.puts Time.now.to_s }
+      File.open("#{base}.done", 'w') { |ofh| ofh.puts Time.now.to_s }
     end
 end

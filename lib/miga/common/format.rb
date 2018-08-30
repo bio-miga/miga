@@ -2,18 +2,20 @@
 require 'tempfile'
 require 'zlib'
 
+##
+# General formatting functions shared throughout MiGA.
 module MiGA::Common::Format
   ##
   # Tabulates an +values+, and Array of Arrays, all with the same number of
   # entries as +header+. Returns an Array of String, one per line.
-  def tabulate(header, values, tabular=false)
+  def tabulate(header, values, tabular = false)
     fields = [header.map(&:to_s)]
     fields << fields.first.map { |h| h.gsub(/\S/, '-') } unless tabular
     fields += values.map { |r| r.map { |cell| cell.nil? ? '?' : cell.to_s } }
     clen = tabular ? Array.new(header.size, 0) :
           fields.map { |r| r.map(&:length) }.transpose.map(&:max)
     fields.map do |r|
-      (0 .. clen.size - 1).map do |col_n|
+      (0..(clen.size - 1)).map do |col_n|
         col_n == 0 ? r[col_n].rjust(clen[col_n]) : r[col_n].ljust(clen[col_n])
       end.join(tabular ? "\t" : '  ')
     end
@@ -37,7 +39,7 @@ module MiGA::Common::Format
       fh.each_line do |ln|
         ln.chomp!
         if ln =~ /^>\s*(\S+)(.*)/
-          (id, df) = [$1, $2]
+          id, df = $1, $2
           tmp_fh.print buffer.wrap_width(80)
           buffer = ''
           tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}"
@@ -66,16 +68,17 @@ module MiGA::Common::Format
   # - +:n50+: If true, it also returns the N50 and the median (in bp).
   # - +gc+: If true, it also returns the G+C content (in %).
   def seqs_length(file, format, opts = {})
-    fh = (file =~ /\.gz/) ? Zlib::GzipReader.open(file) : File.open(file, 'r')
+    fh = file =~ /\.gz/ ? Zlib::GzipReader.open(file) : File.open(file, 'r')
     l = []
     gc = 0
-    i = 0 # <- Zlib::GzipReader doesn't set $.
+    i = 0 # <- Zlib::GzipReader doesn't set `$.`
     fh.each_line do |ln|
       i += 1
-      if (format == :fasta and ln =~ /^>/) or (format == :fastq and (i % 4)==1)
+      if (format == :fasta and ln =~ /^>/) or
+            (format == :fastq and (i % 4) == 1)
         l << 0
       elsif format == :fasta or (i % 4) == 2
-        l[l.size-1] += ln.chomp.size
+        l[l.size - 1] += ln.chomp.size
         gc += ln.scan(/[GCgc]/).count if opts[:gc]
       end
     end
@@ -131,4 +134,3 @@ class String
     gsub(/([^\n\r]{1,#{width}})/, "\\1\n")
   end
 end
-
