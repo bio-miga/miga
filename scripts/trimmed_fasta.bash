@@ -19,6 +19,7 @@ for sis in 1 2 ; do
     && ! -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] \
       && gunzip "../02.trimmed_reads/$b.$sis.clipped.fastq.gz"
 done
+miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
 
 # FastQ -> FastA
 FQ2A="$MIGA/utils/enveomics/Scripts/FastQ.toFastA.awk"
@@ -44,6 +45,8 @@ for sis in 1 2 ; do
   [[ -e "../02.trimmed_reads/$b.$sis.clipped.single.fastq" ]] \
     && gzip -9 -f "../02.trimmed_reads/$b.$sis.clipped.single.fastq"
 done
+miga add_result -P "$PROJECT" -D "$DATASET" -r raw_reads -f
+miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
 
 # Finalize
 miga date > "$DATASET.done"

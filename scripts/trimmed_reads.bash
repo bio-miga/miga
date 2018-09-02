@@ -18,6 +18,7 @@ miga date > "$DATASET.start"
   && gunzip "../01.raw_reads/$b.1.fastq.gz"
 [[ -e "../01.raw_reads/$b.2.fastq.gz" && ! -e "../01.raw_reads/$b.2.fastq" ]] \
   && gunzip "../01.raw_reads/$b.2.fastq.gz"
+miga add_result -P "$PROJECT" -D "$DATASET" -r raw_reads -f
 
 # Clean existing files
 exists "$b".[12].* && rm "$b".[12].*

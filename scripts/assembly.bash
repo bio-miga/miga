@@ -19,7 +19,7 @@ if [[ -s "$TF/$DATASET.1.fasta" \
   FastA.interpose.pl "$TF/$DATASET.CoupledReads.fa" "$TF/$DATASET".[12].fasta
   gzip -9 -f "$TF/$DATASET.1.fasta"
   gzip -9 -f "$TF/$DATASET.2.fasta"
-  miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_fasta
+  miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_fasta -f
 fi
 
 # Assemble

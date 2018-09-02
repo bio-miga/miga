@@ -28,6 +28,7 @@ rm -f "../02.trimmed_reads/$b".[12].fastq.trimmed.paired
 rm -f "../02.trimmed_reads/$b".[12].fastq.trimmed.single
 rm -f "../02.trimmed_reads/$b".[12].fastq.trimmed
 rm -f "../02.trimmed_reads/$b".[12].fastq
+miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
 
 # Finalize
 miga date > "$DATASET.done"
