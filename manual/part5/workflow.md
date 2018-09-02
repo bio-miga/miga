@@ -28,6 +28,22 @@ Supported file keys:
   * `pair1` (*req*, *gz*): FastQ file containing the raw forward reads.
   * `pair2` (*req*, *gz*): FastQ file containing the raw reverse reads.
 
+Statistics:
+
+* **For single reads only**
+  * `reads`: Total number of reads.
+  * `length_average`: Average read length (in bp).
+  * `length_standard_deviation`: Standard deviation of read length (in bp).
+  * `g_c_content`: G+C content of all reads (in %).
+* **For paired-end reads only**
+  * `read_pairs`: Total number of read pairs.
+  * `forward_length_average`: Average forward read length (in bp).
+  * `forward_length_standard_deviation`: Standard deviation of forward read
+    length (in bp).
+  * `forward_g_c_content`: G+C content of forward reads (in %).
+  * `reverse_length_average`, `reverse_length_standard_deviation`,
+    `reverse_g_c_content`: Same as above, for reverse reads.
+
 MiGA symbol: `raw_reads`.
 
 ## Trimmed Reads
@@ -85,6 +101,13 @@ Supported file keys:
 * `pair2` (*gz*): FastA file containing reverse sisters of quality-checked
   paired-end reads.
 
+Statistics:
+
+* `reads`: Total number of reads.
+* `length_average`: Average read length (in bp).
+* `length_standard_deviation`: Standard deviation of read length (in bp).
+* `g_c_content`: G+C content of all reads (in %).
+
 MiGA symbol: `trimmed_fasta`.
 
 ## Assembly
@@ -100,6 +123,13 @@ Supported file keys:
   large).
 * `assembly_data` (*dir*): Folder containing some intermediate files generated
   during the assembly.
+
+Statistics:
+
+* `contigs`: Total number of (large) contigs.
+* `n50`: N50 of (large) contigs (in bp).
+* `total_length`: Total length of (large) contigs (in bp).
+* `g_c_content`: G+C content of (large) contigs (in %).
 
 MiGA symbol: `assembly`.
 
@@ -123,6 +153,12 @@ Supported file keys:
   length, and contig ID. This file is not produced by MiGA, but it's supported
   to allow [MyTaxa](#mytaxa) to run when more detailed information about the
   gene prediction is missing.
+
+Statistics:
+
+* `predicted_proteins`: Total number of predicted proteins.
+* `average_length`: Average length of predicted proteins (in aa).
+* `coding_density`: Coding density of the genome (in %).
 
 MiGA symbol: `cds`.
 
@@ -150,6 +186,18 @@ Supported file keys:
 * `bac_report`: If present, this is the original report, and it indicates that a
   corrected report has been generated to accomodate particular features of the
   dataset.
+
+Statistics:
+
+* **For metagenomes and viromes**
+  * `mean_copies`: Average copy number across essential genes.
+  * `median_copies`: Median copy number across essential genes.
+* **For genomes**
+  * `completeness`: Estimated completeness of the genome, based on presence of
+    essential genes (in %).
+  * `contamination`: Estimated contamination of the genome, based on copy number
+    of essential genes (in %).
+  * `quality`: Completeness - 5 x Contamination.
 
 MiGA symbol: `essential_genes`.
 

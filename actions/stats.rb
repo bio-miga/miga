@@ -45,14 +45,16 @@ if o[:compute]
   when :raw_reads
     if r[:files][:pair1].nil?
       s = MiGA::MiGA.seqs_length(r.file_path(:single), :fastq, gc: true)
-      stats = {reads: s[:n],
+      stats = {
+        reads: s[:n],
         length_average: [s[:avg], "bp"],
         length_standard_deviation: [s[:sd], "bp"],
         g_c_content: [s[:gc], "%"]}
     else
       s1 = MiGA::MiGA.seqs_length(r.file_path(:pair1), :fastq, gc: true)
       s2 = MiGA::MiGA.seqs_length(r.file_path(:pair2), :fastq, gc: true)
-      stats = {read_pairs: s1[:n],
+      stats = {
+        read_pairs: s1[:n],
         forward_length_average: [s1[:avg], "bp"],
         forward_length_standard_deviation: [s1[:sd], "bp"],
         forward_g_c_content: [s1[:gc], "%"],
@@ -63,22 +65,28 @@ if o[:compute]
   when :trimmed_fasta
     f = r[:files][:coupled].nil? ? r.file_path(:single) : r.file_path(:coupled)
     s = MiGA::MiGA.seqs_length(f, :fasta, gc: true)
-    stats = {reads: s[:n],
+    stats = {
+      reads: s[:n],
       length_average: [s[:avg], "bp"],
       length_standard_deviation: [s[:sd], "bp"],
       g_c_content: [s[:gc], "%"]}
   when :assembly
     s = MiGA::MiGA.seqs_length(r.file_path(:largecontigs), :fasta,
-      n50:true, gc:true)
-    stats = {contigs: s[:n], n50: [s[:n50], "bp"],
-      total_length: [s[:tot], "bp"], g_c_content: [s[:gc], "%"]}
+      n50: true, gc: true)
+    stats = {
+      contigs: s[:n],
+      n50: [s[:n50], "bp"],
+      total_length: [s[:tot], "bp"],
+      g_c_content: [s[:gc], "%"]}
   when :cds
     s = MiGA::MiGA.seqs_length(r.file_path(:proteins), :fasta)
-    stats = {predicted_proteins: s[:n], average_length: [s[:avg], "aa"]}
+    stats = {
+      predicted_proteins: s[:n],
+      average_length: [s[:avg], "aa"]}
     asm = d.add_result(:assembly, false)
     unless asm.nil? or asm[:stats][:total_length].nil?
       stats[:coding_density] =
-        [300.0*s[:tot]/asm[:stats][:total_length][0], "%"]
+        [300.0 * s[:tot] / asm[:stats][:total_length][0], "%"]
     end
   when :essential_genes
     if d.is_multi?
@@ -102,7 +110,7 @@ if o[:compute]
         r.add_file(:report, "#{d.name}.ess/log.archaea")
       end
       # Extract/compute quality values
-      stats = {completeness:[0.0,"%"], contamination:[0.0,"%"]}
+      stats = {completeness: [0.0,"%"], contamination: [0.0,"%"]}
       File.open(r.file_path(:report), "r") do |fh|
         fh.each_line do |ln|
           if /^! (Completeness|Contamination): (.*)%/.match(ln)
@@ -110,7 +118,7 @@ if o[:compute]
           end
         end
       end
-      stats[:quality] = stats[:completeness][0] - stats[:contamination][0]*5
+      stats[:quality] = stats[:completeness][0] - stats[:contamination][0] * 5
       d.metadata[:quality] = case stats[:quality]
         when 80..100 ; :excellent
         when 50..80  ; :high
