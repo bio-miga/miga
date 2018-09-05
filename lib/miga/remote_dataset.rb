@@ -15,7 +15,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   attr_reader :universe
   # Database storing the dataset.
   attr_reader :db
-  # IDs of the entries composing the dataset.
+  # Array of IDs of the entries composing the dataset.
   attr_reader :ids
 
   ##
@@ -60,6 +60,15 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   ##
+  # Updates the MiGA::Dataset +dataset+ with the remotely available metadata,
+  # and optionally the Hash +metadata+.
+  def update_metadata(dataset, metadata = {})
+    metadata = get_metadata(metadata)
+    metadata.each { |k,v| dataset.metadata[k] = v }
+    dataset.save
+  end
+
+  ##
   # Get metadata from the remote location.
   def get_metadata(metadata = {})
     case universe
@@ -67,6 +76,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       # Get taxonomy
       metadata[:tax] = get_ncbi_taxonomy
     end
+    metadata[:"#{universe}_#{db}"] = ids.join(",")
     metadata
   end
 
