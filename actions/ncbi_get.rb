@@ -8,7 +8,8 @@ require 'miga/remote_dataset'
 o = {q:true, query:false, unlink:false,
       reference: false, ignore_plasmids: false,
       complete: false, chromosome: false,
-      scaffold: false, contig: false, add_version: true, dry: false}
+      scaffold: false, contig: false, add_version: true, dry: false,
+      get_md: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -37,6 +38,9 @@ OptionParser.new do |opt|
   opt.on('--blacklist PATH',
         'A file with dataset names to blacklist.'){ |v| o[:blacklist] = v }
   opt.on('--dry', 'Do not download or save the datasets.'){ |v| o[:dry] = v }
+  opt.on('--get-metadata',
+        'Only download and update metadata for existing datasets'
+        ){ |v| o[:get_md] = v }
   opt.on('-q', '--query',
         'Register the datasets as queries, not reference datasets.'
         ){ |v| o[:query]=v }
@@ -131,8 +135,7 @@ if o[:scaffold] or o[:contig]
           map{ |i| "#{i}/#{File.basename(i)}_genomic.fna.gz" }
     next if ids.empty?
     n = "#{r[0]}_#{asm}".miga_name
-    comm = "Assembly: #{asm}"
-    ds[n] = {ids: ids, md: {type: :genome, comments: comm},
+    ds[n] = {ids: ids, md: {type: :genome, ncbi_asm: asm},
           db: :assembly_gz, universe: :web}
   end
 end
@@ -144,23 +147,30 @@ unless o[:blacklist].nil?
 end
 
 # Download entries
-$stderr.puts "Downloading #{ds.size} #{ds.size>1 ? "entries" : "entry"}." unless o[:q]
+$stderr.puts "Downloading #{ds.size} " \
+  (ds.size > 1 ? "entries" : "entry") unless o[:q]
 ds.each do |name,body|
   d << name
   puts name
-  next unless p.dataset(name).nil?
+  next if p.dataset(name).nil? != o[:get_md]
   downloaded += 1
   next if o[:dry]
   $stderr.puts '  Locating remote dataset.' unless o[:q]
   rd = MiGA::RemoteDataset.new(body[:ids], body[:db], body[:universe])
-  $stderr.puts '  Creating dataset.' unless o[:q]
-  rd.save_to(p, name, !o[:query], body[:md])
-  p.add_dataset(name)
+  if o[:get_md]
+    $stderr.puts '  Updating dataset.' unless o[:q]
+    rd.update_metadata(p.dataset(name), body[:md])
+  else
+    $stderr.puts '  Creating dataset.' unless o[:q]
+    rd.save_to(p, name, !o[:query], body[:md])
+    p.add_dataset(name)
+  end
 end
 
 # Finalize
 $stderr.puts "Datasets listed: #{d.size}" unless o[:q]
-$stderr.puts "Datasets #{"to be " if o[:dry]}downloaded: #{downloaded}" unless o[:q]
+$stderr.puts "Datasets #{o[:dry] ? 'to download' : 'downloaded'}:" \
+  downloaded.to_s unless o[:q]
 unless o[:remote_list].nil?
   File.open(o[:remote_list], 'w') do |fh|
     d.each { |i| fh.puts i }
