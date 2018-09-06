@@ -15,25 +15,26 @@ analyses are going to be executed (and how). The different types are:
 A mixed collection of genomes, metagenomes, and viromes. This is the most basic
 type of project, with no support for any project-wide analyses. It is intended
 for projects that are only concerned with datasets preprocessing, *e.g.*, read
-trimming, assembly, etc.
+trimming, assembly, etc. **Symbol**: `mixed`.
 
 ### Genomes
 
 A collection of genomes. This is the most typical type of project, storing a set
 of genomes from different taxonomic groups. It can be useful for anything from
 indexing a reference database, to create a collection of metagenomic bins, and
-anything in between.
+anything in between. **Symbol**: `genomes`.
 
 ### Clades
 
 A collection of closely-related genomes (ANI >= 90%). This is a project for a
 collection of genomes in the same species (or closely-related species) that
 require higher resolution but don't require support for a large distance range.
+**Symbol**: `clades`.
 
 ### Metagenomes
 
 A collection of metagenomes and/or viromes. This is an experimental type,
-currently identical to [Mixed](#mixed).
+currently identical to [Mixed](#mixed). **Symbol**: `metagenomes`.
 
 ## Dataset types
 
@@ -45,29 +46,31 @@ are:
 
 The genome from an isolate. This is the most typical case, in which you have
 a genomes (complete or draft) from a pure culture (excluding SGA).
+**Symbol**: `genome`.
 
 ### Single-cell genome
 
-A Single-cell Genome Amplification (SGA). This is the particular case in which
+A Single-cell Amplified Genome (SAG). This is the particular case in which
 you are dealing with an amplified genome from a single cell. These datasets
 typically have very uneven coverage (resulting in very incomplete assemblies)
-and sometimes have contamination from external DNA.
+and sometimes have contamination from external DNA. **Symbol**: `scgenome`.
 
 ### Population genome
 
 A population genome (including metagenomic bins). This is the type of datasets
 that include sequences from different strains of the same species, such as
 metagenomic bins or metagenomes of highly enriched (but not pure) cultures.
+**Symbol**: `popgenome`.
 
 ### Metagenome
 
-A metagenome (excluding viromes).
+A metagenome (excluding viromes). **Symbol**: `metagenome`.
 
 ### Virome
 
-A viral metagenome.
+A viral metagenome. **Symbol**: `virome`.
 
-# Query vs reference datasets
+# Query vs reference datasets # {#reference}
 
 In addition to the dataset types, some analyses may differ depending on the
 status of a dataset as query or reference. Reference datasets are those that
