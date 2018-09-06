@@ -77,6 +77,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       metadata[:tax] = get_ncbi_taxonomy
     end
     metadata[:"#{universe}_#{db}"] = ids.join(",")
+    metadata = get_type_status(metadata)
     metadata
   end
 
@@ -84,6 +85,19 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get NCBI Taxonomy ID.
   def get_ncbi_taxid
     send("get_ncbi_taxid_from_#{universe}")
+  end
+
+  ##
+  # Get the type material status and return an (updated)
+  # +metadata+ hash.
+  def get_type_status(metadata)
+    if metadata[:ncbi_asm]
+      get_type_status_ncbi_asm metadata
+    elsif metadata[:ncbi_nuccore]
+      get_type_status_ncbi_nuccore metadata
+    else
+      metadata
+    end
   end
 
   ##
@@ -105,7 +119,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   private
 
     def get_ncbi_taxid_from_ncbi
-      doc = MiGA::RemoteDataset.download(universe, db, ids, :gb).split(/\n/)
+      doc = self.class.download(universe, db, ids, :gb).split(/\n/)
       ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
       return nil if ln.nil?
       ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, '\\1')
@@ -114,13 +128,45 @@ class MiGA::RemoteDataset < MiGA::MiGA
     end
 
     def get_ncbi_taxid_from_ebi
-      doc = MiGA::RemoteDataset.download(universe, db, ids, :annot).split(/\n/)
+      doc = self.class.download(universe, db, ids, :annot).split(/\n/)
       ln = doc.grep(%r{^FT\s+/db_xref="taxon:}).first
       ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
       return nil if ln.nil?
       ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, '\\1')
       return nil unless ln =~ /^\d+$/
       ln
+    end
+
+    def get_type_status_ncbi_nuccore(metadata)
+      return metadata if metadata[:ncbi_nuccore].nil?
+      biosample = self.class.ncbi_map(metadata[:ncbi_nuccore],
+        :nuccore, :biosample)
+      return metadata if biosample.nil?
+      asm = self.class.ncbi_map(biosample,
+        :biosample, :assembly)
+      metadata[:ncbi_asm] = asm.to_s unless asm.nil?
+      get_type_status_ncbi_asm metadata
+    end
+
+    def get_type_status_ncbi_asm(metadata)
+      return metadata if metadata[:ncbi_asm].nil?
+      doc = CGI.unescapeHTML(self.class.download(:web, :text,
+        "https://www.ncbi.nlm.nih.gov/assembly/" \
+          "#{metadata[:ncbi_asm]}?report=xml", :xml)).each_line
+      from_type = doc.grep(%r{<FromType/?>}).first or return metadata
+      if from_type =~ %r{<FromType/>}
+        metadata[:is_type] = false
+        metadata[:is_ref_type] = false
+      elsif from_type =~ %r{<FromType>(.*)</FromType>}
+        if $1 == 'assembly from reference material'
+          metadata[:is_type] = false
+          metadata[:is_ref_type] = true
+        else
+          metadata[:is_type] = true
+        end
+        metadata[:type_rel] = $1
+      end
+      metadata
     end
 
     def save_assembly_to(project, name, udb)

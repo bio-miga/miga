@@ -58,6 +58,7 @@ The following metadata fields are recognized by different interfaces for
 | see_also     | String           | Link(s)[^3] in the format text:url
 | is_type      | Boolean          | If it is type material
 | is_ref_type  | Boolean          | If it is reference material[^4]
+| type_rel     | String           | Relationship to type material
 | _step        | String           | For internal control of processing
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
