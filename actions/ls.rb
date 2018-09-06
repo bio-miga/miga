@@ -13,7 +13,7 @@ OptionParser.new do |opt|
   opt.on("-p", "--processing",
     "Print information on processing advance."){ |v| o[:processing]=v }
   opt.on("-m", "--metadata STRING",
-    "Print name and metadata field only. If set, ignores -i."
+    "Print name and metadata field only. If set, ignores -i and assumes --tab."
     ){ |v| o[:datum]=v }
   opt.on("--tab",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
@@ -43,7 +43,10 @@ ds = filter_datasets!(ds, o)
 exit(1) if o[:silent] and ds.empty?
 
 if not o[:datum].nil?
-  ds.each{|d| puts "#{d.name}\t#{d.metadata[ o[:datum] ] || "?"}"}
+  ds.each do |d|
+    v = d.metadata[ o[:datum] ]
+    puts "#{d.name}\t#{v.nil? ? '?' : v}"
+  end
 elsif o[:info]
   puts MiGA::MiGA.tabulate(
         MiGA::Dataset.INFO_FIELDS, ds.map{ |d| d.info }, o[:tabular])

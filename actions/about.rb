@@ -27,7 +27,7 @@ raise "Impossible to load project: #{o[:project]}" if p.nil?
 
 if not o[:datum].nil?
   v = p.metadata[ o[:datum] ]
-  puts v.nil? ? "?" : v
+  puts v.nil? ? '?' : v
 elsif o[:processing]
   keys = MiGA::Project.DISTANCE_TASKS + MiGA::Project.INCLADE_TASKS
   puts MiGA::MiGA.tabulate([:task, :status], keys.map do |k|
