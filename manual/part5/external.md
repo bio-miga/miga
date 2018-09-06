@@ -19,7 +19,7 @@ Vince Buffalo.
 
 ## FastQC
 
-[Link to tool site](https://www.bioinformatics.babraham.ac.uk/projects/fastqc),
+[FastQC site](https://www.bioinformatics.babraham.ac.uk/projects/fastqc),
 by Simon Andrews.
 
 ## IDBA-UD
@@ -41,7 +41,7 @@ Seemann.
 
 ## Bedtools
 
-[Link to tool site](http://bedtools.readthedocs.io/en/latest), by the Quinlan
+[Bedtools site](http://bedtools.readthedocs.io/en/latest), by the Quinlan
 Laboratory.
 
 ## MyTaxa

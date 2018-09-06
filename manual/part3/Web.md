@@ -9,22 +9,30 @@ Online, take a look at these video tutorials:
 
 ## Introduction
 
-[![Tutorial 1](../img/web1.jpg)](https://www.youtube.com/watch?v=6p5rFQoW75Y)
+[Video Tutorial 1: Introduction](https://www.youtube.com/watch?v=6p5rFQoW75Y)
+
+![Tutorial 1](../img/web1.jpg)
 
 
 ## Choosing the Right Analysis
 
-[![Tutorial 2](../img/web2.jpg)](https://www.youtube.com/watch?v=zqwP3A-IrfM)
+[Video Tutorial 2: Choosing the Right Analysis](https://www.youtube.com/watch?v=zqwP3A-IrfM)
+
+![Tutorial 2](../img/web2.jpg)
 
 
 ## Understanding Taxonomy
 
-[![Tutorial 3](../img/web3.jpg)](https://www.youtube.com/watch?v=LoiriVJNGHk)
+[Video Tutorial 3: Understanding Taxonomy](https://www.youtube.com/watch?v=LoiriVJNGHk)
+
+![Tutorial 3](../img/web3.jpg)
 
 
 ## Evaluating Quality
 
-[![Tutorial 4](../img/web4.jpg)](https://www.youtube.com/watch?v=WmGIPrImCCE)
+[Video Tutorial 4: Evaluating Quality](https://www.youtube.com/watch?v=WmGIPrImCCE)
+
+![Tutorial 4](../img/web4.jpg)
 
 
 ## Deploying MiGA Web
