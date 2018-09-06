@@ -147,12 +147,12 @@ unless o[:blacklist].nil?
 end
 
 # Download entries
-$stderr.puts "Downloading #{ds.size} " \
+$stderr.puts "Downloading #{ds.size} " +
   (ds.size > 1 ? "entries" : "entry") unless o[:q]
 ds.each do |name,body|
   d << name
   puts name
-  next if p.dataset(name).nil? != o[:get_md]
+  next if p.dataset(name).nil? == o[:get_md]
   downloaded += 1
   next if o[:dry]
   $stderr.puts '  Locating remote dataset.' unless o[:q]
@@ -169,7 +169,7 @@ end
 
 # Finalize
 $stderr.puts "Datasets listed: #{d.size}" unless o[:q]
-$stderr.puts "Datasets #{o[:dry] ? 'to download' : 'downloaded'}:" \
+$stderr.puts "Datasets #{o[:dry] ? 'to download' : 'downloaded'}: " +
   downloaded.to_s unless o[:q]
 unless o[:remote_list].nil?
   File.open(o[:remote_list], 'w') do |fh|
