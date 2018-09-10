@@ -56,7 +56,7 @@ module MiGA::RemoteDataset::Base
         biosample: {stage: :metadata, map_to: [:assembly], format: :json}
       },
       url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%4$s&retmode=%3$s",
-      method: :rest,
+      method: :net,
       map_to_universe: :ncbi
     }
   }

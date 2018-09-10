@@ -34,7 +34,8 @@ class MiGA::RemoteDataset
     def download_rest(universe, db, ids, format, extra = [])
       u = @@UNIVERSE[universe]
       url ||= sprintf(u[:url], db, ids.join(","), format, *extra)
-      response = RestClient::Request.execute(method: :get, url:url, timeout:600)
+      response = RestClient::Request.execute(
+        method: :get, url: url, timeout: 600)
       unless response.code == 200
         raise "Unable to reach #{universe} client, error code #{response.code}."
       end
@@ -48,17 +49,7 @@ class MiGA::RemoteDataset
     def download_net(universe, db, ids, format, extra = [])
       u = @@UNIVERSE[universe]
       url = sprintf(u[:url], db, ids.join(","), format, *extra)
-      doc = ""
-      @timeout_try = 0
-      begin
-        open(url) { |f| doc = f.read }
-      rescue Net::ReadTimeout
-        @timeout_try += 1
-        if @timeout_try > 3 ; raise Net::ReadTimeout
-        else ; retry
-        end
-      end
-      doc
+      download_url url
     end
 
     ##
@@ -75,6 +66,22 @@ class MiGA::RemoteDataset
       tree
     end
   end
+
+  private
+
+    def download_url(url)
+      doc = ""
+      @timeout_try = 0
+      begin
+        open(url) { |f| doc = f.read }
+      rescue Net::ReadTimeout
+        @timeout_try += 1
+        if @timeout_try > 3 ; raise Net::ReadTimeout
+        else ; retry
+        end
+      end
+      doc
+    end
 end
 
 module MiGA::RemoteDataset::Download
