@@ -53,22 +53,8 @@ class MiGA::RemoteDataset
     end
 
     ##
-    # Looks for the entry +id+ in +dbfrom+, and returns the linked
-    # identifier in +db+ (or nil).
-    def ncbi_map(id, dbfrom, db)
-      doc = download(:ncbi_map, dbfrom, id, :json, nil, [db])
-      return if doc.empty?
-      tree = JSON.parse(doc, symbolize_names: true)
-      [:linksets, 0, :linksetdbs, 0, :links, 0].each do |i|
-        tree = tree[i]
-        break if tree.nil?
-      end
-      tree
-    end
-  end
-
-  private
-
+    # Download the given +url+ and return the result regardless of response
+    # code. Attempts download up to three times before raising Net::ReadTimeout.
     def download_url(url)
       doc = ""
       @timeout_try = 0
@@ -82,6 +68,21 @@ class MiGA::RemoteDataset
       end
       doc
     end
+
+    ##
+    # Looks for the entry +id+ in +dbfrom+, and returns the linked
+    # identifier in +db+ (or nil).
+    def ncbi_map(id, dbfrom, db)
+      doc = download(:ncbi_map, dbfrom, id, :json, nil, [db])
+      return if doc.empty?
+      tree = JSON.parse(doc, symbolize_names: true)
+      [:linksets, 0, :linksetdbs, 0, :links, 0].each do |i|
+        tree = tree[i]
+        break if tree.nil?
+      end
+      tree
+    end
+  end
 end
 
 module MiGA::RemoteDataset::Download
