@@ -135,7 +135,7 @@ if o[:scaffold] or o[:contig]
           map{ |i| "#{i}/#{File.basename(i)}_genomic.fna.gz" }
     next if ids.empty?
     n = "#{r[0]}_#{asm}".miga_name
-    %w[(contaminated) (partial)].each { |i| asm.delete! i }
+    asm.gsub!(/\(.*\)/, '')
     ds[n] = {ids: ids, md: {type: :genome, ncbi_asm: asm},
           db: :assembly_gz, universe: :web}
   end
