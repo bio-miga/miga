@@ -76,8 +76,9 @@ glob.each do |o_i|
 
   $stderr.puts 'Creating dataset.' unless o_i[:q]
   dummy_d = MiGA::Dataset.new(p, o_i[:dataset])
-  dummy_d = add_metadata(o_i, dummy_d)
-  rd.save_to(p, o_i[:dataset], !o_i[:query], dummy_d.metadata.data)
+  md = add_metadata(o_i, dummy_d).metadata.data
+  dummy_d.remove!
+  rd.save_to(p, o_i[:dataset], !o_i[:query], md)
   p.add_dataset(o_i[:dataset])
 
   $stderr.puts 'Done.' unless o_i[:q]
