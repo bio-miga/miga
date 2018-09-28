@@ -34,7 +34,9 @@ module MiGA::Project::Result
   def add_result(name, save=true, opts={})
     return nil if @@RESULT_DIRS[name].nil?
     base = "#{path}/data/#{@@RESULT_DIRS[name]}/miga-project"
-    unless opts[:force]
+    if opts[:force]
+      FileUtils.rm("#{base}.json") if File.exist?("#{base}.json")
+    else
       r_pre = MiGA::Result.load("#{base}.json")
       return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
     end
