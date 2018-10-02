@@ -14,8 +14,7 @@ pf = pr.file_path(:proposal) or raise "Unavailable result file: proposal"
 ani_spp = []
 File.open(pf, 'r') do |fh|
   fh.each_line do |ln|
-    next if $.==1
-    ani_spp << ln.chomp.split(',')
+    ani_spp << ln.chomp.split("\t")
   end
 end
 
@@ -30,7 +29,7 @@ ani_spp.each_with_index do |datasets, i|
       best = {d: d, q: q}
     end
   end
-  raise "Unavailable statistics for any of: #{ani_spp}" if best.nil?
-  puts "ANIsp_#{i}\t#{best[:d].name}"
+  raise "Unavailable statistics for any of:\n#{datasets}\n" if best.nil?
+  puts "ANIsp_#{i+1}\t#{best[:d].name}"
 end
 
