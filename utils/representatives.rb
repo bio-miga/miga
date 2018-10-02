@@ -8,13 +8,14 @@ proj_path = ARGV.shift or raise "Usage: #{$0} path/to/project"
 # Load MiGA object
 p = MiGA::Project.load(proj_path) or raise "Cannot load project: #{proj_path}"
 pr = p.result(:clade_finding) or raise "Unavailable result: clade_finding"
-pf = pr.file_path(:proposal) or raise "Unavailable result file: proposal"
+pf = pr.file_path(:clades_ani95) or raise "Unavailable result file: proposal"
 
 # Read ANIspp
 ani_spp = []
 File.open(pf, 'r') do |fh|
   fh.each_line do |ln|
-    ani_spp << ln.chomp.split("\t")
+    next if $.==1
+    ani_spp << ln.chomp.split(',')
   end
 end
 
