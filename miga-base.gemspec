@@ -25,7 +25,6 @@ Gem::Specification.new do |s|
   s.executables	<< "miga"
   
   # Dependencies
-  s.add_runtime_dependency "rest-client", "~> 1.7"
   s.add_runtime_dependency "daemons", "~> 1.2", ">= 1.2.4"
         # Testing requires "shush" from daemons, first introduced in v1.2.4
   s.add_runtime_dependency "json", "> 1.8", "< 3"

@@ -172,7 +172,7 @@ $stderr.puts ""
 
 # Check for Ruby gems
 $stderr.puts "Looking for Ruby gems:"
-%w(rest-client sqlite3 daemons json).each do |pkg|
+%w(sqlite3 daemons json).each do |pkg|
   $stderr.print "Testing #{pkg}... "
   `#{paths["ruby"].shellescape} -r "#{pkg}" -e "" 2>/dev/null`
   if $?.success?

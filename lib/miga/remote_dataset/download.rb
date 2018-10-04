@@ -33,38 +33,28 @@ class MiGA::RemoteDataset
     # using +extra+. Returns the doc as String.
     def download_rest(universe, db, ids, format, extra = [])
       u = @@UNIVERSE[universe]
-      url ||= sprintf(u[:url], db, ids.join(","), format, *extra)
-      response = RestClient::Request.execute(
-        method: :get, url: url, timeout: 600)
-      unless response.code == 200
-        raise "Unable to reach #{universe} client, error code #{response.code}."
-      end
-      response.to_s
+      url = sprintf(u[:url], db, ids.join(","), format, *extra)
+      download_url url
     end
 
     ##
     # Download data using a GET request from the +universe+ in the database +db+
     # with IDs +ids+ and in +format+. Additional URL parameters can be passed
     # using +extra+. Returns the doc as String.
-    def download_net(universe, db, ids, format, extra = [])
-      u = @@UNIVERSE[universe]
-      url = sprintf(u[:url], db, ids.join(","), format, *extra)
-      download_url url
-    end
+    alias download_net download_rest
 
     ##
     # Download the given +url+ and return the result regardless of response
     # code. Attempts download up to three times before raising Net::ReadTimeout.
     def download_url(url)
-      doc = ""
+      doc = ''
       @timeout_try = 0
       begin
-        open(url) { |f| doc = f.read }
+        open(url, open_timeout: 600, read_timeout: 600) { |f| doc = f.read }
       rescue Net::ReadTimeout
         @timeout_try += 1
-        if @timeout_try > 3 ; raise Net::ReadTimeout
-        else ; retry
-        end
+        raise Net::ReadTimeout if @timeout_try >= 3
+        retry
       end
       doc
     end

@@ -1,5 +1,4 @@
 
-require 'rest-client'
 require 'open-uri'
 require 'cgi'
 

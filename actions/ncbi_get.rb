@@ -77,11 +77,7 @@ def get_list(taxon, status)
           status: status }
   end
   url = url_base + URI.encode_www_form(url_param)
-  response = RestClient::Request.execute(method: :get, url:url, timeout:600)
-  unless response.code == 200
-    raise "Unable to reach NCBI, error code #{response.code}."
-  end
-  response.to_s
+  MiGA::RemoteDataset.download_url url
 end
 
 # Download IDs with reference status
