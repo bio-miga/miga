@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 1.9"
 
   # Docs + tests
-  s.has_rdoc = true
   s.extra_rdoc_files << "README.md"
   s.rdoc_options = %w(lib README.md --main README.md)
   s.rdoc_options << "--title" << s.summary
