@@ -103,15 +103,15 @@ class MiGA::RemoteDataset < MiGA::MiGA
   ##
   # Get NCBI taxonomy as MiGA::Taxonomy.
   def get_ncbi_taxonomy
-    lineage = {}
     tax_id = get_ncbi_taxid
-    until [nil, '0', '1'].include? tax_id
-      doc = MiGA::RemoteDataset.download(:ebi, :taxonomy, tax_id, '')
-      name = doc.scan(/SCIENTIFIC NAME\s+:\s+(.+)/).first.to_a.first
-      rank = doc.scan(/RANK\s+:\s+(.+)/).first.to_a.first
-      rank = 'dataset' if lineage.empty? and rank == 'no rank'
-      lineage[rank] = name unless rank.nil?
-      tax_id = doc.scan(/PARENT ID\s+:\s+(.+)/).first.to_a.first
+    lineage = {}
+    doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
+    doc.scan(%r{<Taxon>(.*?)</Taxon>}m).map(&:first).each do |i|
+      name = i.scan(%r{<ScientificName>(.*)</ScientificName>}).first.to_a.first
+      rank = i.scan(%r{<Rank>(.*)</Rank>}).first.to_a.first
+      rank = nil if rank == 'no rank' or rank.empty?
+      rank = 'dataset' if lineage.empty? and rank.nil?
+      lineage[rank] = name unless rank.nil? or rank.nil?
     end
     MiGA::Taxonomy.new(lineage)
   end
