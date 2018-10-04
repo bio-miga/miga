@@ -51,9 +51,9 @@ class MiGA::RemoteDataset
       @timeout_try = 0
       begin
         open(url, open_timeout: 600, read_timeout: 600) { |f| doc = f.read }
-      rescue Net::ReadTimeout
+      rescue => e
         @timeout_try += 1
-        raise Net::ReadTimeout if @timeout_try >= 3
+        raise e if @timeout_try >= 3
         retry
       end
       doc
