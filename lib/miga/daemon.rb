@@ -19,9 +19,8 @@ class MiGA::Daemon < MiGA::MiGA
     DateTime.parse(File.read(f))
   end
 
-  # Shutdown all spawned daemons before exit.
+  # Array of all spawned daemons.
   $_MIGA_DAEMON_LAIR = []
-  END { $_MIGA_DAEMON_LAIR.each(&:terminate) }
 
   # MiGA::Project in which the daemon is running.
   attr_reader :project
@@ -228,7 +227,15 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Terminates a daemon.
   def terminate
+    say 'Terminating daemon...'
     report_status
+    k = runopts(:kill)
+    @jobs_running.each do |i|
+      `#{k % i[:pid]}`
+      puts "Terminating pid:#{i[:pid]} for #{i[:task_name]}"
+    end
+    f = File.expand_path('daemon/alive', project.path)
+    File.unlink(f) if File.exist? f
   end
 
   private
