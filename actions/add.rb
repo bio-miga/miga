@@ -60,7 +60,9 @@ def cp_result(o, d, p, sym, res_sym, ext)
   r_dir  = MiGA::Dataset.RESULT_DIRS[res_sym]
   r_path = File.expand_path("data/#{r_dir}/#{d.name}", p.path)
   ext.each_index do |i|
-    FileUtils.cp o[sym][i], "#{r_path}#{ext[i]}" unless o[sym][i].nil?
+    next if o[sym][i].nil?
+    gz = o[sym][i] =~ /\.gz/ ? '.gz' : ''
+    FileUtils.cp(o[sym][i], "#{r_path}#{ext[i]}#{gz}")
   end
   File.open("#{r_path}.done", "w") { |f| f.print Time.now.to_s }
 end
