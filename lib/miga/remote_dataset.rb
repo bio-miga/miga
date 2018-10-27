@@ -17,6 +17,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
   attr_reader :db
   # Array of IDs of the entries composing the dataset.
   attr_reader :ids
+  # Internal metadata hash
+  attr_reader :metadata
 
   ##
   # Initialize MiGA::RemoteDataset with +ids+ in database +db+ from +universe+.
@@ -25,6 +27,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
     @ids = (ids.is_a?(Array) ? ids : [ids])
     @db = db.to_sym
     @universe = universe.to_sym
+    @metadata = {}
+    @metadata[:"#{universe}_#{db}"] = ids.join(",")
     @@UNIVERSE.keys.include?(@universe) or
       raise "Unknown Universe: #{@universe}. Try: #{@@UNIVERSE.keys}"
     @@UNIVERSE[@universe][:dbs].include?(@db) or
@@ -37,15 +41,15 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
   ##
   # Save dataset to the MiGA::Project +project+ identified with +name+. +is_ref+
-  # indicates if it should be a reference dataset, and contains +metadata+.
-  def save_to(project, name = nil, is_ref = true, metadata = {})
+  # indicates if it should be a reference dataset, and contains +metadata_def+.
+  def save_to(project, name = nil, is_ref = true, metadata_def = {})
     name ||= ids.join('_').miga_name
     project = MiGA::Project.new(project) if project.is_a? String
     MiGA::Dataset.exist?(project, name) and
       raise "Dataset #{name} exists in the project, aborting..."
-    metadata = get_metadata(metadata)
+    @metadata = get_metadata(metadata_def)
     udb = @@UNIVERSE[universe][:dbs][db]
-    metadata["#{universe}_#{db}"] = ids.join(',')
+    @metadata["#{universe}_#{db}"] = ids.join(',')
     respond_to?("save_#{udb[:stage]}_to", true) or
       raise "Unexpected error: Unsupported stage #{udb[:stage]} for #{db}."
     send "save_#{udb[:stage]}_to", project, name, udb
@@ -70,15 +74,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
   ##
   # Get metadata from the remote location.
-  def get_metadata(metadata = {})
+  def get_metadata(metadata_def = {})
+    metadata_def.each { |k,v| @metadata[k] = v }
     case universe
     when :ebi, :ncbi, :web
       # Get taxonomy
-      metadata[:tax] = get_ncbi_taxonomy
+      @metadata[:tax] = get_ncbi_taxonomy
     end
-    metadata[:"#{universe}_#{db}"] = ids.join(",")
-    metadata = get_type_status(metadata)
-    metadata
+    @metadata = get_type_status(metadata)
   end
 
   ##
