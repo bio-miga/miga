@@ -5,7 +5,7 @@
 
 require 'miga/remote_dataset'
 
-o = {q: true, query: false, universe: :ebi, db: :embl}
+o = {q: true, query: false, universe: :ebi, db: :embl, get_md: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset, :dataset_type])
@@ -36,6 +36,9 @@ OptionParser.new do |opt|
     'Metadata as key-value pairs separated by = and delimited by comma.',
     'Values are saved as strings except for booleans (true / false) or nil.'
     ){ |v| o[:metadata]=v }
+  opt.on('--get-metadata',
+    'Only download and update metadata for existing datasets'
+    ){ |v| o[:get_md] = v }
   opt_common(opt, o)
 end.parse!
 
@@ -74,12 +77,20 @@ glob.each do |o_i|
   $stderr.puts 'Locating remote dataset.' unless o_i[:q]
   rd = MiGA::RemoteDataset.new(o_i[:ids], o_i[:db], o_i[:universe])
 
-  $stderr.puts 'Creating dataset.' unless o_i[:q]
-  dummy_d = MiGA::Dataset.new(p, o_i[:dataset])
-  md = add_metadata(o_i, dummy_d).metadata.data
-  dummy_d.remove!
-  rd.save_to(p, o_i[:dataset], !o_i[:query], md)
-  p.add_dataset(o_i[:dataset])
+  if o[:get_md]
+    $stderr.puts 'Updating dataset.' unless o_i[:q]
+    d = p.dataset(o_i[:dataset])
+    next if d.nil?
+    md = add_metadata(o_i, d).metadata.data
+    rd.update_metadata(d, md)
+  else
+    $stderr.puts 'Creating dataset.' unless o_i[:q]
+    dummy_d = MiGA::Dataset.new(p, o_i[:dataset])
+    md = add_metadata(o_i, dummy_d).metadata.data
+    dummy_d.remove!
+    rd.save_to(p, o_i[:dataset], !o_i[:query], md)
+    p.add_dataset(o_i[:dataset])
+  end
 
   $stderr.puts 'Done.' unless o_i[:q]
 end
