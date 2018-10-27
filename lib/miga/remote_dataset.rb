@@ -118,6 +118,15 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
   private
 
+    def get_ncbi_taxid_from_web
+      return nil unless metadata[:ncbi_asm]
+      base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
+      doc = self.class.download_url(
+        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml&format=text")
+      taxid = doc.scan(%r{&lt;Taxid&gt;(\S+)&lt;/Taxid&gt;}).first
+      taxid.nil? ? taxid : taxid.first
+    end
+
     def get_ncbi_taxid_from_ncbi
       doc = self.class.download(universe, db, ids, :gb).split(/\n/)
       ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
