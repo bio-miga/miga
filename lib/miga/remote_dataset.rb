@@ -72,7 +72,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get metadata from the remote location.
   def get_metadata(metadata = {})
     case universe
-    when :ebi, :ncbi
+    when :ebi, :ncbi, :web
       # Get taxonomy
       metadata[:tax] = get_ncbi_taxonomy
     end
