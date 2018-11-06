@@ -43,8 +43,8 @@ restrictions). In any case, MiGA is optimized for short-read datasets, or
 alternatively already assembled datasets. MiGA is optimized to process
 prokaryotic data (Archaeal and Bacterial), but it has some readily available
 customizations for viral metagenomes (or viromes). For more details, see the
-[types](/part2/types) of datasets and projects and the
-[input data](/part2/input) supported.
+[types](part2/types.md) of datasets and projects and the
+[input data](part2/input.md) supported.
 
 **MiGA is not**: No customizations are currently available for eukaryotic
 or viral genomes, nor for transcriptomic data. The data management design
@@ -54,13 +54,13 @@ purposes, but thread carefully.
 ## Standards
 
 MiGA has a general-purpose design, with some presets designed for the different
-[data types](/part2/types) supported. All the internal configuration and
+[data types](part2/types.md) supported. All the internal configuration and
 metadata are stored as individual JSON files. Sequence quality is stored as
 FastQ, and sequences are stored as FastA, and these two cover most of the data
 in the system. There are also some graphic reports in PDF and HTML, raw-text
 reports and logs, and a few general statistics in JSON. Finally, all of the
-[pair-wise comparisons](/part2/distances) are stored in SQLite3 files
-[described here](/part2/distances#sqlite3-schema).
+[pair-wise comparisons](part2/distances.md) are stored in SQLite3 files
+[described here](part2/distances.md#sqlite3-schema).
 
 ### Filesystem structure
 
@@ -69,57 +69,57 @@ reports and logs, and a few general statistics in JSON. Finally, all of the
   + ...: Several daemon log files.
 + **data/**: All the data is stored here.
   + **01.raw_reads/**: Raw reads in FastQ format
-    ([raw_reads](/part5/workflow#raw-reads)).
+    ([raw_reads](part5/workflow.md#raw-reads)).
   + **02.trimmed_reads/**: Trimmed/clipped reads in FastQ format
-    ([trimmed_reads](/part5/workflow#trimmed-reads)).
+    ([trimmed_reads](part5/workflow.md#trimmed-reads)).
   + **03.read_quality/**: Read quality reports in HTML and PDF formats
-    ([read_quality](/part5/workflow#read-quality)).
+    ([read_quality](part5/workflow.md#read-quality)).
   + **04.trimmed_fasta/**: Trimmed/clipped and interposed reads in FastA format
-    ([trimmed_fasta](/part5/workflow#trimmed-fasta)).
+    ([trimmed_fasta](part5/workflow.md#trimmed-fasta)).
   + **05.assembly/**: Assemblies in FastA format
-    ([assembly](/part5/workflow#assembly)).
+    ([assembly](part5/workflow.md#assembly)).
   + **06.cds/**: Gene predictions in FastA (genes and proteins) and GFF formats
-    ([cds](/part5/workflow#cds)).
+    ([cds](part5/workflow.md#cds)).
   + **07.annotation/**: Data annotations.
     + **01.function/**: Functional annotations.
       + **01.essential/**: Essential prokaryotic gene detections
-        ([essential_genes](/part5/workflow#essential-genes)).
+        ([essential_genes](part5/workflow.md#essential-genes)).
       + **02.ssu/**: Ribosomal RNA (small subunit) sequence annotations
-        ([ssu](/part5/workflow#ssu)).
+        ([ssu](part5/workflow.md#ssu)).
     + **02.taxonomy/**: Taxonomic annotations.
       + **01.mytaxa/**: MyTaxa fragment annotations
-        ([mytaxa](/part5/workflow#mytaxa)).
+        ([mytaxa](part5/workflow.md#mytaxa)).
     + **03.qa/**: Quality assessments.
       + **01.checkm/**: (Currently not in use).
       + **02.mytaxa_scan/**: Gene-window assessment of taxonomic distributions
-        ([mytaxa_scan](/part5/workflow#mytaxa-scan)).
+        ([mytaxa_scan](part5/workflow.md#mytaxa-scan)).
   + **08.mapping/**: (Currently not in use).
   + **09.distances/**: Pair-wise comparisons
-    ([distances](/part5/workflow#distances)).
+    ([distances](part5/workflow.md#distances)).
     + **01.haai/**: Heuristic Average Amino Acid Identity (essential proteins;
-      [distances](/part5/workflow#distances) and
-      [haai_distances](/part5/workflow#haai-distances)).
+      [distances](part5/workflow.md#distances) and
+      [haai_distances](part5/workflow.md#haai-distances)).
     + **02.aai/**: Average Amino Acid Identity (all proteins;
-      [distances](/part5/workflow#distances) and
-      [aai_distances](/part5/workflow#aai-distances)).
+      [distances](part5/workflow.md#distances) and
+      [aai_distances](part5/workflow.md#aai-distances)).
     + **03.ani/**: Average Nucleotide Identity (genomic fragments;
-      [distances](/part5/workflow#distances) and
-      [ani_distances](/part5/workflow#ani-distances)).
+      [distances](part5/workflow.md#distances) and
+      [ani_distances](part5/workflow.md#ani-distances)).
     + **04.ssu/**: (Currently not in use).
     + **05.taxonomy/**: Taxonomy based on reference projects
-      ([taxonomy](/part5/workflow#taxonomy)).
+      ([taxonomy](part5/workflow.md#taxonomy)).
   + **10.clades/**: Dataset clustering at various resolution levels.
     + **01.find/**: Identification of naturally-forming AAI clades at species
-      level and above ([clade_finding](/part5/workflow#clade-finding)).
+      level and above ([clade_finding](part5/workflow.md#clade-finding)).
     + **02.ani/**: Identification of naturally-forming ANI clades at species
-      level and below ([subclades](/part5/workflow#subclades)).
+      level and below ([subclades](part5/workflow.md#subclades)).
     + **03.ogs/**: Extraction of orthologous groups of proteins and pan-genome
-      statistics ([ogs](/part5/workflow#ogs)).
+      statistics ([ogs](part5/workflow.md#ogs)).
     + **04.phylogeny/**: (Currently not in use).
     + **05.metadata/**: (Currently not in use).
   + **90.stats/**: Results metadata for dataset stats
-    ([stats](/part5/workflow#stats) and project-wide indexing and statistics
-    ([project_stats](/part5/workflow#project-stats)).
+    ([stats](part5/workflow.md#stats) and project-wide indexing and statistics
+    ([project_stats](part5/workflow.md#project-stats)).
 + **metadata/**: Collection of JSON files with datasets metadata.
 + **miga.project.json**: JSON file with project metadata.
 
@@ -134,7 +134,7 @@ databases in EBI and NCBI linked to NCBI Taxonomy, and it does support some
 automated adjustments for the JGI schema (in particular for metagenomes).
 Instead of forcing groups by external taxonomies that may have varying degrees
 of accuracy and completeness, MiGA follows a data-driven clustering based on
-[naturally-forming groups](/part2/clustering) based on AAI and ANI analyses.
+[naturally-forming groups](part2/clustering.md) based on AAI and ANI analyses.
 Hence, MiGA projects can be used to classify novel genomes using any reference
 taxonomy (or none!).
 
@@ -147,24 +147,24 @@ MiGA can catalogue datasets, even in the absence of a reference taxonomy. This
 allows many advanced analyses, including (but not restricted to):
 
 * Phylogenomic reconstructions using
-  [orthologous groups of proteins](/part5/workflow#ogs)
+  [orthologous groups of proteins](part5/workflow.md#ogs)
 * Multi-Locus sequence analysis using
-  [essential genes](/part5/workflow#essential-genes)
+  [essential genes](part5/workflow.md#essential-genes)
 * Characterization of collections of
-  [single-cell](/part2/types#single-cell-genome) or
-  [population](/part2/types#population-genome) genomes
+  [single-cell](part2/types.md#single-cell-genome) or
+  [population](part2/types.md#population-genome) genomes
 * Characterization of
-  [intra-population diversity](/part2/clustering#ani-clades)
-* [Metagenome](/part2/types#metagenome) or [virome](/part2/types#virome)
+  [intra-population diversity](part2/clustering.md#ani-clades)
+* [Metagenome](part2/types.md#metagenome) or [virome](part2/types.md#virome)
   analyses
 
 ## More
 
-The [intermediate analyses](/part5/workflow) performed by MiGA can be used
+The [intermediate analyses](part5/workflow.md) performed by MiGA can be used
 for many other purposes. For example, we use MiGA's initial pre-processing (like
-[read trimming](/part5/workflow#trimmed-reads) /
-[quality check](/part5/workflow#read-quality),
-[assembly](/part5/workflow#assembly), and
-[gene prediction](/part5/workflow#cds)) in most of our genomic and
+[read trimming](part5/workflow.md#trimmed-reads) /
+[quality check](part5/workflow.md#read-quality),
+[assembly](part5/workflow.md#assembly), and
+[gene prediction](part5/workflow.md#cds)) in most of our genomic and
 metagenomic projects.
 
