@@ -6,7 +6,7 @@ This is the general overview of the MiGA workflow:
 
 For each step, performed analyses may include the use of external Software, and
 produce one or more result files (indexed in a hash). In most steps, different
-utilities from the [Enveomics Collection](external.md#enveomics-collection) are
+utilities from the [Enveomics Collection](external#enveomics-collection) are
 used in addition to the Software detailed below. See more details of each
 step below, including file keys and descriptions. Some files are mandatory to
 continue with the analysis (marked with *req*), some can be gzipped during or
@@ -50,8 +50,8 @@ MiGA symbol: `raw_reads`.
 
 This is part of *Trimming & read quality* in the above diagram. In this step,
 MiGA trims reads by Phred quality score 20 (Q20) and minimum length of 50bp
-using [SolexaQA++](external.md#solexaqa), and clips potential adapter
-contamination using [Scythe](external.md#scythe) (reapplying the length filter).
+using [SolexaQA++](external#solexaqa), and clips potential adapter
+contamination using [Scythe](external#scythe) (reapplying the length filter).
 If the reads are paired, only pairs passing the filters are used.
 
 Supported file keys:
@@ -73,8 +73,8 @@ MiGA symbol: `trimmed_reads`.
 
 This is a quality-control step included as part of *Trimming & read quality* in
 the diagram above. In this step, MiGA generates quality reports of the
-trimmed/clipped reads using [SolexaQA++](external.md#solexaqa) and
-[FastQC](external.md#fastqc).
+trimmed/clipped reads using [SolexaQA++](external#solexaqa) and
+[FastQC](external#fastqc).
 
 Supported file keys:
 
@@ -113,7 +113,7 @@ MiGA symbol: `trimmed_fasta`.
 ## Assembly
 
 In this step MiGA assembles trimmed FastA reads using
-[IDBA-UD](external.md#idba-ud).
+[IDBA-UD](external#idba-ud).
 
 Supported file keys:
 
@@ -137,7 +137,7 @@ MiGA symbol: `assembly`.
 
 This step corresponds to *Gene prediction* in the diagram above. MiGA predicts
 coding sequences (putative genes and proteins) using
-[Prodigal](external.md#prodigal).
+[Prodigal](external#prodigal).
 
 Supported file keys:
 
@@ -165,11 +165,11 @@ MiGA symbol: `cds`.
 ## Essential Genes
 
 In this step, MiGA uses `HMM.essential.rb` from the
-[Enveomics Collection](external.md#enveomics-collection) to identify a set of
+[Enveomics Collection](external#enveomics-collection) to identify a set of
 genes typically present in single-copy in Bacterial and Archaeal genomes. In
 this step, protein translations of those *essential* genes are extracted for
 other analyses in MiGA (*e.g.*, hAAI in [distances](#distances)) or outside
-(*e.g.*, phylogeny or MLSA for [diversity analyses](../part1.md#diversity)). In
+(*e.g.*, phylogeny or MLSA for [diversity analyses](/part1#diversity)). In
 addition, this step generates a report that can be used for quality control
 including estimations of completeness and contamination (for genomes) and
 median number of copies of single-copy genes (for metagenomes and viromes).
@@ -204,8 +204,8 @@ MiGA symbol: `essential_genes`.
 ## SSU
 
 In this step, MiGA detects small-subunit rRNA genes (16S) using
-[Barrnap](external.md#barrnap) and extracts their sequences using
-[Bedtools](external.md#bedtools).
+[Barrnap](external#barrnap) and extracts their sequences using
+[Bedtools](external#bedtools).
 
 Supported file keys:
 
@@ -219,11 +219,11 @@ MiGA symbol: `ssu`.
 ## MyTaxa
 
 This step is only supported for metagenomes and viromes, and it requires the
-(optional) MyTaxa [requirements installed](../part2/requirements.md).
+(optional) MyTaxa [requirements installed](/part2/requirements).
 
 In this step, the most likely taxonomic classification of each contig is
-identified using [MyTaxa](external.md#mytaxa), and a report is generated using
-[Krona](external.md#krona).
+identified using [MyTaxa](external#mytaxa), and a report is generated using
+[Krona](external#krona).
 
 Supported file keys:
 
@@ -247,10 +247,10 @@ MiGA symbol: `mytaxa`.
 
 This step is only supported for genomes (dataset types genome, popgenome, and
 scgenome), and it requires the (optional) MyTaxa
-[requirements installed](../part2/requirements.md).
+[requirements installed](/part2/requirements).
 
 In this step, the genomes are scanned in windows of ten genes. For each window,
-the taxonomic distribution is determined using [MyTaxa](external.md#mytaxa) and
+the taxonomic distribution is determined using [MyTaxa](external#mytaxa) and
 compared against the distribution for the entire genome. This is a
 quality-control step for manual curation.
 
@@ -278,14 +278,14 @@ MiGA symbol: `mytaxa_scan`.
 ## Distances
 
 This step is only supported for genomes
-([dataset types](../part2/types.md#dataset-types) genome, popgenome, and
+([dataset types](/part2/types#dataset-types) genome, popgenome, and
 scgenome). In this step, each dataset is compared against all other datasets
 in the project. If the dataset is a
-[reference dataset](../part2/types.md#query-vs-reference-datasets), it is
+[reference dataset](/part2/types#query-vs-reference-datasets), it is
 compared against all other reference datasets in the project. If it's a query
 dataset, it is compared iteratively against medoids. For more details on the
 strategy used in this step, see the manual
-[section on distances](../part2/distances.md).
+[section on distances](/part2/distances).
 
 Supported file keys:
 
@@ -311,9 +311,9 @@ MiGA symbol: `distances`.
 ## Taxonomy
 
 This step is only supported for genomes
-([dataset types](../part2/types.md#dataset-types) genome, popgenome, and
+([dataset types](/part2/types#dataset-types) genome, popgenome, and
 scgenome) that are
-[reference datasets](../part2/types.md#query-vs-reference-datasets), in projects
+[reference datasets](/part2/types#query-vs-reference-datasets), in projects
 with a set reference project (`:ref_project` in metadata).
 
 In this step, MiGA compares the genome against a reference project using the
@@ -393,16 +393,16 @@ MiGA symbol: `ani_distances`.
 ## Clade Finding
 
 This step is only supported for project types
-[genomes](../part2/types.md#genomes) and [clade](../part2/types.md#clade).
+[genomes](/part2/types#genomes) and [clade](/part2/types#clade).
 
 In this step, MiGA attempts to identify clades at species level or above using
 a combination of ANI and AAI values. MiGA generates
-[AAI clades](../part2/clustering.md#aai-clades) in this step for
-[genomes projects](../part2/types.md#genomes). Clades proposed at AAI > 90% and
+[AAI clades](/part2/clustering#aai-clades) in this step for
+[genomes projects](/part2/types#genomes). Clades proposed at AAI > 90% and
 ANI > 95% are formed using the Markov Clustering algorithm implemented in
-[MCL](external.md#mcl). Most distance manipulation and tree estimation and
-manipulation utilities use the R packages [Ape](external.md#ape) and
-[Vegan](external.md#vegan).
+[MCL](external#mcl). Most distance manipulation and tree estimation and
+manipulation utilities use the R packages [Ape](external#ape) and
+[Vegan](external#vegan).
 
 Supported file keys:
 
@@ -426,12 +426,12 @@ MiGA symbol: `clade_finding`.
 
 ## Subclades
 
-This step is only supported for project type [clade](../part2/types.md#clade).
+This step is only supported for project type [clade](/part2/types#clade).
 
 In this step, MiGA attempts to identify clades below species level using ANI
-values. MiGA generates [ANI clades](../part2/clustering.md#ani-clades) in this
+values. MiGA generates [ANI clades](/part2/clustering#ani-clades) in this
 step. Most distance manipulation and tree estimation and manipulation utilities
-use the R packages [Ape](external.md#ape) and [Vegan](external.md#vegan).
+use the R packages [Ape](external#ape) and [Vegan](external#vegan).
 
 Supported file keys:
 
@@ -450,11 +450,11 @@ MiGA symbol: `subclades`.
 
 ## OGS
 
-This step is only supported for project type [clade](../part2/types.md#clade).
+This step is only supported for project type [clade](/part2/types#clade).
 
 In this step, MiGA generates groups of orthology using reciprocal best matches
 between all pairs of datasets in the project. Groups are generated using
-[MCL](external.md#mcl) with pairs weighted by bit score. Once computed, MiGA
+[MCL](external#mcl) with pairs weighted by bit score. Once computed, MiGA
 uses the matrix of OGS to estimate summary and rarefied statistics.
 
 Supported file keys:
@@ -465,7 +465,7 @@ Supported file keys:
   ABC format. This file is typically produced as intermediate result and
   removed before finishing, but can be maintained using
   `miga new -P . -m clean_ogs=false --update` in the project folder using the
-  [CLI](../part3/CLI.md).
+  [CLI](/part3/CLI).
 * `core_pan`: Summary statistics of rarefied core-genome/pangenome sizes in
   tab-delimited format.
 * `core_pan_plot`: Plot of rarefied core-genome/pangenome sizes in PDF.

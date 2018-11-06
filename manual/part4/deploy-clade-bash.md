@@ -7,7 +7,7 @@ any species you want. For this tutorial you'll need some \*nix utilities,
 including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
 
 For a MiGA-only version of this exercise, see the
-[Build a clade collection example](deploy-clade.md).
+[Build a clade collection example](deploy-clade).
 
 ## 0. Initialize the project
 
@@ -106,7 +106,7 @@ miga get -P . --file draft_genomes_miga.tsv \
 
 If you have any unreleased genomes, you can simply add them to the same project
 to be processed together with those publicly available. You can initialize
-datasets at different points, see [input data](../part2/input.md). For the
+datasets at different points, see [input data](/part2/input). For the
 purposes of this tutorial, we'll assume that you have raw coupled reads from two
 sequencing lanes (1 and 2) in Gzipped FastQ:
 
@@ -128,7 +128,7 @@ miga add -P . -D $DS -t genome
 ## 3. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the
-data. For additional details, see [launching daemons](daemons.md):
+data. For additional details, see [launching daemons](daemons):
 
 ```bash
 miga daemon start -P .

@@ -3,7 +3,7 @@
 In this tutorial, we will create a genomes project including all the
 representative genomes available in RefSeq using MiGA alone. If you want
 to explore a more manual approach using `bash`, see the
-[RefSeq in MiGA using BASH example](deploy-refseq-bash.md).
+[RefSeq in MiGA using BASH example](deploy-refseq-bash).
 
 ## 0. Initialize the project
 
@@ -25,7 +25,7 @@ miga ncbi_get -P . --reference -v
 ## 2. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the
-data. For additional details, see [launching daemons](daemons.md):
+data. For additional details, see [launching daemons](daemons):
 
 ```bash
 miga daemon start -P .

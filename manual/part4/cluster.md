@@ -1,8 +1,8 @@
 # Setting up MiGA in a cluster
 
 MiGA is developed to run on clusters with a TORQUE scheduler. The administrator
-should install the [dependencies](../part2/requirements.md) and
-[MiGA-base](../part2/installation.md) on a networked file system.
+should install the [dependencies](/part2/requirements) and
+[MiGA-base](/part2/installation) on a networked file system.
 
 When you first initialize MiGA, the program will prompt the user for the type of
 daemon. For a cluster with TORQUE, the user can choose a qsub daemon. During the
