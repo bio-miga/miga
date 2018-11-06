@@ -5,7 +5,7 @@
 If you simply want to access projects previously processed, you can skip this
 step.
 
-Once you have satisfied all the [system requirements](requirements), you'll
+Once you have satisfied all the [system requirements](requirements.md), you'll
 need to make them accessible to MiGA. For that, create a `bash` configuration
 file at `~/.miga_modules` loading any necessary packages (*e.g.*, if you're
 in a cluster architecture using `modules`, this is where you should load them).

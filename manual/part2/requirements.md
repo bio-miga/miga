@@ -88,8 +88,8 @@ install.packages(c('enveomics.R','ape','phangorn','phytools','cluster','vegan'),
 ### MyTaxa utils
 
 **The MyTaxa utilities are optional**, but without them the
-[MyTaxa](/part5/workflow#mytaxa) and
-[MyTaxa scan](/part5/workflow#mytaxa-scan) analyses are disabled. Note that
+[MyTaxa](../part5/workflow.md#mytaxa) and
+[MyTaxa scan](../part5/workflow.md#mytaxa-scan) analyses are disabled. Note that
 MyTaxa requires about **15Gb** of disk available to store the database.
 
 We will install the necessary software in `$HOME/apps`. You can change this
@@ -187,8 +187,8 @@ install.packages(c('enveomics.R','ape','phangorn','phytools','cluster','vegan'),
 ### MyTaxa utils
 
 **The MyTaxa utilities are optional**, but without them the
-[MyTaxa](/part5/workflow#mytaxa) and
-[MyTaxa scan](/part5/workflow#mytaxa-scan) analyses are disabled. Note that
+[MyTaxa](../part5/workflow.md#mytaxa) and
+[MyTaxa scan](../part5/workflow.md#mytaxa-scan) analyses are disabled. Note that
 MyTaxa requires about **15Gb** of disk available to store the database.
 
 We will install the necessary software in `$HOME/apps`. You can change this
@@ -271,8 +271,8 @@ install.packages(c('enveomics.R','ape','phangorn','phytools','cluster','vegan'),
 ### MyTaxa utils
 
 **The MyTaxa utilities are optional**, but without them the
-[MyTaxa](/part5/workflow#mytaxa) and
-[MyTaxa scan](/part5/workflow#mytaxa-scan) analyses are disabled. Note that
+[MyTaxa](../part5/workflow.md#mytaxa) and
+[MyTaxa scan](../part5/workflow.md#mytaxa-scan) analyses are disabled. Note that
 MyTaxa requires about **15Gb** of disk available to store the database.
 
 To install **Diamond**, we provide below the method for 64-bits Linux. If you

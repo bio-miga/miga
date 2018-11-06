@@ -22,7 +22,7 @@ gem install miga-base-*.gem
 
 ## Usage
 
-Now that you have the gem, you can use the [CLI](CLI), but you can also
+Now that you have the gem, you can use the [CLI](CLI.md), but you can also
 interact directly with the API. The `actions` folder contains the CLI
 implementations, so you can take them as examples on how to use the API. You
 can also use `irb`. For example:
@@ -39,5 +39,5 @@ true
 
 That's a simple example of a session checking if the `test_project` already
 exists, and then creating it. For a complete documentation of the API, check
-out the [miga gem docs](docs.microbial-genomes.org).
+out the [miga gem docs](http://docs.microbial-genomes.org).
 

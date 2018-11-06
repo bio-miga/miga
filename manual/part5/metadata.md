@@ -6,8 +6,8 @@ All metadata objects support the following fields:
 
 | Field        | Supported values                  | Description
 | ------------:|:---------------------------------:|:-------------------
-| created*     | [Date](/glossary#miga-dates) | Date of creation
-| updated*     | [Date](/glossary#miga-dates) | Date of last update
+| created*     | [Date](../glossary.md#miga-dates) | Date of creation
+| updated*     | [Date](../glossary.md#miga-dates) | Date of last update
 
 \* Mandatory
 
@@ -21,8 +21,8 @@ The following metadata fields are recognized by different interfaces for
 | datasets*    | Array of String  | List of datasets in the project
 | comments     | String           | Free-form comments
 | description  | String           | Free-form description
-| name*        | [Name](/glossary#miga-names) | Name[^1]
-| type*        | String           | [Type](/part2/types#project-types)
+| name*        | [Name](../glossary.md#miga-names) | Name[^1]
+| type*        | String           | [Type](../part2/types.md#project-types)
 | plugins      | Array of String  | For internal control of plugins
 | ref_project  | Path to Project  | Project with reference taxonomy
 | tax_pvalue   | Float [0,1]      | Maximum p-value to transfer taxonomy
@@ -41,8 +41,8 @@ The following metadata fields are recognized by different interfaces for
 
 | Field        | Supported values | Description
 | ------------:|:----------------:|:----------------------------------
-| type*        | String           | [Type](/part2/types#dataset-types)
-| ref          | Boolean          | [Reference](/part2/types#reference)
+| type*        | String           | [Type](../part2/types.md#dataset-types)
+| ref          | Boolean          | [Reference](../part2/types.md#reference)
 | run_`step`   | Boolean          | Forces running or not `step`
 | inactive     | Boolean          | If auto-processing should stop
 | tax          | MiGA::Taxonomy   | Taxonomy of the dataset

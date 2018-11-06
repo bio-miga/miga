@@ -3,7 +3,7 @@
 In this tutorial, we will create a clade project including all the genomes
 available for a species in RefSeq as well as any additional genomes you may have
 using MiGA alone. If you want to explore a more manual approach using `bash`,
-see the [Build a clade collection using BASH example](deploy-clade-bash).
+see the [Build a clade collection using BASH example](deploy-clade-bash.md).
 We will use *Escherichia coli* as the target species, but you can use any
 species (or any taxon) you want.
 
@@ -43,7 +43,7 @@ other species name, or even taxa of any rank such as genus or family.
 
 If you have any unreleased genomes, you can simply add them to the same project
 to be processed together with those publicly available. You can initialize
-datasets at different points, see [input data](/part2/input). For the
+datasets at different points, see [input data](../part2/input.md). For the
 purposes of this tutorial, we'll assume that you have raw coupled reads from two
 sequencing lanes (1 and 2) in Gzipped FastQ files:
 
@@ -62,7 +62,7 @@ miga add -P . -D MyDataset -t genome \
 ## 3. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the
-data. For additional details, see [launching daemons](daemons):
+data. For additional details, see [launching daemons](daemons.md):
 
 ```bash
 miga daemon start -P .

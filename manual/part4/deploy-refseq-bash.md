@@ -5,7 +5,7 @@ representative genomes available in RefSeq. For this tutorial you'll need some
 \*nix utilities, including `curl`, `tail`, `cut`, `awk`, `gzip`, and `perl`.
 
 For a MiGA-only version of this exercise, see the
-[RefSeq in MiGA example](deploy-refseq).
+[RefSeq in MiGA example](deploy-refseq.md).
 
 ## 0. Initialize the project
 
@@ -46,7 +46,7 @@ miga get -P . --file rep_genomes_miga.tsv \
 ## 2. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the
-data. For additional details, see [launching daemons](daemons):
+data. For additional details, see [launching daemons](daemons.md):
 
 ```bash
 miga daemon start -P .

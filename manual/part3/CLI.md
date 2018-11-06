@@ -2,7 +2,7 @@
 
 CLI stands for Command Line Interface. This is a set of little scripts that let
 you talk with MiGA through the terminal shell. If MiGA is in your PATH (see
-[installation details](/part2/installation)), you can simply run `miga`
+[installation details](../part2/installation.md)), you can simply run `miga`
 in your terminal, and the help messages will take it from there. All the MiGA
 CLI calls look like:
 
