@@ -7,9 +7,9 @@ metagenomes. Its main aim is to provide a uniform system for genome-based
 taxonomic classification and diversity studies, but its base can be used for
 other purposes.
 
-* [How can MiGA help me?](/part1/pitch)
-* [Who's using MiGA?](/part1/use-cases)
-* [Definitions](/glossary)
+* [How can MiGA help me?](part1/pitch)
+* [Who's using MiGA?](part1/use-cases)
+* [Definitions](glossary)
 
 ## Getting started with MiGA
 
@@ -17,11 +17,11 @@ MiGA iself doesn't require much, but processing large data collections may
 require large infrastructures. With that in mind, MiGA is designed to support
 both single machines and cluster infrastructures.
 
-* [Requirements](/part2/requirements)
-* [Installation](/part2/installation)
-* [MiGA types](/part2/types)
-* [Distances](/part2/distances)
-* [Clustering](/part2/clustering)
+* [Requirements](part2/requirements)
+* [Installation](part2/installation)
+* [MiGA types](part2/types)
+* [Distances](part2/distances)
+* [Clustering](part2/clustering)
 
 ## MiGA Interfaces
 
@@ -35,24 +35,25 @@ means that you can write your own interfaces \(or pieces\) if you know how to
 talk to these Ruby objects. Sometimes I even use `irb`, which is an interactive
 shell for Ruby, but that's mostly for debugging.
 
-* [MiGA API](/part3/API)
-* [MiGA CLI](/part3/CLI)
-* [MiGA Web](/part3/Web)
+* [MiGA API](part3/API)
+* [MiGA CLI](part3/CLI)
+* [MiGA Web](part3/Web)
 
 ## Deploying examples
 
 Once you have installed MiGA, you might want to follow one (or several) of these
 tutorials to familiarize yourself with the MiGA environment.
 
-* [RefSeq in MiGA](/part4/deploy-refseq)
-* [Build a clade collection](/part4/deploy-clade)
-* [Launching daemons](/part4/daemons)
-* [Setting up MiGA in a cluster](/part4/cluster)
+* [RefSeq in MiGA](part4/deploy-refseq)
+* [Build a clade collection](part4/deploy-clade)
+* [Launching daemons](part4/daemons)
+* [Setting up MiGA in a cluster](part4/cluster)
 
 ## MiGA in detail
 
 Ready for more? Here are some technical details for advanced users.
 
-* [Advanced configuration](/part5/advanced-configuration)
-* [MiGA workflow](/part5/workflow)
-* [Extending MiGA](/part5/extending)
+* [Advanced configuration](part5/advanced-configuration)
+* [MiGA workflow](part5/workflow)
+* [Extending MiGA](part5/extending)
+
