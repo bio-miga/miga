@@ -7,9 +7,9 @@ metagenomes. Its main aim is to provide a uniform system for genome-based
 taxonomic classification and diversity studies, but its base can be used for
 other purposes.
 
-* [How can MiGA help me?](part1/pitch)
-* [Who's using MiGA?](part1/use-cases)
-* [Definitions](glossary)
+* [How can MiGA help me?](part1/pitch.md)
+* [Who's using MiGA?](part1/use-cases.md)
+* [Definitions](glossary.md)
 
 ## Getting started with MiGA
 
