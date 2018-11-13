@@ -122,6 +122,7 @@ module MiGA::Dataset::Result
   # the project as reference datasets.
   def cleanup_distances!
     r = get_result(:distances)
+    ref = project.datasets.select(&:is_ref?).select(&:is_active?).map(&:name)
     return if r.nil?
     [:haai_db, :aai_db, :ani_db].each do |db_type|
       db = r.file_path(db_type)
@@ -130,7 +131,7 @@ module MiGA::Dataset::Result
       table = db_type[-6..-4]
       val = sqlite_db.execute "select seq2 from #{table}"
       next if val.empty?
-      (val.map{ |i| i.first } - project.dataset_names).each do |extra|
+      (val.map(&:first) - ref).each do |extra|
         sqlite_db.execute "delete from #{table} where seq2=?", extra
       end
     end
