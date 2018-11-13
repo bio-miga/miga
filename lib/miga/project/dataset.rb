@@ -5,7 +5,6 @@
 # Helper module including specific functions handle datasets.
 module MiGA::Project::Dataset
   
-
   ##
   # Returns Array of MiGA::Dataset.
   def datasets
@@ -16,6 +15,13 @@ module MiGA::Project::Dataset
   # Returns Array of String (without evaluating dataset objects).
   def dataset_names
     metadata[:datasets]
+  end
+
+  ##
+  # Returns Hash of Strings => true. Similar to +dataset_names+ but as
+  # Hash for efficiency.
+  def dataset_names_hash
+    @dataset_names_hash ||= Hash[dataset_names.map{ |i| [i,true] }]
   end
   
   ##

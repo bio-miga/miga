@@ -17,7 +17,7 @@ class MiGA::Dataset < MiGA::MiGA
     ##
     # Does the +project+ already have a dataset with that +name+?
     def exist?(project, name)
-      project.dataset_names.include? name
+      not project.dataset_names_hash[name].nil?
     end
 
     ##

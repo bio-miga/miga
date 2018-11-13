@@ -63,6 +63,7 @@ class MiGA::Project < MiGA::MiGA
   # (Re-)load project data and metadata.
   def load
     @datasets = {}
+    @dataset_names_hash = nil
     @metadata = MiGA::Metadata.load "#{path}/miga.project.json"
     raise "Couldn't find project metadata at #{path}" if metadata.nil?
   end
