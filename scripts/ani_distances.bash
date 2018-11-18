@@ -12,7 +12,7 @@ cd "$PROJECT/data/09.distances/03.ani"
 miga date > "miga-project.start"
 
 echo -n "" > miga-project.log
-DS=$(miga list_datasets -P "$PROJECT" --ref --no-multi)
+DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 
 # Extract values
 echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
