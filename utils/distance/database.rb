@@ -106,6 +106,7 @@ module MiGA::DistanceRunner::Database
         "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
         "values (?, ?, ?, ?, ?, ?)", [n1, n2] + data)
     end
+    checkpoint metric
   end
 
   ##
