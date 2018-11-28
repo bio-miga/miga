@@ -30,7 +30,9 @@ class MiGA::DistanceRunner
     if opts[:run_taxonomy] && project.metadata[:ref_project]
       @home = File.expand_path('05.taxonomy', @home)
       @ref_project = MiGA::Project.load(project.metadata[:ref_project])
-      raise "Cannot load reference project: #{project.metadata[:ref_project]}" if @ref_project.nil?
+      if @ref_project.nil?
+        raise "Cannot load reference project: #{project.metadata[:ref_project]}"
+      end
     else
       @ref_project = project
     end
@@ -55,47 +57,61 @@ class MiGA::DistanceRunner
   def go_ref!
     # Initialize databases
     initialize_dbs! true
+
     # first-come-first-serve traverse
     ref_project.each_dataset do |ds|
       next if !ds.is_ref? or ds.is_multi? or ds.result(:essential_genes).nil?
       puts "[ #{Time.now} ] #{ds.name}"
-      aai = aai(ds)
-      ani(ds) unless aai.nil? or aai < 90.0
+      ani_after_aai(ds)
     end
+
     # Finalize
     [:haai, :aai, :ani].each{ |m| checkpoint! m if db_counts[m] > 0 }
   end
 
+  ##
   # Launch analysis for query datasets
   def go_query!
     # Check if project is ready
-    v = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
-    res = ref_project.result(v[0])
+    tsk = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
+    res = ref_project.result(tsk[0])
     return if res.nil?
+
     # Initialize the databases
     initialize_dbs! false
     # Calculate the classification-informed AAI/ANI traverse
-    results = File.expand_path("#{dataset.name}.#{v[1]}-medoids.tsv", home)
-    fh = File.open(results, "w")
-    classif, val_cls = *classify(res.dir, ".", v[1], fh)
+    results = File.expand_path("#{dataset.name}.#{tsk[1]}-medoids.tsv", home)
+    fh = File.open(results, 'w')
+    classif, val_cls = *classify(res.dir, '.', tsk[1], fh)
     fh.close
+
     # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
     par_dir = File.dirname(File.expand_path(classif, res.dir))
-    par = File.expand_path("miga-project.classif", par_dir)
+    par = File.expand_path('miga-project.classif', par_dir)
+    closest = {dataset: nil, ani: 0.0}
     if File.size? par
-      File.open(par, "r") do |fh|
+      File.open(par, 'r') do |fh|
         fh.each_line do |ln|
           r = ln.chomp.split("\t")
-          next unless r[1].to_i==val_cls
-          target = ref_project.dataset(r[0])
-          aai = (v[1]==:aai) ? aai(target) : 100.0
-          ani(target) if aai >= 90.0
+          next unless r[1].to_i == val_cls
+          ani = ani_after_aai(ref_project.dataset(r[0]))
+          closest = {ds: r[0], ani: ani} unless ani.nil? or ani < closest[:ani]
         end
       end
     end
+
+    # Calculate all the AAIs/ANIs against the closest ANI95-clade (if ANI > 95%)
+    cl_path = File.expand_path('miga-project.ani95-clades', home)
+    if File.size? cl_path and tsk[0] == :clade_finding and closest[:ani] >= 95.0
+      File.foreach(cl_path).
+        map  { |i| i.chomp.split(',') }.
+        find { |i| i.include? closest[:ds] }.
+        each { |i| ani_after_aai(ref_project.dataset(i)) }
+    end
+
     # Finalize
     [:haai, :aai, :ani].each{ |m| checkpoint! m if db_counts[m] > 0 }
-    build_medoids_tree(v[1])
+    build_medoids_tree(tsk[1])
     transfer_taxonomy(tax_test)
   end
 

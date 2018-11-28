@@ -18,6 +18,7 @@ module MiGA::DistanceRunner::Commands
           dataset.name, target.name, tmp_dbs[:aai]).tap{ checkpoint :aai }
   end
 
+  ##
   # Estimates AAI against +target+ using hAAI
   def haai(target)
     haai = aai_cmd(tmp_file("ess_genes.fa"),
@@ -34,6 +35,7 @@ module MiGA::DistanceRunner::Commands
     aai
   end
 
+  ##
   # Calculates ANI against +target+
   def ani(target)
     # Check if the request makes sense
@@ -49,6 +51,15 @@ module MiGA::DistanceRunner::Commands
         dataset.name, target.name, tmp_dbs[:ani]).tap{ checkpoint :ani }
   end
 
+  ##
+  # Calculates and returns ANI against +target+ if AAI >= 85%. Returns
+  # +nil+ otherwise
+  def ani_after_aai(target)
+    aai = aai(target)
+    ani(target) unless aai.nil? or aai < 85.0
+  end
+
+  ##
   # Execute an AAI command
   def aai_cmd(f1, f2, n1, n2, db, o={})
     o = opts.merge(o)
@@ -59,6 +70,7 @@ module MiGA::DistanceRunner::Commands
     (v.nil? or v.empty?) ? 0 : v.to_f
   end
 
+  ##
   # Execute an ANI command
   def ani_cmd(f1, f2, n1, n2, db, o={})
     o = opts.merge(o)

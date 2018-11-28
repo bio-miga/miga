@@ -3,7 +3,6 @@ require_relative 'base.rb'
 require_relative 'temporal.rb'
 require_relative 'pipeline.rb'
 
-
 class MiGA::SubcladeRunner
 
   include MiGA::SubcladeRunner::Temporal
@@ -17,7 +16,7 @@ class MiGA::SubcladeRunner
           raise "No project at #{project_path}"
     @step = step.to_sym
     clades_dir = File.expand_path('data/10.clades', project.path)
-    @home = File.expand_path(@step==:clade_finding ? '01.find' : '02.ani',
+    @home = File.expand_path(@step == :clade_finding ? '01.find' : '02.ani',
           clades_dir)
     @opts[:thr] ||= ENV.fetch("CORES"){ 2 }.to_i
   end
@@ -29,7 +28,7 @@ class MiGA::SubcladeRunner
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
       create_temporals
-      step==:clade_finding ? go_clade_finding! : go_subclades!
+      step == :clade_finding ? go_clade_finding! : go_subclades!
     end
   end
 

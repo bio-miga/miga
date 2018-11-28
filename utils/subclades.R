@@ -5,7 +5,7 @@
 #
 
 #= Load stuff
-argv <- commandArgs(trailingOnly=T)
+argv <- commandArgs(trailingOnly = TRUE)
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(vegan))
 suppressPackageStartupMessages(library(cluster))
@@ -13,38 +13,44 @@ suppressPackageStartupMessages(library(parallel))
 suppressPackageStartupMessages(library(enveomics.R))
 
 #= Main function
-subclades <- function(ani_file, out_base, thr=1, ani.d=dist(0)) {
-  say("==> Out base:", out_base, "<==")
+subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
+  say('==> Out base:', out_base, '<==')
 
   # Normalize input matrix
-  dist_rdata = paste(out_base, "dist.rdata", sep=".")
+  dist_rdata = paste(out_base, 'dist.rdata', sep = '.')
   if(!missing(ani_file)){
-    if(length(ani.d)==0 && !file.exists(dist_rdata)){
+    if(length(ani.d) == 0 && !file.exists(dist_rdata)){
       # Read from ani_file
-      a <- read.table(gzfile(ani_file), sep="\t", header=TRUE, as.is=TRUE)
+      a <- read.table(gzfile(ani_file), sep = '\t', header = TRUE, as.is = TRUE)
       if(nrow(a)==0){
         generate_empty_files(out_base)
         return(NULL)
       }
-      say("Distances")
+      if(!is.na(sel) and file.exists(sel)){
+        say('Filter selection')
+        lab <- read.table(sel, sep='\t', head=FALSE, as.is=TRUE)[,1]
+        a <- a[a$a %in% lab & a$b %in% lab, ]
+      }
+      say('Distances')
       a$d <- 1 - (a$value/100)
-      ani.d <- enve.df2dist(a, 'a', 'b', 'd', default.d=max(a$d)*1.2)
-      save(ani.d, file=dist_rdata)
+      ani.d <- enve.df2dist(a, 'a', 'b', 'd', default.d = max(a$d)*1.2)
+      save(ani.d, file = dist_rdata)
     }
   }
 
   # Read result if the subclade is ready, run it otherwise
-  if(file.exists(paste(out_base,"classif",sep="."))){
+  if(file.exists(paste(out_base, 'classif', sep = '.'))){
     say("Loading")
-    ani.medoids <- read.table(paste(out_base, "medoids", sep="."),
-          sep=' ', as.is=TRUE)[,1]
-    a <- read.table(paste(out_base,"classif",sep="."), sep="\t", as.is=TRUE)
+    ani.medoids <- read.table(paste(out_base, "medoids", sep = "."),
+      sep = ' ', as.is = TRUE)[,1]
+    a <- read.table(paste(out_base, "classif", sep="."),
+      sep = '\t', as.is = TRUE)
     ani.types <- a[,2]
     names(ani.types) <- a[,1]
-    if(length(ani.d)==0) load(dist_rdata)
+    if(length(ani.d) == 0) load(dist_rdata)
   }else{
     res <- subclade_clustering(out_base, thr, ani.d, dist_rdata)
-    if(length(res)==0) return(NULL)
+    if(length(res) == 0) return(NULL)
     ani.medoids <- res[['ani.medoids']]
     ani.types <- res[['ani.types']]
     ani.d <- res[['ani.d']]
@@ -230,7 +236,7 @@ ggplotColours <- function(n=6, h=c(0, 360)+15, alpha=1){
 }
 
 #= Main
-options(warn=1)
-subclades(ani_file=argv[1], out_base=argv[2],
-  thr=ifelse(is.na(argv[3]), 1, as.numeric(argv[3])))
+options(warn = 1)
+subclades(ani_file = argv[1], out_base = argv[2],
+  thr = ifelse(is.na(argv[3]), 1, as.numeric(argv[3])), sel = argv[4])
 

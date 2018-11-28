@@ -2,7 +2,7 @@
 # High-end pipelines for SubcladeRunner
 module MiGA::SubcladeRunner::Pipeline
 
-  # Run species-level clusterings using ANI>95% / AAI>90%
+  # Run species-level clusterings using ANI > 95% / AAI > 90%
   def cluster_species
     tasks = {ani95: [:ani_distances, 95.0], aai90: [:aai_distances, 90.0]}
     tasks.each do |k, par|
@@ -23,8 +23,20 @@ module MiGA::SubcladeRunner::Pipeline
       end
       ofh.close
       # Cluster genomes
-      `ogs.mcl.rb -o '#{ogs_file}' --abc '#{abc_path}' -t '#{opts[:thr]}'`
+      `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
+      File.open(ogs_file, 'w') do |fh|
+        File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
+          fh.puts ln if lno != 0
+        end
+      end
+      File.unlink "#{ogs_file}.tmp"
     end
+
+    # Find species medoids
+    src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
+    `Rscript '#{src}' miga-project.dist.rdata \
+      miga-project.ani95-medoids miga-project.ani95-clades`
+
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
     File.open('miga-project.ani95-clades', 'r') do |ifh|
@@ -42,7 +54,8 @@ module MiGA::SubcladeRunner::Pipeline
     step = :"#{metric}_distances"
     metric_res = project.result(step) or raise "Incomplete step #{step}"
     matrix = metric_res.file_path(:matrix)
-    `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}'`
+    `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}' \
+      miga-project.ani95-medoids`
     File.rename('miga-project.nwk',"miga-project.#{metric}.nwk") if
           File.exist? 'miga-project.nwk'
   end

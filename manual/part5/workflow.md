@@ -417,10 +417,15 @@ Supported file keys:
   the AAI against the corresponding medoid.
 * `medoids` (*req* for `genomes`): List of medoids per cluster.
 * `aai_tree`: Bio-NJ tree based on AAI distances in Newick format.
-* `proposal` (*req*): Proposed species-level clades in the project. One line per
-  proposed clade, with comma-delimited dataset names.
-* `clades_aai90`: Clades formed at AAI > 90% in the same format as `proposal`.
-* `clades_ani95`: Same as `proposal`.
+* `proposal` (*req*): Proposed species-level clades in the project, based on
+  `clades_ani95`. One line per proposed clade, with tab-delimited dataset names.
+  Only clades with 5 or more members are included.
+* `clades_aai90`: Clades formed at AAI > 90%. One clade per line, with
+  comma-delimited dataset names.
+* `clades_ani95`: Clades formed at ANI > 95%. One clade per line, with
+  comma-delimited dataset names.
+* `medoids_ani95`: List of `clades_ani95` datasets with the smallest distance to
+  all members of its own ANI95 clade. The list is in the same order.
 
 MiGA symbol: `clade_finding`.
 
