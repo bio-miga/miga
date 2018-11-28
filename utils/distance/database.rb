@@ -2,6 +2,7 @@
 require 'sqlite3'
 
 module MiGA::DistanceRunner::Database
+  ##
   # Check for corrupt files and create empty databases
   def initialize_dbs!(for_ref)
     @dbs = {}
@@ -33,6 +34,7 @@ module MiGA::DistanceRunner::Database
     end
   end
 
+  ##
   # Path to the database +metric+ for +dataset_name+ in +project+
   # (assumes that +dataset_name+ is a reference dataset)
   def ref_db(metric, dataset_name=nil)
@@ -48,35 +50,65 @@ module MiGA::DistanceRunner::Database
     File.expand_path(b, home)
   end
 
+  ##
   # Path to the database +metric+ for +dataset+ (assumes that +dataset+ is a
   # query dataset)
   def query_db(metric)
     File.expand_path("#{dataset.name}.#{metric}.db", home)
   end
 
+  ##
   # Get the stored +metric+ value against +target+
   def stored_value(target, metric)
     # Check if self.dataset -> target is done (previous run)
     y = value_from_db(dataset.name, target.name, tmp_dbs[metric], metric)
     return y unless y.nil? or y.zero?
+
     # Check if self.dataset <- target is done (another thread)
-    if dataset.is_ref? and project.path==ref_project.path
-      y = value_from_db(target.name, dataset.name, ref_db(metric, target.name), metric)
-      return y unless y.nil? or y.zero?
+    if dataset.is_ref? and project.path == ref_project.path
+      y = data_from_db(
+        target.name, dataset.name, ref_db(metric, target.name), metric)
+      unless y.nil? or y.first.zero?
+        # Store a copy
+        data_to_db(dataset.name, target.name, tmp_dbs[metric], metric, y)
+        return y.first
+      end
     end
     nil
   end
 
+  ##
   # Get the value of +metric+ in the +db+ database between +n1+ and +n2+
   def value_from_db(n1, n2, db, metric)
+    y = data_from_db(n1, n2, db, metric)
+    y.first unless y.nil?
+  end
+
+  ##
+  # Get the +metric+ data in the +db+ database between +n1+ and +n2+. Returns an
+  # Array with the metric, standard deviation, number of matches, and maximum
+  # possible number of matches
+  def data_from_db(n1, n2, db, metric)
     y = nil
     SQLite3::Database.new(db) do |conn|
-      y = conn.execute("select #{metric} from #{metric} where seq1=? and seq2=?", [n1, n2]).first
-      y = y.first unless y.nil?
+      y = conn.execute(
+        "select #{metric}, sd, n, omega from #{metric} where seq1=? and seq2=?",
+        [n1, n2]).first
     end if File.size? db
     y
   end
 
+  ##
+  # Save +data+ of +metric+ between +n1+ and +n2+ in the +db+ database.
+  def data_to_db(n1, n2, db, metric, data)
+    SQLite3::Database.new(db) do |conn|
+      conn.execute(
+        "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
+        "values (?, ?, ?, ?, ?, ?)", [n1, n2] + data)
+    end
+  end
+
+  ##
   # Iterates for each entry in +db+
   def foreach_in_db(db, metric, &blk)
     SQLite3::Database.new(db) do |conn|
