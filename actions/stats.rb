@@ -127,8 +127,6 @@ if o[:compute]
       end
       d.save
     end
-  when :distances
-    d.cleanup_distances! unless d.nil?
   else
     stats = nil
   end
