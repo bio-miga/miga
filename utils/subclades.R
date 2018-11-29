@@ -22,11 +22,11 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
     if(length(ani.d) == 0 && !file.exists(dist_rdata)){
       # Read from ani_file
       a <- read.table(gzfile(ani_file), sep = '\t', header = TRUE, as.is = TRUE)
-      if(nrow(a)==0){
+      if(nrow(a) == 0){
         generate_empty_files(out_base)
         return(NULL)
       }
-      if(!is.na(sel) and file.exists(sel)){
+      if(!is.na(sel) && file.exists(sel)){
         say('Filter selection')
         lab <- read.table(sel, sep='\t', head=FALSE, as.is=TRUE)[,1]
         a <- a[a$a %in% lab & a$b %in% lab, ]

@@ -1,5 +1,5 @@
 
-require "date"
+require 'date'
 
 ##
 # High-level minimal requirements for the MiGA::MiGA class.
@@ -10,11 +10,11 @@ module MiGA
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
   # - Integer representing minor changes that require new version number.
-  VERSION = [0.3, 6, 0]
+  VERSION = [0.3, 6, 1]
   
   ##
   # Nickname for the current major.minor version.
-  VERSION_NAME = "tinge"
+  VERSION_NAME = 'tinge'
   
   ##
   # Date of the current gem release.
