@@ -26,16 +26,18 @@ module MiGA::SubcladeRunner::Pipeline
       `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
       File.open(ogs_file, 'w') do |fh|
         File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
-          fh.puts ln if lno != 0
+          fh.puts ln if lno > 0
         end
       end
       File.unlink "#{ogs_file}.tmp"
     end
 
     # Find species medoids
-    src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
-    `Rscript '#{src}' miga-project.dist.rdata \
-      miga-project.ani95-medoids miga-project.ani95-clades`
+    if File.size? 'miga-project.dist.rdata'
+      src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
+      `Rscript '#{src}' miga-project.dist.rdata \
+        miga-project.ani95-medoids miga-project.ani95-clades`
+    end
 
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
