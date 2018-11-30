@@ -424,8 +424,8 @@ Supported file keys:
   comma-delimited dataset names.
 * `clades_ani95`: Clades formed at ANI > 95%. One clade per line, with
   comma-delimited dataset names.
-* `medoids_ani95`: List of `clades_ani95` datasets with the smallest distance to
-  all members of its own ANI95 clade. The list is in the same order.
+* `medoids_ani95`: List of `clades_ani95` datasets with the smallest ANI
+  distance to all members of its own ANI95 clade. The list is in the same order.
 
 MiGA symbol: `clade_finding`.
 

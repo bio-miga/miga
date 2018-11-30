@@ -33,11 +33,9 @@ module MiGA::SubcladeRunner::Pipeline
     end
 
     # Find species medoids
-    if File.size? 'miga-project.dist.rdata'
-      src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
-      `Rscript '#{src}' miga-project.dist.rdata \
-        miga-project.ani95-medoids miga-project.ani95-clades`
-    end
+    src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
+    `Rscript '#{src}' ../../09.distances/03.ani/miga-project.Rdata \
+      miga-project.ani95-medoids miga-project.ani95-clades`
 
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
