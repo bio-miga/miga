@@ -14,17 +14,17 @@ module MiGA::DistanceRunner::Commands
     end
     # Full AAI
     aai_cmd(
-          tmp_file("proteins.fa"), target.result(:cds).file_path(:proteins),
+          tmp_file('proteins.fa'), target.result(:cds).file_path(:proteins),
           dataset.name, target.name, tmp_dbs[:aai]).tap{ checkpoint :aai }
   end
 
   ##
   # Estimates AAI against +target+ using hAAI
   def haai(target)
-    haai = aai_cmd(tmp_file("ess_genes.fa"),
+    haai = aai_cmd(tmp_file('ess_genes.fa'),
           target.result(:essential_genes).file_path(:ess_genes),
           dataset.name, target.name, tmp_dbs[:haai],
-          aai_save_rbm: "no-save-rbm", aai_p: opts[:haai_p])
+          aai_save_rbm: 'no-save-rbm', aai_p: opts[:haai_p])
     checkpoint :haai
     return nil if haai.nil? or haai.zero? or haai > 90.0
     aai = 100.0 - Math.exp(2.435076 + 0.4275193*Math.log(100.0-haai))
@@ -32,6 +32,7 @@ module MiGA::DistanceRunner::Commands
       conn.execute "insert into aai values(?, ?, ?, 0, 0, 0)",
             [dataset.name, target.name, aai]
     end
+    checkpoint :aai
     aai
   end
 
@@ -39,7 +40,7 @@ module MiGA::DistanceRunner::Commands
   # Calculates ANI against +target+
   def ani(target)
     # Check if the request makes sense
-    t = tmp_file("largecontigs.fa")
+    t = tmp_file('largecontigs.fa')
     r = target.result(:assembly)
     return nil if r.nil? or !File.size?(t)
     # Check if it's been calculated

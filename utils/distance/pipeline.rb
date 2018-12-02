@@ -64,9 +64,9 @@ module MiGA::DistanceRunner::Pipeline
     # Get taxonomy of closest relative
     from_ref_project = (project != ref_project)
     res_dir = from_ref_project ?
-          File.expand_path("data/09.distances/05.taxonomy", project.path) : home
+      File.expand_path('data/09.distances/05.taxonomy', project.path) : home
     Dir.mkdir res_dir unless Dir.exist? res_dir
-    File.open(File.expand_path("#{dataset.name}.done", res_dir), "w") do |fh|
+    File.open(File.expand_path("#{dataset.name}.done", res_dir), 'w') do |fh|
       fh.puts Time.now.to_s
     end
     dataset.add_result(from_ref_project ? :taxonomy : :distances, true)
@@ -75,25 +75,28 @@ module MiGA::DistanceRunner::Pipeline
     tax = ref_project.dataset(cr[0][0]).metadata[:tax] || {}
     # Run the test for each rank
     r = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax).map do |k,v|
-      sig = ""
-      [0.5,0.1,0.05,0.01].each{ |i| sig << "*" if v<i }
-      [MiGA::Taxonomy.LONG_RANKS[k], (tax[k] || "?"), v, sig]
+      sig = ''
+      [0.5,0.1,0.05,0.01].each{ |i| sig << '*' if v<i }
+      [MiGA::Taxonomy.LONG_RANKS[k], (tax[k] || '?'), v, sig]
     end
     # Save test
     File.open(File.expand_path("#{dataset.name}.intax.txt", home), "w") do |fh|
       fh.puts "Closest relative: #{cr[0][0]} with AAI: #{cr[0][1]}."
-      fh.puts ""
+      fh.puts ''
       fh.puts MiGA::MiGA.tabulate(%w[Rank Taxonomy P-value Signif.], r)
-      fh.puts ""
-      fh.puts "Significance at p-value below: *0.5, **0.1, ***0.05, ****0.01."
+      fh.puts ''
+      fh.puts 'Significance at p-value below: *0.5, **0.1, ***0.05, ****0.01.'
     end
     return r
   end
 
   # Transfer the taxonomy to the current dataset
   def transfer_taxonomy(tax)
+    return if tax.nil?
     pval = (project.metadata[:tax_pvalue] || 0.05).to_f
-    tax_a = tax.select{ |i| i[1]!="?" && i[2]<=pval }.map { |i| i[0,2].join(":") }
+    tax_a = tax.
+      select { |i| i[1] != '?' && i[2] <= pval }.
+      map { |i| i[0,2].join(':') }
     dataset.metadata[:tax] = MiGA::Taxonomy.new(tax_a)
     dataset.save
   end
