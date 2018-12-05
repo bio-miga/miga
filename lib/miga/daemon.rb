@@ -86,8 +86,24 @@ class MiGA::Daemon < MiGA::MiGA
   def report_status
     f = File.open(File.expand_path('daemon/status.json', project.path), 'w')
     f.print JSON.pretty_generate(
-      jobs_running:@jobs_running, jobs_to_run:@jobs_to_run)
+      jobs_running: @jobs_running, jobs_to_run: @jobs_to_run)
     f.close
+  end
+
+  ##
+  # Load the status of a previous instance.
+  def load_status
+    f_path = File.expand_path('daemon/status.json', project.path)
+    return unless File.size? f_path
+    status = JSON.parse(File.read(f_path), symbolize_names: true)
+    status.keys.each do |i|
+      status[i].map! do |j|
+        j.tap { |k| k[:ds] = project.dataset(k[:ds_name]) unless k[:ds].nil? }
+      end
+    end
+    @jobs_to_run = status[:jobs_to_run]
+    @jobs_running = status[:jobs_running]
+    purge!
   end
 
   ##
@@ -192,15 +208,16 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Run one loop step. Returns a Boolean indicating if the loop should continue.
   def in_loop
+    declare_alive
+    project.load
     if loop_i == -1
       say '-----------------------------------'
       say 'MiGA:%s launched.' % project.name
       say '-----------------------------------'
+      load_status
       @loop_i = 0
     end
     @loop_i += 1
-    declare_alive
-    project.load
     check_datasets
     check_project
     flush!
