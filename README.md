@@ -7,10 +7,7 @@
 
 # MiGA: Microbial Genomes Atlas
 
-**Important**: MiGA is under active development, and we currently cannot ensure
-any stability on the different interfaces. We're currently running a Beta
-Testing program with dedicated support for a small number of laboratories. If 
-you're interested, please [contact us][contact].
+![Graphical abstract](manual/img/Graphical_abstract-01.png)
 
 For additional information on MiGA, visit:
 
