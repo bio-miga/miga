@@ -87,7 +87,7 @@ if File.exist? o[:config]
   o[:config] = File.expand_path o[:config]
   $stderr.puts "Found bash configuration script: #{o[:config]}."
   rc_fh.puts "MIGA_STARTUP='#{o[:config]}'"
-  rc_fh.puts "source \"$MIGA_STARTUP\""
+  rc_fh.puts ". \"$MIGA_STARTUP\""
 end
 $stderr.puts ""
 
@@ -108,7 +108,7 @@ File.open(File.expand_path("utils/requirements.txt", miga), "r") do |fh|
     path = nil
     loop do
       if File.exist? o[:config]
-        d_path = File.dirname(`source "#{o[:config]}" && which "#{r[1]}"`)
+        d_path = File.dirname(`. "#{o[:config]}" && which "#{r[1]}"`)
       else
         d_path = File.dirname(`which "#{r[1]}"`)
       end
