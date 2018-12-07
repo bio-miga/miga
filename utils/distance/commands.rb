@@ -53,11 +53,11 @@ module MiGA::DistanceRunner::Commands
   end
 
   ##
-  # Calculates and returns ANI against +target+ if AAI >= 85%. Returns
-  # +nil+ otherwise
-  def ani_after_aai(target)
+  # Calculates and returns ANI against +target+ if AAI >= +aai_limit+.
+  # Returns +nil+ otherwise
+  def ani_after_aai(target, aai_limit = 85.0)
     aai = aai(target)
-    ani(target) unless aai.nil? or aai < 85.0
+    ani(target) unless aai.nil? or aai < aai_limit
   end
 
   ##

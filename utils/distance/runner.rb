@@ -94,19 +94,19 @@ class MiGA::DistanceRunner
         fh.each_line do |ln|
           r = ln.chomp.split("\t")
           next unless r[1].to_i == val_cls
-          ani = ani_after_aai(ref_project.dataset(r[0]))
+          ani = ani_after_aai(ref_project.dataset(r[0]), 80.0)
           closest = {ds: r[0], ani: ani} unless ani.nil? or ani < closest[:ani]
         end
       end
     end
 
-    # Calculate all the AAIs/ANIs against the closest ANI95-clade (if ANI > 95%)
+    # Calculate all the AAIs/ANIs against the closest ANI95-clade (if AAI > 80%)
     cl_path = File.expand_path('miga-project.ani95-clades', home)
     if File.size? cl_path and tsk[0] == :clade_finding
       File.foreach(cl_path).
         map  { |i| i.chomp.split(',') }.
         find { |i| i.include? closest[:ds] }.
-        each { |i| ani_after_aai(ref_project.dataset(i)) }
+        each { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
     end
 
     # Finalize
