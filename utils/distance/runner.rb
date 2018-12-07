@@ -102,7 +102,7 @@ class MiGA::DistanceRunner
 
     # Calculate all the AAIs/ANIs against the closest ANI95-clade (if ANI > 95%)
     cl_path = File.expand_path('miga-project.ani95-clades', home)
-    if File.size? cl_path and tsk[0] == :clade_finding and closest[:ani] >= 95.0
+    if File.size? cl_path and tsk[0] == :clade_finding
       File.foreach(cl_path).
         map  { |i| i.chomp.split(',') }.
         find { |i| i.include? closest[:ds] }.
