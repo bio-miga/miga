@@ -11,9 +11,6 @@ cd "$PROJECT/data/10.clades/01.find"
 # Initialize
 miga date > "miga-project.start"
 
-# Cleanup databases
-ruby -I "$MIGA/lib" "$MIGA/utils/cleanup-databases.rb" "$PROJECT" "$CORES"
-
 # Run
 ruby -I "$MIGA/lib" "$MIGA/utils/subclades.rb" "$PROJECT" "$SCRIPT"
 

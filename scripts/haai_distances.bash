@@ -11,6 +11,10 @@ cd "$PROJECT/data/09.distances/01.haai"
 # Initialize
 miga date > "miga-project.start"
 
+# Cleanup databases
+ruby -I "$MIGA/lib" "$MIGA/utils/cleanup-databases.rb" "$PROJECT" "$CORES"
+
+# Run hAAI
 echo -n "" > miga-project.log
 DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 
