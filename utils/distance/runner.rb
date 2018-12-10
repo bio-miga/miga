@@ -104,9 +104,9 @@ class MiGA::DistanceRunner
     cl_path = res.file_path :clades_ani95
     if File.size? cl_path and tsk[0] == :clade_finding
       File.foreach(cl_path).
-        map     { |i| i.chomp.split(',') }.
-        find([]){ |i| i.include? closest[:ds] }.
-        each    { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
+        map  { |i| i.chomp.split(',') }.
+        find( lambda{[]} ){ |i| i.include? closest[:ds] }.
+        each { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
     end
 
     # Finalize
