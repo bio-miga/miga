@@ -34,6 +34,7 @@ class MiGA::RemoteDataset
     def download_rest(universe, db, ids, format, extra = [])
       u = @@UNIVERSE[universe]
       url = sprintf(u[:url], db, ids.join(","), format, *extra)
+      url = u[:api_key][url] unless u[:api_key].nil?
       download_url url
     end
 

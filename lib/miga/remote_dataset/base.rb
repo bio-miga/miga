@@ -27,6 +27,8 @@ module MiGA::RemoteDataset::Base
   #   option.
   # - +method+ => Method used to query the URL. Only +:rest+ and +:net+ are
   #   currently supported.
+  # - +api_key+ => A lambda function that takes a URL as input and returns the
+  #   URL to be downloaded with an API Key (if available).
   # - +map_to_universe+ => Universe where results map to. Currently unsupported.
   @@UNIVERSE = {
     web: {
@@ -46,7 +48,10 @@ module MiGA::RemoteDataset::Base
     ncbi: {
       dbs: { nuccore: {stage: :assembly, format: :fasta} },
       url: "#{@@_EUTILS}efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
-      method: :rest
+      method: :rest,
+      api_key: lambda { |url|
+        ENV['NCBI_API_KEY'].nil? ?
+          url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}" }
     },
     ncbi_map: {
       dbs: {
@@ -56,7 +61,10 @@ module MiGA::RemoteDataset::Base
       },
       url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%4$s&retmode=%3$s",
       method: :net,
-      map_to_universe: :ncbi
+      map_to_universe: :ncbi,
+      api_key: lambda { |url|
+        ENV['NCBI_API_KEY'].nil? ?
+          url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}" }
     }
   }
 
