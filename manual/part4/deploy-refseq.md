@@ -22,6 +22,21 @@ take it from where it failed.
 miga ncbi_get -P . --reference -v
 ```
 
+It is strongly recommended to use an
+[NCBI API Key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
+to increase the number of allowed requests. Once you obtain one, you can pass it
+as an argument:
+
+```bash
+miga ncbi_get -P . --reference --api-key ABCD123 -v
+```
+
+Or you can set it globally as an environmental variable before running `miga`:
+
+```bash
+export NCBI_API_KEY=ABCD123
+```
+
 ## 2. Launch the daemon
 
 Now that your data is ready, you can fire up the daemon to start processing the

@@ -50,6 +50,7 @@ OptionParser.new do |opt|
   opt.on('-R', '--remote-list PATH',
         'Path to an output file with the list of all datasets listed remotely.'
         ){ |v| o[:remote_list]=v }
+  opt.on('--api-key STRING', 'NCBI API key.'){ |v| ENV['NCBI_API_KEY'] = v }
   opt_common(opt, o)
 end.parse!
 

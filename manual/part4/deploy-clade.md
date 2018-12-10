@@ -39,6 +39,21 @@ miga ncbi_get -T "Escherichia coli" -P . --complete --chromosome -v
 Note that you can change the value of `-T` from `"Escherichia coli"` to any
 other species name, or even taxa of any rank such as genus or family.
 
+It is strongly recommended to use an
+[NCBI API Key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
+to increase the number of allowed requests. Once you obtain one, you can pass it
+as an argument:
+
+```bash
+miga ncbi_get -T "Escherichia coli" -P . --complete --chromosome --api-key ABCD123 -v
+```
+
+Or you can set it globally as an environmental variable before running `miga`:
+
+```bash
+export NCBI_API_KEY=ABCD123
+```
+
 ## 2. Add your own genomes
 
 If you have any unreleased genomes, you can simply add them to the same project

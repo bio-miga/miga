@@ -39,9 +39,10 @@ OptionParser.new do |opt|
   opt.on('--get-metadata',
     'Only download and update metadata for existing datasets'
     ){ |v| o[:get_md] = v }
+  opt.on('--api-key STRING',
+    'API key for the given universe.'){ |v| o[:api_key] = v }
   opt_common(opt, o)
 end.parse!
-
 
 ##=> Main <=
 glob = [o]
@@ -66,6 +67,9 @@ end
 
 glob.each do |o_i|
   opt_require(o_i, project: '-P', dataset: '-D', ids: '-I')
+  unless o_i[:api_key].nil?
+    ENV["#{o_i[:universe].to_s.upcase}_API_KEY"] = o_i[:api_key]
+  end
 
   $stderr.puts "Dataset: #{o_i[:dataset]}" unless o_i[:q]
   $stderr.puts 'Loading project.' unless o_i[:q]
