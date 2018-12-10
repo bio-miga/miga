@@ -95,15 +95,18 @@ class MiGA::Daemon < MiGA::MiGA
   def load_status
     f_path = File.expand_path('daemon/status.json', project.path)
     return unless File.size? f_path
+    say 'Loading previous status in daemon/status.json:'
     status = JSON.parse(File.read(f_path), symbolize_names: true)
     status.keys.each do |i|
       status[i].map! do |j|
         j.tap { |k| k[:ds] = project.dataset(k[:ds_name]) unless k[:ds].nil? }
       end
     end
-    @jobs_to_run = status[:jobs_to_run]
     @jobs_running = status[:jobs_running]
+    @jobs_to_run  = status[:jobs_to_run]
     purge!
+    say "- jobs running: #{@jobs_running.size}"
+    say "- jobs to run: #{@jobs_to_run.size}"
   end
 
   ##
@@ -111,7 +114,7 @@ class MiGA::Daemon < MiGA::MiGA
   def check_datasets
     project.each_dataset do |n, ds|
       if ds.nil?
-        say "Warning: Dataset #{n} listed but not loaded, reloading project."
+        say "Warning: Dataset #{n} listed but not loaded, reloading project"
         project.load
       else
         to_run = ds.next_preprocessing(true)
