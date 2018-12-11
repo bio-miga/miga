@@ -99,7 +99,12 @@ class MiGA::Daemon < MiGA::MiGA
     status = JSON.parse(File.read(f_path), symbolize_names: true)
     status.keys.each do |i|
       status[i].map! do |j|
-        j.tap { |k| k[:ds] = project.dataset(k[:ds_name]) unless k[:ds].nil? }
+        j.tap do |k|
+          unless k[:ds].nil? or k[:ds] == 'miga-project'
+            k[:ds] = project.dataset(k[:ds_name])
+          end
+          k[:job] = k[:job].to_sym unless k[:job].nil?
+        end
       end
     end
     @jobs_running = status[:jobs_running]
@@ -171,12 +176,12 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Get the taks with key symbol +job+ in dataset +ds+. For project-wide tasks
   # let +ds+ be nil.
-  def get_job(job, ds=nil)
+  def get_job(job, ds = nil)
     (jobs_to_run + jobs_running).find do |j|
-      if ds==nil
-        j[:ds].nil? and j[:job]==job
+      if ds.nil?
+        j[:ds].nil? and j[:job] == job
       else
-        (! j[:ds].nil?) and j[:ds].name==ds.name and j[:job]==job
+        (! j[:ds].nil?) and j[:ds].name == ds.name and j[:job] == job
       end
     end
   end
