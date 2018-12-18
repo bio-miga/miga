@@ -100,7 +100,7 @@ class MiGA::Daemon < MiGA::MiGA
     status.keys.each do |i|
       status[i].map! do |j|
         j.tap do |k|
-          unless k[:ds].nil? or k[:ds] == 'miga-project'
+          unless k[:ds].nil? or k[:ds_name] == 'miga-project'
             k[:ds] = project.dataset(k[:ds_name])
           end
           k[:job] = k[:job].to_sym unless k[:job].nil?
@@ -109,6 +109,7 @@ class MiGA::Daemon < MiGA::MiGA
     end
     @jobs_running = status[:jobs_running]
     @jobs_to_run  = status[:jobs_to_run]
+    say "- jobs left running: #{@jobs_running.size}"
     purge!
     say "- jobs running: #{@jobs_running.size}"
     say "- jobs to run: #{@jobs_to_run.size}"
