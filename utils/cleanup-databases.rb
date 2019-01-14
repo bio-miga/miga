@@ -18,7 +18,7 @@ thr = ARGV[1].to_i
       next unless k == t
       d = p.dataset(i)
       next unless d.is_ref? and d.is_active?
-      i.cleanup_distances!
+      d.cleanup_distances!
     end
   end
 end
