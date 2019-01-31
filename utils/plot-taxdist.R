@@ -40,7 +40,7 @@ plot.miga.taxdist <- function(file, exclude = c(), format = 'pdf'){
   if(format == 'pdf'){
     pdf(paste(file, '.pdf', sep = ''), 6, 7)
   }else if(format == 'png'){
-    png(paste(file, '.png', sep = ''), 960, 1024)
+    png(paste(file, '.png', sep = ''), 960, 1024, pointsize = 32)
   }else{
     stop('Supported formats: "pdf" and "png".')
   }
