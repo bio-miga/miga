@@ -21,7 +21,7 @@ end.parse!
 
 ##=> Functions <=
 # Returns the _cannonical_ ID between strings +a+ and +b+.
-def cannid(a, b) ; [a, b].sort.join('-') ; end
+def cannid(a, b) ; (a > b ? [b, a] : [a, b]).join('-') ; end
 
 ##=> Main <=
 opt_require(o, project: '-P')
@@ -98,7 +98,7 @@ end
 $stderr.puts 'Generating report.' unless o[:q]
 dist.keys.each do |k|
   dist[k][5] = dist[k][4].join(' ')
-  dist[k][4] = dist[k][4][1]
+  dist[k][4] = dist[k][4].first
   puts (k.split('-') + dist[k]).join("\t")
 end
 
