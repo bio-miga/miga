@@ -41,9 +41,11 @@ dist = {}
 mfh = matrix =~ /\.gz$/ ? Zlib::GzipReader.open(matrix) : File.open(matrix, 'r')
 mfh.each_line do |ln|
   next if mfh.lineno==1
-  row = ln.chomp.split(/\t/)
+  row = ln.chomp.split("\t")
   dist[cannid(row[1], row[2])] = [row[3], row[5], row[6], 0, ['root:biota']]
+  $stderr.print("  Ln:#{mfh.lineno} \r") if !o[:q] and (mfh.lineno % 1_000) == 0
 end
+$stderr.puts "  Lines: #{mfh.lineno}" unless o[:q]
 mfh.close
 
 Dir.mktmpdir do |dir|
