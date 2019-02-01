@@ -25,11 +25,12 @@ The following metadata fields are recognized by different interfaces for
 | type*        | String           | [Type](../part2/types.md#project-types)
 | plugins      | Array of String  | For internal control of plugins
 | ref_project  | Path to Project  | Project with reference taxonomy
-| tax_pvalue   | Float [0,1]      | Maximum p-value to transfer taxonomy
-| aai_p        | String           | Value of -p for aai.rb[^2] on AAI
-| haai_p       | String           | Value of -p for aai.rb[^2] on hAAI
-| ani_p        | String           | Value of -p for ani.rb[^2] on ANI
-| max_try      | Integer          | Max number of times a task is attempted
+| tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
+| aai_p        | String           | Value of aai.rb -p[^2] on AAI (def: blast+)
+| haai_p       | String           | Value of aai.rb -p[^2] on hAAI (def: blast+)
+| ani_p        | String           | Value of ani.rb -p[^2] on ANI (def: blast+)
+| max_try      | Integer          | Max number of task attempts (def: 10)
+| ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
 | clean_ogs    | Boolean          | If false, keeps ABC (clades only)
 
 \* Mandatory

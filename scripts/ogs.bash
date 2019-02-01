@@ -11,7 +11,9 @@ cd "$PROJECT/data/10.clades/03.ogs"
 # Initialize
 miga date > "miga-project.start"
 
-DS=$(miga list_datasets -P "$PROJECT" --ref --no-multi)
+DS=$(miga ls -P "$PROJECT" --ref --no-multi)
+MIN_ID=$(miga about -P "$PROJECT" -m ogs_identity)
+[[ $MIN_ID == "?" ]] && MIN_ID=80
 if [[ ! -s miga-project.ogs ]] ; then
   # Extract RBMs
   if [[ ! -s miga-project.abc ]] ; then
@@ -19,7 +21,7 @@ if [[ ! -s miga-project.ogs ]] ; then
     for i in $DS ; do
       file="miga-project.tmp/$i.abc"
       [[ -s "$file" ]] && continue
-      echo "SELECT seq1,id1,seq2,id2,bitscore from rbm;" \
+      echo "SELECT seq1,id1,seq2,id2,bitscore from rbm where id >= $MIN_ID;" \
         | sqlite3 "../../09.distances/02.aai/$i.db" | tr "\\|" " " \
         | awk '{ print $1">"$2"'"\\t"'"$3">"$4"'"\\t"'"$5 }' \
         > "$file.tmp"
