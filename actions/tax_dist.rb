@@ -99,7 +99,7 @@ end
 
 $stderr.puts 'Generating report.' unless o[:q]
 dist.keys.each do |k|
-  dist[k][5] = dist[k][4].join(' ')
+  dist[k][5] = dist[k][4].reverse.join(' ')
   dist[k][4] = dist[k][4].first
   puts (k.split('-') + dist[k]).join("\t")
 end
