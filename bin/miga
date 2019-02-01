@@ -3,43 +3,43 @@
 # @package MiGA
 # @license Artistic-2.0
 
-$:.push File.expand_path("../lib", File.dirname(__FILE__))
+$:.push File.expand_path('../../lib', __FILE__)
 
-require "optparse"
-require "miga"
+require 'optparse'
+require 'miga'
 
 ##=> Global variables <=
 
 $task_desc = {
   # Projects
-  new: "Creates an empty MiGA project.",
-  about: "Displays information about a MiGA project.",
-  plugins: "Lists or (un)installs plugins in a MiGA project.",
-  doctor: "Performs consistency checks on a MiGA project.",
+  new:      'Creates an empty MiGA project',
+  about:    'Displays information about a MiGA project',
+  plugins:  'Lists or (un)installs plugins in a MiGA project',
+  doctor:   'Performs consistency checks on a MiGA project',
   # Datasets
-  add: "Creates an empty dataset in a pre-existing MiGA project.",
-  get: "Downloads a dataset from public databases into a MiGA project.",
-  ncbi_get: "Downloads all genomes in a taxon from NCBI into a MiGA project.",
-  rm: "Removes a dataset from an MiGA project.",
-  find: "Finds unregistered datasets based on result files.",
-  ln: "Link datasets (including results) from one project to another.",
-  ls: "Lists all registered datasets in an MiGA project.",
+  add:      'Creates an empty dataset in a pre-existing MiGA project',
+  get:      'Downloads a dataset from public databases into a MiGA project',
+  ncbi_get: 'Downloads all genomes in a taxon from NCBI into a MiGA project',
+  rm:       'Removes a dataset from an MiGA project',
+  find:     'Finds unregistered datasets based on result files',
+  ln:       'Link datasets (including results) from one project to another',
+  ls:       'Lists all registered datasets in an MiGA project',
   # Results
-  add_result: "Registers a result.",
-  stats: "Extracts statistics for the given result.",
-  files: "Lists all registered files from the results of a dataset or project.",
-  run: "Executes locally one step analysis producing the given result.",
-  summary: "Generates a summary table for the statistics of all datasets.",
+  add_result: 'Registers a result',
+  stats:    'Extracts statistics for the given result',
+  files:    'Lists registered files from the results of a dataset or project',
+  run:      'Executes locally one step analysis producing the given result',
+  summary:  'Generates a summary table for the statistics of all datasets',
   # System
-  init: "Initialize MiGA to process new projects.",
-  daemon: "Controls the daemon of a MiGA project.",
-  date: "Returns the current date in standard MiGA format.",
-  console: "Opens an IRB console with MiGA.",
+  init:     'Initialize MiGA to process new projects',
+  daemon:   'Controls the daemon of a MiGA project',
+  date:     'Returns the current date in standard MiGA format',
+  console:  'Opens an IRB console with MiGA',
   # Taxonomy
-  tax_set: "Registers taxonomic information for datasets.",
-  tax_test: "Returns test of taxonomic distributions for query datasets.",
-  tax_index: "Creates a taxonomy-indexed list of the datasets.",
-  tax_dist: "Estimates distributions of distance by taxonomy.",
+  tax_set:  'Registers taxonomic information for datasets',
+  tax_test: 'Returns test of taxonomic distributions for query datasets',
+  tax_index: 'Creates a taxonomy-indexed list of the datasets',
+  tax_dist: 'Estimates distributions of distance by taxonomy',
 }
 
 $task_alias = {
@@ -178,14 +178,14 @@ def filter_datasets!(ds, o)
 end
 
 def add_metadata(o, obj)
-  o[:metadata].split(",").each do |pair|
-    (k,v) = pair.split("=")
+  o[:metadata].split(',').each do |pair|
+    (k,v) = pair.split('=')
     case v
       when 'true';  v = true
       when 'false'; v = false
       when 'nil';   v = nil
     end
-    if k=='_step'
+    if k == '_step'
       obj.metadata["_try_#{v}"] ||= 0
       obj.metadata["_try_#{v}"]  += 1
     end
@@ -205,20 +205,20 @@ ARGV[0] = $task_alias[ARGV[0].to_sym] unless
   ARGV[0].nil? or $task_alias[ARGV[0].to_sym].nil?
 
 case ARGV[0].to_s
-when "-v", "--version"
+when '-v', '--version'
   puts MiGA::MiGA.VERSION
-when "-V", "--long-version"
+when '-V', '--long-version'
   puts MiGA::MiGA.LONG_VERSION
-when "-C", "--citation"
+when '-C', '--citation'
   puts MiGA::MiGA.CITATION
-when "console"
-  require "irb"
-  require "irb/completion"
+when 'console'
+  require 'irb'
+  require 'irb/completion'
   ARGV.shift
   IRB.start
 when *execs
   $task = ARGV.shift.to_sym
-  ARGV << "-h" if ARGV.empty? and not [:date, :init].include? $task
+  ARGV << '-h' if ARGV.empty? and not [:date, :init].include? $task
   begin
     load File.expand_path("../actions/#{$task}.rb", File.dirname(__FILE__))
   rescue => err
@@ -233,7 +233,7 @@ Microbial Genomes Atlas.
 
 Usage: #{$0} {action} [options]
 
-#{ MiGA::MiGA.tabulate([:action, :description], $task_desc.to_a).join("\n")}
+#{ MiGA::MiGA.tabulate([:action, :description], $task_desc.to_a).join("\n") }
 
 generic options:
     -h, --help          Display this screen.
