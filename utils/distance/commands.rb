@@ -21,6 +21,7 @@ module MiGA::DistanceRunner::Commands
   ##
   # Estimates AAI against +target+ using hAAI
   def haai(target)
+    return nil if opts[:haai_p] == 'no'
     haai = aai_cmd(tmp_file('ess_genes.fa'),
           target.result(:essential_genes).file_path(:ess_genes),
           dataset.name, target.name, tmp_dbs[:haai],

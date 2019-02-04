@@ -6,10 +6,10 @@ All metadata objects support the following fields:
 
 | Field        | Supported values                  | Description
 | ------------:|:---------------------------------:|:-------------------
-| created*     | [Date](../glossary.md#miga-dates) | Date of creation
-| updated*     | [Date](../glossary.md#miga-dates) | Date of last update
+| created^*    | [Date](../glossary.md#miga-dates) | Date of creation
+| updated^*    | [Date](../glossary.md#miga-dates) | Date of last update
 
-\* Mandatory
+*\** Mandatory.
 
 ## Projects
 
@@ -18,22 +18,29 @@ The following metadata fields are recognized by different interfaces for
 
 | Field        | Supported values | Description
 | ------------:|:----------------:|:------------------------------------
-| datasets*    | Array of String  | List of datasets in the project
+| datasets^*   | Array of String  | List of datasets in the project
 | comments     | String           | Free-form comments
 | description  | String           | Free-form description
-| name*        | [Name](../glossary.md#miga-names) | Name[^1]
-| type*        | String           | [Type](../part2/types.md#project-types)
+| name^*       | [Name](../glossary.md#miga-names) | Name^‡
+| type^*       | String           | [Type](../part2/types.md#project-types)
 | plugins      | Array of String  | For internal control of plugins
 | ref_project  | Path to Project  | Project with reference taxonomy
 | tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
-| aai_p        | String           | Value of aai.rb -p[^2] on AAI (def: blast+)
-| haai_p       | String           | Value of aai.rb -p[^2] on hAAI (def: blast+)
-| ani_p        | String           | Value of ani.rb -p[^2] on ANI (def: blast+)
+| aai_p        | String           | Value of aai.rb -p^# on AAI (def: blast+)
+| haai_p       | String           | Value of aai.rb -p^# on hAAI (def: blast+)
+| ani_p        | String           | Value of ani.rb -p^# on ANI (def: blast+)
 | max_try      | Integer          | Max number of task attempts (def: 10)
 | ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
 | clean_ogs    | Boolean          | If false, keeps ABC (clades only)
 
-\* Mandatory
+*\** Mandatory.
+
+*\‡* By default the base name of the project path.
+
+*\#* By default: `blast+`. Other supported values: `blast`, `blat`,
+`diamond` (except for ANI), and `fastani` (only for ANI), `no` (only for hAAI).
+If using `diamond` and/or `fastani`, the corresponding software must be
+installed.
 
 ## Datasets
 
@@ -42,36 +49,33 @@ The following metadata fields are recognized by different interfaces for
 
 | Field        | Supported values | Description
 | ------------:|:----------------:|:----------------------------------
-| type*        | String           | [Type](../part2/types.md#dataset-types)
+| type^*       | String           | [Type](../part2/types.md#dataset-types)
 | ref          | Boolean          | [Reference](../part2/types.md#reference)
 | run_`step`   | Boolean          | Forces running or not `step`
 | inactive     | Boolean          | If auto-processing should stop
 | tax          | MiGA::Taxonomy   | Taxonomy of the dataset
 | quality      | String           | Description of genome quality
 | dprotologue  | String           | Taxonumber in the Digital Protologue DB
-| ncbi_tax_id  | String           | Linking ID(s)[^3] for NCBI Taxonomy
-| ncbi_nuccore | String           | Linking ID(s)[^3] for NCBI Nucleotide
-| ncbi_asm     | String           | Linking ID(s)[^3] for NCBI Assembly
-| ebi_embl     | String           | Linking ID(s)[^3] for EBI EMBL
-| ebi_ena      | String           | Linking ID(s)[^3] for EBI ENA
+| ncbi_tax_id  | String           | Linking ID(s)^‡ for NCBI Taxonomy
+| ncbi_nuccore | String           | Linking ID(s)^‡ for NCBI Nucleotide
+| ncbi_asm     | String           | Linking ID(s)^‡ for NCBI Assembly
+| ebi_embl     | String           | Linking ID(s)^‡ for EBI EMBL
+| ebi_ena      | String           | Linking ID(s)^‡ for EBI ENA
 | web_assembly | String           | URL to download assembly
 | web_assembly_gz | String        | URL to download gzipped assembly
-| see_also     | String           | Link(s)[^3] in the format text:url
+| see_also     | String           | Link(s)^‡ in the format text:url
 | is_type      | Boolean          | If it is type material
-| is_ref_type  | Boolean          | If it is reference material[^4]
+| is_ref_type  | Boolean          | If it is reference material^#
 | type_rel     | String           | Relationship to type material
 | _step        | String           | For internal control of processing
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
 
-\* Mandatory
+*\** Mandatory.
 
+*\‡* Multiple values can be provided separated by commas or colons.
 
-[^1]: By default the base name of the project path
-
-[^2]: By default: `blast+`. Other supported values: `blast`, `blat`, `diamond` (except for ANI), and `fastani` (only for ANI). If using `diamond` and/or `fastani`, the corresponding software must be installed
-
-[^3]: Multiple values can be provided separated by commas or colons
-
-[^4]: This is not a valid type, but it represents the closest available dataset to material that is unavailable and unlikely to ever become available. See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
+*\#* This is not a valid type, but it represents the closest available dataset
+to material that is unavailable and unlikely to ever become available.
+See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127).
 
