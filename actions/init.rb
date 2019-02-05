@@ -154,7 +154,7 @@ end
 
 # Check for R packages
 $stderr.puts "Looking for R packages:"
-%w(enveomics.R ape phangorn phytools cluster vegan).each do |pkg|
+%w(enveomics.R ape cluster vegan).each do |pkg|
   $stderr.print "Testing #{pkg}... "
   `echo "library('#{pkg}')" | #{paths["R"].shellescape} --vanilla -q 2>&1`
   if $?.success?
