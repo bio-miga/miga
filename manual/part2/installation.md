@@ -9,6 +9,8 @@ Once you have satisfied all the [system requirements](requirements.md), you'll
 need to make them accessible to MiGA. For that, create a `bash` configuration
 file at `~/.miga_modules` loading any necessary packages (*e.g.*, if you're
 in a cluster architecture using `modules`, this is where you should load them).
+Note that some contents may already be present in this file from previous
+steps. Do not remove or modify those lines if you're not sure what they do.
 Here's an example of a configuration file for a single computer:
 
 ```bash

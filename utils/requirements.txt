@@ -17,3 +17,4 @@ SolexaQA++	SolexaQA++	http://solexaqa.sourceforge.net					Required version: v3.1
 DIAMOND (opt)	diamond		http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.9.20+
 MyTaxa (opt)	MyTaxa		http://enve-omics.ce.gatech.edu/mytaxa				The folder must contain the db and utils dirs, and the AllGenomes.faa.dmnd database
 Krona (opt)	ktImportText	https://github.com/marbl/Krona/wiki
+FastANI (opt)	fastANI		https://github.com/ParBLiSS/FastANI				Required version: 1.1+
