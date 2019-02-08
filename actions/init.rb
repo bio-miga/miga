@@ -18,7 +18,7 @@ OptionParser.new do |opt|
     'By default: interactive (true if --auto).'
     ){ |v| o[:mytaxa] = v }
   opt.on('--daemon-type STRING',
-    'Type of daemon launcher, one of: bash, qsub, msub.',
+    'Type of daemon launcher, one of: bash, qsub, msub, slurm.',
     "By default: interactive (#{o[:dtype]} if --auto)."
     ){ |v| o[:dtype]=v }
   opt.on('--ask-all', 'If set, asks for the location of all software.',
@@ -202,7 +202,7 @@ unless File.exist?(daemon_f) and ask_user(
           'yes', %w(yes no)) == 'yes'
   v = {created:Time.now.to_s, updated:Time.now.to_s}
   v[:type] = ask_user('Please select the type of daemon you want to setup',
-            o[:dtype], %w(bash qsub msub))
+            o[:dtype], %w(bash qsub msub slurm))
   case v[:type]
     when 'bash'
       v[:latency] = ask_user('How long should I sleep? (in seconds)', '30').to_i
@@ -224,6 +224,31 @@ unless File.exist?(daemon_f) and ask_user(
         "ps -p '%1$s'|tail -n+2|wc -l")
       v[:kill]    = ask_user(
         "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
+    when 'slurm'
+      queue       = ask_user('What queue should I use?', nil, nil, true)
+      v[:latency] = ask_user(
+            'How long should I sleep? (in seconds)', '150').to_i
+      v[:maxjobs] = ask_user('How many jobs can I launch at once?', '300').to_i
+      v[:ppn]     = ask_user('How many CPUs can I use per job?', '4').to_i
+      $stderr.puts 'Setting up internal daemon defaults.'
+      $stderr.puts 'If you don\'t understand this just leave default values:'
+      v[:cmd]     = ask_user(
+        "How should I launch tasks?\n  %1$s: script path, %2$s: variables, " +
+        "%3$d: CPUs, %4$d: log file, %5$s: task name.\n",
+        "%2$s sbatch --partition='#{queue}' --export=ALL " +
+        "--nodes=1 --ntasks-per-node=%3$d --output='%4$s' --job-name='%5$s' " +
+        "--mem=9G --time=12:00:00 %1$s | perl -pe 's/.* //'")
+      v[:var]     = ask_user(
+        "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
+        "%1$s=%2$s")
+      v[:varsep]  = ask_user('What should I use to separate variables?', ' ')
+      v[:alive] = ask_user(
+        "How can I know that a process is still alive?\n  %1$s: job id, " +
+        "output should be 1 for running and 0 for non-running.\n",
+        "squeue -h -o %t -j '%1$s' | grep '^PD\|R\|CF\|CG$' " +
+        "| tail -n 1 | wc -l")
+      v[:kill]    = ask_user(
+        "How should I terminate tasks?\n  %s: process ID.", "scancel '%s'")
     else # [qm]sub
       queue       = ask_user('What queue should I use?', nil, nil, true)
       v[:latency] = ask_user(
@@ -247,8 +272,8 @@ unless File.exist?(daemon_f) and ask_user(
           "output should be 1 for running and 0 for non-running.\n",
           "qstat -f '%1$s'|grep ' job_state ='|perl -pe 's/.*= //'|grep '[^C]'"+
           "|tail -n1|wc -l|awk '{print $1}'")
-      v[:kill]    = ask_user(
-        "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
+        v[:kill]    = ask_user(
+          "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
       else
         v[:alive] = ask_user(
           "How can I know that a process is still alive?\n  %1$s: job id, " +
@@ -256,8 +281,8 @@ unless File.exist?(daemon_f) and ask_user(
           "checkjob '%1$s'|grep '^State:'|perl -pe 's/.*: //'" +
           "|grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'"+
           "|tail -n1|wc -l|awk '{print $1}'")
-      v[:kill]    = ask_user(
-        "How should I terminate tasks?\n  %s: process ID.", "canceljob '%s'")
+        v[:kill]    = ask_user(
+          "How should I terminate tasks?\n  %s: process ID.", "canceljob '%s'")
       end
   end
   File.open(daemon_f, 'w'){ |fh| fh.puts JSON.pretty_generate(v) }
