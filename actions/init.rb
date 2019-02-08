@@ -229,7 +229,7 @@ unless File.exist?(daemon_f) and ask_user(
       v[:latency] = ask_user(
             'How long should I sleep? (in seconds)', '150').to_i
       v[:maxjobs] = ask_user('How many jobs can I launch at once?', '300').to_i
-      v[:ppn]     = ask_user('How many CPUs can I use per job?', '4').to_i
+      v[:ppn]     = ask_user('How many CPUs can I use per job?', '2').to_i
       $stderr.puts 'Setting up internal daemon defaults.'
       $stderr.puts 'If you don\'t understand this just leave default values:'
       v[:cmd]     = ask_user(
@@ -254,7 +254,7 @@ unless File.exist?(daemon_f) and ask_user(
       v[:latency] = ask_user(
             'How long should I sleep? (in seconds)', '150').to_i
       v[:maxjobs] = ask_user('How many jobs can I launch at once?', '300').to_i
-      v[:ppn]     = ask_user('How many CPUs can I use per job?', '4').to_i
+      v[:ppn]     = ask_user('How many CPUs can I use per job?', '2').to_i
       $stderr.puts 'Setting up internal daemon defaults.'
       $stderr.puts 'If you don\'t understand this just leave default values:'
       v[:cmd]     = ask_user(
