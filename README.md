@@ -11,9 +11,10 @@
 
 For additional information on MiGA, visit:
 
+* [MiGA Online][miga-online]: The Microbial Genomes Atlas Online.
 * [MiGA users list][mailing-list]:
   Forum to discuss with other users and developers.
-* [MiGA manual][gitbook]: The definitive guide to MiGA.
+* [MiGA manual][manual]: The definitive guide to MiGA.
 * [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
 * [MiGA Web][miga-web]: MiGA on Rails!
 
@@ -46,8 +47,8 @@ Technology and [RDP][rdp] at Michigan State University.
 See [LICENSE](LICENSE).
 
 [lrr]: http://lmrodriguezr.github.io/
-[mailing-list]: https://groups.google.com/forum/#!forum/miga-users
-[gitbook]: https://miga.gitbooks.io/miga/content/
+[mailing-list]: http://support.microbial-genomes.org/
+[manual]: https://manual.microbial-genomes.org/
 [rubydoc]: http://www.rubydoc.info/github/bio-miga/miga
 [contact]: http://enve-omics.gatech.edu/node/7
 [miga-web]: https://github.com/bio-miga/miga-web
