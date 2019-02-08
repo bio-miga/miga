@@ -245,7 +245,7 @@ unless File.exist?(daemon_f) and ask_user(
       v[:alive] = ask_user(
         "How can I know that a process is still alive?\n  %1$s: job id, " +
         "output should be 1 for running and 0 for non-running.\n",
-        "squeue -h -o %t -j '%1$s' | grep '^PD\|R\|CF\|CG$' " +
+        "squeue -h -o %%t -j '%1$s' | grep '^PD\|R\|CF\|CG$' " +
         "| tail -n 1 | wc -l")
       v[:kill]    = ask_user(
         "How should I terminate tasks?\n  %s: process ID.", "scancel '%s'")
