@@ -86,6 +86,7 @@ if o[:reference]
   $stderr.puts 'Downloading reference genomes' unless o[:q]
   lineno = 0
   get_list(nil, :reference).each_line do |ln|
+    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
     next if r[3].nil? or r[3].empty?
@@ -105,6 +106,7 @@ if o[:complete] or o[:chromosome]
   $stderr.puts 'Downloading complete/chromosome genomes' unless o[:q]
   lineno = 0
   get_list(o[:taxon], status).each_line do |ln|
+    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
     next if r[10].nil? or r[10].empty?
@@ -123,6 +125,7 @@ if o[:scaffold] or o[:contig]
   $stderr.puts "Downloading scaffold/contig genomes" unless o[:q]
   lineno = 0
   get_list(o[:taxon], status).each_line do |ln|
+    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
     next if (lineno+=1)==1
     r = ln.chomp.split("\t")
     next if r[7].nil? or r[7].empty?
