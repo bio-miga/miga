@@ -46,7 +46,10 @@ module MiGA::RemoteDataset::Base
       method: :rest
     },
     ncbi: {
-      dbs: { nuccore: {stage: :assembly, format: :fasta} },
+      dbs: {
+        nuccore: { stage: :assembly, format: :fasta },
+        assembly: { stage: :metadata, format: :uilist }
+      },
       url: "#{@@_EUTILS}efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
       method: :rest,
       api_key: lambda { |url|
@@ -62,6 +65,14 @@ module MiGA::RemoteDataset::Base
       url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%4$s&retmode=%3$s",
       method: :net,
       map_to_universe: :ncbi,
+      api_key: lambda { |url|
+        ENV['NCBI_API_KEY'].nil? ?
+          url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}" }
+    },
+    ncbi_summary: {
+      dbs: { assembly: { stage: :metadata, format: :json } },
+      url: "#{@@_EUTILS}esummary.fcgi?db=%1$s&id=%2$s&retmode=%3$s",
+      method: :rest,
       api_key: lambda { |url|
         ENV['NCBI_API_KEY'].nil? ?
           url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}" }

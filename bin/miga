@@ -126,7 +126,8 @@ end
 def opt_common(opt, o)
   opt.on("-v", "--verbose",
     "Print additional information to STDERR."){ o[:q]=false }
-  opt.on("-d", "--debug INT", "Print debugging information to STDERR.") do |v|
+  opt.on("-d", "--debug INT",
+    "Print debugging information to STDERR (1: debug, 2: trace).") do |v|
     v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
   end
   opt.on("-h", "--help", "Display this screen.") do

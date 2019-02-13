@@ -19,6 +19,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
   attr_reader :ids
   # Internal metadata hash
   attr_reader :metadata
+  # NCBI Assembly XML document
+  @_ncbi_asm_xml_doc = nil
 
   ##
   # Initialize MiGA::RemoteDataset with +ids+ in database +db+ from +universe+.
@@ -124,9 +126,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
     def get_ncbi_taxid_from_web
       return nil unless metadata[:ncbi_asm]
       base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
-      doc = self.class.download_url(
-        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml&format=text")
-      taxid = doc.scan(%r{&lt;Taxid&gt;(\S+)&lt;/Taxid&gt;}).first
+      @_ncbi_asm_xml_doc ||= CGI.unescapeHTML(self.class.download(:web, :text,
+        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml))
+      taxid = @_ncbi_asm_xml_doc.scan(%r{<Taxid>(\S+)</Taxid>}).first
       taxid.nil? ? taxid : taxid.first
     end
 
@@ -162,10 +164,11 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
     def get_type_status_ncbi_asm(metadata)
       return metadata if metadata[:ncbi_asm].nil?
-      doc = CGI.unescapeHTML(self.class.download(:web, :text,
-        "https://www.ncbi.nlm.nih.gov/assembly/" \
-          "#{metadata[:ncbi_asm]}?report=xml", :xml)).each_line
-      from_type = doc.grep(%r{<FromType/?>}).first or return metadata
+      base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
+      @_ncbi_asm_xml_doc ||= CGI.unescapeHTML(self.class.download(:web, :text,
+        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml))
+      from_type = @_ncbi_asm_xml_doc.each_line.
+        grep(%r{<FromType/?>}).first or return metadata
       if from_type =~ %r{<FromType/>}
         metadata[:is_type] = false
         metadata[:is_ref_type] = false

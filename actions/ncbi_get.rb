@@ -4,26 +4,25 @@
 # @license Artistic-2.0
 
 require 'miga/remote_dataset'
+require 'csv'
 
 o = {q:true, query:false, unlink:false,
-      reference: false, ignore_plasmids: false,
-      complete: false, chromosome: false,
-      scaffold: false, contig: false, add_version: true, dry: false,
-      get_md: false}
+  reference: false, legacy_name: false,
+  complete: false, chromosome: false,
+  scaffold: false, contig: false, add_version: true, dry: false,
+  get_md: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
   opt.on('-T', '--taxon STRING',
-        '(Mandatory unless --reference) Taxon name (e.g., a species binomial).'
-        ){ |v| o[:taxon]=v }
+    '(Mandatory unless --reference) Taxon name (e.g., a species binomial).'
+    ){ |v| o[:taxon]=v }
   opt.on('--reference',
-        'Download all reference genomes (ignores -T).'){ |v| o[:reference]=v }
-  opt.on('--ref-no-plasmids',
-        'If passed, ignores plasmids (only for --reference).'
-        ){ |v| o[:ignore_plasmids]=v }
+    'Download all reference genomes (ignores any other status).'
+    ){ |v| o[:reference]=v }
   opt.on('--complete', 'Download complete genomes.'){ |v| o[:complete]=v }
   opt.on('--chromosome',
-        'Download complete chromosomes.'){ |v| o[:chromosome]=v }
+    'Download complete chromosomes.'){ |v| o[:chromosome]=v }
   opt.on('--scaffold', 'Download genomes in scaffolds.'){ |v| o[:scaffold]=v }
   opt.on('--contig', 'Download genomes in contigs.'){ |v| o[:contig]=v }
   opt.on('--all', 'Download all genomes (in any status).') do
@@ -33,23 +32,26 @@ OptionParser.new do |opt|
     o[:contig] = true
   end
   opt.on('--no-version-name',
-        'Do not add sequence version to the dataset name.',
-        'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
+    'Do not add sequence version to the dataset name.',
+    'Only affects --complete and --chromosome.'){ |v| o[:add_version]=v }
+  opt.on('--legacy-name',
+    'Use dataset names based on chromosome entries instead of assembly.'
+    ){ |v| o[:legacy_name] = v }
   opt.on('--blacklist PATH',
-        'A file with dataset names to blacklist.'){ |v| o[:blacklist] = v }
+    'A file with dataset names to blacklist.'){ |v| o[:blacklist] = v }
   opt.on('--dry', 'Do not download or save the datasets.'){ |v| o[:dry] = v }
   opt.on('--get-metadata',
-        'Only download and update metadata for existing datasets'
-        ){ |v| o[:get_md] = v }
+    'Only download and update metadata for existing datasets'
+    ){ |v| o[:get_md] = v }
   opt.on('-q', '--query',
-        'Register the datasets as queries, not reference datasets.'
-        ){ |v| o[:query]=v }
+    'Register the datasets as queries, not reference datasets.'
+    ){ |v| o[:query]=v }
   opt.on('-u', '--unlink',
-        'Unlink all datasets in the project missing from the download list.'
-        ){ |v| o[:unlink]=v }
+    'Unlink all datasets in the project missing from the download list.'
+    ){ |v| o[:unlink]=v }
   opt.on('-R', '--remote-list PATH',
-        'Path to an output file with the list of all datasets listed remotely.'
-        ){ |v| o[:remote_list]=v }
+    'Path to an output file with the list of all datasets listed remotely.'
+    ){ |v| o[:remote_list]=v }
   opt.on('--api-key STRING', 'NCBI API key.'){ |v| ENV['NCBI_API_KEY'] = v }
   opt_common(opt, o)
 end.parse!
@@ -68,88 +70,78 @@ d = []
 ds = {}
 downloaded = 0
 
-def get_list(taxon, status)
-  url_base = 'https://www.ncbi.nlm.nih.gov/genomes/Genome2BE/genome2srv.cgi?'
-  url_param = if status==:reference
-    { action: 'refgenomes', download: 'on' }
-  else
-    { action: 'download', report: 'proks', group: '-- All Prokaryotes --',
-          subgroup: '-- All Prokaryotes --', orgn: "#{taxon}[orgn]",
-          status: status }
-  end
-  url = url_base + URI.encode_www_form(url_param)
-  MiGA::RemoteDataset.download_url url
-end
-
-# Download IDs with reference status
+url_base = 'https://www.ncbi.nlm.nih.gov/genomes/solr2txt.cgi?'
+url_param = {
+  q: '[display()].' +
+    'from(GenomeAssemblies).' +
+    'usingschema(/schema/GenomeAssemblies).' +
+    'matching(tab==["Prokaryotes"] and q=="' + o[:taxon].tr('"',"'") + '"',
+  fields: 'organism|organism,assembly|assembly,replicons|replicons,' +
+    'level|level,ftp_path_genbank|ftp_path_genbank,release_date|release_date,' +
+    'strain|strain',
+  nolimit: 'on',
+}
 if o[:reference]
-  $stderr.puts 'Downloading reference genomes' unless o[:q]
-  lineno = 0
-  get_list(nil, :reference).each_line do |ln|
-    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
-    next if (lineno+=1)==1
-    r = ln.chomp.split("\t")
-    next if r[3].nil? or r[3].empty?
-    ids = r[3].split(',')
-    ids += r[5].split(',') unless o[:ignore_plasmids] or r[5].empty?
-    ids.delete_if{ |i| i =~ /\A\-*\z/ }
-    next if ids.empty?
-    n = r[2].miga_name
-    ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
-  end
+  url_param[:q] += ' and refseq_category==["representative"]'
+else
+  status = {
+    complete: 'Complete',
+    chromosome: ' Chromosome', # <- The leading space is *VERY* important!
+    scaffold: 'Scaffold',
+    contig: 'Contig'
+  }.map { |k, v| '"' + v + '"' if o[k] }.compact.join(',')
+  url_param[:q] += ' and level==[' + status + ']'
 end
+url_param[:q] += ')'
+url = url_base + URI.encode_www_form(url_param)
+$stderr.puts 'Downloading genome list' unless o[:q]
+lineno = 0
+doc = MiGA::RemoteDataset.download_url(url)
+CSV.parse(doc, headers: true).each do |r|
+  asm = r['assembly']
+  next if asm.nil? or asm.empty? or asm == '-'
 
-# Download IDs with complete or chromosome status
-if o[:complete] or o[:chromosome]
-  status = (o[:complete] and o[:chromosome] ?
-        '50|40' : o[:complete] ? '50' : '40')
-  $stderr.puts 'Downloading complete/chromosome genomes' unless o[:q]
-  lineno = 0
-  get_list(o[:taxon], status).each_line do |ln|
-    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
-    next if (lineno+=1)==1
-    r = ln.chomp.split("\t")
-    next if r[10].nil? or r[10].empty?
-    ids = r[10].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').split(';')
-    ids.delete_if{ |i| i =~ /\A\-*\z/ }
-    next if ids.empty?
-    acc = o[:add_version] ? ids[0] : ids[0].gsub(/\.\d+\Z/,'')
-    n = "#{r[0]}_#{acc}".miga_name
-    ds[n] = {ids: ids, md: {type: :genome}, db: :nuccore, universe: :ncbi}
-  end
-end
+  # Get replicons
+  rep = r['replicons'].nil? ? nil : r['replicons'].
+      split('; ').map{ |i| i.gsub(/.*:/,'') }.map{ |i| i.gsub(/\/.*/, '') }
 
-# Download IDs with scaffold or contig status
-if o[:scaffold] or o[:contig]
-  status = (o[:scaffold] and o[:contig] ? '30|20' : o[:scaffold] ? '30' : '20')
-  $stderr.puts "Downloading scaffold/contig genomes" unless o[:q]
-  lineno = 0
-  get_list(o[:taxon], status).each_line do |ln|
-    raise "NCBI servers error: #{ln}" if ln =~ /^ERROR:  /
-    next if (lineno+=1)==1
-    r = ln.chomp.split("\t")
-    next if r[7].nil? or r[7].empty?
-    next if r[19].nil? or r[19].empty?
-    asm = r[7].gsub(/[^:;]*:/,'').gsub(/\/[^\/;]*/,'').gsub(/\s/,'')
-    ids = r[19].gsub(/\s/,'').split(';').delete_if{ |i| i =~ /\A\-*\z/ }.
-          map{ |i| "#{i}/#{File.basename(i)}_genomic.fna.gz" }
-    next if ids.empty?
-    n = "#{r[0]}_#{asm}".miga_name
-    asm.gsub!(/\(.*\)/, '')
-    ds[n] = {ids: ids, md: {type: :genome, ncbi_asm: asm},
-          db: :assembly_gz, universe: :web}
+  # Set name
+  if o[:legacy_name] and o[:reference]
+    n = r['#organism'].miga_name
+  else
+    if o[:legacy_name] and ['Complete',' Chromosome'].include? r['level']
+      acc = rep.nil? ? '' : rep.first
+    else
+      acc = asm
+    end
+    acc.gsub!(/\.\d+\Z/, '') unless o[:add_version]
+    n = "#{r['#organism']}_#{acc}".miga_name
   end
+
+  # Register for download
+  fna_url = r['ftp_path_genbank'] + '/' +
+    File.basename(r['ftp_path_genbank']) + '_genomic.fna.gz'
+  ds[n] = {
+    ids: [fna_url], db: :assembly_gz, universe: :web,
+    md: {
+      type: :genome, ncbi_asm: asm, strain: r['strain']
+    }
+  }
+  ds[n][:md][:ncbi_nuccore] = rep.join(',') unless rep.nil?
+  ds[n][:md][:release_date] =
+    Time.parse(r['release_date']).to_s unless r['release_date'].nil?
 end
 
 # Discard blacklisted
 unless o[:blacklist].nil?
   $stderr.puts "Discarding datasets in #{o[:blacklist]}." unless o[:q]
-  File.readlines(o[:blacklist]).map(&:chomp).each{ |i| ds.delete i }
+  File.readlines(o[:blacklist]).
+    select{ |i| i !~ /^#/ }.map(&:chomp).each{ |i| ds.delete i }
 end
 
 # Download entries
 $stderr.puts "Downloading #{ds.size} " +
-  (ds.size > 1 ? "entries" : "entry") unless o[:q]
+  (ds.size == 1 ? "entry" : "entries") unless o[:q]
 ds.each do |name,body|
   d << name
   puts name
