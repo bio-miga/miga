@@ -165,8 +165,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
     def get_type_status_ncbi_asm(metadata)
       return metadata if metadata[:ncbi_asm].nil?
       base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
-      @_ncbi_asm_xml_doc ||=  CGI.unescapeHTML(self.class.download(:web, :text,
-        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml)).each_line
+      @_ncbi_asm_xml_doc ||= CGI.unescapeHTML(self.class.download(:web, :text,
+        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml))
       from_type = @_ncbi_asm_xml_doc.each_line.
         grep(%r{<FromType/?>}).first or return metadata
       if from_type =~ %r{<FromType/>}
