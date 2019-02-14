@@ -229,6 +229,10 @@ class MiGA::Daemon < MiGA::MiGA
     @loop_i += 1
     check_datasets
     check_project
+    if shutdown_when_done? and jobs_running.size + jobs_to_run.size == 0
+      say 'Nothing else to do, shutting down.'
+      return false
+    end
     flush!
     if loop_i==4
       say 'Housekeeping for sanity'
@@ -237,10 +241,6 @@ class MiGA::Daemon < MiGA::MiGA
     end
     report_status
     sleep(latency)
-    if shutdown_when_done? and jobs_running.size+jobs_to_run.size == 0
-      say 'Nothing else to do, shutting down.'
-      return false
-    end
     true
   end
 
