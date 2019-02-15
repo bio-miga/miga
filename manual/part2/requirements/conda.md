@@ -15,6 +15,15 @@ conda create -n miga
 conda activate miga
 ```
 
+It's strongly recommended to activate conda in the `~/.miga_modules`:
+
+```bash
+# Tell MiGA to always activate conda:
+echo 'eval "$(conda shell.bash hook)"' >> ~/.miga_modules
+# Tell MiGA to activate the proper conda environment:
+echo 'conda activate miga' >> ~/.miga_modules
+```
+
 Next, install the requirements:
 
 ```bash

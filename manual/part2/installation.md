@@ -3,14 +3,63 @@
 ## Prerequisites
 
 If you simply want to access projects previously processed, you can skip this
-step.
+step. To install the prequisites follow [system requirements](requirements.md).
 
-Once you have satisfied all the [system requirements](requirements.md), you'll
-need to make them accessible to MiGA. For that, create a `bash` configuration
-file at `~/.miga_modules` loading any necessary packages (*e.g.*, if you're
-in a cluster architecture using `modules`, this is where you should load them).
+
+## Getting MiGA
+
+To install MiGA itself, you'll just need:
+
+```bash
+gem install miga-base
+```
+
+If necessary, you can use `sudo gem install miga-base` or
+`gem install --user miga-base` instead.
+
+
+### Getting MiGA source
+
+If you want to get MiGA working from source instead of using the gem, you can
+use:
+
+```bash
+# Get the source. Make sure you use --recursive, to clone submodules:
+git clone --recursive https://github.com/bio-miga/miga.git
+cd miga
+
+# You can use bundle to make sure you have the required gems,
+# or simply install them manually:
+bundle
+
+# And finally make MiGA available in the PATH.
+# This is not mandatory but it saves time and effort:
+echo "export PATH=\"$(pwd)/bin:\$PATH\"" >> ~/.bashrc
+source ~/.bashrc
+```
+
+## Initializing MiGA
+
+To initialize MiGA for data processing, simply execute and follow the
+instructions:
+
+```bash
+miga init
+```
+
+For additional initialization parameters, use `miga init -h`.
+
+## Pre-loading Software
+
+If some of the prerequisites are not already available in your `$PATH`, you'll
+have to first tell MiGA how to find them. 
+For that, create (or modify) a `bash` configuration file at `~/.miga_modules`
+loading any necessary packages.
+For example, if you're in a cluster architecture using `modules`, this is where
+you should load them.
 Note that some contents may already be present in this file from previous
-steps. Do not remove or modify those lines if you're not sure what they do.
+steps.
+Do not remove or modify those lines if you're not sure what they do.
 Here's an example of a configuration file for a single computer:
 
 ```bash
@@ -53,42 +102,9 @@ alias ktImportText="perl -I$HOME/shared3/apps/KronaTools-2.5/lib/ \
   $HOME/shared3/bin/ktImportText"
 ```
 
-If all of the requirements are readily available (*e.g.*, if you already
-registered them in your `~/.bashrc`), this file can be empty or nonexistent.
-
-## Getting MiGA
-
-To install MiGA itself, you'll just need: `gem install miga-base`. If necessary,
-you can use `sudo gem install miga-base` or `gem install --user miga-base`
-instead.
-
-### Getting MiGA source
-
-If you want to get MiGA working from source instead of using the gem, you can
-use:
-
-```bash
-# Get the source. Make sure you use --recursive, so you also clone submodules:
-git clone --recursive https://github.com/bio-miga/miga.git
-cd miga
-
-# You can use bundle to make sure you have the required gems, or simply install
-# them manually:
-bundle
-
-# And finally make MiGA available in the PATH. This is not completely necessary,
-# but it saves time and effort:
-echo "export PATH=\"$(pwd)/bin:\$PATH\"" >> ~/.bashrc
-source ~/.bashrc
-```
-
-## Initializing MiGA
-
-To initialize MiGA for data processing, simply execute and follow the
-instructions:
+Once you complete this file, rerun:
 
 ```bash
 miga init
 ```
 
-To see additional initialization parameters, use `miga init -h`.
