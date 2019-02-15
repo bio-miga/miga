@@ -48,12 +48,18 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
     ani.types <- a[,2]
     names(ani.types) <- a[,1]
     if(length(ani.d) == 0) load(dist_rdata)
-  }else{
+  }else if(length(labels(ani.d)) > 8L){
     res <- subclade_clustering(out_base, thr, ani.d, dist_rdata)
     if(length(res) == 0) return(NULL)
     ani.medoids <- res[['ani.medoids']]
     ani.types <- res[['ani.types']]
     ani.d <- res[['ani.d']]
+  }else{
+    ani.medoids <- labels(ani.d)[which.min(colSums(as.matrix(ani.d)))]
+    ani.types <- rep(1, length(labels(ani.d)))
+    names(ani.types) <- labels(ani.d)
+    generate_empty_files(out_base)
+    write_text_report(out_base, ani.d, ani.medoids, ani.types)
   }
 
   # Recursive search
@@ -136,16 +142,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   dev.off()
 
   # Save results
-  say("Text report")
-  write.table(ani.medoids, paste(out_base, "medoids", sep="."),
-    quote=FALSE, col.names=FALSE, row.names=FALSE)
-  classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
-  ani.d.m <- 100 - as.matrix(ani.d)*100
-  for(j in 1:nrow(classif)){
-    classif[j,4] <- ani.d.m[classif[j,1], classif[j,3]]
-  }
-  write.table(classif, paste(out_base,"classif",sep="."),
-    quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
+  write_text_report(out_base, ani.d, ani.medoids, ani.types)
   
   # Return data
   say("Cluster ready")
@@ -166,6 +163,19 @@ generate_empty_files <- function(out_base) {
   dev.off()
   file.create(paste(out_base,".1.classif",sep=""))
   file.create(paste(out_base,".1.medoids",sep=""))
+}
+
+write_text_report <- function(out_base, ani.d, ani.medoids, ani.types){
+  say("Text report")
+  write.table(ani.medoids, paste(out_base, "medoids", sep="."),
+    quote=FALSE, col.names=FALSE, row.names=FALSE)
+  classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
+  ani.d.m <- 100 - as.matrix(ani.d)*100
+  for(j in 1:nrow(classif)){
+    classif[j,4] <- ani.d.m[classif[j,1], classif[j,3]]
+  }
+  write.table(classif, paste(out_base,"classif",sep="."),
+    quote=FALSE, col.names=FALSE, row.names=FALSE, sep="\t")
 }
 
 plot_silhouette <- function(k, s, ns, ds, top.n) {
