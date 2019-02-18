@@ -7,14 +7,14 @@ module MiGA::Result::Dates
   include MiGA::Result::Base
 
   ##
-  # Returns the start date of processing as DateTime or +nil+ if it doesn't
+  # Returns the start date of processing as Time or +nil+ if it doesn't
   # exist.
   def started_at
     date_at :start
   end
 
   ##
-  # Returns the end (done) date of processing as DateTime or +nil+ if it doesn't
+  # Returns the end (done) date of processing as Time or +nil+ if it doesn't
   # exist.
   def done_at
     date_at :done
@@ -38,7 +38,7 @@ module MiGA::Result::Dates
         f = path event
         date = File.read(f) if File.size? f
       end
-      date.nil? ? nil : DateTime.parse(date)
+      date.nil? ? nil : Time.parse(date)
     end
 end
 

@@ -12,11 +12,11 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # When was the last time a daemon for the MiGA::Project +project+ was seen
-  # active? Returns DateTime.
+  # active? Returns Time.
   def self.last_alive(project)
     f = File.expand_path('daemon/alive', project.path)
     return nil unless File.exist? f
-    DateTime.parse(File.read(f))
+    Time.parse(File.read(f))
   end
 
   # Array of all spawned daemons.
@@ -49,7 +49,7 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # When was the last time a daemon for the current project was seen active?
-  # Returns DateTime.
+  # Returns Time.
   def last_alive
     MiGA::Daemon.last_alive project
   end
