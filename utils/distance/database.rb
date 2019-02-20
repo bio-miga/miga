@@ -68,7 +68,7 @@ module MiGA::DistanceRunner::Database
     if dataset.is_ref? and project.path == ref_project.path
       y = data_from_db(
         target.name, dataset.name, ref_db(metric, target.name), metric)
-      unless y.nil? or y.first.zero?
+      unless y.nil? or y.first.nil? or y.first.zero?
         # Store a copy
         data_to_db(dataset.name, target.name, tmp_dbs[metric], metric, y)
         return y.first
