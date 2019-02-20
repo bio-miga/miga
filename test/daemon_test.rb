@@ -55,7 +55,7 @@ class DaemonTest < Test::Unit::TestCase
     out = capture_stdout do
       d.in_loop
     end
-    assert_equal(DateTime, d.last_alive.class)
+    assert_equal(Time, d.last_alive.class)
     assert(out.string =~ /-{20}\n.*MiGA:#{p.name} launched/)
     2.times{ d.in_loop }
     assert_equal(3, d.loop_i)
@@ -96,7 +96,7 @@ class DaemonTest < Test::Unit::TestCase
     d = MiGA::Daemon.new(p)
     assert_nil(d.last_alive)
     d.declare_alive
-    assert(d.last_alive - DateTime.now < 1)
+    assert(d.last_alive - Time.now < 1)
   end
 
   def test_options

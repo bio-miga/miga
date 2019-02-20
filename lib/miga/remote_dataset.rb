@@ -8,6 +8,16 @@ require 'miga/remote_dataset/download'
 class MiGA::RemoteDataset < MiGA::MiGA
   include MiGA::RemoteDataset::Download
 
+  # Class-level
+
+  class << self
+    def ncbi_asm_acc2id(acc)
+      return acc if acc =~ /^\d+$/
+      search_doc = JSON.parse download(:ncbi_search, :assembly, acc, :json)
+      search_doc['esearchresult']['idlist'].first
+    end
+  end
+
   # Instance-level
 
   ##
@@ -35,6 +45,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       raise "Unknown Universe: #{@universe}. Try: #{@@UNIVERSE.keys}"
     @@UNIVERSE[@universe][:dbs].include?(@db) or
       raise "Unknown Database: #{@db}. Try: #{@@UNIVERSE[@universe][:dbs]}"
+    @_ncbi_asm_json_doc = nil
     # FIXME: Part of the +map_to+ support:
     # unless @@UNIVERSE[@universe][:dbs][@db][:map_to].nil?
     #   MiGA::RemoteDataset.download
@@ -89,7 +100,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
   ##
   # Get NCBI Taxonomy ID.
   def get_ncbi_taxid
-    send("get_ncbi_taxid_from_#{universe}")
+    origin = (universe == :ncbi and db == :assembly) ? :web : universe
+    send("get_ncbi_taxid_from_#{origin}")
   end
 
   ##
@@ -109,6 +121,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get NCBI taxonomy as MiGA::Taxonomy.
   def get_ncbi_taxonomy
     tax_id = get_ncbi_taxid
+    return nil if tax_id.nil?
     lineage = {}
     doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
     doc.scan(%r{<Taxon>(.*?)</Taxon>}m).map(&:first).each do |i|
@@ -121,15 +134,24 @@ class MiGA::RemoteDataset < MiGA::MiGA
     MiGA::Taxonomy.new(lineage)
   end
 
+  ##
+  # Get the JSON document describing an NCBI assembly entry.
+  def ncbi_asm_json_doc
+    return @_ncbi_asm_json_doc unless @_ncbi_asm_json_doc.nil?
+    metadata[:ncbi_asm] ||= ids.first if universe == :ncbi and db == :assembly
+    return nil unless metadata[:ncbi_asm]
+    ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]
+    doc = JSON.parse(
+      self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json))
+    @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
+  end
+
+
   private
 
     def get_ncbi_taxid_from_web
-      return nil unless metadata[:ncbi_asm]
-      base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
-      @_ncbi_asm_xml_doc ||= CGI.unescapeHTML(self.class.download(:web, :text,
-        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml))
-      taxid = @_ncbi_asm_xml_doc.scan(%r{<Taxid>(\S+)</Taxid>}).first
-      taxid.nil? ? taxid : taxid.first
+      return nil if ncbi_asm_json_doc.nil?
+      ncbi_asm_json_doc['taxid']
     end
 
     def get_ncbi_taxid_from_ncbi
@@ -156,30 +178,28 @@ class MiGA::RemoteDataset < MiGA::MiGA
       biosample = self.class.ncbi_map(metadata[:ncbi_nuccore],
         :nuccore, :biosample)
       return metadata if biosample.nil?
-      asm = self.class.ncbi_map(biosample,
-        :biosample, :assembly)
+      asm = self.class.ncbi_map(biosample, :biosample, :assembly)
       metadata[:ncbi_asm] = asm.to_s unless asm.nil?
       get_type_status_ncbi_asm metadata
     end
 
     def get_type_status_ncbi_asm(metadata)
-      return metadata if metadata[:ncbi_asm].nil?
-      base_url = 'https://www.ncbi.nlm.nih.gov/assembly'
-      @_ncbi_asm_xml_doc ||= CGI.unescapeHTML(self.class.download(:web, :text,
-        "#{base_url}/#{metadata[:ncbi_asm]}?report=xml", :xml))
-      from_type = @_ncbi_asm_xml_doc.each_line.
-        grep(%r{<FromType/?>}).first or return metadata
-      if from_type =~ %r{<FromType/>}
+      return metadata if ncbi_asm_json_doc.nil?
+      from_type = ncbi_asm_json_doc['from_type']
+      from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
+      case from_type
+      when nil
+        # Do nothing
+      when ''
         metadata[:is_type] = false
         metadata[:is_ref_type] = false
-      elsif from_type =~ %r{<FromType>(.*)</FromType>}
-        if $1 == 'assembly from reference material'
-          metadata[:is_type] = false
-          metadata[:is_ref_type] = true
-        else
-          metadata[:is_type] = true
-        end
-        metadata[:type_rel] = $1
+      when 'assembly from reference material'
+        metadata[:is_type] = false
+        metadata[:is_ref_type] = true
+        metadata[:type_rel] = from_type
+      else
+        metadata[:is_type] = true
+        metadata[:type_rel] = from_type
       end
       metadata
     end

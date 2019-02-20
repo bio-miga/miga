@@ -22,7 +22,7 @@ module MiGA::RemoteDataset::Base
   # is a Hash with universe names as keys as Symbol and values being a Hash with
   # supported keys as Symbol:
   # - +:dbs+ => Hash with keys being the database name and the values a Hash of
-  #   properties such as +stage+, +format+, and +map_to+.
+  #   properties such as +stage+, +format+, +map_to+, and +getter+.
   # - +url+ => Pattern of the URL where the data can be obtained, where +%1$s+
   #   is the name of the database, +%2$s+ is the IDs, and +%3$s+ is format.
   #   Additional parameters can be passed to certain functions using the +extra+
@@ -39,18 +39,19 @@ module MiGA::RemoteDataset::Base
         assembly_gz: {stage: :assembly, format: :fasta_gz},
         text: {stage: :metadata, format: :text}
       },
-      url: "%2$s",
+      url: '%2$s',
       method: :net
     },
     ebi: {
       dbs: { embl: {stage: :assembly, format: :fasta} },
-      url: "https://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s",
+      url: 'https://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s',
       method: :rest
     },
     ncbi: {
       dbs: {
         nuccore: { stage: :assembly, format: :fasta },
-        assembly: { stage: :metadata, format: :uilist }
+        assembly: { stage: :assembly, format: :fasta_gz, getter: :ncbi_asm },
+        taxonomy: { stage: :metadata, format: :xml }
       },
       url: "#{@@_EUTILS}efetch.fcgi?db=%1$s&id=%2$s&rettype=%3$s&retmode=text",
       method: :rest,
