@@ -80,9 +80,11 @@ module MiGA::DistanceRunner::Commands
     if o[:ani_p] == 'fastani'
       out = `fastANI -r "#{f1}" -q "#{f2}" \
             -o /dev/stdout 2>/dev/null`.chomp.split(/\s+/)
-      SQLite3::Database.new(db) do |conn|
-        conn.execute "insert into ani values(?, ?, ?, 0, ?, ?)",
-              [n1, n2, out[2], out[3], out[4]]
+      unless out.empty?
+        SQLite3::Database.new(db) do |conn|
+          conn.execute "insert into ani values(?, ?, ?, 0, ?, ?)",
+                [n1, n2, out[2], out[3], out[4]]
+        end
       end
       v = out[2]
     else
