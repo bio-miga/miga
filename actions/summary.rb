@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-o = {q:true, units:false, tabular:false}
+o = {q: true, units: false, tabular: false}
 opts = OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset_opt])
@@ -12,7 +12,7 @@ opts = OptionParser.new do |opt|
   opt.on("--tab",
     "Returns a tab-delimited table."){ |v| o[:tabular] = v }
   opt.on("--key STRING",
-    "Returns only the value of the requested key."){ |v| o[:key] = v }
+    "Returns only the value of the requested key."){ |v| o[:key_md] = v }
   opt.on("--with-units",
     "Includes units in each cell."){ |v| o[:units] = v }
   opt_common(opt, o)
@@ -42,8 +42,8 @@ stats = ds.map do |d|
   s = r.nil? ? {} : r[:stats]
   s.tap{ |i| i[:dataset] = d.name }
 end
-keys = o[:key].nil? ? stats.map(&:keys).flatten.uniq :
-      [:dataset, o[:key].downcase.miga_name.to_sym]
+keys = o[:key_md].nil? ? stats.map(&:keys).flatten.uniq :
+      [:dataset, o[:key_md].downcase.miga_name.to_sym]
 keys.delete :dataset
 keys.unshift :dataset
 
