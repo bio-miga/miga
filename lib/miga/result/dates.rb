@@ -25,7 +25,7 @@ module MiGA::Result::Dates
   def running_time
     a = started_at or return nil
     b = done_at or return nil
-    (b - a).to_f * 24 * 60
+    (b - a).to_f / 60.0
   end
 
   private
