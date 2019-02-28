@@ -215,7 +215,7 @@ module MiGA::Dataset::Result
       r.clean! if opts[:is_clean]
       unless r.clean?
         MiGA::MiGA.clean_fasta_file(r.file_path :proteins)
-        MiGA::MiGA.clean_fasta_file(r.file_path :genes)
+        MiGA::MiGA.clean_fasta_file(r.file_path :genes) if r.file_path :genes
         r.clean!
       end
       r
