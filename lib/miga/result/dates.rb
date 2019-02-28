@@ -34,6 +34,7 @@ module MiGA::Result::Dates
     # Internal function to detect start and end dates
     def date_at(event)
       date = self[event]
+      date ||= self[:started] if event == :start
       if date.nil?
         f = path event
         date = File.read(f) if File.size? f
