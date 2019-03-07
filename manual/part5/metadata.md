@@ -24,7 +24,8 @@ The following metadata fields are recognized by different interfaces for
 | name*        | [Name](../glossary.md#miga-names) | Name‡
 | type*        | String           | [Type](../part2/types.md#project-types)
 | plugins      | Array of String  | For internal control of plugins
-| ref_project  | Path to Project  | Project with reference taxonomy
+| ref_project  | Path             | Project with reference taxonomy
+| db_proj_dir  | Path             | Directory containing database projects
 | tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
 | aai_p        | String           | Value of aai.rb -p° on AAI (def: blast+)
 | haai_p       | String           | Value of aai.rb -p° on hAAI (def: blast+)
@@ -55,6 +56,7 @@ The following metadata fields are recognized by different interfaces for
 | inactive     | Boolean          | If auto-processing should stop
 | tax          | MiGA::Taxonomy   | Taxonomy of the dataset
 | quality      | String           | Description of genome quality
+| db_project   | Path             | Project to use as database
 | dprotologue  | String           | Taxonumber in the Digital Protologue DB
 | ncbi_tax_id  | String           | Linking ID(s)‡ for NCBI Taxonomy
 | ncbi_nuccore | String           | Linking ID(s)‡ for NCBI Nucleotide

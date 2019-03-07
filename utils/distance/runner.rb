@@ -19,20 +19,26 @@ class MiGA::DistanceRunner
   def initialize(project_path, dataset_name, opts_hash={})
     @opts = opts_hash
     @project = MiGA::Project.load(project_path) or
-          raise "No project at #{project_path}"
+      raise "No project at #{project_path}"
     @dataset = project.dataset(dataset_name)
     @home = File.expand_path('data/09.distances', project.path)
     # Default opts
     @opts[:aai_save_rbm] ||= ENV.fetch('MIGA_AAI_SAVE_RBM') do
       project.is_clade? ? 'save-rbm' : 'no-save-rbm'
     end
-    @opts[:thr] ||= ENV.fetch("CORES"){ 2 }.to_i
-    if opts[:run_taxonomy] && project.metadata[:ref_project]
+    @opts[:thr] ||= ENV.fetch('CORES'){ 2 }.to_i
+    if opts[:run_taxonomy] and project.metadata[:ref_project]
+      ref_path = project.metadata[:ref_project]
       @home = File.expand_path('05.taxonomy', @home)
-      @ref_project = MiGA::Project.load(project.metadata[:ref_project])
-      if @ref_project.nil?
-        raise "Cannot load reference project: #{project.metadata[:ref_project]}"
+      @ref_project = MiGA::Project.load(ref_path)
+      raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
+    elsif !opts[:run_taxonomy] and dataset.metadata[:db_project]
+      ref_path = dataset.metadata[:db_project]
+      if project.metadata[:db_proj_dir]
+        ref_path = File.expand_path(project.metadata[:db_proj_dir], ref_path)
       end
+      @ref_project = MiGA::Project.load(ref_path)
+      raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
     else
       @ref_project = project
     end
