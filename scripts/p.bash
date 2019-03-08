@@ -1,16 +1,14 @@
 #!/bin/bash
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
-SCRIPT="d"
-echo "MiGA: $MIGA"
-echo "Project: $PROJECT"
+SCRIPT="p"
 # shellcheck source=scripts/miga.bash
-source "$MIGA/scripts/miga.bash" || exit 1
+. "$MIGA/scripts/miga.bash" || exit 1
 
 while true ; do
   res="$(miga next_step -P "$PROJECT")"
-  [[ "$res" == "?" ]] && break
-  miga run -P "$PROJECT" -r "$SCRIPT" -t "$CORES"
+  [[ "$res" == '?' ]] && break
+  miga run -P "$PROJECT" -r "$res" -t "$CORES"
   if [[ "$res" == "$last_res" ]] ; then
     let k=$k+1
     if [[ $k -gt 10 ]] ; then

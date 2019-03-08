@@ -2,10 +2,8 @@
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES, $DATASET
 set -e
 SCRIPT="stats"
-echo "MiGA: $MIGA"
-echo "Project: $PROJECT"
 # shellcheck source=scripts/miga.bash
-source "$MIGA/scripts/miga.bash" || exit 1
+. "$MIGA/scripts/miga.bash" || exit 1
 DIR="$PROJECT/data/90.stats"
 [[ -d "$DIR" ]] || mkdir -p "$DIR"
 cd "$DIR"

@@ -14,12 +14,15 @@ for i in $(miga plugins -P "$PROJECT") ; do
   . "$i/scripts-plugin.bash"
 done
 
-[[ -n $DATASET ]] \
-  && miga edit -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT"
+if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
+  echo -n "Date: " ; miga date
+  echo "MiGA: $MIGA"
+  echo "Task: $SCRIPT"
+  echo "Project: $PROJECT"
+  if [[ -n $DATASET ]] ; then
+    echo "Dataset: $DATASET"
+    miga edit -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT"
+  fi
+fi
 
 true
-
-#if [[ "$RUNTYPE" == "qsub" ]] ; then
-#elif [[ "$RUNTYPE" == "msub" ]] ; then
-#fi
-

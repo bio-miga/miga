@@ -2,10 +2,8 @@
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES
 set -e
 SCRIPT="subclades"
-echo "MiGA: $MIGA"
-echo "Project: $PROJECT"
 # shellcheck source=scripts/miga.bash
-source "$MIGA/scripts/miga.bash" || exit 1
+. "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/10.clades/02.ani"
 
 # Initialize
