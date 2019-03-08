@@ -17,7 +17,7 @@ $task_desc = {
   plugins:  'Lists or (un)installs plugins in a MiGA project',
   doctor:   'Performs consistency checks on a MiGA project',
   # Datasets
-  add:      'Creates an empty dataset in a pre-existing MiGA project',
+  add:      'Creates a dataset in a MiGA project',
   get:      'Downloads a dataset from public databases into a MiGA project',
   ncbi_get: 'Downloads all genomes in a taxon from NCBI into a MiGA project',
   rm:       'Removes a dataset from an MiGA project',
@@ -31,6 +31,8 @@ $task_desc = {
   run:      'Executes locally one step analysis producing the given result',
   summary:  'Generates a summary table for the statistics of all datasets',
   next_step: 'Returns the next task to run in a dataset or project',
+  # Objects (Datasets or Projects)
+  edit:   'Edits the metadata of a dataset or project',
   # System
   init:     'Initialize MiGA to process new projects',
   daemon:   'Controls the daemon of a MiGA project',
@@ -60,6 +62,8 @@ $task_alias = {
   run_local: :run,
   sum_stats: :summary,
   next_task: :next_step,
+  # Objects
+  update_metadata: :edit,
   # System
   c: :console,
   # Taxonomy
