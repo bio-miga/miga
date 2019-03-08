@@ -17,7 +17,7 @@ $task_desc = {
   plugins:  'Lists or (un)installs plugins in a MiGA project',
   doctor:   'Performs consistency checks on a MiGA project',
   # Datasets
-  add:      'Creates an empty dataset in a pre-existing MiGA project',
+  add:      'Creates a dataset in a MiGA project',
   get:      'Downloads a dataset from public databases into a MiGA project',
   ncbi_get: 'Downloads all genomes in a taxon from NCBI into a MiGA project',
   rm:       'Removes a dataset from an MiGA project',
@@ -30,6 +30,9 @@ $task_desc = {
   files:    'Lists registered files from the results of a dataset or project',
   run:      'Executes locally one step analysis producing the given result',
   summary:  'Generates a summary table for the statistics of all datasets',
+  next_step: 'Returns the next task to run in a dataset or project',
+  # Objects (Datasets or Projects)
+  edit:   'Edits the metadata of a dataset or project',
   # System
   init:     'Initialize MiGA to process new projects',
   daemon:   'Controls the daemon of a MiGA project',
@@ -58,6 +61,9 @@ $task_alias = {
   list_files: :files,
   run_local: :run,
   sum_stats: :summary,
+  next_task: :next_step,
+  # Objects
+  update_metadata: :edit,
   # System
   c: :console,
   # Taxonomy
@@ -88,80 +94,80 @@ BAN
 end
 
 # OptParse flags that determine the object to load
-def opt_object(opt, o, what=[:project, :dataset])
-  opt.on("-P", "--project PATH", "(Mandatory) Path to the project."
+def opt_object(opt, o, what = [:project, :dataset])
+  opt.on('-P', '--project PATH', '(Mandatory) Path to the project.'
     ){ |v| o[:project]=v } if what.include? :project
-  opt.on("-D", "--dataset STRING",
-    (what.include?(:dataset) ? "(Mandatory) " : "") +
-    "Name of the dataset."){ |v| o[:dataset]=v } if what.include? :dataset or
+  opt.on('-D', '--dataset STRING',
+    (what.include?(:dataset) ? '(Mandatory) ' : '') +
+    'Name of the dataset.'){ |v| o[:dataset]=v } if what.include? :dataset or
       what.include? :dataset_opt
-  opt.on("-D", "--dataset STRING", "Name of the dataset."
+  opt.on('-D', '--dataset STRING', 'Name of the dataset.'
     ){ |v| o[:dataset]=v } if what.include? :dataset_opt
-  opt.on("-t", "--type STRING",
-    (what.include?(:dataset_type_req) ? "(Mandatory) " : "")+
-    "Type of dataset. Recognized types include:",
+  opt.on('-t', '--type STRING',
+    (what.include?(:dataset_type_req) ? '(Mandatory) ' : '')+
+    'Type of dataset. Recognized types include:',
     *MiGA::Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}" }
     ){ |v| o[:type]=v.to_sym } if what.include? :dataset_type or
       what.include? :dataset_type_req
-  opt.on("-t", "--type STRING",
-    (what.include?(:project_type_req) ? "(Mandatory) " : "") +
-    "Type of project. Recognized types include:",
+  opt.on('-t', '--type STRING',
+    (what.include?(:project_type_req) ? '(Mandatory) ' : '') +
+    'Type of project. Recognized types include:',
     *MiGA::Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
     ){ |v| o[:type]=v.to_sym } if what.include? :project_type or
       what.include? :project_type_req
-  opt.on("-r", "--result STRING",
-    "(Mandatory) Name of the result to add.",
-    "Recognized names for dataset-specific results include:",
+  opt.on('-r', '--result STRING',
+    '(Mandatory) Name of the result.',
+    'Recognized names for dataset-specific results include:',
     *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
-    "Recognized names for project-wide results include:",
+    'Recognized names for project-wide results include:',
     *MiGA::Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
     ){ |v| o[:name]=v.downcase.to_sym } if what.include? :result
-  opt.on("-r", "--result STRING",
-    "(Mandatory) Name of the result to add. One of:",
+  opt.on('-r', '--result STRING',
+    '(Mandatory) Name of the result. One of:',
     *MiGA::Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
     ){ |v| o[:name]=v.downcase.to_sym } if what.include? :result_dataset
 end
 
 # OptParse flags common to all actions.
 def opt_common(opt, o)
-  opt.on("-v", "--verbose",
-    "Print additional information to STDERR."){ o[:q]=false }
-  opt.on("-d", "--debug INT",
-    "Print debugging information to STDERR (1: debug, 2: trace).") do |v|
+  opt.on('-v', '--verbose',
+    'Print additional information to STDERR.'){ o[:q]=false }
+  opt.on('-d', '--debug INT',
+    'Print debugging information to STDERR (1: debug, 2: trace).') do |v|
     v.to_i>1 ? MiGA::MiGA.DEBUG_TRACE_ON : MiGA::MiGA.DEBUG_ON
   end
-  opt.on("-h", "--help", "Display this screen.") do
+  opt.on('-h', '--help', 'Display this screen.') do
     puts opt
     exit
   end
-  opt.separator ""
+  opt.separator ''
 end
 
 # OptParse flags to filter lists of datasets.
-def opt_filter_datasets(opt, o, what=[:ref, :multi, :active, :taxonomy])
-  opt.on("--[no-]ref",
-    "If set, uses only reference (or only non-reference) datasets."
+def opt_filter_datasets(opt, o, what = [:ref, :multi, :active, :taxonomy])
+  opt.on('--[no-]ref',
+    'If set, uses only reference (or only non-reference) datasets.'
     ){ |v| o[:ref]=v } if what.include? :ref
-  opt.on("--[no-]multi",
-    "If set, uses only multi-species (or only single-species) datasets."
+  opt.on('--[no-]multi',
+    'If set, uses only multi-species (or only single-species) datasets.'
     ){ |v| o[:multi]=v } if what.include? :multi
-  opt.on("--[no-]active",
-    "If set, uses only active (or inactive) datasets."
+  opt.on('--[no-]active',
+    'If set, uses only active (or inactive) datasets.'
     ){ |v| o[:active]=v } if what.include? :active
-  opt.on("-t", "--taxonomy RANK:TAXON", "Filter by taxonomy."
+  opt.on('-t', '--taxonomy RANK:TAXON', 'Filter by taxonomy.'
     ){ |v| o[:taxonomy]=MiGA::Taxonomy.new v } if what.include? :taxonomy
-  opt.on("-k", "--key INTEGER",
-    "Returns only the k-th dataset in the list."){ |v| o[:key]=v.to_i }
+  opt.on('-k', '--key INTEGER',
+    'Returns only the k-th dataset in the list.'){ |v| o[:key]=v.to_i }
 end
 
-def opt_require(o, req={project:"-P", dataset:"-D"})
+def opt_require(o, req = {project: '-P', dataset: '-D'})
   req.each do |k,v|
     raise "#{v} is mandatory: please provide #{k}." if o[k].nil?
   end
 end
 
 def opt_require_type(o, klass)
-  opt_require(o, type:"-t")
+  opt_require(o, type: '-t')
   raise "Unrecognized type: #{o[:type]}." if klass.KNOWN_TYPES[o[:type]].nil?
 end
 

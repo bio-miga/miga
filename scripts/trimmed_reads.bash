@@ -2,10 +2,8 @@
 # Available variables: $PROJECT, $RUNTYPE, $MIGA, $CORES, $DATASET
 set -e
 SCRIPT="trimmed_reads"
-echo "MiGA: $MIGA"
-echo "Project: $PROJECT"
 # shellcheck source=scripts/miga.bash
-source "$MIGA/scripts/miga.bash" || exit 1
+. "$MIGA/scripts/miga.bash" || exit 1
 cd "$PROJECT/data/02.trimmed_reads"
 
 b=$DATASET

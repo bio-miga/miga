@@ -2,7 +2,7 @@
 set -e
 #MIGA=${MIGA:-$(cd "$(dirname "$0")/.."; pwd)}
 # shellcheck source=/dev/null
-source "$HOME/.miga_rc"
+. "$HOME/.miga_rc"
 export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
 SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 
@@ -11,15 +11,18 @@ function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 
 for i in $(miga plugins -P "$PROJECT") ; do
   # shellcheck source=/dev/null
-  source "$i/scripts-plugin.bash"
+  . "$i/scripts-plugin.bash"
 done
 
-[[ -n $DATASET ]] \
-      && miga add -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT" --update
+if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
+  echo -n "Date: " ; miga date
+  echo "MiGA: $MIGA"
+  echo "Task: $SCRIPT"
+  echo "Project: $PROJECT"
+  if [[ -n $DATASET ]] ; then
+    echo "Dataset: $DATASET"
+    miga edit -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT"
+  fi
+fi
 
 true
-
-#if [[ "$RUNTYPE" == "qsub" ]] ; then
-#elif [[ "$RUNTYPE" == "msub" ]] ; then
-#fi
-

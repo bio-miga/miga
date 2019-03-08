@@ -40,10 +40,10 @@ class DaemonTest < Test::Unit::TestCase
     out = capture_stdout do
       d.check_datasets
     end
-    assert(out.string =~ /Queueing #{ds.name}:trimmed_reads/)
+    assert(out.string =~ /Queueing #{ds.name}:d/)
     assert_equal(1, d.jobs_to_run.size)
-    assert_equal("project1:trimmed_reads:ds1", d.jobs_to_run.first[:cmd])
-    assert_equal(d.jobs_to_run.first, d.get_job(:trimmed_reads, ds))
+    assert_equal("project1:d:ds1", d.jobs_to_run.first[:cmd])
+    assert_equal(d.jobs_to_run.first, d.get_job(:d, ds))
   end
 
   def test_in_loop
