@@ -22,19 +22,22 @@ $stderr.puts 'Loading project.' unless o[:q]
 p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
+virtual_task = false
 miga = MiGA::MiGA.root_path
 cmd = ["PROJECT=#{p.path.shellescape}", 'RUNTYPE=bash',
   "MIGA=#{miga.shellescape}", "CORES=#{o[:thr]}"]
 if o[:dataset].nil?
   type = MiGA::Project
+  virtual_task = true if o[:name] == :p
 else
   d = p.dataset(o[:dataset])
   raise 'Cannot load dataset.' if d.nil?
   cmd << "DATASET=#{d.name.shellescape}"
   type = MiGA::Dataset
+  virtual_task = true if o[:name] == :d
 end
-raise "Unsupported #{type.to_s.gsub(/.*::/,"")} result: #{o[:name]}." if
-  type.RESULT_DIRS[o[:name].to_sym].nil? and not %w[d p].include? o[:name]
+raise "Unsupported #{type.to_s.gsub(/.*::/, '')} result: #{o[:name]}." if
+  type.RESULT_DIRS[o[:name].to_sym].nil? and not virtual_task
 cmd << MiGA::MiGA.script_path(o[:name], miga: miga, project: p).shellescape
 pid = spawn cmd.join(' ')
 Process.wait pid
