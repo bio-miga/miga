@@ -124,7 +124,7 @@ class MiGA::Daemon < MiGA::MiGA
         project.load
       else
         to_run = ds.next_preprocessing(true)
-        queue_job(to_run, ds) unless to_run.nil?
+        queue_job(:d, ds) unless to_run.nil?
       end
     end
   end
@@ -137,7 +137,7 @@ class MiGA::Daemon < MiGA::MiGA
     return unless project.done_preprocessing?(false)
     to_run = project.next_distances(true)
     to_run = project.next_inclade(true) if to_run.nil?
-    queue_job(to_run) unless to_run.nil?
+    queue_job(:p) unless to_run.nil?
   end
 
   ##
