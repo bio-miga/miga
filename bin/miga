@@ -30,6 +30,7 @@ $task_desc = {
   files:    'Lists registered files from the results of a dataset or project',
   run:      'Executes locally one step analysis producing the given result',
   summary:  'Generates a summary table for the statistics of all datasets',
+  next_step: 'Returns the next task to run in a dataset or project',
   # System
   init:     'Initialize MiGA to process new projects',
   daemon:   'Controls the daemon of a MiGA project',
@@ -58,6 +59,7 @@ $task_alias = {
   list_files: :files,
   run_local: :run,
   sum_stats: :summary,
+  next_task: :next_step,
   # System
   c: :console,
   # Taxonomy
