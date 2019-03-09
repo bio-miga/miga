@@ -24,6 +24,10 @@ class MiGA::SubcladeRunner
   # Launch the appropriate analysis
   def go!
     return if project.type == :metagenomes
+    unless @project.dataset_names.any? { |i| @project.dataset(i).is_ref? }
+      FileUtils.touch(File.expand_path('miga-project.empty', @home))
+      return
+    end
     Dir.chdir home
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
