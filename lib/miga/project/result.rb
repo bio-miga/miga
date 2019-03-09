@@ -87,9 +87,14 @@ module MiGA::Project::Result
     end
 
     def add_result_clade_finding(base)
+      if result_files_exist?(base, %w[.empty])
+        r = MiGA::Result.new("#{base}.json")
+        r.add_file(:empty, 'miga-project.empty')
+        return r
+      end
       return nil unless result_files_exist?(base, %w[.proposed-clades])
       return nil unless is_clade? or result_files_exist?(base,
-        %w[.pdf .classif .medoids .class.tsv .class.nwk])
+          %w[.pdf .classif .medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
       r.add_file(:aai_tree,      'miga-project.aai.nwk')
       r.add_file(:proposal,      'miga-project.proposed-clades')
@@ -100,6 +105,11 @@ module MiGA::Project::Result
     end
 
     def add_result_subclades(base)
+      if result_files_exist?(base, %w[.empty])
+        r = MiGA::Result.new("#{base}.json")
+        r.add_file(:empty, 'miga-project.empty')
+        return r
+      end
       return nil unless result_files_exist?(base,
         %w[.pdf .classif .medoids .class.tsv .class.nwk])
       r = add_result_iter_clades(base)
@@ -118,6 +128,11 @@ module MiGA::Project::Result
     end
 
     def add_result_ogs(base)
+      if result_files_exist?(base, %w[.empty])
+        r = MiGA::Result.new("#{base}.json")
+        r.add_file(:empty, 'miga-project.empty')
+        return r
+      end
       return nil unless result_files_exist?(base, %w[.ogs .stats])
       r = MiGA::Result.new("#{base}.json")
       r.add_file(:ogs,   'miga-project.ogs')
