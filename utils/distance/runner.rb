@@ -35,7 +35,7 @@ class MiGA::DistanceRunner
     elsif !opts[:run_taxonomy] and dataset.metadata[:db_project]
       ref_path = dataset.metadata[:db_project]
       if project.metadata[:db_proj_dir]
-        ref_path = File.expand_path(project.metadata[:db_proj_dir], ref_path)
+        ref_path = File.expand_path(ref_path, project.metadata[:db_proj_dir])
       end
       @ref_project = MiGA::Project.load(ref_path)
       raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
