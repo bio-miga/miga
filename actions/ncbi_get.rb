@@ -100,6 +100,7 @@ doc = MiGA::RemoteDataset.download_url(url)
 CSV.parse(doc, headers: true).each do |r|
   asm = r['assembly']
   next if asm.nil? or asm.empty? or asm == '-'
+  next unless r['ftp_path_genbank']
 
   # Get replicons
   rep = r['replicons'].nil? ? nil : r['replicons'].
