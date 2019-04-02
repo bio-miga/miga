@@ -55,6 +55,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
   ##
   # Save dataset to the MiGA::Project +project+ identified with +name+. +is_ref+
   # indicates if it should be a reference dataset, and contains +metadata_def+.
+  # If +metadata_def+ includes +metadata_only: true+, no input data is
+  # downloaded.
   def save_to(project, name = nil, is_ref = true, metadata_def = {})
     name ||= ids.join('_').miga_name
     project = MiGA::Project.new(project) if project.is_a? String
@@ -63,9 +65,11 @@ class MiGA::RemoteDataset < MiGA::MiGA
     @metadata = get_metadata(metadata_def)
     udb = @@UNIVERSE[universe][:dbs][db]
     @metadata["#{universe}_#{db}"] = ids.join(',')
-    respond_to?("save_#{udb[:stage]}_to", true) or
-      raise "Unexpected error: Unsupported stage #{udb[:stage]} for #{db}."
-    send "save_#{udb[:stage]}_to", project, name, udb
+    unless @metadata[:metadata_only]
+      respond_to?("save_#{udb[:stage]}_to", true) or
+        raise "Unexpected error: Unsupported stage #{udb[:stage]} for #{db}."
+      send "save_#{udb[:stage]}_to", project, name, udb
+    end
     dataset = MiGA::Dataset.new(project, name, is_ref, metadata)
     project.add_dataset(dataset.name)
     result = dataset.add_result(udb[:stage], true, is_clean: true)

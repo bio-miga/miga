@@ -6,11 +6,11 @@
 require 'miga/remote_dataset'
 require 'csv'
 
-o = {q:true, query:false, unlink:false,
+o = {q: true, query: false, unlink: false,
   reference: false, legacy_name: false,
   complete: false, chromosome: false,
   scaffold: false, contig: false, add_version: true, dry: false,
-  get_md: false}
+  get_md: false, only_md: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -43,6 +43,9 @@ OptionParser.new do |opt|
   opt.on('--get-metadata',
     'Only download and update metadata for existing datasets'
     ){ |v| o[:get_md] = v }
+  opt.on('--only-metadata',
+    'Create datasets without input data but retrieve all metadata.'
+    ){ |v| o[:only_md] = v }
   opt.on('-q', '--query',
     'Register the datasets as queries, not reference datasets.'
     ){ |v| o[:query]=v }
@@ -150,6 +153,7 @@ ds.each do |name,body|
   downloaded += 1
   next if o[:dry]
   $stderr.puts '  Locating remote dataset.' unless o[:q]
+  body[:md][:metadata_only] = true if o[:only_md]
   rd = MiGA::RemoteDataset.new(body[:ids], body[:db], body[:universe])
   if o[:get_md]
     $stderr.puts '  Updating dataset.' unless o[:q]

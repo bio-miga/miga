@@ -5,7 +5,8 @@
 
 require 'miga/remote_dataset'
 
-o = {q: true, query: false, universe: :ebi, db: :embl, get_md: false}
+o = {q: true, query: false, universe: :ebi, db: :embl,
+  get_md: false, only_md: false}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project, :dataset, :dataset_type])
@@ -39,6 +40,9 @@ OptionParser.new do |opt|
   opt.on('--get-metadata',
     'Only download and update metadata for existing datasets'
     ){ |v| o[:get_md] = v }
+  opt.on('--only-metadata',
+    'Create datasets without input data but retrieve all metadata.'
+    ){ |v| o[:only_md] = v }
   opt.on('--api-key STRING',
     'API key for the given universe.'){ |v| o[:api_key] = v }
   opt_common(opt, o)
@@ -91,6 +95,7 @@ glob.each do |o_i|
     $stderr.puts 'Creating dataset.' unless o_i[:q]
     dummy_d = MiGA::Dataset.new(p, o_i[:dataset])
     md = add_metadata(o_i, dummy_d).metadata.data
+    md[:metadata_only] = true if o[:only_md]
     dummy_d.remove!
     rd.save_to(p, o_i[:dataset], !o_i[:query], md)
     p.add_dataset(o_i[:dataset])

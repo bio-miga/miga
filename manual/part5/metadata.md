@@ -69,6 +69,7 @@ The following metadata fields are recognized by different interfaces for
 | is_type      | Boolean          | If it is type material
 | is_ref_type  | Boolean          | If it is reference material°
 | type_rel     | String           | Relationship to type material
+| metadata_only | Boolean         | Dataset with metadata but without input data
 | _step        | String           | For internal control of processing
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
