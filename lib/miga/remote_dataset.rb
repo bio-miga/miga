@@ -72,11 +72,13 @@ class MiGA::RemoteDataset < MiGA::MiGA
     end
     dataset = MiGA::Dataset.new(project, name, is_ref, metadata)
     project.add_dataset(dataset.name)
-    result = dataset.add_result(udb[:stage], true, is_clean: true)
-    result.nil? and
-      raise 'Empty dataset: seed result not added due to incomplete files.'
-    result.clean!
-    result.save
+    unless @metadata[:metadata_only]
+      result = dataset.add_result(udb[:stage], true, is_clean: true)
+      result.nil? and
+        raise 'Empty dataset: seed result not added due to incomplete files.'
+      result.clean!
+      result.save
+    end
     dataset
   end
 
