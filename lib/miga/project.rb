@@ -24,7 +24,7 @@ class MiGA::Project < MiGA::MiGA
 
   ##
   # If true, it doesn't save changes
-  attr :do_not_save
+  attr_accessor :do_not_save
 
   ##
   # Create a new MiGA::Project at +path+, if it doesn't exist and +update+ is
