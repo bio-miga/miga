@@ -1,10 +1,10 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require "miga/dataset"
-require "miga/project/result"
-require "miga/project/dataset"
-require "miga/project/plugins"
+require 'miga/dataset'
+require 'miga/project/result'
+require 'miga/project/dataset'
+require 'miga/project/plugins'
 
 ##
 # MiGA representation of a project.
@@ -17,16 +17,21 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Absolute path to the project folder.
   attr_reader :path
-  
+
   ##
   # Information about the project as MiGA::Metadata.
   attr_reader :metadata
+
+  ##
+  # If true, it doesn't save changes
+  attr :do_not_save
 
   ##
   # Create a new MiGA::Project at +path+, if it doesn't exist and +update+ is
   # false, or load an existing one.
   def initialize(path, update=false)
     @datasets = {}
+    @do_not_save = false
     @path = File.absolute_path(path)
     self.create if not update and not Project.exist? self.path
     self.load if self.metadata.nil?
@@ -39,7 +44,7 @@ class MiGA::Project < MiGA::MiGA
   # Create an empty project.
   def create
     unless MiGA::MiGA.initialized?
-      raise "Impossible to create project in uninitialized MiGA."
+      raise 'Impossible to create project in uninitialized MiGA.'
     end
     dirs = [path] + @@FOLDERS.map{|d| "#{path}/#{d}" } +
       @@DATA_FOLDERS.map{ |d| "#{path}/data/#{d}"}
@@ -51,14 +56,15 @@ class MiGA::Project < MiGA::MiGA
         File.exist? "#{path}/daemon/daemon.json"
     self.load
   end
-  
+
   ##
-  # Save any changes persistently.
+  # Save any changes persistently. Do nothing if +do_not_save+ is true.
   def save
+    return if do_not_save
     metadata.save
     self.load
   end
-  
+
   ##
   # (Re-)load project data and metadata.
   def load
@@ -67,7 +73,7 @@ class MiGA::Project < MiGA::MiGA
     @metadata = MiGA::Metadata.load "#{path}/miga.project.json"
     raise "Couldn't find project metadata at #{path}" if metadata.nil?
   end
-  
+
   ##
   # Name of the project.
   def name ; metadata[:name] ; end
@@ -83,5 +89,5 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Is this a project for multi-organism datasets?
   def is_multi? ; @@KNOWN_TYPES[type][:multi] ; end
-  
+
 end
