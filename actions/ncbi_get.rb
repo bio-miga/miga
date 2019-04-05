@@ -10,7 +10,7 @@ o = {q: true, query: false, unlink: false,
   reference: false, legacy_name: false,
   complete: false, chromosome: false,
   scaffold: false, contig: false, add_version: true, dry: false,
-  get_md: false, only_md: false}
+  get_md: false, only_md: false, save_every: 1}
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
@@ -46,6 +46,10 @@ OptionParser.new do |opt|
   opt.on('--only-metadata',
     'Create datasets without input data but retrieve all metadata.'
     ){ |v| o[:only_md] = v }
+  opt.on('--save-every INT',
+    'Save project every this many downloaded datasets.',
+    'If zero, it saves the project only once upon completion.',
+    'By default: 1.'){ |v| o[:save_every] = v.to_i }
   opt.on('-q', '--query',
     'Register the datasets as queries, not reference datasets.'
     ){ |v| o[:query]=v }
@@ -64,6 +68,7 @@ opt_require(o, taxon: '-T') unless o[:reference]
 unless %w[reference complete chromosome scaffold contig].any?{ |i| o[i.to_sym] }
   raise 'No action requested. Pick at least one type of genome.'
 end
+o[:save_every] = 1 if o[:dry]
 
 ##=> Main <=
 $stderr.puts "Loading project." unless o[:q]
@@ -145,8 +150,9 @@ end
 
 # Download entries
 $stderr.puts "Downloading #{ds.size} " +
-  (ds.size == 1 ? "entry" : "entries") unless o[:q]
-ds.each do |name,body|
+  (ds.size == 1 ? 'entry' : 'entries') unless o[:q]
+p.do_not_save = true if o[:save_every] <= 1
+ds.each do |name, body|
   d << name
   puts name
   next if p.dataset(name).nil? == o[:get_md]
@@ -163,7 +169,11 @@ ds.each do |name,body|
     rd.save_to(p, name, !o[:query], body[:md])
     p.add_dataset(name)
   end
+  p.save! if o[:save_every] > 1 and (downloaded % o[:save_every]) == 0
 end
+
+p.do_not_save = false
+p.save! if o[:save_every] != 1
 
 # Finalize
 $stderr.puts "Datasets listed: #{d.size}" unless o[:q]

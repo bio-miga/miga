@@ -60,7 +60,12 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Save any changes persistently. Do nothing if +do_not_save+ is true.
   def save
-    return if do_not_save
+    save! unless do_not_save
+  end
+
+  ##
+  # Save any changes persistently, regardless of +do_not_save+.
+  def save!
     metadata.save
     self.load
   end
