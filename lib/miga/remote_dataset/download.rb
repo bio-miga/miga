@@ -91,7 +91,7 @@ class MiGA::RemoteDataset
     def ncbi_map(id, dbfrom, db)
       doc = download(:ncbi_map, dbfrom, id, :json, nil, [db])
       return if doc.empty?
-      tree = JSON.parse(doc, symbolize_names: true)
+      tree = MiGA::Json.parse(doc, contents: true)
       [:linksets, 0, :linksetdbs, 0, :links, 0].each do |i|
         tree = tree[i]
         break if tree.nil?

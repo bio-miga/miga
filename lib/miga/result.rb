@@ -122,19 +122,14 @@ class MiGA::Result < MiGA::MiGA
       @data[:started] = File.read(s).chomp
       File.unlink s
     end
-    json = JSON.pretty_generate data
-    ofh = File.open(path, "w")
-    ofh.puts json
-    ofh.close
+    MiGA::Json.generate(data, path)
     self.load
   end
 
   ##
   # Load (or reload) result data in the JSON file #path.
   def load
-    json = File.read(path)
-    raise "Impossible to load result, empty descriptor: #{path}." if json.empty?
-    @data = JSON.parse(json, {:symbolize_names=>true})
+    @data = MiGA::Json.parse(path)
     @data[:files] ||= {}
     @results = (self[:results] || []).map{ |rs| MiGA::Result.new rs }
   end

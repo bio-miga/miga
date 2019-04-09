@@ -57,14 +57,17 @@ class MiGA::Metadata < MiGA::MiGA
   def save
     MiGA.DEBUG "Metadata.save #{path}"
     self[:updated] = Time.now.to_s
-    json = JSON.pretty_generate(data)
+    json = MiGA::Json.generate(data)
     sleeper = 0.0
+    slept = 0
     while File.exist?(lock_file)
       sleeper += 0.1 if sleeper <= 10.0
       sleep(sleeper.to_i)
+      slept += sleeper.to_i
+      raise "Lock detected for over 10 minutes: #{lock_file}" if slept > 600
     end
     FileUtils.touch lock_file
-    ofh = File.open("#{path}.tmp", "w")
+    ofh = File.open("#{path}.tmp", 'w')
     ofh.puts json
     ofh.close
     raise "Lock-racing detected for #{path}." unless
@@ -81,9 +84,7 @@ class MiGA::Metadata < MiGA::MiGA
       sleeper += 0.1 if sleeper <= 10.0
       sleep(sleeper.to_i)
     end
-    # :symbolize_names does not play nicely with :create_additions
-    tmp = JSON.parse(File.read(path),
-      {:symbolize_names=>false, :create_additions=>true})
+    tmp = MiGA::Json.parse(path, additions: true)
     @data = {}
     tmp.each_pair{ |k,v| self[k] = v }
   end

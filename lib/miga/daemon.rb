@@ -39,9 +39,9 @@ class MiGA::Daemon < MiGA::MiGA
   def initialize(project)
     $_MIGA_DAEMON_LAIR << self
     @project = project
-    @runopts = JSON.parse(
-          File.read(File.expand_path('daemon/daemon.json', project.path)),
-          symbolize_names: true)
+    @runopts = MiGA::Json.parse(
+      File.expand_path('daemon/daemon.json', project.path),
+      default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
     @jobs_to_run = []
     @jobs_running = []
     @loop_i = -1
@@ -84,10 +84,9 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Report status in a JSON file.
   def report_status
-    f = File.open(File.expand_path('daemon/status.json', project.path), 'w')
-    f.print JSON.pretty_generate(
-      jobs_running: @jobs_running, jobs_to_run: @jobs_to_run)
-    f.close
+    MiGA::Json.generate(
+      {jobs_running: @jobs_running, jobs_to_run: @jobs_to_run},
+      File.expand_path('daemon/status.json', project.path))
   end
 
   ##
@@ -96,7 +95,7 @@ class MiGA::Daemon < MiGA::MiGA
     f_path = File.expand_path('daemon/status.json', project.path)
     return unless File.size? f_path
     say 'Loading previous status in daemon/status.json:'
-    status = JSON.parse(File.read(f_path), symbolize_names: true)
+    status = MiGA::Json.parse(f_path)
     status.keys.each do |i|
       status[i].map! do |j|
         j.tap do |k|
@@ -255,11 +254,6 @@ class MiGA::Daemon < MiGA::MiGA
   def terminate
     say 'Terminating daemon...'
     report_status
-    k = runopts(:kill)
-    @jobs_running.each do |i|
-      `#{k % i[:pid]}`
-      puts "Terminating pid:#{i[:pid]} for #{i[:task_name]}"
-    end
     f = File.expand_path('daemon/alive', project.path)
     File.unlink(f) if File.exist? f
   end

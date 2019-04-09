@@ -13,7 +13,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
   class << self
     def ncbi_asm_acc2id(acc)
       return acc if acc =~ /^\d+$/
-      search_doc = JSON.parse download(:ncbi_search, :assembly, acc, :json)
+      search_doc = MiGA::Json.parse(
+        download(:ncbi_search, :assembly, acc, :json),
+        symbolize: false, contents: true)
       search_doc['esearchresult']['idlist'].first
     end
   end
@@ -147,8 +149,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
     metadata[:ncbi_asm] ||= ids.first if universe == :ncbi and db == :assembly
     return nil unless metadata[:ncbi_asm]
     ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]
-    doc = JSON.parse(
-      self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json))
+    doc = MiGA::Json.parse(
+      self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json),
+      symbolize: false, contents: true)
     @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
   end
 

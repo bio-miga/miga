@@ -57,8 +57,8 @@ class MiGA::TaxIndex < MiGA::MiGA
   ##
   # Generate JSON String for the index.
   def to_json
-    JSON.generate({ root:root.to_hash,
-      datasets:datasets.map{ |d| d.name } })
+    MiGA::Json.generate(
+      { root: root.to_hash, datasets: datasets.map{ |d| d.name } })
   end
 
   ##
