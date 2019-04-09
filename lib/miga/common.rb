@@ -1,8 +1,8 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require 'json'
 require 'miga/version'
+require 'miga/json'
 require 'miga/common/base'
 require 'miga/common/path'
 require 'miga/common/format'
