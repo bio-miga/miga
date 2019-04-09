@@ -15,37 +15,37 @@ class MiGA::Taxonomy < MiGA::MiGA
   ##
   # Long names of the cannonical ranks.
   def self.LONG_RANKS() @@LONG_RANKS ; end
-  @@LONG_RANKS = {root: "root", ns: "namespace", d: "domain", k: "kingdom",
-    p: "phylum", c: "class", o: "order", f: "family", g: "genus", s: "species",
-    ssp: "subspecies", str: "strain", ds: "dataset"}
+  @@LONG_RANKS = {root: 'root', ns: 'namespace', d: 'domain', k: 'kingdom',
+    p: 'phylum', c: 'class', o: 'order', f: 'family', g: 'genus', s: 'species',
+    ssp: 'subspecies', str: 'strain', ds: 'dataset'}
 
   ##
   # Synonms for cannonical ranks.
   @@RANK_SYNONYMS = {
-    "namespace"=>"ns",
-    "domain"=>"d","superkingdom"=>"d",
-    "kingdom"=>"k",
-    "phylum"=>"p",
-    "class"=>"c",
-    "order"=>"o",
-    "family"=>"f",
-    "genus"=>"g",
-    "species"=>"s","sp"=>"s",
-    "subspecies"=>"ssp",
-    "strain"=>"str","isolate"=>"str","culture"=>"str",
-    "dataset"=>"ds","organism"=>"ds","genome"=>"ds","specimen"=>"ds"
+    'namespace' => 'ns',
+    'domain' => 'd', 'superkingdom' => 'd',
+    'kingdom' => 'k',
+    'phylum' => 'p',
+    'class' => 'c',
+    'order' => 'o',
+    'family' => 'f',
+    'genus' => 'g',
+    'species' => 's', 'sp' => 's',
+    'subspecies' => 'ssp',
+    'strain' => 'str', 'isolate' => 'str', 'culture' => 'str',
+    'dataset' => 'ds', 'organism' => 'ds', 'genome' => 'ds', 'specimen' => 'ds'
   }
 
   ##
   # Initialize from JSON-derived Hash +o+.
-  def self.json_create(o) new(o["str"]) ; end
+  def self.json_create(o) new(o['str']) ; end
 
   ##
   # Returns cannonical rank (Symbol) for the +rank+ String.
   def self.normalize_rank(rank)
     return rank.to_sym if @@_KNOWN_RANKS_H[rank.to_sym]
     rank = rank.to_s.downcase
-    return nil if rank=="no rank"
+    return nil if rank == 'no rank'
     rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
     rank = rank.to_sym
     return nil unless @@_KNOWN_RANKS_H[rank]
@@ -64,7 +64,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # either a rank:value pair (if +ranks+ is nil), or just values in the same
   # order as ther ranks in +ranks+. Alternatively, +str+ as a Hash with rank =>
   # value pairs is also supported.
-  def initialize(str, ranks=nil)
+  def initialize(str, ranks = nil)
     @ranks = {}
     if ranks.nil?
       case str when Array, Hash

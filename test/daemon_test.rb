@@ -114,11 +114,6 @@ class DaemonTest < Test::Unit::TestCase
       $d1.runopts(:latency, "!")
     end
     assert_equal("bash", $d1.runopts(:type))
-    assert_equal("kill -9 '%s'", $d1.runopts(:kill))
-    $d1.runopts(:type, "qsub")
-    assert_equal("qdel '%s'", $d1.runopts(:kill))
-    $d1.runopts(:type, "msub")
-    assert_equal("canceljob '%s'", $d1.runopts(:kill))
   end
 
   def test_say
