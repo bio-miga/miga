@@ -192,9 +192,16 @@ class MiGA::Daemon < MiGA::MiGA
   def flush!
     # Check for finished jobs
     @jobs_running.select! do |job|
-      r = (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false)
-      say "Completed pid:#{job[:pid]} for #{job[:task_name]}." unless r.nil?
-      r.nil?
+      ongoing = case job[:job].to_s
+      when 'd'
+        not job[:ds].next_preprocessing(false).nil?
+      when 'p'
+        not project.next_task(nil, false).nil?
+      else
+        (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false).nil?
+      end
+      say "Completed pid:#{job[:pid]} for #{job[:task_name]}." unless ongoing
+      ongoing
     end
     # Avoid single datasets hogging resources
     @jobs_to_run.rotate! rand(jobs_to_run.size)

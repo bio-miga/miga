@@ -58,8 +58,10 @@ module MiGA::Project::Result
 
   ##
   # Get the next task from +tasks+, saving intermediate results if +save+.
+  # If +tasks+ is +nil+ (default), it uses the entire list of tasks.
   # Returns a Symbol.
-  def next_task(tasks = @@DISTANCE_TASKS+@@INCLADE_TASKS, save = true)
+  def next_task(tasks = nil, save = true)
+    tasks ||= @@DISTANCE_TASKS+@@INCLADE_TASKS
     tasks.find do |t|
       if metadata["run_#{t}"] == false or
             (!is_clade? and @@INCLADE_TASKS.include?(t) and
