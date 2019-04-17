@@ -30,6 +30,7 @@ OptionParser.new do |opt|
   opt.on('--only TASK',
     'Perform only the specified task (see --ignore).'
     ){ |v| tasks.keys.each{ |i| o[i] = false }; o[v] = true }
+  opt_common(opt, o)
 end.parse!
 
 ##=> Main <=
