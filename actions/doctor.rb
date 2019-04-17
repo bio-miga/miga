@@ -5,35 +5,37 @@
 
 require "sqlite3"
 
-o = {q:true, ld:false,
-  db: true, dist: true, files: true,
-  ess: true, mts: true, start: true, tax: true}
+tasks = {
+  db: ['databases', 'Check database files integrity'],
+  dist: ['distances', 'Check distance summary tables.'],
+  files: ['files', 'Check for outdated files.'],
+  ess: ['essential-genes', 'Check for unarchived essential genes'],
+  mts: ['mytaxa-scan', 'Check for unarchived MyTaxa scan'],
+  start: ['start', 'Check for lingering .start files'],
+  tax: ['taxonomy', 'Check for taxonomy consistency (not implemented)']
+}
+o = {q: true, ld: false}
+tasks.keys.each{ |i| o[i] = true }
+tasks_n = Hash[tasks.map{ |k,v| [v[0], k] }]
+
 OptionParser.new do |opt|
   opt_banner(opt)
   opt_object(opt, o, [:project])
-  opt.on("-l", "--list-datasets",
-    "List all fixed datasets on advance."){ |v| o[:ld]=v }
-  opt.on("--ignore-databases",
-    "Do not check database files integrity."){ |v| o[:db]=!v }
-  opt.on("--ignore-distances",
-    "Do not check distance tables."){ |v| o[:dist]=!v }
-  opt.on("--ignore-files",
-    "Do not check for outdated files."){ |v| o[:files]=!v }
-  opt.on("--ignore-essential-genes",
-    "Do not check unarchived essential genes."){ |v| o[:ess]=!v }
-  opt.on("--ignore-mytaxa-scan",
-    "Do not check unarchived MyTaxa scan."){ |v| o[:mts]=!v }
-  opt.on("--ignore-start",
-    "Do not check lingering legacy .start files."){ |v| o[:start]=!v }
-  opt.on("--ignore-taxonomy",
-    "Do not check taxonomy consistency."){ |v| o[:tax]=!v }
-  opt_common(opt, o)
+  opt.on('-l', '--list-datasets',
+    'List all fixed datasets on advance.'){ |v| o[:ld]=v }
+  opt.on('--ignore TASK1,TASK2', Array,
+    'Do not perform the task(s) listed. Available tasks are:',
+    * tasks.values.map{ |v| "#{v[0]}: #{v[1]}" }
+    ){ |v| v.map{ |i| o[tasks_n[i]] = false } }
+  opt.on('--only TASK',
+    'Perform only the specified task (see --ignore).'
+    ){ |v| tasks.keys.each{ |i| o[i] = false }; o[v] = true }
 end.parse!
 
 ##=> Main <=
-opt_require(o, project:"-P")
+opt_require(o, project: '-P')
 
-$stderr.puts "Loading project" unless o[:q]
+$stderr.puts 'Loading project' unless o[:q]
 p = MiGA::Project.load(o[:project])
 raise "Impossible to load project: #{o[:project]}" if p.nil?
 
@@ -48,7 +50,7 @@ def check_sqlite3_database(db_file, metric)
 end
 
 if o[:db]
-  $stderr.puts "o Checking databases integrity" unless o[:q]
+  $stderr.puts 'o Checking databases integrity' unless o[:q]
   p.each_dataset do |d|
     [:distances, :taxonomy].each do |r_key|
       r = d.result(r_key) or next
@@ -97,20 +99,20 @@ end
   
   unless notok.empty?
     unless o[:q]
-      $stderr.puts "  - Unregistered datasets detected: "
+      $stderr.puts '  - Unregistered datasets detected: '
       if notok.size < 3
-        $stderr.puts "    - #{notok.keys.join(", ")}"
+        $stderr.puts "    - #{notok.keys.join(', ')}"
       else
-        $stderr.puts "    - #{notok.keys.first} and other #{notok.size-1}"
+        $stderr.puts "    - #{notok.size}, including #{notok.keys.first}"
       end
-      $stderr.puts "  - Removing tables, recompute"
+      $stderr.puts '  - Removing tables, recompute'
     end
     res.remove!
   end
 end if o[:dist]
 
 if o[:files]
-  $stderr.puts "o Looking for outdated files in results" unless o[:q]
+  $stderr.puts 'o Looking for outdated files in results' unless o[:q]
   p.each_dataset do |d|
     d.each_result do |r_k, r|
       ok = true
@@ -122,14 +124,14 @@ if o[:files]
       end
       unless ok
         $stderr.puts "    > Registering again #{d.name}:#{r_k}" if o[:ld]
-        d.add_result(r_k, true, force:true)
+        d.add_result(r_k, true, force: true)
       end
     end
   end
 end
 
 if o[:ess]
-  $stderr.puts "o Looking for unarchived essential genes." unless o[:q]
+  $stderr.puts 'o Looking for unarchived essential genes.' unless o[:q]
   p.each_dataset do |d|
     res = d.result(:essential_genes)
     next if res.nil?
@@ -148,7 +150,7 @@ if o[:ess]
 end
 
 if o[:mts]
-  $stderr.puts "o Looking for unarchived MyTaxa Scan runs." unless o[:q]
+  $stderr.puts 'o Looking for unarchived MyTaxa Scan runs.' unless o[:q]
   p.each_dataset do |d|
     res = d.result(:mytaxa_scan)
     next if res.nil?
@@ -178,7 +180,7 @@ if o[:mts]
 end
 
 if o[:start]
-  $stderr.puts "o Looking for legacy .start files lingering." unless o[:q]
+  $stderr.puts 'o Looking for legacy .start files lingering.' unless o[:q]
   p.each_dataset do |d|
     d.each_result do |r_k, r|
       if File.exist? r.path(:start)
@@ -194,5 +196,5 @@ if o[:tax]
   # TODO: Find 95%ANI clusters with entries from different species
 end
 
-$stderr.puts "Done" unless o[:q]
+$stderr.puts 'Done' unless o[:q]
 
