@@ -37,6 +37,7 @@ class DaemonTest < Test::Unit::TestCase
       File.expand_path("data/01.raw_reads/ds1.1.fastq", p.path))
     FileUtils.cp(File.expand_path("daemon/daemon.json", p.path),
       File.expand_path("data/01.raw_reads/ds1.done", p.path))
+    ds.first_preprocessing(true)
     out = capture_stdout do
       d.check_datasets
     end
