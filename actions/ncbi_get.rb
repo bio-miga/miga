@@ -151,7 +151,7 @@ end
 # Download entries
 $stderr.puts "Downloading #{ds.size} " +
   (ds.size == 1 ? 'entry' : 'entries') unless o[:q]
-p.do_not_save = true if o[:save_every] <= 1
+p.do_not_save = true if o[:save_every] != 1
 ds.each do |name, body|
   d << name
   puts name
