@@ -122,7 +122,7 @@ class MiGA::Daemon < MiGA::MiGA
         say "Warning: Dataset #{n} listed but not loaded, reloading project"
         project.load
       else
-        to_run = ds.next_preprocessing(true)
+        to_run = ds.next_preprocessing(false)
         queue_job(:d, ds) unless to_run.nil?
       end
     end

@@ -38,7 +38,7 @@ module MiGA::Dataset::Result
   # - +force+: A Boolean indicating if the result must be re-indexed. If true,
   #   it implies save=true.
   # Returns MiGA::Result or nil.
-  def add_result(result_type, save=true, opts={})
+  def add_result(result_type, save = true, opts = {})
     dir = @@RESULT_DIRS[result_type]
     return nil if dir.nil?
     base = File.expand_path("data/#{dir}/#{name}", project.path)
@@ -63,7 +63,7 @@ module MiGA::Dataset::Result
   # Returns the key symbol of the first registered result (sorted by the
   # execution order). This typically corresponds to the result used as the
   # initial input. Passes +save+ to #add_result.
-  def first_preprocessing(save=false)
+  def first_preprocessing(save = false)
     @@PREPROCESSING_TASKS.find do |t|
       not ignore_task?(t) and not add_result(t, save).nil?
     end
@@ -72,7 +72,7 @@ module MiGA::Dataset::Result
   ##
   # Returns the key symbol of the next task that needs to be executed. Passes
   # +save+ to #add_result.
-  def next_preprocessing(save=false)
+  def next_preprocessing(save = false)
     after_first = false
     first = first_preprocessing(save)
     return nil if first.nil?
