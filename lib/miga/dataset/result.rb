@@ -226,8 +226,8 @@ module MiGA::Dataset::Result
     def add_result_essential_genes(base, _opts)
       return nil unless result_files_exist?(base, %w[.ess.faa .ess .ess/log])
       r = MiGA::Result.new("#{base}.json")
-      add_files_to_ds_result(r, name, ess_genes: ".ess.faa",
-        collection: ".ess", report: ".ess/log")
+      add_files_to_ds_result(r, name, ess_genes: '.ess.faa',
+        collection: '.ess', report: '.ess/log', alignments: '.ess/proteins.aln')
     end
 
     ##

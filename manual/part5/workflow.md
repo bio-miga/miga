@@ -183,6 +183,8 @@ Supported file keys:
 * `report` (*req*): Raw text report including derived statistics, as well as
   *essential* genes missing or detected in multiple copies (for genomes) or
   copy counts (for metagenomes and viromes).
+* `alignments`: Generated for all genomes (non-multi types). It contains the
+  best matching protein for each detected model aligned to the model.
 * `bac_report`: If present, this is the original report, and it indicates that a
   corrected report has been generated to accomodate particular features of the
   dataset.
