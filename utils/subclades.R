@@ -112,7 +112,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   # Silhouette
   say("Silhouette")
   nn <- length(labels(ani.d))
-  k <- min(max(floor(0.005 * nn), 2), 40):min(nn-1, 100)
+  k <- min(max(floor(0.005 * nn), 2), 20):min(nn-1, 100)
   cl <- makeCluster(thr)
   s <- parSapply(cl, k, function(x) {
       library(cluster)
