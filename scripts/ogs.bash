@@ -23,6 +23,7 @@ if [[ -n $DS ]] ; then
         [[ -s "$file" ]] && continue
         echo "SELECT seq1,id1,seq2,id2,bitscore from rbm where id >= $MIN_ID;" \
           | sqlite3 "../../09.distances/02.aai/$i.db" | tr "\\|" " " \
+          | perl -pe 's/ gene_/ /g' \
           | awk '{ print $1">"$2"'"\\t"'"$3">"$4"'"\\t"'"$5 }' \
           > "$file.tmp"
         mv "$file.tmp" "$file"
@@ -34,9 +35,9 @@ if [[ -n $DS ]] ; then
     # Estimate OGs and Clean RBMs
     ogs.mcl.rb -o miga-project.ogs --abc miga-project.abc -t "$CORES"
     if [[ $(miga about -P "$PROJECT" -m clean_ogs) == "false" ]] ; then
-      rm miga-project.abc
-    else
       gzip -9 miga-project.abc
+    else
+      rm miga-project.abc
     fi
   fi
 

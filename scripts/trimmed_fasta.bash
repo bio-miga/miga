@@ -31,7 +31,7 @@ if [[ -e "../02.trimmed_reads/$b.2.clipped.fastq" ]] ; then
     > "$b.SingleReads.fa"
   gzip -9 -f "$b.SingleReads.fa"
 else
-   mv "$b.1.fasta" "$b.SingleReads.fa"
+  mv "$b.1.fasta" "$b.SingleReads.fa"
 fi
 
 # Compress input at 01.raw_reads and 02.trimmed_reads
