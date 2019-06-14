@@ -58,12 +58,12 @@ class DaemonTest < Test::Unit::TestCase
     end
     assert_equal(Time, d.last_alive.class)
     assert(out.string =~ /-{20}\n.*MiGA:#{p.name} launched/)
-    2.times{ d.in_loop }
-    assert_equal(3, d.loop_i)
+    10.times{ d.in_loop }
+    assert_equal(11, d.loop_i)
     out = capture_stdout do
       d.in_loop
     end
-    assert(out.string =~ /Housekeeping for sanity/)
+    assert(out.string =~ /Probing running jobs/)
     assert_equal(0, d.loop_i)
   end
 
@@ -86,7 +86,7 @@ class DaemonTest < Test::Unit::TestCase
       assert(l[0] =~ /-{20}\n/)
       assert(l[1] =~ /MiGA:#{p.name} launched/)
       assert(l[2] =~ /-{20}\n/)
-      assert(l[3] =~ /Housekeeping for sanity\n/)
+      assert(l[3] =~ /Probing running jobs\n/)
     end
   ensure
     Process.kill("KILL", $child) unless $child.nil?

@@ -240,8 +240,8 @@ class MiGA::Daemon < MiGA::MiGA
       return false
     end
     flush!
-    if loop_i==4
-      say 'Housekeeping for sanity'
+    if loop_i == 12
+      say 'Probing running jobs'
       @loop_i = 0
       purge!
     end
