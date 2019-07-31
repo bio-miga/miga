@@ -1,6 +1,10 @@
 # Get taxonomy of genomes
 
-*TODO: EXPLAIN THE PROBLEM SHORTLY HERE*
+This tutoral guides you through comparing your genomes,
+Metagenome-Assembled Genomes (MAGs), or Single-Cell Amplified
+Genomes (SAGs) against a reference project for taxonomy.
+A reference project has to be a separate MiGA project with
+a database of your choice. 
 
 ## 1. Create an empty MiGA project
 
