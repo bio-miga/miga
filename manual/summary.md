@@ -32,4 +32,5 @@
   * [Extending MiGA](part5/extending.md)
   * [Metadata](part5/metadata.md)
   * [External Software](part5/external.md)
-
+* [Part VI: Tutorials](part6.md)
+  * [Tutorial 1](part6/tutorial_1.md)
