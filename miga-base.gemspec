@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
         # Testing requires "shush" from daemons, first introduced in v1.2.4
   s.add_runtime_dependency 'json', '> 1.8', '< 3'
   s.add_runtime_dependency 'sqlite3', '~> 1.3'
-  s.required_ruby_version = '>= 1.9'
+  s.required_ruby_version = '>= 2.1'
 
   # Docs + tests
   s.extra_rdoc_files << 'README.md'

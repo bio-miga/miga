@@ -5,7 +5,7 @@
 If you don't have apt-get, Homebrew, or conda, here's the list of requirements
 and URLs with installation instructions:
 
-* **Ruby**: https://www.ruby-lang.org/. Required: v1.9+, recommended: v2.3+.
+* **Ruby**: https://www.ruby-lang.org/. Required: v2.1+, recommended: v2.3+.
 * **Python**: https://www.python.org/.
 * **R**: http://www.r-project.org/.
 * **SQLite3**: https://www.sqlite.org/.
