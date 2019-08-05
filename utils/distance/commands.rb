@@ -58,7 +58,7 @@ module MiGA::DistanceRunner::Commands
   # Returns +nil+ otherwise
   def ani_after_aai(target, aai_limit = 85.0)
     aai = aai(target)
-    ani(target) unless aai.nil? or aai < aai_limit
+    (aai.nil? or aai < aai_limit) ? nil : ani(target)
   end
 
   ##
