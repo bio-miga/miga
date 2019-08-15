@@ -84,11 +84,11 @@ end
 ##=> Functions <=
 
 # OptParse banner
-def opt_banner(opt)
+def opt_banner(opt, files = false)
   opt.banner = <<BAN
 #{$task_desc[$task]}
 
-Usage: #{$0} #{$task} [options]
+Usage: #{$0} #{$task} [options]#{ ' FILES...' if files}
 BAN
   opt.separator ""
 end

@@ -65,13 +65,12 @@ sequencing lanes (1 and 2) in Gzipped FastQ files:
 ```bash
 # Unzip and/or concatenate input files
 # this is not necessary if your files are ready to use:
-gzip -d -c ~/some/file/d1_ACTG_L[12]_R1.fastq.gz > /tmp/sister-1.fastq
-gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > /tmp/sister-2.fastq
+gzip -d -c ~/some/file/d1_ACTG_L[12]_R1.fastq.gz > /tmp/sister.1.fastq
+gzip -d -c ~/some/file/d1_ACTG_L[12]_R2.fastq.gz > /tmp/sister.2.fastq
 
 # Register the dataset
 # change the dataset name MyDataset to whichever name you want:
-miga add -P . -D MyDataset -t genome \
-      --trimmed-fasta-coupled /tmp/sister-1.fastq,/tmp/sister-2.fastq
+miga add -P . -D MyDataset -t genome -i trimmed_reads_paired /tmp/sister.[12].fastq
 ```
 
 ## 3. Launch the daemon
