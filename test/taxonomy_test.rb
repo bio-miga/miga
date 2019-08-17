@@ -45,13 +45,21 @@ class TaxonomyTest < Test::Unit::TestCase
   end
 
   def test_init_methods
-    tx = MiGA::Taxonomy.new({:k=>"Mascot", :c=>"Cereal", :s=>"Melvin"})
-    assert_equal("k:Mascot c:Cereal s:Melvin", tx.to_s)
-    tx = MiGA::Taxonomy.new("Mascot College Buzz", "k c s")
-    assert_equal("k:Mascot c:College s:Buzz", tx.to_s)
+    tx = MiGA::Taxonomy.new({k: 'Mascot', c: 'Cereal', s: 'Melvin'})
+    assert_equal('k:Mascot c:Cereal s:Melvin', tx.to_s)
+    tx = MiGA::Taxonomy.new('Mascot College Buzz', 'k c s')
+    assert_equal('k:Mascot c:College s:Buzz', tx.to_s)
     assert_raise do
-      tx = MiGA::Taxonomy.new("Mascot State Georgia Peach", "k c s")
+      tx = MiGA::Taxonomy.new('Mascot State Georgia Peach', 'k c s')
     end
+  end
+
+  def test_rank_order
+    tx = MiGA::Taxonomy.new({k: 'Mascot', s: 'Melvin', c: 'Cereal'})
+    assert_equal([:d, nil], tx.highest(true))
+    assert_equal([:k, 'Mascot'], tx.highest)
+    assert_equal([:ds, nil], tx.lowest(true))
+    assert_equal([:s, 'Melvin'], tx.lowest)
   end
 
   def test_alt

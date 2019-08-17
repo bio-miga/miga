@@ -1,60 +1,13 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require 'miga/taxonomy/base'
+
 ##
 # Taxonomic classifications in MiGA.
 class MiGA::Taxonomy < MiGA::MiGA
-  # Class-level
 
-  ##
-  # Cannonical ranks.
-  def self.KNOWN_RANKS() @@KNOWN_RANKS ; end
-  @@KNOWN_RANKS = %w{ns d k p c o f g s ssp str ds}.map{|r| r.to_sym}
-  @@_KNOWN_RANKS_H = Hash[ @@KNOWN_RANKS.map{ |i| [i,true] } ]
-
-  ##
-  # Long names of the cannonical ranks.
-  def self.LONG_RANKS() @@LONG_RANKS ; end
-  @@LONG_RANKS = {root: 'root', ns: 'namespace', d: 'domain', k: 'kingdom',
-    p: 'phylum', c: 'class', o: 'order', f: 'family', g: 'genus', s: 'species',
-    ssp: 'subspecies', str: 'strain', ds: 'dataset'}
-
-  ##
-  # Synonms for cannonical ranks.
-  @@RANK_SYNONYMS = {
-    'namespace' => 'ns',
-    'domain' => 'd', 'superkingdom' => 'd',
-    'kingdom' => 'k',
-    'phylum' => 'p',
-    'class' => 'c',
-    'order' => 'o',
-    'family' => 'f',
-    'genus' => 'g',
-    'species' => 's', 'sp' => 's',
-    'subspecies' => 'ssp',
-    'strain' => 'str', 'isolate' => 'str', 'culture' => 'str',
-    'dataset' => 'ds', 'organism' => 'ds', 'genome' => 'ds', 'specimen' => 'ds'
-  }
-
-  ##
-  # Initialize from JSON-derived Hash +o+.
-  def self.json_create(o)
-    new(o['str'], nil, o['alt'])
-  end
-
-  ##
-  # Returns cannonical rank (Symbol) for the +rank+ String.
-  def self.normalize_rank(rank)
-    return rank.to_sym if @@_KNOWN_RANKS_H[rank.to_sym]
-    rank = rank.to_s.downcase
-    return nil if rank == 'no rank'
-    rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
-    rank = rank.to_sym
-    return nil unless @@_KNOWN_RANKS_H[rank]
-    rank
-  end
-
-  # Instance-level
+  include MiGA::Taxonomy::Base
 
   ##
   # Taxonomic hierarchy Hash.
@@ -71,18 +24,9 @@ class MiGA::Taxonomy < MiGA::MiGA
   def initialize(str, ranks = nil, alt = [])
     @ranks = {}
     if ranks.nil?
-      case str when Array, Hash
-        self << str
-      else
-        "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/){ |r,n,_| self << {r=>n} }
-      end
+      initialize_by_str(str)
     else
-      ranks = ranks.split(/\s+/) unless ranks.is_a? Array
-      str = str.split(/\s+/) unless str.is_a? Array
-      raise "Unequal number of ranks (#{ranks.size}) " +
-        "and names (#{str.size}):#{ranks} => #{str}" unless
-        ranks.size==str.size
-      (0 .. str.size).each{ |i| self << "#{ranks[i]}:#{str[i]}" }
+      initialize_by_ranks(str, ranks)
     end
     @alt = (alt || []).map { |i| Taxonomy.new(i) }
   end
@@ -91,24 +35,24 @@ class MiGA::Taxonomy < MiGA::MiGA
   # Add +value+ to the hierarchy, that can be an Array, a String, or a Hash, as
   # described in #initialize.
   def <<(value)
-    if value.is_a? Hash
-      value.each_pair do |rank_i, name_i|
-        next if name_i.nil? or name_i == ""
-        @ranks[ Taxonomy.normalize_rank rank_i ] = name_i.tr('_',' ')
+    case value
+    when Hash
+      value.each do |r, n|
+        @ranks[ Taxonomy.normalize_rank(r) ] = n.tr('_',' ') unless
+          n.nil? or n == ''
       end
-    elsif value.is_a? Array
+    when Array
       value.each{ |v| self << v }
-    elsif value.is_a? String
-      (rank, name) = value.split(/:/)
-      self << { rank => name }
+    when String
+      self << Hash[*value.split(':', 2)]
     else
-      raise "Unsupported class: #{value.class.name}."
+      raise 'Unsupported class: ' + value.class.name
     end
   end
   
   ##
   # Get +rank+ value.
-  def [](rank) @ranks[ rank.to_sym ] ; end
+  def [](rank) @ranks[ rank.to_sym ]; end
 
   ##
   # Get the alternative taxonomies.
@@ -126,7 +70,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     when Integer
       ([self] + @alt)[which]
     else
-      ([self] + @alt).find{ |i| i.namespace.to_s == which.to_s }
+      ([self] + @alt).find { |i| i.namespace.to_s == which.to_s }
     end
   end
   
@@ -135,8 +79,8 @@ class MiGA::Taxonomy < MiGA::MiGA
   # only has one informative rank. The evaluation is case-insensitive.
   def is_in? taxon
     r = taxon.ranks.keys.first
-    return false if self[ r ].nil?
-    self[ r ].downcase == taxon[ r ].downcase
+    return false if self[r].nil?
+    self[r].casecmp(taxon[r]).zero?
   end
 
   ##
@@ -145,8 +89,8 @@ class MiGA::Taxonomy < MiGA::MiGA
   # If +with_namespace+ is true, it includes also the namespace.
   def sorted_ranks(force_ranks = false, with_namespace = false)
     @@KNOWN_RANKS.map do |r|
-      next if r == :ns and not with_namespace
-      next if ranks[r].nil? and not force_ranks
+      next if
+        (r == :ns and not with_namespace) or (ranks[r].nil? and not force_ranks)
       [r, ranks[r]]
     end.compact
   end
@@ -160,7 +104,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # If +force_ranks+ is true, it always returns the value for domain (d)
   # even if undefined.
   def highest(force_ranks = false)
-    sorted_ranks.first
+    sorted_ranks(force_ranks).first
   end
 
   ##
@@ -186,5 +130,25 @@ class MiGA::Taxonomy < MiGA::MiGA
     hsh['alt'] = alternative.map(&:to_s) unless alternative.empty?
     hsh.to_json(*a)
   end
+
+  private
+
+    def initialize_by_str(str)
+      case str
+      when Array, Hash
+        self << str
+      else
+        "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/){ |r, n, _| self << { r => n } }
+      end
+    end
+
+    def initialize_by_ranks(str, ranks)
+      ranks = ranks.split(/\s+/) unless ranks.is_a? Array
+      str = str.split(/\s+/) unless str.is_a? Array
+      unless ranks.size == str.size
+        raise "Unequal number of ranks and names: #{ranks} => #{str}"
+      end
+      str.each_with_index { |i, k| self << "#{ranks[k]}:#{i}" }
+    end
   
 end
