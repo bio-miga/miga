@@ -42,7 +42,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     @db = db.to_sym
     @universe = universe.to_sym
     @metadata = {}
-    @metadata[:"#{universe}_#{db}"] = ids.join(",")
+    @metadata[:"#{universe}_#{db}"] = ids.join(',')
     @@UNIVERSE.keys.include?(@universe) or
       raise "Unknown Universe: #{@universe}. Try: #{@@UNIVERSE.keys}"
     @@UNIVERSE[@universe][:dbs].include?(@db) or
@@ -130,7 +130,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def get_ncbi_taxonomy
     tax_id = get_ncbi_taxid
     return nil if tax_id.nil?
-    lineage = {}
+    lineage = {ns: 'ncbi'}
     doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
     doc.scan(%r{<Taxon>(.*?)</Taxon>}m).map(&:first).each do |i|
       name = i.scan(%r{<ScientificName>(.*)</ScientificName>}).first.to_a.first

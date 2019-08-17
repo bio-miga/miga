@@ -48,8 +48,10 @@ class MiGA::Dataset < MiGA::MiGA
   # be treated as reference (true, default) or query (false). Pass any
   # additional +metadata+ as a Hash.
   def initialize(project, name, is_ref=true, metadata={})
-    raise "Invalid name '#{name}', please use only alphanumerics and " +
-      "underscores." unless name.miga_name?
+    unless name.miga_name?
+      raise 'Invalid name, please use only alphanumerics and underscores: ' +
+        name.to_s
+    end
     @project = project
     @name = name
     metadata[:ref] = is_ref
@@ -60,8 +62,9 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Save any changes you've made in the dataset.
   def save
-    self.metadata[:type] = :metagenome if !metadata[:tax].nil? and
-      !metadata[:tax][:ns].nil? and metadata[:tax][:ns]=="COMMUNITY"
+    if t = metadata[:tax] and n = t[:ns] and n == 'COMMUNITY'
+      self.metadata[:type] = :metagenome
+    end
     self.metadata.save
   end
   
@@ -95,7 +98,7 @@ class MiGA::Dataset < MiGA::MiGA
   # Get standard metadata values for the dataset as Array.
   def info
     MiGA::Dataset.INFO_FIELDS.map do |k|
-      (k=="name") ? self.name : metadata[k.to_sym]
+      (k == 'name') ? self.name : metadata[k.to_sym]
     end
   end
   
@@ -132,11 +135,11 @@ class MiGA::Dataset < MiGA::MiGA
   def ignore_task?(task)
     return true unless is_active?
     return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
-    return true if task==:taxonomy and project.metadata[:ref_project].nil?
+    return true if task == :taxonomy and project.metadata[:ref_project].nil?
     pattern = [true, false]
-    ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ]==pattern or
-      [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ]==pattern or
-      [@@_ONLY_NONMULTI_TASKS_H[task], is_nonmulti?]==pattern )
+    ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ] == pattern or
+      [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ] == pattern or
+      [@@_ONLY_NONMULTI_TASKS_H[task], is_nonmulti?] == pattern )
   end
 
   ##
@@ -146,13 +149,14 @@ class MiGA::Dataset < MiGA::MiGA
   # This function is currently only supported for query datasets when
   # +ref_project+ is false (default), and only for reference dataset when
   # +ref_project+ is true. It returns +nil+ if this analysis is not supported.
-  def closest_relatives(how_many=1, ref_project=false)
+  def closest_relatives(how_many = 1, ref_project = false)
     return nil if (is_ref? != ref_project) or is_multi?
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
     db = SQLite3::Database.new(r.file_path :aai_db)
-    db.execute("SELECT seq2, aai FROM aai WHERE seq2 != ? " +
-      "GROUP BY seq2 ORDER BY aai DESC LIMIT ?", [name, how_many])
+    db.execute(
+      'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
+      'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many])
   end
 
 end # class MiGA::Dataset
