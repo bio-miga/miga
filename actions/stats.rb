@@ -101,7 +101,7 @@ if o[:compute]
     else
       # Fix estimate for Archaea
       if not d.metadata[:tax].nil? and
-            d.metadata[:tax].is_in? MiGA::Taxonomy.new("d:Archaea") and
+            d.metadata[:tax].in? MiGA::Taxonomy.new("d:Archaea") and
             r.file_path(:bac_report).nil?
         scr = "#{MiGA::MiGA.root_path}/utils/arch-ess-genes.rb"
         rep = r.file_path(:report)

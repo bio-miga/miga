@@ -6,7 +6,6 @@ require 'miga/taxonomy/base'
 ##
 # Taxonomic classifications in MiGA.
 class MiGA::Taxonomy < MiGA::MiGA
-
   include MiGA::Taxonomy::Base
 
   ##
@@ -30,7 +29,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     end
     @alt = (alt || []).map { |i| Taxonomy.new(i) }
   end
-  
+
   ##
   # Add +value+ to the hierarchy, that can be an Array, a String, or a Hash, as
   # described in #initialize.
@@ -38,21 +37,21 @@ class MiGA::Taxonomy < MiGA::MiGA
     case value
     when Hash
       value.each do |r, n|
-        @ranks[ Taxonomy.normalize_rank(r) ] = n.tr('_',' ') unless
-          n.nil? or n == ''
+        next if n.nil? or n == ''
+        @ranks[ self.class.normalize_rank(r) ] = n.tr('_', ' ')
       end
     when Array
-      value.each{ |v| self << v }
+      value.each { |v| self << v }
     when String
       self << Hash[*value.split(':', 2)]
     else
       raise 'Unsupported class: ' + value.class.name
     end
   end
-  
+
   ##
   # Get +rank+ value.
-  def [](rank) @ranks[ rank.to_sym ]; end
+  def [](rank) @ranks[rank.to_sym]; end
 
   ##
   # Get the alternative taxonomies.
@@ -73,11 +72,11 @@ class MiGA::Taxonomy < MiGA::MiGA
       ([self] + @alt).find { |i| i.namespace.to_s == which.to_s }
     end
   end
-  
+
   ##
   # Evaluates if the loaded taxonomy includes +taxon+. It assumes that +taxon+
   # only has one informative rank. The evaluation is case-insensitive.
-  def is_in? taxon
+  def in?(taxon)
     r = taxon.ranks.keys.first
     return false if self[r].nil?
     self[r].casecmp(taxon[r]).zero?
@@ -120,7 +119,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # it returns all the standard ranks even if undefined.
   def to_s(force_ranks = false)
     sorted_ranks(force_ranks, true).
-      map{ |r| "#{r[0]}:#{(r[1] || '').gsub(/[\s:]/, '_')}" }.join(' ')
+      map { |r| "#{r[0]}:#{(r[1] || '').gsub(/[\s:]/, '_')}" }.join(' ')
   end
   
   ##

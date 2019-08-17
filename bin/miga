@@ -179,7 +179,7 @@ def filter_datasets!(ds, o)
     o[:multi] ? d.is_multi? : d.is_nonmulti?
   end unless o[:multi].nil?
   ds.select! do |d|
-    (not d.metadata[:tax].nil?) and d.metadata[:tax].is_in?(o[:taxonomy])
+    (not d.metadata[:tax].nil?) and d.metadata[:tax].in?(o[:taxonomy])
   end unless o[:taxonomy].nil?
   o[:key].nil? ? ds : ds.values_at(o[:key]-1)
 end
