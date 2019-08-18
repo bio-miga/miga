@@ -1,5 +1,5 @@
-require "test_helper"
-require "miga/taxonomy"
+require 'test_helper'
+require 'miga/taxonomy'
 
 class TaxonomyTest < Test::Unit::TestCase
   
@@ -83,6 +83,33 @@ class TaxonomyTest < Test::Unit::TestCase
     # Add
     tx.add_alternative(tx.alternative(3))
     assert_equal(4, tx.alternative.size)
+    tx.add_alternative(tx.alternative(2))
+    assert_equal(4, tx.alternative.size)
+    # Delete
+    alt = tx.delete_alternative
+    assert_equal(4, alt.size)
+    assert(tx.alternative.empty?)
+  end
+
+  def test_reset
+    tx = MiGA::Taxonomy.new('ns:Letters d:Latin s:A', nil,
+      ['ns:Words d:English s:A', 'ns:Music d:Tone s:A'])
+    # Reset
+    assert_equal(2, tx.alternative.size)
+    assert_equal('Letters', tx.namespace)
+    tx.reset('g:A')
+    assert_equal(2, tx.alternative.size)
+    assert_nil(tx.namespace)
+    tx.reset('ns:Letters d:Latin s:A')
+    assert_equal('Letters', tx.namespace)
+    # Change of alternative
+    assert_equal('ns:Words d:English s:A', tx.alternative('Words').to_s)
+    tx.add_alternative(MiGA::Taxonomy.new('ns:Words d:Spanish s:A'))
+    assert_equal('ns:Words d:Spanish s:A', tx.alternative('Words').to_s)
+    # Change of master
+    assert_equal('ns:Letters d:Latin s:A', tx.to_s)
+    tx.add_alternative(MiGA::Taxonomy.new('ns:Letters d:Unicode s:A'))
+    assert_equal('ns:Letters d:Unicode s:A', tx.to_s)
   end
 
 end

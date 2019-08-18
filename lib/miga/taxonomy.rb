@@ -21,13 +21,21 @@ class MiGA::Taxonomy < MiGA::MiGA
   # String, Array, or Hash entries as defined above (except +ranks+ are not
   # allowed).
   def initialize(str, ranks = nil, alt = [])
+    reset(str, ranks)
+    @alt = (alt || []).map { |i| Taxonomy.new(i) }
+  end
+
+  ##
+  # Reset ranks (including namespace) while leaving alternatives untouched.
+  # See #initialize for +str+ and +ranks+.
+  def reset(str, ranks = nil)
     @ranks = {}
     if ranks.nil?
       initialize_by_str(str)
     else
       initialize_by_ranks(str, ranks)
     end
-    @alt = (alt || []).map { |i| Taxonomy.new(i) }
+    initialize_by_str(str)
   end
 
   ##
@@ -76,10 +84,24 @@ class MiGA::Taxonomy < MiGA::MiGA
   end
 
   ##
-  # Add an alternative taxonomy.
-  def add_alternative(tax)
+  # Add an alternative taxonomy. If the namespace matches an existing namespace,
+  # the alternative (or master) is replaced instead if +replace+ is true.
+  def add_alternative(tax, replace = true)
     raise 'Unsupported taxonomy class.' unless tax.is_a? MiGA::Taxonomy
-    @alt << tax
+    alt_ns = alternative(tax.namespace)
+    if !replace || tax.namespace.nil? || alt_ns.nil?
+      @alt << tax
+    else
+      alt_ns.reset(tax.to_s)
+    end
+  end
+
+  ##
+  # Removes (and returns) all alternative taxonomies. 
+  def delete_alternative
+    alt = @alt.dup
+    @alt = []
+    alt
   end
 
   ##
