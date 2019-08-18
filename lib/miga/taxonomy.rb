@@ -37,7 +37,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     case value
     when Hash
       value.each do |r, n|
-        next if n.nil? or n == ''
+        next if n.nil? || n == ''
         @ranks[self.class.normalize_rank(r)] = n.tr('_', ' ')
       end
     when Array
@@ -91,7 +91,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   def sorted_ranks(force_ranks = false, with_namespace = false)
     @@KNOWN_RANKS.map do |r|
       next if
-        (r == :ns and !with_namespace) or (ranks[r].nil? and !force_ranks)
+        (r == :ns && !with_namespace) || (ranks[r].nil? && !force_ranks)
       [r, ranks[r]]
     end.compact
   end

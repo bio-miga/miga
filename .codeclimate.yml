@@ -4,7 +4,7 @@ engines:
   rubocop:
     enabled: true
     checks:
-      Style/ClassAndModuleChildren:
+      Rubocop/Style/ClassAndModuleChildren:
         EnforcedStyle: compact
   duplication:
     enabled: true
