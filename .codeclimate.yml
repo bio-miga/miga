@@ -1,23 +1,10 @@
-exclude_paths:
-- "utils/*"
-engines:
+version: "2"
+plugins:
   rubocop:
     enabled: true
-    checks:
-      Rubocop/Style/ClassAndModuleChildren:
-        EnforcedStyle: compact
-  duplication:
-    enabled: true
-    config:
-      languages:
-      - ruby
   fixme:
     enabled: true
   shellcheck:
     enabled: true
-ratings:
-  paths:
-  - lib/**
-  - actions/**
-  - bin/miga
-  - scripts/**
+exclude_patterns:
+- "utils/*"
