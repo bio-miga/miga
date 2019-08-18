@@ -76,6 +76,13 @@ class MiGA::Taxonomy < MiGA::MiGA
   end
 
   ##
+  # Add an alternative taxonomy.
+  def add_alternative(tax)
+    raise 'Unsupported taxonomy class.' unless tax.is_a? MiGA::Taxonomy
+    @alt << tax
+  end
+
+  ##
   # Evaluates if the loaded taxonomy includes +taxon+. It assumes that +taxon+
   # only has one informative rank. The evaluation is case-insensitive.
   def in?(taxon)

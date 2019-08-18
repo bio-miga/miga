@@ -62,9 +62,10 @@ class TaxonomyTest < Test::Unit::TestCase
     assert_equal([:s, 'Melvin'], tx.lowest)
   end
 
-  def test_alt
+  def test_alternative
     tx = MiGA::Taxonomy.new('ns:a s:Arnie', nil,
       ['ns:b s:Bernie','ns:c s:Cornie','s:Darnie'])
+    # Fields
     assert_equal('ns:a s:Arnie', tx.to_s)
     assert_equal([[:s, 'Arnie']], tx.sorted_ranks)
     assert_equal('ns:a s:Arnie', tx.alternative(0).to_s)
@@ -73,11 +74,15 @@ class TaxonomyTest < Test::Unit::TestCase
     assert_equal('s:Darnie', tx.alternative('').to_s)
     assert_nil(tx.alternative(:x))
     assert_equal(3, tx.alternative.size)
+    # JSON
     js = tx.to_json
     tx_js = JSON.parse(js, {symbolize_names: false, create_additions: true})
     assert_equal(tx.to_s, tx_js.to_s)
     assert_equal(tx.alternative(2).to_s, tx_js.alternative(2).to_s)
     assert_equal(tx.alternative.size, tx_js.alternative.size)
+    # Add
+    tx.add_alternative(tx.alternative(3))
+    assert_equal(4, tx.alternative.size)
   end
 
 end
