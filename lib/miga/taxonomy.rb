@@ -38,7 +38,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     when Hash
       value.each do |r, n|
         next if n.nil? or n == ''
-        @ranks[ self.class.normalize_rank(r) ] = n.tr('_', ' ')
+        @ranks[self.class.normalize_rank(r)] = n.tr('_', ' ')
       end
     when Array
       value.each { |v| self << v }
@@ -51,7 +51,9 @@ class MiGA::Taxonomy < MiGA::MiGA
 
   ##
   # Get +rank+ value.
-  def [](rank) @ranks[rank.to_sym]; end
+  def [](rank)
+    @ranks[rank.to_sym]
+  end
 
   ##
   # Get the alternative taxonomies.
@@ -89,15 +91,17 @@ class MiGA::Taxonomy < MiGA::MiGA
   def sorted_ranks(force_ranks = false, with_namespace = false)
     @@KNOWN_RANKS.map do |r|
       next if
-        (r == :ns and not with_namespace) or (ranks[r].nil? and not force_ranks)
+        (r == :ns and !with_namespace) or (ranks[r].nil? and !force_ranks)
       [r, ranks[r]]
     end.compact
   end
 
   ##
   # Namespace of the taxonomy (a String) or +nil+.
-  def namespace; self[ :ns ] ; end
-  
+  def namespace
+    self[:ns]
+  end
+
   ##
   # Get the most general rank as a two-entry Array (rank and value).
   # If +force_ranks+ is true, it always returns the value for domain (d)
@@ -113,41 +117,40 @@ class MiGA::Taxonomy < MiGA::MiGA
   def lowest(force_ranks = false)
     sorted_ranks(force_ranks).last
   end
-  
+
   ##
   # Generate cannonical String for the taxonomy. If +force_ranks+ is true,
   # it returns all the standard ranks even if undefined.
   def to_s(force_ranks = false)
-    sorted_ranks(force_ranks, true).
-      map { |r| "#{r[0]}:#{(r[1] || '').gsub(/[\s:]/, '_')}" }.join(' ')
+    sorted_ranks(force_ranks, true)
+      .map { |r| "#{r[0]}:#{(r[1] || '').gsub(/[\s:]/, '_')}" }.join(' ')
   end
-  
+
   ##
   # Generate JSON-formated String representing the taxonomy.
   def to_json(*a)
-    hsh = { JSON.create_id => self.class.name, 'str' => self.to_s }
+    hsh = { JSON.create_id => self.class.name, 'str' => to_s }
     hsh['alt'] = alternative.map(&:to_s) unless alternative.empty?
     hsh.to_json(*a)
   end
 
   private
 
-    def initialize_by_str(str)
-      case str
-      when Array, Hash
-        self << str
-      else
-        "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/){ |r, n, _| self << { r => n } }
-      end
+  def initialize_by_str(str)
+    case str
+    when Array, Hash
+      self << str
+    else
+      "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/) { |r, n, _| self << { r => n } }
     end
+  end
 
-    def initialize_by_ranks(str, ranks)
-      ranks = ranks.split(/\s+/) unless ranks.is_a? Array
-      str = str.split(/\s+/) unless str.is_a? Array
-      unless ranks.size == str.size
-        raise "Unequal number of ranks and names: #{ranks} => #{str}"
-      end
-      str.each_with_index { |i, k| self << "#{ranks[k]}:#{i}" }
+  def initialize_by_ranks(str, ranks)
+    ranks = ranks.split(/\s+/) unless ranks.is_a? Array
+    str = str.split(/\s+/) unless str.is_a? Array
+    unless ranks.size == str.size
+      raise "Unequal number of ranks and names: #{ranks} => #{str}"
     end
-  
+    str.each_with_index { |i, k| self << "#{ranks[k]}:#{i}" }
+  end
 end

@@ -4,8 +4,8 @@ engines:
   rubocop:
     enabled: true
     checks:
-      Rubocop/Style/AndOr:
-        enabled: false
+      Style/ClassAndModuleChildren:
+        EnforcedStyle: compact
   duplication:
     enabled: true
     config:
