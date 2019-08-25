@@ -25,17 +25,16 @@ Gem::Specification.new do |s|
   s.executables	<< 'miga'
   
   # Dependencies
-  s.add_runtime_dependency 'daemons', '~> 1.2', '>= 1.2.4'
-        # Testing requires "shush" from daemons, first introduced in v1.2.4
-  s.add_runtime_dependency 'json', '> 1.8', '< 3'
-  s.add_runtime_dependency 'sqlite3', '~> 1.3'
+  s.add_runtime_dependency 'daemons', '~> 1.3'
+  s.add_runtime_dependency 'json', '~> 2'
+  s.add_runtime_dependency 'sqlite3', '~> 1.4'
   s.required_ruby_version = '>= 2.1'
 
   # Docs + tests
   s.extra_rdoc_files << 'README.md'
   s.rdoc_options = %w(lib README.md --main README.md)
   s.rdoc_options << '--title' << s.summary
-  s.add_development_dependency 'rake', '~> 11'
+  s.add_development_dependency 'rake', '~> 12'
   s.add_development_dependency 'test-unit', '~> 3'
 
 end
