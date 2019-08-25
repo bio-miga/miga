@@ -11,8 +11,8 @@ Now that you have Conda, activate it. If you want to create a separate clean
 environment (optional) you can simply execute:
 
 ```bash
-conda create -n miga
-conda activate miga
+conda create -y -n miga
+source activate miga
 ```
 
 It's strongly recommended to activate conda in the `~/.miga_modules`:
@@ -21,28 +21,31 @@ It's strongly recommended to activate conda in the `~/.miga_modules`:
 # Tell MiGA to always activate conda:
 echo 'eval "$(conda shell.bash hook)"' >> ~/.miga_modules
 # Tell MiGA to activate the proper conda environment:
-echo 'conda activate miga' >> ~/.miga_modules
+echo 'source activate miga' >> ~/.miga_modules
 ```
 
 Next, install the requirements:
 
 ```bash
-conda install -y ruby r-base sqlite
-conda install -y -c bioconda \
-  blast hmmer bedtools prodigal idba mcl barrnap \
-  fastqc solexaqa diamond krona fastani
-conda install -y -c faircloth-lab scythe
+conda install -y -c anaconda sqlite r-base
+conda install -y -c conda-forge ruby=2.4.5
+conda install -y -c conda-forge -c bioconda -c faircloth-lab \
+  scythe blast hmmer bedtools prodigal idba mcl barrnap \
+  fastqc diamond krona fastani solexaqa
 ```
 
-Finally, conda's Ruby [is broken](https://github.com/ContinuumIO/anaconda-issues/issues/9863),
-so we'll apply a quick patch to allow native gem installations:
+**Note for MacOS users:**
+> The current recipe for SolexaQA++ only supports
+> Linux.
+> However, a precompiled SolexaQA++ binary for MacOS can be obtained directly
+> from the developers
+> [here](https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA++_v3.1.7.1.zip).
+> Simply remove `solexaqa` from the list above, and download that binary
+> manually.
 
-```bash
-cd $(gem environment gemdir)
-cd ../../$(basename $PWD)/$(gem environment platform | perl -pe 's/.*://')
-mv rbconfig.rb rbconfig.rb.bu
-perl -pe 's/\/\S*?\/_build_env\/bin\///g' rbconfig.rb.bu > rbconfig.rb
-```
+**Note for Linux users:**
+> In some environments you'll also need gfortran installed in order to compile
+> some R packages: `conda install gfortran_linux-64`
 
 ## R packages
 
@@ -52,7 +55,7 @@ will install one package here to make sure everything is properly initialized.
 ```bash
 R
 install.packages('enveomics.R', repos = 'http://cran.rstudio.com/')
-q()
+q('no')
 ```
 
 ## MyTaxa utils
@@ -60,4 +63,3 @@ q()
 If you want to activate the [MyTaxa](../part5/workflow.md#mytaxa) and
 [MyTaxa Scan](../part5/workflow.md#mytaxa-scan) steps, follow the instructions
 to install the [MyTaxa Utils](mytaxa.md).
-
