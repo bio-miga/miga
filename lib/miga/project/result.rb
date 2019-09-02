@@ -9,7 +9,7 @@ require 'miga/project/base'
 module MiGA::Project::Result
 
   include MiGA::Project::Base
-  
+
   ##
   # Get result identified by Symbol +name+, returns MiGA::Result.
   def result(name)
@@ -23,7 +23,15 @@ module MiGA::Project::Result
   def results
     @@RESULT_DIRS.keys.map{ |k| result(k) }.reject{ |r| r.nil? }
   end
-  
+
+  ##
+  # For each result executes the 2-ary +blk+ block: key symbol and MiGA::Result.
+  def each_result(&blk)
+    @@RESULT_DIRS.keys.each do |k|
+      blk.call(k, result(k)) unless result(k).nil?
+    end
+  end
+
   ##
   # Add the result identified by Symbol +name+, and return MiGA::Result. Save
   # the result if +save+. The +opts+ hash controls result creation (if
@@ -45,12 +53,12 @@ module MiGA::Project::Result
     r.save unless r.nil?
     r
   end
-  
+
   ##
   # Get the next distances task, saving intermediate results if +save+. Returns
   # a Symbol.
   def next_distances(save = true) ; next_task(@@DISTANCE_TASKS, save) ; end
-  
+
   ##
   # Get the next inclade task, saving intermediate results if +save+. Returns a
   # Symbol.
@@ -72,8 +80,8 @@ module MiGA::Project::Result
       end
     end
   end
-  
-  
+
+
   private
 
     ##
