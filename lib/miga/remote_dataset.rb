@@ -16,7 +16,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       search_doc = MiGA::Json.parse(
         download(:ncbi_search, :assembly, acc, :json),
         symbolize: false, contents: true)
-      search_doc['esearchresult']['idlist'].first
+      (search_doc['esearchresult']['idlist'] || []).first
     end
   end
 

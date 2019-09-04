@@ -35,7 +35,7 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
   end
 
   def perform
-    ds = cli.load_and_filter_datasets
+    ds = cli.load_and_filter_datasets(cli[:silent])
     exit(ds.empty? ? 1 : 0) if cli[:silent]
     if !cli[:datum].nil?
       ds.each do |d|

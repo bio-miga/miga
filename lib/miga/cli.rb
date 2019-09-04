@@ -349,11 +349,14 @@ class MiGA::Cli < MiGA::MiGA
 
   ##
   # Load the dataset defined in the CLI
-  def load_dataset
+  # If +silent=true+, it allows failures silently
+  def load_dataset(silent = false)
     return @objects[:dataset] unless @objects[:dataset].nil?
     ensure_par(dataset: '-D')
     @objects[:dataset] = load_project.dataset(self[:dataset])
-    raise "Cannot load dataset: #{self[:dataset]}" if @objects[:dataset].nil?
+    if !silent && @objects[:dataset].nil?
+      raise "Cannot load dataset: #{self[:dataset]}"
+    end
     return @objects[:dataset]
   end
 
@@ -365,10 +368,12 @@ class MiGA::Cli < MiGA::MiGA
 
   ##
   # Load and filter a list of datasets as requested in the CLI
-  def load_and_filter_datasets
+  # If +silent=true+, it allows failures silently
+  def load_and_filter_datasets(silent = false)
     return @objects[:filtered_datasets] unless @objects[:filtered_datasets].nil?
     say 'Listing datasets'
-    ds = self[:dataset].nil? ? load_project.datasets : [load_dataset]
+    ds = self[:dataset].nil? ?
+      load_project.datasets : [load_dataset(silent)].compact
     ds.select! { |d| d.is_ref? == self[:ref] } unless self[:ref].nil?
     ds.select! { |d| d.is_active? == self[:active] } unless self[:active].nil?
     ds.select! do |d|
