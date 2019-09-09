@@ -6,13 +6,13 @@ module MiGA::DistanceRunner::Pipeline
   # classification and cluster number
   def classify(clades, classif, metric, result_fh, val_cls=nil)
     dir = File.expand_path(classif, clades)
-    med = File.expand_path("miga-project.medoids", dir)
+    med = File.expand_path('miga-project.medoids', dir)
     return [classif,val_cls] unless File.size? med
     max_val = 0
-    val_med = ""
+    val_med = ''
     val_cls = nil
     i_n = 0
-    File.open(med, "r") do |med_fh|
+    File.open(med, 'r') do |med_fh|
       med_fh.each_line do |med_ln|
         i_n += 1
         med_ln.chomp!
@@ -36,7 +36,7 @@ module MiGA::DistanceRunner::Pipeline
     return unless File.size? db
     out_base = File.expand_path(dataset.name, home)
     ds_matrix = "#{out_base}.txt"
-    ds_matrix_fh = File.open(ds_matrix, "w")
+    ds_matrix_fh = File.open(ds_matrix, 'w')
     ds_matrix_fh.puts %w[a b value].join("\t")
     # Find all values in the database
     seq2 = []
@@ -54,7 +54,7 @@ module MiGA::DistanceRunner::Pipeline
       end
     end
     ds_matrix_fh.close
-    ref_tree = File.expand_path("utils/ref-tree.R", MiGA::MiGA.root_path)
+    ref_tree = File.expand_path('utils/ref-tree.R', MiGA::MiGA.root_path)
     `"#{ref_tree}" "#{ds_matrix}" "#{out_base}" "#{dataset.name}"`
     File.unlink ds_matrix
   end

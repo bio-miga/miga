@@ -3,14 +3,14 @@ module MiGA::DistanceRunner::Commands
   # Estimates or calculates AAI against +target+
   def aai(target)
     # Check if the request makes sense
-    return nil if target.nil? or target.result(:essential_genes).nil?
+    return nil if target.nil? || target.result(:essential_genes).nil?
     # Check if it's been calculated
     y = stored_value(target, :aai)
-    return y unless y.nil? or y.zero?
+    return y unless y.nil? || y.zero?
     # Try hAAI (except in clade projects)
     unless @ref_project.is_clade?
       y = haai(target)
-      return y unless y.nil? or y.zero?
+      return y unless y.nil? || y.zero?
     end
     # Full AAI
     aai_cmd(
@@ -27,10 +27,10 @@ module MiGA::DistanceRunner::Commands
           dataset.name, target.name, tmp_dbs[:haai],
           aai_save_rbm: 'no-save-rbm', aai_p: opts[:haai_p])
     checkpoint :haai
-    return nil if haai.nil? or haai.zero? or haai > 90.0
+    return nil if haai.nil? || haai.zero? || haai > 90.0
     aai = 100.0 - Math.exp(2.435076 + 0.4275193*Math.log(100.0-haai))
     SQLite3::Database.new(tmp_dbs[:aai]) do |conn|
-      conn.execute "insert into aai values(?, ?, ?, 0, 0, 0)",
+      conn.execute 'insert into aai values(?, ?, ?, 0, 0, 0)',
             [dataset.name, target.name, aai]
     end
     checkpoint :aai
@@ -43,10 +43,10 @@ module MiGA::DistanceRunner::Commands
     # Check if the request makes sense
     t = tmp_file('largecontigs.fa')
     r = target.result(:assembly)
-    return nil if r.nil? or !File.size?(t)
+    return nil if r.nil? || !File.size?(t)
     # Check if it's been calculated
     y = stored_value(target, :ani)
-    return y unless y.nil? or y.zero?
+    return y unless y.nil? || y.zero?
     # Run it
     ani_cmd(
         t, r.file_path(:largecontigs),
@@ -58,7 +58,7 @@ module MiGA::DistanceRunner::Commands
   # Returns +nil+ otherwise
   def ani_after_aai(target, aai_limit = 85.0)
     aai = aai(target)
-    (aai.nil? or aai < aai_limit) ? nil : ani(target)
+    (aai.nil? || aai < aai_limit) ? nil : ani(target)
   end
 
   ##
@@ -69,7 +69,7 @@ module MiGA::DistanceRunner::Commands
           --name1 "#{n1}" --name2 "#{n2}" \
           -t "#{o[:thr]}" -a --lookup-first "--#{o[:aai_save_rbm]}" \
           -p "#{o[:aai_p] || "blast+"}"`.chomp
-    (v.nil? or v.empty?) ? 0 : v.to_f
+    (v.nil? || v.empty?) ? 0 : v.to_f
   end
 
   ##
@@ -82,7 +82,7 @@ module MiGA::DistanceRunner::Commands
             -o /dev/stdout 2>/dev/null`.chomp.split(/\s+/)
       unless out.empty?
         SQLite3::Database.new(db) do |conn|
-          conn.execute "insert into ani values(?, ?, ?, 0, ?, ?)",
+          conn.execute 'insert into ani values(?, ?, ?, 0, ?, ?)',
                 [n1, n2, out[2], out[3], out[4]]
         end
       end
@@ -93,6 +93,6 @@ module MiGA::DistanceRunner::Commands
             -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm \
             --lookup-first -p "#{o[:ani_p] || "blast+"}"`.chomp
     end
-    v.nil? or v.empty? ? 0 : v.to_f
+    v.nil? || v.empty? ? 0 : v.to_f
   end
 end
