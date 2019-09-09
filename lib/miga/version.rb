@@ -4,22 +4,22 @@ require 'date'
 ##
 # High-level minimal requirements for the MiGA::MiGA class.
 module MiGA
-  
+
   ##
   # Current version of MiGA. An Array with three values:
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
   # - Integer representing minor changes that require new version number.
-  VERSION = [0.4, 1, 0]
-  
+  VERSION = [0.4, 2, 0]
+
   ##
   # Nickname for the current major.minor version.
   VERSION_NAME = 'aquatint'
-  
+
   ##
   # Date of the current gem release.
-  VERSION_DATE = Date.new(2019, 8, 17)
-  
+  VERSION_DATE = Date.new(2019, 9, 8)
+
   ##
   # Reference of MiGA.
   CITATION = 'Rodriguez-R et al (2018). ' \
