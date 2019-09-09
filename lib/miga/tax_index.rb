@@ -6,9 +6,9 @@ require "miga/taxonomy"
 ##
 # Indexing methods based on taxonomy.
 class MiGA::TaxIndex < MiGA::MiGA
-  
+
   # Instance-level
-  
+
   ##
   # Datasets in the index.
   attr_reader :datasets
@@ -28,6 +28,7 @@ class MiGA::TaxIndex < MiGA::MiGA
     return nil if dataset.metadata[:tax].nil?
     taxon = @root
     MiGA::Taxonomy.KNOWN_RANKS.each do |rank|
+      next if rank == :ns
       taxon = taxon.add_child(rank, dataset.metadata[:tax][rank])
     end
     taxon.add_dataset dataset
@@ -69,9 +70,9 @@ end
 ##
 # Helper class for MiGA::TaxIndex.
 class MiGA::TaxIndexTaxon < MiGA::MiGA
-  
+
   # Instance-level
-  
+
   ##
   # Rank of the taxon.
   attr_reader :rank
