@@ -183,10 +183,10 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     p.do_not_save = true if cli[:save_every] != 1
     ignore = !cli[:ignore_until].nil?
     ds.each do |name, body|
-      ignore = false if ignore && name == cli[:ignore_until]
-      next if ignore
       d << name
       cli.puts name
+      ignore = false if ignore && name == cli[:ignore_until]
+      next if ignore
       next if p.dataset(name).nil? == cli[:get_md]
       downloaded += 1
       next if cli[:dry]
