@@ -62,6 +62,10 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         'Do not download or save the datasets'
         ){ |v| cli[:dry] = v }
       opt.on(
+        '--ignore-until STRING',
+        'Ignores all datasets until a name is found (useful for large reruns)'
+        ){ |v| cli[:ignore_until] = v }
+      opt.on(
         '--get-metadata',
         'Only download and update metadata for existing datasets'
         ){ |v| cli[:get_md] = v }
@@ -177,7 +181,10 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     # Download entries
     cli.say "Downloading #{ds.size} " + (ds.size == 1 ? 'entry' : 'entries')
     p.do_not_save = true if cli[:save_every] != 1
+    ignore = !cli[:ignore_until].nil?
     ds.each do |name, body|
+      ignore = false if ignore && name == cli[:ignore_until]
+      next if ignore
       d << name
       cli.puts name
       next if p.dataset(name).nil? == cli[:get_md]
