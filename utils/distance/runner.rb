@@ -23,6 +23,9 @@ class MiGA::DistanceRunner
     @dataset = project.dataset(dataset_name)
     @home = File.expand_path('data/09.distances', project.path)
     # Default opts
+    if project.metadata[:aai_save_rbm] == false
+      @opts[:aai_save_rbm] ||= 'no-save-rbm'
+    end
     @opts[:aai_save_rbm] ||= ENV.fetch('MIGA_AAI_SAVE_RBM') do
       project.is_clade? ? 'save-rbm' : 'no-save-rbm'
     end

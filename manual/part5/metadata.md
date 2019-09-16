@@ -31,6 +31,7 @@ The following metadata fields are recognized by different interfaces for
 | haai_p       | String           | Value of aai.rb -p° on hAAI (def: blast+)
 | ani_p        | String           | Value of ani.rb -p° on ANI (def: blast+)
 | max_try      | Integer          | Max number of task attempts (def: 10)
+| aai_save_rbm | Boolean          | Should RBMs be saved for OGS analysis?
 | ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
 | clean_ogs    | Boolean          | If false, keeps ABC (clades only)
 
