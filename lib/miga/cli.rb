@@ -238,6 +238,8 @@ class MiGA::Cli < MiGA::MiGA
   # - :result To require a type of project or dataset result
   # - :result_dataset To require a type of dataset result
   # - :result_project To require a type of project result
+  # The options :result, :result_dataset, and :result_project are mutually
+  # exclusive
   def opt_object(opt, what = [:project, :dataset])
     opt.on(
       '-P', '--project PATH',
@@ -266,24 +268,28 @@ class MiGA::Cli < MiGA::MiGA
       *Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
       ){ |v| self[:type] = v.downcase.to_sym } if what.include? :project_type or
         what.include? :project_type_req
-    opt.on(
-      '-r', '--result STRING',
-      '(Mandatory) Name of the result',
-      'Recognized names for dataset-specific results include:',
-      *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
-      'Recognized names for project-wide results include:',
-      *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-      ){ |v| self[:result] = v.downcase.to_sym } if what.include? :result
-    opt.on(
-      '-r', '--result STRING',
-      '(Mandatory) Name of the result, one of:',
-      *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-      ){ |v| self[:result] = v.downcase.to_sym } if what.include? :result_dataset
-    opt.on(
-      '-r', '--result STRING',
-      '(Mandatory) Name of the result, one of:',
-      *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-      ){ |v| self[:result] = v.downcase.to_sym } if what.include? :result_project
+    if what.include? :result
+      opt.on(
+        '-r', '--result STRING',
+        '(Mandatory) Name of the result',
+        'Recognized names for dataset-specific results include:',
+        *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
+        'Recognized names for project-wide results include:',
+        *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
+        ){ |v| self[:result] = v.downcase.to_sym }
+    elsif what.include? :result_dataset
+      opt.on(
+        '-r', '--result STRING',
+        '(Mandatory) Name of the result, one of:',
+        *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
+        ){ |v| self[:result] = v.downcase.to_sym }
+    elsif what.include? :result_project
+      opt.on(
+        '-r', '--result STRING',
+        '(Mandatory) Name of the result, one of:',
+        *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
+        ){ |v| self[:result] = v.downcase.to_sym }
+    end
   end
 
   ##
@@ -391,7 +397,8 @@ class MiGA::Cli < MiGA::MiGA
     ensure_par(result: '-r')
     obj = load_project_or_dataset
     if obj.class.RESULT_DIRS[self[:result]].nil?
-      raise "Unsupported result for #{obj.class.to_s.gsub(/.*::/,'')}: #{self[:result]}"
+      klass = obj.class.to_s.gsub(/.*::/,'')
+      raise "Unsupported result for #{klass}: #{self[:result]}"
     end
     r = obj.add_result(self[:result], false)
     raise "Cannot load result: #{self[:result]}" if r.nil?

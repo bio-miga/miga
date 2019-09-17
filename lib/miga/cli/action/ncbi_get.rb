@@ -98,41 +98,39 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   def perform
     cli.ensure_par(taxon: '-T') unless cli[:reference]
-    unless %w[reference complete chromosome scaffold contig].any?{ |i| cli[i.to_sym] }
+    unless %w[reference complete chromosome
+          scaffold contig].any? { |i| cli[i.to_sym] }
       raise 'No action requested: pick at least one type of genome'
     end
     cli[:save_every] = 1 if cli[:dry]
 
     p = cli.load_project
-    d = []
-    ds = {}
-    downloaded = 0
+    ds = get_remote_list
+    ds = discard_blacklisted(ds)
+    d, downloaded = download_entries(ds, p)
 
-    url_base = 'https://www.ncbi.nlm.nih.gov/genomes/solr2txt.cgi?'
-    url_param = {
-      q: '[display()].' +
-        'from(GenomeAssemblies).' +
-        'usingschema(/schema/GenomeAssemblies).' +
-        'matching(tab==["Prokaryotes"] and q=="' + cli[:taxon].tr('"',"'") + '"',
-      fields: 'organism|organism,assembly|assembly,replicons|replicons,' +
-        'level|level,ftp_path_genbank|ftp_path_genbank,release_date|release_date,' +
-        'strain|strain',
-      nolimit: 'on',
-    }
-    if cli[:reference]
-      url_param[:q] += ' and refseq_category==["representative"]'
-    else
-      status = {
-        complete: 'Complete',
-        chromosome: ' Chromosome', # <- The leading space is *VERY* important!
-        scaffold: 'Scaffold',
-        contig: 'Contig'
-      }.map { |k, v| '"' + v + '"' if cli[k] }.compact.join(',')
-      url_param[:q] += ' and level==[' + status + ']'
+    # Finalize
+    cli.say "Datasets listed: #{d.size}"
+    cli.say "Datasets #{cli[:dry] ? 'to download' : 'downloaded'}: " +
+      downloaded.to_s
+    unless cli[:remote_list].nil?
+      File.open(cli[:remote_list], 'w') do |fh|
+        d.each { |i| fh.puts i }
+      end
     end
-    url_param[:q] += ')'
-    url = url_base + URI.encode_www_form(url_param)
+    if cli[:unlink]
+      unlink = p.dataset_names - d
+      unlink.each { |i| p.unlink_dataset(i).remove! }
+      cli.say "Datasets unlinked: #{unlink.size}"
+    end
+  end
+
+  private
+
+  def get_remote_list
     cli.say 'Downloading genome list'
+    ds = {}
+    url = remote_list_url
     lineno = 0
     doc = RemoteDataset.download_url(url)
     CSV.parse(doc, headers: true).each do |r|
@@ -170,18 +168,51 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       ds[n][:md][:release_date] =
         Time.parse(r['release_date']).to_s unless r['release_date'].nil?
     end
+    ds
+  end
 
-    # Discard blacklisted
+  def remote_list_url
+    url_base = 'https://www.ncbi.nlm.nih.gov/genomes/solr2txt.cgi?'
+    url_param = {
+      q: '[display()].' +
+        'from(GenomeAssemblies).' +
+        'usingschema(/schema/GenomeAssemblies).' +
+        'matching(tab==["Prokaryotes"] and q=="' + cli[:taxon].tr('"',"'") + '"',
+      fields: 'organism|organism,assembly|assembly,replicons|replicons,' +
+        'level|level,ftp_path_genbank|ftp_path_genbank,release_date|release_date,' +
+        'strain|strain',
+      nolimit: 'on',
+    }
+    if cli[:reference]
+      url_param[:q] += ' and refseq_category==["representative"]'
+    else
+      status = {
+        complete: 'Complete',
+        chromosome: ' Chromosome', # <- The leading space is *VERY* important!
+        scaffold: 'Scaffold',
+        contig: 'Contig'
+      }.map { |k, v| '"' + v + '"' if cli[k] }.compact.join(',')
+      url_param[:q] += ' and level==[' + status + ']'
+    end
+    url_param[:q] += ')'
+    url_base + URI.encode_www_form(url_param)
+  end
+
+  def discard_blacklisted(ds)
     unless cli[:blacklist].nil?
       cli.say "Discarding datasets in #{cli[:blacklist]}"
       File.readlines(cli[:blacklist]).
         select{ |i| i !~ /^#/ }.map(&:chomp).each{ |i| ds.delete i }
     end
+    ds
+  end
 
-    # Download entries
+  def download_entries(ds, p)
     cli.say "Downloading #{ds.size} " + (ds.size == 1 ? 'entry' : 'entries')
     p.do_not_save = true if cli[:save_every] != 1
     ignore = !cli[:ignore_until].nil?
+    downloaded = 0
+    d = []
     ds.each do |name, body|
       d << name
       cli.puts name
@@ -203,23 +234,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       end
       p.save! if cli[:save_every] > 1 and (downloaded % cli[:save_every]) == 0
     end
-
     p.do_not_save = false
     p.save! if cli[:save_every] != 1
-
-    # Finalize
-    cli.say "Datasets listed: #{d.size}"
-    cli.say "Datasets #{cli[:dry] ? 'to download' : 'downloaded'}: " +
-      downloaded.to_s
-    unless cli[:remote_list].nil?
-      File.open(cli[:remote_list], 'w') do |fh|
-        d.each { |i| fh.puts i }
-      end
-    end
-    if cli[:unlink]
-      unlink = p.dataset_names - d
-      unlink.each { |i| p.unlink_dataset(i).remove! }
-      cli.say "Datasets unlinked: #{unlink.size}"
-    end
+    [d, downloaded]
   end
 end
