@@ -9,6 +9,8 @@ require 'optparse'
 class MiGA::Cli < MiGA::MiGA
 
   require 'miga/cli/base'
+  require 'miga/cli/opt_helper'
+  include MiGA::Cli::OptHelper
   require 'miga/cli/action'
 
   ##
@@ -197,130 +199,6 @@ class MiGA::Cli < MiGA::MiGA
     usage += ' {FILES...}' if expect_files
     opt.banner = "\n#{task_description}\n\n#{usage}\n"
     opt.separator ''
-  end
-
-  ##
-  # Common options at the end of most actions, passed to OptionParser +opt+
-  # No action is performed if +#opt_common = false+ is passed
-  # Executes only once, unless +#opt_common = true+ is passed between calls
-  def opt_common(opt)
-    return unless @opt_common
-    opt.on(
-      '--auto',
-      'Accept all defaults as answers'
-      ){ |v| cli[:auto] = v } if interactive
-    opt.on(
-      '-v', '--verbose',
-      'Print additional information to STDERR'
-      ){ |v| self[:verbose] = v }
-    opt.on(
-      '-d', '--debug INT', Integer,
-      'Print debugging information to STDERR (1: debug, 2: trace)'
-      ){ |v| (v > 1) ? MiGA.DEBUG_TRACE_ON : MiGA.DEBUG_ON }
-    opt.on(
-      '-h', '--help',
-      'Display this screen'
-      ){ puts opt ; exit }
-    opt.separator ''
-    self.opt_common = false
-  end
-
-  ##
-  # Options to load an object passed to OptionParser +opt+, as determined
-  # by +what+ an Array with any combination of:
-  # - :project To require a project
-  # - :dataset To require a dataset
-  # - :dataset_opt To allow (optionally) a dataset
-  # - :dataset_type To allow (optionally) a type of dataset
-  # - :dataset_type_req To require a type of dataset
-  # - :project_type To allow (optionally) a type of project
-  # - :project_type_req To require a type of project
-  # - :result To require a type of project or dataset result
-  # - :result_dataset To require a type of dataset result
-  # - :result_project To require a type of project result
-  # The options :result, :result_dataset, and :result_project are mutually
-  # exclusive
-  def opt_object(opt, what = [:project, :dataset])
-    opt.on(
-      '-P', '--project PATH',
-      '(Mandatory) Path to the project'
-      ){ |v| self[:project] = v } if what.include? :project
-    opt.on(
-      '-D', '--dataset STRING',
-      (what.include?(:dataset) ? '(Mandatory) ' : '') + 'Name of the dataset'
-      ){ |v| self[:dataset] = v } if what.include? :dataset or
-        what.include? :dataset_opt
-    opt.on(
-      '-D', '--dataset STRING',
-      'Name of the dataset'
-      ){ |v| self[:dataset] = v } if what.include? :dataset_opt
-    opt.on(
-      '-t', '--type STRING',
-      (what.include?(:dataset_type_req) ? '(Mandatory) ' : '') +
-      'Type of dataset. Recognized types include:',
-      *Dataset.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}" }
-      ){ |v| self[:type] = v.downcase.to_sym } if what.include? :dataset_type or
-        what.include? :dataset_type_req
-    opt.on(
-      '-t', '--type STRING',
-      (what.include?(:project_type_req) ? '(Mandatory) ' : '') +
-      'Type of project. Recognized types include:',
-      *Project.KNOWN_TYPES.map{ |k,v| "~ #{k}: #{v[:description]}"}
-      ){ |v| self[:type] = v.downcase.to_sym } if what.include? :project_type or
-        what.include? :project_type_req
-    if what.include? :result
-      opt.on(
-        '-r', '--result STRING',
-        '(Mandatory) Name of the result',
-        'Recognized names for dataset-specific results include:',
-        *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"},
-        'Recognized names for project-wide results include:',
-        *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-        ){ |v| self[:result] = v.downcase.to_sym }
-    elsif what.include? :result_dataset
-      opt.on(
-        '-r', '--result STRING',
-        '(Mandatory) Name of the result, one of:',
-        *Dataset.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-        ){ |v| self[:result] = v.downcase.to_sym }
-    elsif what.include? :result_project
-      opt.on(
-        '-r', '--result STRING',
-        '(Mandatory) Name of the result, one of:',
-        *Project.RESULT_DIRS.keys.map{|n| " ~ #{n}"}
-        ){ |v| self[:result] = v.downcase.to_sym }
-    end
-  end
-
-  ##
-  # Options to filter a list of datasets passed to OptionParser +opt+,
-  # as determined by +what+ an Array with any combination of:
-  # - :ref To filter by reference (--ref) or query (--no-ref)
-  # - :multi To filter by multiple (--multi) or single (--no-multi) species
-  # - :active To filter by active (--active) or inactive (--no-active)
-  # - :taxonomy To filter by taxonomy (--taxonomy)
-  # The "k-th" filter (--dataset-k) is always included
-  def opt_filter_datasets(opt, what = [:ref, :multi, :active, :taxonomy])
-    opt.on(
-      '--[no-]ref',
-      'Use only reference (or only non-reference) datasets'
-      ){ |v| self[:ref] = v } if what.include? :ref
-    opt.on(
-      '--[no-]multi',
-      'Use only multi-species (or only single-species) datasets'
-      ){ |v| self[:multi] = v } if what.include? :multi
-    opt.on(
-      '--[no-]active',
-      'Use only active (or inactive) datasets'
-      ){ |v| self[:active] = v } if what.include? :active
-    opt.on(
-      '-t', '--taxonomy RANK:TAXON',
-      'Filter by taxonomy'
-      ){ |v| self[:taxonomy] = Taxonomy.new(v) } if what.include? :taxonomy
-    opt.on(
-      '--dataset-k INTEGER', Integer,
-      'Use only the k-th dataset in the list'
-      ){ |v| self[:dataset_k] = v }
   end
 
   ##
