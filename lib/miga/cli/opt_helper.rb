@@ -3,6 +3,17 @@
 
 module MiGA::Cli::OptHelper 
   ##
+  # Send MiGA's banner to OptionParser +opt+
+  def banner(opt)
+    usage = "Usage: miga #{action.name}"
+    usage += ' {operation}' if expect_operation
+    usage += ' [options]'
+    usage += ' {FILES...}' if expect_files
+    opt.banner = "\n#{task_description}\n\n#{usage}\n"
+    opt.separator ''
+  end
+
+  ##
   # Common options at the end of most actions, passed to OptionParser +opt+
   # No action is performed if +#opt_common = false+ is passed
   # Executes only once, unless +#opt_common = true+ is passed between calls
@@ -142,6 +153,5 @@ module MiGA::Cli::OptHelper
       'Use only the k-th dataset in the list'
     ){ |v| self[:dataset_k] = v }
   end
-
 end
 
