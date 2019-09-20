@@ -148,4 +148,13 @@ module MiGA::Cli::OptHelper
       'Use only the k-th dataset in the list'
     ) { |v| self[:dataset_k] = v }
   end
+
+  ##
+  # Add a flag (true/false) to the OptionParser +opt+ defined by
+  # +flag+ (without --) and +description+, and save it in the CLI as +sym+.
+  # If +sym+ is nil, +flag+ is used as Symbol
+  def opt_flag(opt, flag, description, sym = nil)
+    sym = flag.to_sym if sym.nil?
+    opt.on(flag, description) { |v| self[sym] = v }
+  end
 end

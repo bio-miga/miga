@@ -8,102 +8,80 @@ require 'csv'
 class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   def parse_cli
-    cli.defaults = {query: false, unlink: false,
+    cli.defaults = { query: false, unlink: false,
       reference: false, legacy_name: false,
       complete: false, chromosome: false,
       scaffold: false, contig: false, add_version: true, dry: false,
-      get_md: false, only_md: false, save_every: 1}
+      get_md: false, only_md: false, save_every: 1 }
     cli.parse do |opt|
       cli.opt_object(opt, [:project])
       opt.on(
         '-T', '--taxon STRING',
         '(Mandatory unless --reference) Taxon name (e.g., a species binomial)'
-        ){ |v| cli[:taxon] = v }
-      opt.on('--reference',
-        'Download all reference genomes (ignore any other status)'
-        ){ |v| cli[:reference] = v }
-      opt.on(
-        '--complete',
-        'Download complete genomes'
-        ){ |v| cli[:complete] = v }
-      opt.on('--chromosome',
-        'Download complete chromosomes'
-        ){ |v| cli[:chromosome] = v }
-      opt.on(
-        '--scaffold',
-        'Download genomes in scaffolds'
-        ){ |v| cli[:scaffold] = v }
-      opt.on(
-        '--contig',
-        'Download genomes in contigs'
-        ){ |v| cli[:contig] = v }
+      ) { |v| cli[:taxon] = v }
+      opt_flag(opt, 'reference',
+        'Download all reference genomes (ignore any other status)')
+      opt_flag(opt, 'complete', 'Download complete genomes')
+      opt_flag(opt, 'chromosome', 'Download complete chromosomes')
+      opt_flag(opt, 'scaffold', 'Download genomes in scaffolds')
+      opt_flag(opt, 'contig', 'Download genomes in contigs')
       opt.on(
         '--all',
-        'Download all genomes (in any status)') do
-          cli[:complete] = true
-          cli[:chromosome] = true
-          cli[:scaffold] = true
-          cli[:contig] = true
-        end
+        'Download all genomes (in any status)'
+      ) do
+        cli[:complete] = true
+        cli[:chromosome] = true
+        cli[:scaffold] = true
+        cli[:contig] = true
+      end
       opt.on(
         '--no-version-name',
         'Do not add sequence version to the dataset name',
         'Only affects --complete and --chromosome'
-        ){ |v| cli[:add_version] = v }
+      ) { |v| cli[:add_version] = v }
+      opt_flag(opt, 'legacy-name',
+        'Use dataset names based on chromosome entries instead of assembly',
+        :legacy_name)
       opt.on(
-        '--legacy-name',
-        'Use dataset names based on chromosome entries instead of assembly'
-        ){ |v| cli[:legacy_name] = v }
-      opt.on('--blacklist PATH',
+        '--blacklist PATH',
         'A file with dataset names to blacklist'
-        ){ |v| cli[:blacklist] = v }
-      opt.on(
-        '--dry',
-        'Do not download or save the datasets'
-        ){ |v| cli[:dry] = v }
+      ) { |v| cli[:blacklist] = v }
+      opt_flag(opt, 'dry', 'Do not download or save the datasets')
       opt.on(
         '--ignore-until STRING',
         'Ignores all datasets until a name is found (useful for large reruns)'
-        ){ |v| cli[:ignore_until] = v }
-      opt.on(
-        '--get-metadata',
-        'Only download and update metadata for existing datasets'
-        ){ |v| cli[:get_md] = v }
-      opt.on('--only-metadata',
-        'Create datasets without input data but retrieve all metadata'
-        ){ |v| cli[:only_md] = v }
+      ) { |v| cli[:ignore_until] = v }
+      opt_flag(opt, 'get-metadata',
+        'Only download and update metadata for existing datasets', :get_md)
+      opt_flag(opt, 'only-metadata',
+        'Create datasets without input data but retrieve all metadata',
+        :only_md)
       opt.on(
         '--save-every INT', Integer,
         'Save project every this many downloaded datasets',
         'If zero, it saves the project only once upon completion',
         "By default: #{cli[:save_every]}"
-        ){ |v| cli[:save_every] = v }
+      ) { |v| cli[:save_every] = v }
       opt.on(
         '-q', '--query',
         'Register the datasets as queries, not reference datasets'
-        ){ |v| cli[:query] = v }
+      ) { |v| cli[:query] = v }
       opt.on(
         '-u', '--unlink',
         'Unlink all datasets in the project missing from the download list'
-        ){ |v| cli[:unlink] = v }
+      ) { |v| cli[:unlink] = v }
       opt.on('-R', '--remote-list PATH',
         'Path to an output file with the list of all datasets listed remotely'
-        ){ |v| cli[:remote_list] = v }
+      ) { |v| cli[:remote_list] = v }
       opt.on(
         '--api-key STRING',
         'NCBI API key'
-        ){ |v| ENV['NCBI_API_KEY'] = v }
+      ) { |v| ENV['NCBI_API_KEY'] = v }
     end
   end
 
   def perform
-    cli.ensure_par(taxon: '-T') unless cli[:reference]
-    unless %w[reference complete chromosome
-          scaffold contig].any? { |i| cli[i.to_sym] }
-      raise 'No action requested: pick at least one type of genome'
-    end
-    cli[:save_every] = 1 if cli[:dry]
-
+    sanitize_cli
     p = cli.load_project
     ds = get_remote_list
     ds = discard_blacklisted(ds)
@@ -111,8 +89,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
     # Finalize
     cli.say "Datasets listed: #{d.size}"
-    cli.say "Datasets #{cli[:dry] ? 'to download' : 'downloaded'}: " +
-      downloaded.to_s
+    act = cli[:dry] ? 'to download' : 'downloaded'
+    cli.say "Datasets #{act}: #{downloaded}"
     unless cli[:remote_list].nil?
       File.open(cli[:remote_list], 'w') do |fh|
         d.each { |i| fh.puts i }
@@ -127,11 +105,19 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   private
 
+  def sanitize_cli
+    cli.ensure_par(taxon: '-T') unless cli[:reference]
+    tasks = %w[reference complete chromosome scaffold contig]
+    unless tasks.any? { |i| cli[i.to_sym] }
+      raise 'No action requested: pick at least one type of genome'
+    end
+    cli[:save_every] = 1 if cli[:dry]
+  end
+
   def get_remote_list
     cli.say 'Downloading genome list'
     ds = {}
     url = remote_list_url
-    lineno = 0
     doc = RemoteDataset.download_url(url)
     CSV.parse(doc, headers: true).each do |r|
       asm = r['assembly']
@@ -140,7 +126,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
       # Get replicons
       rep = r['replicons'].nil? ? nil : r['replicons'].
-          split('; ').map{ |i| i.gsub(/.*:/,'') }.map{ |i| i.gsub(/\/.*/, '') }
+          split('; ').map { |i| i.gsub(/.*:/,'') }.
+          map { |i| i.gsub(/\/.*/, '') }
 
       # Set name
       if cli[:legacy_name] and cli[:reference]
@@ -177,10 +164,11 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       q: '[display()].' +
         'from(GenomeAssemblies).' +
         'usingschema(/schema/GenomeAssemblies).' +
-        'matching(tab==["Prokaryotes"] and q=="' + cli[:taxon].tr('"',"'") + '"',
+        'matching(tab==["Prokaryotes"] and q=="' +
+          cli[:taxon].tr('"',"'") + '"',
       fields: 'organism|organism,assembly|assembly,replicons|replicons,' +
-        'level|level,ftp_path_genbank|ftp_path_genbank,release_date|release_date,' +
-        'strain|strain',
+        'level|level,ftp_path_genbank|ftp_path_genbank,' +
+        'release_date|release_date,strain|strain',
       nolimit: 'on',
     }
     if cli[:reference]
