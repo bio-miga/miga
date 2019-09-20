@@ -50,58 +50,13 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
 
   def perform
     p = cli.load_project
-    files = cli.files
-    file_type = nil
-    if files.empty?
-      cli.ensure_par({dataset: '-D'},
-        'dataset is mandatory (-D) unless files are provided')
-      cli.ensure_type(Dataset)
-      files = [nil]
-    else
-      raise 'Please specify input type (-i).' if cli[:input_type].nil?
-      file_type = self.class.INPUT_TYPES[cli[:input_type]]
-      raise "Unrecognized input type: #{cli[:input_type]}." if file_type.nil?
-      raise 'Some files are duplicated, files must be unique.' if
-        files.size != files.uniq.size
-      if cli[:input_type].to_s =~ /_paired$/
-        raise 'Odd number of files incompatible with input type.' if files.size.odd?
-        files = Hash[*files].to_a
-      else
-        files = files.map{ |i| [i] }
-      end
-      raise 'The dataset name (-D) can only be specified with one input file.' if
-        files.size > 1 && !cli[:dataset].nil?
-    end
+    files, file_type = get_files_and_type
 
     cli.say 'Creating datasets:'
     files.each do |file|
-      name = cli[:dataset]
-      if name.nil?
-        ref_file = file.is_a?(Array) ? file.first : file
-        m = cli[:regexp].match(ref_file)
-        raise "Cannot extract name from file: #{ref_file}" if m.nil? or m[1].nil?
-        name = m[1].miga_name
-      end
-      if Dataset.exist?(p, name)
-        msg = "Dataset already exists: #{name}."
-        cli[:ignore_dups] ? (warn(msg); next) : raise(msg)
-      end
-
-      cli.say "o #{name}"
-      d = Dataset.new(p, name, cli[:ref])
-      raise "Unexpected: Couldn't create dataset: #{name}." if d.nil?
-
-      unless file.nil?
-        r_dir = Dataset.RESULT_DIRS[ file_type[1] ]
-        r_path = File.expand_path("data/#{r_dir}/#{d.name}", p.path)
-        file_type[2].each_with_index do |ext, i|
-          gz = file[i] =~ /\.gz/ ? '.gz' : ''
-          FileUtils.cp(file[i], "#{r_path}#{ext}#{gz}")
-          cli.say "  file: #{file[i]}"
-        end
-        File.open("#{r_path}.done", 'w') { |f| f.print Time.now.to_s }
-      end
-
+      d = create_dataset(file, p)
+      next if d.nil?
+      copy_file_to_project(file, file_type, d, p)
       d = cli.add_metadata(d)
       d.save
       p.add_dataset(name)
@@ -135,5 +90,71 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     def INPUT_TYPES
       @@INPUT_TYPES
     end
+  end
+
+  private
+
+  def get_files_and_type
+    files = cli.files
+    file_type = nil
+    if files.empty?
+      cli.ensure_par({dataset: '-D'},
+        'dataset is mandatory (-D) unless files are provided')
+      cli.ensure_type(Dataset)
+      files = [nil]
+    else
+      raise 'Please specify input type (-i).' if cli[:input_type].nil?
+      file_type = self.class.INPUT_TYPES[cli[:input_type]]
+      raise "Unrecognized input type: #{cli[:input_type]}." if file_type.nil?
+      raise 'Some files are duplicated, files must be unique.' if
+        files.size != files.uniq.size
+      if cli[:input_type].to_s =~ /_paired$/
+        if files.size.odd?
+          raise 'Odd number of files incompatible with input type.'
+        end
+        files = Hash[*files].to_a
+      else
+        files = files.map{ |i| [i] }
+      end
+      if files.size > 1 && !cli[:dataset].nil?
+        raise 'The dataset name (-D) can only be specified with one input file.'
+      end
+    end
+    [files, file_type]
+  end
+
+  def create_dataset(file, p)
+    name = cli[:dataset]
+    if name.nil?
+      ref_file = file.is_a?(Array) ? file.first : file
+      m = cli[:regexp].match(ref_file)
+      raise "Cannot extract name from file: #{ref_file}" if m.nil? or m[1].nil?
+      name = m[1].miga_name
+    end
+    if Dataset.exist?(p, name)
+      msg = "Dataset already exists: #{name}."
+      if cli[:ignore_dups]
+        warn(msg)
+        return nil
+      else
+        raise(msg)
+      end
+    end
+    cli.say "o #{name}"
+    d = Dataset.new(p, name, cli[:ref])
+    raise "Unexpected: Couldn't create dataset: #{name}." if d.nil?
+    d
+  end
+
+  def copy_file_to_project(file, file_type, d, p)
+    return if file.nil?
+    r_dir = Dataset.RESULT_DIRS[ file_type[1] ]
+    r_path = File.expand_path("data/#{r_dir}/#{d.name}", p.path)
+    file_type[2].each_with_index do |ext, i|
+      gz = file[i] =~ /\.gz/ ? '.gz' : ''
+      FileUtils.cp(file[i], "#{r_path}#{ext}#{gz}")
+      cli.say "  file: #{file[i]}"
+    end
+    File.open("#{r_path}.done", 'w') { |f| f.print Time.now.to_s }
   end
 end
