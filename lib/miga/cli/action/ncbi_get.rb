@@ -6,7 +6,6 @@ require 'miga/remote_dataset'
 require 'csv'
 
 class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
-
   def parse_cli
     cli.defaults = { query: false, unlink: false,
       reference: false, legacy_name: false,
@@ -21,7 +20,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       ) { |v| cli[:taxon] = v }
       cli.opt_flag(
         opt, 'reference',
-        'Download all reference genomes (ignore any other status)')
+        'Download all reference genomes (ignore any other status)'
+      )
       cli.opt_flag(opt, 'complete', 'Download complete genomes')
       cli.opt_flag(opt, 'chromosome', 'Download complete chromosomes')
       cli.opt_flag(opt, 'scaffold', 'Download genomes in scaffolds')
@@ -43,7 +43,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       cli.opt_flag(
         opt, 'legacy-name',
         'Use dataset names based on chromosome entries instead of assembly',
-        :legacy_name)
+        :legacy_name
+      )
       opt.on(
         '--blacklist PATH',
         'A file with dataset names to blacklist'
@@ -87,7 +88,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
   def perform
     sanitize_cli
     p = cli.load_project
-    ds = get_remote_list
+    ds = download_remote_list
     ds = discard_blacklisted(ds)
     d, downloaded = download_entries(ds, p)
 
@@ -117,7 +118,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     cli[:save_every] = 1 if cli[:dry]
   end
 
-  def get_remote_list
+  def download_remote_list
     cli.say 'Downloading genome list'
     ds = {}
     url = remote_list_url
@@ -131,7 +132,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       rep = nil
       unless r['replicons'].nil?
         rep = r['replicons'].split('; ').
-          map { |i| i.gsub(/.*:/,'') }.map { |i| i.gsub(/\/.*/, '') }
+              map { |i| i.gsub(/.*:/, '') }.
+              map { |i| i.gsub(/\/.*/, '') }
       end
 
       # Set name
@@ -157,8 +159,9 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         }
       }
       ds[n][:md][:ncbi_nuccore] = rep.join(',') unless rep.nil?
-      ds[n][:md][:release_date] =
-        Time.parse(r['release_date']).to_s unless r['release_date'].nil?
+      unless r['release_date'].nil?
+        ds[n][:md][:release_date] = Time.parse(r['release_date']).to_s
+      end
     end
     ds
   end
@@ -170,7 +173,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         'from(GenomeAssemblies).' \
         'usingschema(/schema/GenomeAssemblies).' \
         'matching(tab==["Prokaryotes"] and q=="' \
-          "#{cli[:taxon].tr('"',"'")}\"",
+          "#{cli[:taxon].tr('"', "'")}\"",
       fields: 'organism|organism,assembly|assembly,replicons|replicons,' \
         'level|level,ftp_path_genbank|ftp_path_genbank,' \
         'release_date|release_date,strain|strain',
