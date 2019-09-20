@@ -67,66 +67,82 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
   end
 
   def perform
-    glob = [cli]
-    unless cli[:file].nil?
-      glob = []
-      File.open(cli[:file], 'r') do |fh|
-        h = nil
-        fh.each do |ln|
-          r = ln.chomp.split(/\t/)
-          if h.nil?
-             h = r
-          else
-            argv_i = [self.name]
-            h.each_with_index do |field, k|
-              case field.downcase
-              when *%w[query ignore-dup get-metadata only-metadata]
-                argv_i << "--#{field.downcase}" if r[k].downcase == 'true'
-              when *%w[project file verbose help debug]
-                raise "Unsupported header: #{field}"
-              else
-                argv_i += ["--#{field.downcase}", r[k]]
-              end
+    glob = get_sub_cli
+    p = cli.load_project
+    glob.each do |sub_cli|
+      rd = create_remote_dataset(sub_cli)
+      next if rd.nil?
+      if sub_cli[:get_md]
+        update_metadata(sub_cli, p, rd)
+      else
+        create_dataset(sub_cli, p, rd)
+      end
+    end
+  end
+
+  private
+
+  def get_sub_cli
+    return [cli] if cli[:file].nil?
+    glob = []
+    File.open(cli[:file], 'r') do |fh|
+      h = nil
+      fh.each do |ln|
+        r = ln.chomp.split(/\t/)
+        if h.nil?
+           h = r
+        else
+          argv_i = [self.name]
+          h.each_with_index do |field, k|
+            case field.downcase
+            when *%w[query ignore-dup get-metadata only-metadata]
+              argv_i << "--#{field.downcase}" if r[k].downcase == 'true'
+            when *%w[project file verbose help debug]
+              raise "Unsupported header: #{field}"
+            else
+              argv_i += ["--#{field.downcase}", r[k]]
             end
-            sub_cli = MiGA::Cli.new(argv_i)
-            sub_cli.defaults = cli.data
-            sub_cli.action.parse_cli
-            glob << sub_cli
           end
+          sub_cli = MiGA::Cli.new(argv_i)
+          sub_cli.defaults = cli.data
+          sub_cli.action.parse_cli
+          glob << sub_cli
         end
       end
     end
+    glob
+  end
 
-    p = cli.load_project
-    glob.each do |sub_cli|
-      sub_cli.ensure_par(dataset: '-D', ids: '-I')
-      unless sub_cli[:api_key].nil?
-        ENV["#{sub_cli[:universe].to_s.upcase}_API_KEY"] = sub_cli[:api_key]
-      end
-
-      sub_cli.say "Dataset: #{sub_cli[:dataset]}"
-      if sub_cli[:ignore_dup] && !sub_cli[:get_md]
-        next if Dataset.exist?(p, sub_cli[:dataset])
-      end
-
-      sub_cli.say 'Locating remote dataset'
-      rd = RemoteDataset.new(sub_cli[:ids], sub_cli[:db], sub_cli[:universe])
-
-      if sub_cli[:get_md]
-        sub_cli.say 'Updating dataset'
-        d = p.dataset(sub_cli[:dataset])
-        next if d.nil?
-        md = sub_cli.add_metadata(d).metadata.data
-        rd.update_metadata(d, md)
-      else
-        sub_cli.say 'Creating dataset'
-        dummy_d = Dataset.new(p, sub_cli[:dataset])
-        md = sub_cli.add_metadata(dummy_d).metadata.data
-        md[:metadata_only] = true if cli[:only_md]
-        dummy_d.remove!
-        rd.save_to(p, sub_cli[:dataset], !sub_cli[:query], md)
-        p.add_dataset(sub_cli[:dataset])
-      end
+  def create_remote_dataset(sub_cli)
+    sub_cli.ensure_par(dataset: '-D', ids: '-I')
+    unless sub_cli[:api_key].nil?
+      ENV["#{sub_cli[:universe].to_s.upcase}_API_KEY"] = sub_cli[:api_key]
     end
+
+    sub_cli.say "Dataset: #{sub_cli[:dataset]}"
+    if sub_cli[:ignore_dup] && !sub_cli[:get_md]
+      return if Dataset.exist?(p, sub_cli[:dataset])
+    end
+
+    sub_cli.say 'Locating remote dataset'
+    RemoteDataset.new(sub_cli[:ids], sub_cli[:db], sub_cli[:universe])
+  end
+
+  def update_metadata(sub_cli, p, rd)
+    sub_cli.say 'Updating dataset'
+    d = p.dataset(sub_cli[:dataset])
+    return if d.nil?
+    md = sub_cli.add_metadata(d).metadata.data
+    rd.update_metadata(d, md)
+  end
+
+  def create_dataset(sub_cli, p, rd)
+    sub_cli.say 'Creating dataset'
+    dummy_d = Dataset.new(p, sub_cli[:dataset])
+    md = sub_cli.add_metadata(dummy_d).metadata.data
+    md[:metadata_only] = true if cli[:only_md]
+    dummy_d.remove!
+    rd.save_to(p, sub_cli[:dataset], !sub_cli[:query], md)
+    p.add_dataset(sub_cli[:dataset])
   end
 end
