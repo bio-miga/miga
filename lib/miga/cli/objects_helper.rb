@@ -8,7 +8,7 @@ module MiGA::Cli::ObjectsHelper
     return @objects[name] unless @objects[name].nil?
     ensure_par(name => flag)
     say "Loading project: #{self[name]}"
-    @objects[name] = Project.load(self[name])
+    @objects[name] = MiGA::Project.load(self[name])
     raise "Cannot load project: #{self[name]}" if @objects[name].nil?
     @objects[name]
   end
