@@ -19,12 +19,13 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '-T', '--taxon STRING',
         '(Mandatory unless --reference) Taxon name (e.g., a species binomial)'
       ) { |v| cli[:taxon] = v }
-      opt_flag(opt, 'reference',
+      cli.opt_flag(
+        opt, 'reference',
         'Download all reference genomes (ignore any other status)')
-      opt_flag(opt, 'complete', 'Download complete genomes')
-      opt_flag(opt, 'chromosome', 'Download complete chromosomes')
-      opt_flag(opt, 'scaffold', 'Download genomes in scaffolds')
-      opt_flag(opt, 'contig', 'Download genomes in contigs')
+      cli.opt_flag(opt, 'complete', 'Download complete genomes')
+      cli.opt_flag(opt, 'chromosome', 'Download complete chromosomes')
+      cli.opt_flag(opt, 'scaffold', 'Download genomes in scaffolds')
+      cli.opt_flag(opt, 'contig', 'Download genomes in contigs')
       opt.on(
         '--all',
         'Download all genomes (in any status)'
@@ -39,21 +40,23 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         'Do not add sequence version to the dataset name',
         'Only affects --complete and --chromosome'
       ) { |v| cli[:add_version] = v }
-      opt_flag(opt, 'legacy-name',
+      cli.opt_flag(
+        opt, 'legacy-name',
         'Use dataset names based on chromosome entries instead of assembly',
         :legacy_name)
       opt.on(
         '--blacklist PATH',
         'A file with dataset names to blacklist'
       ) { |v| cli[:blacklist] = v }
-      opt_flag(opt, 'dry', 'Do not download or save the datasets')
+      cli.opt_flag(opt, 'dry', 'Do not download or save the datasets')
       opt.on(
         '--ignore-until STRING',
         'Ignores all datasets until a name is found (useful for large reruns)'
       ) { |v| cli[:ignore_until] = v }
-      opt_flag(opt, 'get-metadata',
+      cli.opt_flag(opt, 'get-metadata',
         'Only download and update metadata for existing datasets', :get_md)
-      opt_flag(opt, 'only-metadata',
+      cli.opt_flag(
+        opt, 'only-metadata',
         'Create datasets without input data but retrieve all metadata',
         :only_md)
       opt.on(
@@ -70,7 +73,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '-u', '--unlink',
         'Unlink all datasets in the project missing from the download list'
       ) { |v| cli[:unlink] = v }
-      opt.on('-R', '--remote-list PATH',
+      opt.on(
+        '-R', '--remote-list PATH',
         'Path to an output file with the list of all datasets listed remotely'
       ) { |v| cli[:remote_list] = v }
       opt.on(
@@ -96,11 +100,10 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         d.each { |i| fh.puts i }
       end
     end
-    if cli[:unlink]
-      unlink = p.dataset_names - d
-      unlink.each { |i| p.unlink_dataset(i).remove! }
-      cli.say "Datasets unlinked: #{unlink.size}"
-    end
+    return unless cli[:unlink]
+    unlink = p.dataset_names - d
+    unlink.each { |i| p.unlink_dataset(i).remove! }
+    cli.say "Datasets unlinked: #{unlink.size}"
   end
 
   private
@@ -121,19 +124,21 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     doc = RemoteDataset.download_url(url)
     CSV.parse(doc, headers: true).each do |r|
       asm = r['assembly']
-      next if asm.nil? or asm.empty? or asm == '-'
+      next if asm.nil? || asm.empty? || asm == '-'
       next unless r['ftp_path_genbank']
 
       # Get replicons
-      rep = r['replicons'].nil? ? nil : r['replicons'].
-          split('; ').map { |i| i.gsub(/.*:/,'') }.
-          map { |i| i.gsub(/\/.*/, '') }
+      rep = nil
+      unless r['replicons'].nil?
+        rep = r['replicons'].split('; ').
+          map { |i| i.gsub(/.*:/,'') }.map { |i| i.gsub(/\/.*/, '') }
+      end
 
       # Set name
-      if cli[:legacy_name] and cli[:reference]
+      if cli[:legacy_name] && cli[:reference]
         n = r['#organism'].miga_name
       else
-        if cli[:legacy_name] and ['Complete',' Chromosome'].include? r['level']
+        if cli[:legacy_name] && ['Complete', ' Chromosome'].include?(r['level'])
           acc = rep.nil? ? '' : rep.first
         else
           acc = asm
@@ -161,15 +166,15 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
   def remote_list_url
     url_base = 'https://www.ncbi.nlm.nih.gov/genomes/solr2txt.cgi?'
     url_param = {
-      q: '[display()].' +
-        'from(GenomeAssemblies).' +
-        'usingschema(/schema/GenomeAssemblies).' +
-        'matching(tab==["Prokaryotes"] and q=="' +
-          cli[:taxon].tr('"',"'") + '"',
-      fields: 'organism|organism,assembly|assembly,replicons|replicons,' +
-        'level|level,ftp_path_genbank|ftp_path_genbank,' +
+      q: '[display()].' \
+        'from(GenomeAssemblies).' \
+        'usingschema(/schema/GenomeAssemblies).' \
+        'matching(tab==["Prokaryotes"] and q=="' \
+          "#{cli[:taxon].tr('"',"'")}\"",
+      fields: 'organism|organism,assembly|assembly,replicons|replicons,' \
+        'level|level,ftp_path_genbank|ftp_path_genbank,' \
         'release_date|release_date,strain|strain',
-      nolimit: 'on',
+      nolimit: 'on'
     }
     if cli[:reference]
       url_param[:q] += ' and refseq_category==["representative"]'
@@ -190,7 +195,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     unless cli[:blacklist].nil?
       cli.say "Discarding datasets in #{cli[:blacklist]}"
       File.readlines(cli[:blacklist]).
-        select{ |i| i !~ /^#/ }.map(&:chomp).each{ |i| ds.delete i }
+        select { |i| i !~ /^#/ }.map(&:chomp).each { |i| ds.delete i }
     end
     ds
   end
@@ -220,7 +225,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         rd.save_to(p, name, !cli[:query], body[:md])
         p.add_dataset(name)
       end
-      p.save! if cli[:save_every] > 1 and (downloaded % cli[:save_every]) == 0
+      p.save! if cli[:save_every] > 1 && (downloaded % cli[:save_every]).zero?
     end
     p.do_not_save = false
     p.save! if cli[:save_every] != 1

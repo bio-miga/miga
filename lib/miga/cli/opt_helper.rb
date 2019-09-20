@@ -155,6 +155,6 @@ module MiGA::Cli::OptHelper
   # If +sym+ is nil, +flag+ is used as Symbol
   def opt_flag(opt, flag, description, sym = nil)
     sym = flag.to_sym if sym.nil?
-    opt.on(flag, description) { |v| self[sym] = v }
+    opt.on("--#{flag}", description) { |v| self[sym] = v }
   end
 end
