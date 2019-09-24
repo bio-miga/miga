@@ -7,7 +7,7 @@ require 'sqlite3'
 class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
 
   def parse_cli
-    @@OPERATIONS.keys.each { |i| cli.defaults = {i => true} }
+    @@OPERATIONS.keys.each { |i| cli.defaults = { i => true } }
     cli.parse do |opt|
       operation_n = Hash[@@OPERATIONS.map { |k,v| [v[0], k] }]
       cli.opt_object(opt, [:project])
@@ -28,13 +28,11 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   end
 
   def check_sqlite3_database(db_file, metric)
-    begin
-      SQLite3::Database.new(db_file) do |conn|
-        conn.execute("select count(*) from #{metric}").first
-      end
-    rescue SQLite3::SQLException
-      yield
+    SQLite3::Database.new(db_file) do |conn|
+      conn.execute("select count(*) from #{metric}").first
     end
+  rescue SQLite3::SQLException
+    yield
   end
 
   def perform
