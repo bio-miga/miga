@@ -88,7 +88,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
   def perform
     sanitize_cli
     p = cli.load_project
-    ds = download_remote_list
+    ds = remote_list
     ds = discard_blacklisted(ds)
     d, downloaded = download_entries(ds, p)
 
@@ -118,7 +118,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     cli[:save_every] = 1 if cli[:dry]
   end
 
-  def download_remote_list
+  def remote_list
     cli.say 'Downloading genome list'
     ds = {}
     url = remote_list_url
@@ -127,27 +127,8 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       asm = r['assembly']
       next if asm.nil? || asm.empty? || asm == '-'
       next unless r['ftp_path_genbank']
-
-      # Get replicons
-      rep = nil
-      unless r['replicons'].nil?
-        rep = r['replicons'].split('; ').
-              map { |i| i.gsub(/.*:/, '') }.
-              map { |i| i.gsub(/\/.*/, '') }
-      end
-
-      # Set name
-      if cli[:legacy_name] && cli[:reference]
-        n = r['#organism'].miga_name
-      else
-        if cli[:legacy_name] && ['Complete', ' Chromosome'].include?(r['level'])
-          acc = rep.nil? ? '' : rep.first
-        else
-          acc = asm
-        end
-        acc.gsub!(/\.\d+\Z/, '') unless cli[:add_version]
-        n = "#{r['#organism']}_#{acc}".miga_name
-      end
+      rep = remote_row_replicons(r)
+      n = remote_row_name(r, rep, asm)
 
       # Register for download
       fna_url = r['ftp_path_genbank'] + '/' +
@@ -164,6 +145,24 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       end
     end
     ds
+  end
+
+  def remote_row_replicons(r)
+    return if r['replicons'].nil?
+    r['replicons'].split('; ')
+      .map { |i| i.gsub(/.*:/, '') }
+      .map { |i| i.gsub(/\/.*/, '') }
+  end
+
+  def remote_row_name(r, rep, asm)
+    return r['#organism'].miga_name if cli[:legacy_name] && cli[:reference]
+    if cli[:legacy_name] && ['Complete', ' Chromosome'].include?(r['level'])
+      acc = rep.nil? ? '' : rep.first
+    else
+      acc = asm
+    end
+    acc.gsub!(/\.\d+\Z/, '') unless cli[:add_version]
+    "#{r['#organism']}_#{acc}".miga_name
   end
 
   def remote_list_url
