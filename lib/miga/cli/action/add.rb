@@ -63,11 +63,10 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       copy_file_to_project(file, file_type, d, p)
       d = cli.add_metadata(d)
       d.save
-      p.add_dataset(name)
+      p.add_dataset(d.name)
       res = d.first_preprocessing(true)
       cli.say "  result: #{res}"
     end
-    p.save
   end
 
   @@INPUT_TYPES = {
