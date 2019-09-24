@@ -7,8 +7,10 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
 
   def parse_cli
     cli.expect_files = true
-    cli.defaults = {ref: true, ignore_dups: false,
-      regexp: /^(?:.*\/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?i:\.f[nastq]+)?$/}
+    cli.defaults = {
+      ref: true, ignore_dups: false,
+      regexp: %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?i:\.f[nastq]+)?$}
+    }
     cli.parse do |opt|
       opt.separator 'You can create multiple datasets with a single command; ' \
         'simply pass all the files at the end: {FILES...}'
@@ -19,32 +21,34 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       opt.on(
         '-q', '--query',
         'Register the dataset as a query, not a reference dataset'
-        ){ |v| cli[:ref] = !v }
+      ) { |v| cli[:ref] = !v }
       opt.on(
         '-d', '--description STRING',
         'Description of the dataset'
-        ){ |v| cli[:description] = v }
-      opt.on('-c', '--comments STRING',
+      ) { |v| cli[:description] = v }
+      opt.on(
+        '-c', '--comments STRING',
         'Comments on the dataset'
-        ){ |v| cli[:comments] = v }
-      opt.on('-m', '--metadata STRING',
+      ) { |v| cli[:comments] = v }
+      opt.on(
+        '-m', '--metadata STRING',
         'Metadata as key-value pairs separated by = and delimited by comma',
         'Values are saved as strings except for booleans (true / false) or nil'
-        ){ |v| cli[:metadata] = v }
+      ) { |v| cli[:metadata] = v }
       opt.on(
         '-R', '--name-regexp REGEXP', Regexp,
         'Regular expression indicating how to extract the name from the path',
         "By default: '#{cli[:regexp]}'"
-        ){ |v| cli[:regexp] = v }
+      ) { |v| cli[:regexp] = v }
       opt.on(
         '-i', '--input-type STRING',
         'Type of input data, one of the following:',
         *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}." }
-        ){ |v| cli[:input_type] = v.downcase.to_sym }
+      ) { |v| cli[:input_type] = v.downcase.to_sym }
       opt.on(
         '--ignore-dups',
         'Continue with a warning if a dataset already exists'
-        ){ |v| cli[:ignore_dups] = v }
+      ) { |v| cli[:ignore_dups] = v }
     end
   end
 
@@ -63,6 +67,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       res = d.first_preprocessing(true)
       cli.say "  result: #{res}"
     end
+    p.save
   end
 
   @@INPUT_TYPES = {
