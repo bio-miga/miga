@@ -9,21 +9,21 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   def parse_cli
     @@OPERATIONS.keys.each { |i| cli.defaults = {i => true} }
     cli.parse do |opt|
-      operation_n = Hash[@@OPERATIONS.map{ |k,v| [v[0], k] }]
+      operation_n = Hash[@@OPERATIONS.map { |k,v| [v[0], k] }]
       cli.opt_object(opt, [:project])
       opt.on(
         '--ignore TASK1,TASK2', Array,
         'Do not perform the task(s) listed. Available tasks are:',
-        * @@OPERATIONS.values.map{ |v| "~ #{v[0]}: #{v[1]}" }
-        ){ |v| v.map{ |i| cli[operation_n[i]] = false } }
+        * @@OPERATIONS.values.map { |v| "~ #{v[0]}: #{v[1]}" }
+      ) { |v| v.map { |i| cli[operation_n[i]] = false } }
       opt.on(
         '--only TASK',
         'Perform only the specified task (see --ignore)'
-        ) do |v|
-          op_k = @@OPERATIONS.find { |_, i| i[0] == v.downcase }.first
-          @@OPERATIONS.keys.each{ |i| cli[i] = false }
-          cli[op_k] = true
-        end
+      ) do |v|
+        op_k = @@OPERATIONS.find { |_, i| i[0] == v.downcase }.first
+        @@OPERATIONS.keys.each { |i| cli[i] = false }
+        cli[op_k] = true
+      end
     end
   end
 
@@ -84,41 +84,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       res = p.result("#{dist}_distances")
       next if res.nil?
       cli.say "Checking #{dist} table for consistent datasets"
-      notok = {}
-      fix = {}
-      Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
-        lineno = 0
-        fh.each_line do |ln|
-          next if (lineno+=1)==1
-          r = ln.split("\t")
-          if [1,2].map{ |i| p.dataset(r[i]).nil? }.any?
-            [1,2].each do |i|
-              if p.dataset(r[i]).nil?
-                notok[r[i]] = true
-              else
-                fix[r[i]] = true
-              end
-            end
-          end
-        end
-      end
-
-      cli.say("- Fixing #{fix.size} datasets") unless fix.empty?
-      fix.keys.each do |d_n|
-        cli.say "  > Fixing #{d_n}."
-        p.dataset(d_n).cleanup_distances!
-      end
-
-      unless notok.empty?
-        cli.say '- Unregistered datasets detected: '
-        if notok.size <= 5
-          notok.keys.each { |i| cli.say "  > #{i}" }
-        else
-          cli.say "  > #{notok.size}, including #{notok.keys.first}"
-        end
-        cli.say '- Removing tables, recompute'
-        res.remove!
-      end
+      notok, fix = check_dist_eval(cli, p, res)
+      check_dist_fix(cli, p, fix)
+      check_dist_recompute(cli, res, notok)
     end
   end
 
@@ -153,11 +121,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         res.remove!
         next
       end
-      unless Dir["#{dir}/*.faa"].empty?
-        cli.say "  > Fixing #{d.name}"
-        cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
-        warn(cmdo) unless cmdo.empty?
-      end
+      next if Dir["#{dir}/*.faa"].empty?
+      cli.say "  > Fixing #{d.name}"
+      cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
+      warn(cmdo) unless cmdo.empty?
     end
   end
 
@@ -206,5 +173,49 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   def check_tax(cli)
     #cli.say 'o Checking for taxonomy/distances consistency'
     # TODO: Find 95%ANI clusters with entries from different species
+  end
+
+  private
+
+  def check_dist_eval(cli, p, res)
+    notok = {}
+    fix = {}
+    Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
+      lineno = 0
+      fh.each_line do |ln|
+        next if (lineno += 1) == 1
+        r = ln.split("\t")
+        next unless [1, 2].map { |i| p.dataset(r[i]).nil? }.any?
+        [1, 2].each do |i|
+          if p.dataset(r[i]).nil?
+            notok[r[i]] = true
+          else
+            fix[r[i]] = true
+          end
+        end
+      end
+    end
+    [notok, fix]
+  end
+
+  def check_dist_fix(cli, p, fix)
+    return if fix.empty?
+    cli.say("- Fixing #{fix.size} datasets")
+    fix.keys.each do |d_n|
+      cli.say "  > Fixing #{d_n}."
+      p.dataset(d_n).cleanup_distances!
+    end
+  end
+
+  def check_dist_recompute(cli, p, notok)
+    return if notok.empty?
+    cli.say '- Unregistered datasets detected: '
+    if notok.size <= 5
+      notok.keys.each { |i| cli.say "  > #{i}" }
+    else
+      cli.say "  > #{notok.size}, including #{notok.keys.first}"
+    end
+    cli.say '- Removing tables, recompute'
+    res.remove!
   end
 end
