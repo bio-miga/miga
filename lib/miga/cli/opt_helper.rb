@@ -23,7 +23,7 @@ module MiGA::Cli::OptHelper
       opt.on(
         '--auto',
         'Accept all defaults as answers'
-      ) { |v| cli[:auto] = v }
+      ) { |v| self[:auto] = v }
     end
     opt.on(
       '-v', '--verbose',
