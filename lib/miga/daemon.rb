@@ -35,13 +35,16 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # Initialize an unactive daemon for the MiGA::Project +project+. See #daemon
-  # to wake the daemon.
-  def initialize(project)
+  # to wake the daemon. If passed, +json+ must be the path to a daemon
+  # definition in json format. Otherwise, the project-stored daemon definition
+  # is used. In either case, missing variables are used as defined in
+  # ~/.miga_daemon.json.
+  def initialize(project, json = nil)
     $_MIGA_DAEMON_LAIR << self
     @project = project
+    json ||= File.expand_path('daemon/daemon.json', project.path)
     @runopts = MiGA::Json.parse(
-      File.expand_path('daemon/daemon.json', project.path),
-      default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
+      json, default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
     @jobs_to_run = []
     @jobs_running = []
     @loop_i = -1
