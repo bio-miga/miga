@@ -41,6 +41,10 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
         "By default: '#{cli[:regexp]}'"
       ) { |v| cli[:regexp] = v }
       opt.on(
+        '--prefix STRING',
+        'Prefix to all the dataset names'
+      ) { |v| cli[:prefix] = v }
+      opt.on(
         '-i', '--input-type STRING',
         'Type of input data, one of the following:',
         *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}." }
@@ -133,7 +137,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       ref_file = file.is_a?(Array) ? file.first : file
       m = cli[:regexp].match(ref_file)
       raise "Cannot extract name from file: #{ref_file}" if m.nil? or m[1].nil?
-      name = m[1].miga_name
+      name = cli[:prefix].to_s + m[1].miga_name
     end
     if Dataset.exist?(p, name)
       msg = "Dataset already exists: #{name}."
