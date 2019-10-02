@@ -28,7 +28,7 @@ Next, install the requirements:
 
 ```bash
 conda install -y -c anaconda sqlite r-base
-conda install -y -c conda-forge ruby=2.4.5
+conda install -y -c conda-forge ruby
 conda install -y -c conda-forge -c bioconda -c faircloth-lab \
   scythe blast hmmer bedtools prodigal idba mcl barrnap \
   fastqc diamond krona fastani solexaqa
