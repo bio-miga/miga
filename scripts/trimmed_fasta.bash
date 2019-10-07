@@ -13,9 +13,11 @@ miga date > "$DATASET.start"
 
 # Gunzip (if necessary)
 for sis in 1 2 ; do
-  [[ -e "../02.trimmed_reads/$b.$sis.clipped.fastq.gz" \
-    && ! -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] \
-      && gunzip "../02.trimmed_reads/$b.$sis.clipped.fastq.gz"
+  for ext in clipped clipped.single ; do
+    [[ -e "../02.trimmed_reads/$b.$sis.${ext}.fastq.gz" \
+      && ! -e "../02.trimmed_reads/$b.$sis.${ext}.fastq" ]] \
+        && gzip -d "../02.trimmed_reads/$b.$sis.${ext}.fastq.gz"
+  done
 done
 miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
 
