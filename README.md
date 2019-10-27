@@ -23,7 +23,7 @@ For additional information on MiGA, visit:
 If you're like us, you probably want to see sofware in action from the get go.
 You have two options:
 
-1. Get a peak on MiGA using [MiGA Online][miga-online].
+1. Get a peek on MiGA using [MiGA Online][miga-online].
 2. Install the [requirements](manual/part2/requirements.md) and follow the
   [installation instructions](manual/part2/installation.md). Once you have MiGA
   installed, you can [deploy some examples](manual/part4.md).
