@@ -12,17 +12,21 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
       cli.opt_filter_datasets(opt)
       cli.opt_object(opt, [:result_dataset])
       opt.on(
+        '-o', '--output PATH',
+        'Create output file instead of returning to STDOUT'
+      ) { |v| cli[:output] = v }
+      opt.on(
         '--tab',
         'Return a tab-delimited table'
-        ){ |v| cli[:tabular] = v }
+      ) { |v| cli[:tabular] = v }
       opt.on(
         '--key STRING',
         'Return only the value of the requested key'
-        ){ |v| cli[:key_md] = v }
+      ) { |v| cli[:key_md] = v }
       opt.on(
         '--with-units',
         'Include units in each cell'
-        ){ |v| cli[:units] = v }
+      ) { |v| cli[:units] = v }
     end
   end
 
@@ -44,6 +48,8 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
       stats.map{ |s| keys.
         map{ |k| s[k].is_a?(Array) ? s[k].map(&:to_s).join('') : s[k] } } :
       stats.map{ |s| keys.map{ |k| s[k].is_a?(Array) ? s[k].first : s[k] } }
-    cli.puts MiGA.tabulate(keys, table, cli[:tabular])
+    io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')
+    cli.puts(io, MiGA.tabulate(keys, table, cli[:tabular]))
+    io.close unless cli[:output].nil?
   end
 end
