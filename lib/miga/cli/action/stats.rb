@@ -154,4 +154,19 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
     end
     stats
   end
+
+  def compute_ssu(r)
+    stats = {ssu: 0, complete_ssu: 0}
+    Zlib::GzipReader.open(r.file_path(:gff)) do |fh|
+      fh.each_line do |ln|
+        next if ln =~ /^#/
+        rl = ln.chomp.split("\t")
+        len = (r[4].to_i - r[3].to_i).abs + 1
+        stats[:max_length] = [stats[:max_length] || 0, len].max
+        stats[:ssu] += 1
+        stats[:complete_ssu] += 1 unless rl[8] =~ /\(partial\)/
+      end
+    end
+    stats
+  end
 end
