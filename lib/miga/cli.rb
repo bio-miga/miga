@@ -75,30 +75,40 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Send +par+ to $stdout, ensuring new line at the end
+  # Print +par+, ensuring new line at the end.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stdout+
   def puts(*par)
-    $stdout.puts(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stdout
+    io.puts(*par)
   end
 
   ##
-  # Send +par+ to $stdout as is
+  # Print +par+.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stdout+
   def print(*par)
-    $stdout.print(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stdout
+    io.print(*par)
   end
 
   ##
-  # Display a table with headers +header+ and contents +values+, both Array
-  def table(header, values)
-    self.puts MiGA.tabulate(header, values, self[:tabular])
+  # Display a table with headers +header+ and contents +values+, both Array.
+  # The output is printed to +io+
+  def table(header, values, io = $stdout)
+    self.puts(io, MiGA.tabulate(header, values, self[:tabular]))
   end
 
   ##
-  # Send +par+ to $stderr (ensuring new line at the end), iff --verbose.
+  # Print +par+ ensuring new line at the end, iff --verbose.
   # Date/time each line.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stderr+
   def say(*par)
     return unless self[:verbose]
     par.map! { |i| "[#{Time.now}] #{i}" }
-    $stderr.puts(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stderr
+    io.puts(*par)
   end
 
   ##
