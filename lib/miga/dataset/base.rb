@@ -36,13 +36,13 @@ module MiGA::Dataset::Base
   # Supported dataset types.
   @@KNOWN_TYPES = {
     genome: {description: 'The genome from an isolate.', multi: false},
-    scgenome: {description: 'A Single-cell Amplidied Genome (SAG).',
+    scgenome: {description: 'A Single-cell Amplified Genome (SAG)',
       multi: false},
-    popgenome: {description: 'A Metagenome-Assembled Genome (MAG).',
+    popgenome: {description: 'A Metagenome-Assembled Genome (MAG)',
       :multi=>false},
-    metagenome: {description: 'A metagenome (excluding viromes).',
+    metagenome: {description: 'A metagenome (excluding viromes)',
       multi: true},
-    virome: {description: 'A viral metagenome.', multi: true}
+    virome: {description: 'A viral metagenome', multi: true}
   }
 
   ##
