@@ -35,7 +35,7 @@ module MiGA::Dataset::Base
   ##
   # Supported dataset types.
   @@KNOWN_TYPES = {
-    genome: {description: 'The genome from an isolate.', multi: false},
+    genome: {description: 'The genome from an isolate', multi: false},
     scgenome: {description: 'A Single-cell Amplified Genome (SAG)',
       multi: false},
     popgenome: {description: 'A Metagenome-Assembled Genome (MAG)',

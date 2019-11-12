@@ -11,12 +11,12 @@ module MiGA::Cli::Base
     classify_wf: 'Classify input genomes against a reference database',
     preproc_wf:  'Preprocess input genomes or metagenomes',
     dist_wf:     'Estimate distances between input genomes',
-    download_wf: 'Download a pre-indexed reference database',
     # Projects
     new:      'Creates an empty MiGA project',
     about:    'Displays information about a MiGA project',
     plugins:  'Lists or (un)installs plugins in a MiGA project',
     doctor:   'Performs consistency checks on a MiGA project',
+    get_db:   'Downloads a pre-indexed database',
     # Datasets
     add:      'Creates a dataset in a MiGA project',
     get:      'Downloads a dataset from public databases into a MiGA project',
@@ -83,7 +83,7 @@ module MiGA::Cli::Base
 
   @@EXECS = @@TASK_DESC.keys
 
-  @@FILE_REGEXP = %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?i:\.f[nastq]+)?$}
+  @@FILE_REGEXP = %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?:\.f[nastq]+)?$}i
 
 end
 

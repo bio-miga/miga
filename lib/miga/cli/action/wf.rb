@@ -15,9 +15,14 @@ module MiGA::Cli::Action::Wf
       'By default: ~/.miga_daemon.json'
     ) { |v| cli[:daemon_json] = v }
     opt.on(
-      '-t', '--threads INT',
+      '-j', '--jobs INT',
       'Number of parallel jobs to execute',
-      'By default controlled by the daemon configuration'
+      'By default controlled by the daemon configuration (maxjobs)'
+    ) { |v| cli[:jobs] = v.to_i }
+    opt.on(
+      '-t', '--threads INT',
+      'Number of CPUs to use per job',
+      'By default controlled by the daemon configuration (ppn)'
     ) { |v| cli[:threads] = v.to_i }
   end
 
@@ -47,9 +52,10 @@ module MiGA::Cli::Action::Wf
   end
 
   def run_daemon
-    cmd = ['daemon', 'run', '-P', cli[:outdir], '--shutdown-when-done']
+    cmd  = ['daemon', 'run', '-P', cli[:outdir], '--shutdown-when-done']
     cmd += ['--json', cli[:daemon_json]] unless cli[:daemon_json].nil?
-    cmd += ['--max-jobs', cli[:threads]] unless cli[:threads].nil?
+    cmd += ['--max-jobs', cli[:jobs]] unless cli[:jobs].nil?
+    cmd += ['--ppn', cli[:threads]] unless cli[:threads].nil?
     cwd = Dir.pwd
     call_cli cmd
     Dir.chdir(cwd)
