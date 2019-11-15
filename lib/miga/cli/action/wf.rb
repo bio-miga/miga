@@ -4,11 +4,38 @@
 ##
 # Helper module for workflows
 module MiGA::Cli::Action::Wf
+  def default_opts_for_wf
+    cli.expect_files = true
+    cli.defaults = {
+      clean: false, regexp: MiGA::Cli.FILE_REGEXP,
+      project_type: :genomes, dataset_type: :popgenome }
+  end
+
   def opts_for_wf(opt, files_desc)
+    opt.on(
+      '-o', '--out_dir PATH',
+      'Directory to be created with all output data'
+    ) { |v| cli[:outdir] = v }
     opt.separator ''
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
-    opt.separator 'General Options'
+    opt.separator 'Workflow Control Options'
+    opt.on(
+      '-c', '--clean',
+      'Clean all intermediate files after generating the reports'
+    ) { |v| cli[:clean] = v }
+    opt.on(
+      '-R', '--name-regexp REGEXP', Regexp,
+      'Regular expression indicating how to extract the name from the path',
+      "By default: '#{cli[:regexp]}'"
+    ) { |v| cli[:regexp] = v }
+    opt.on(
+      '-t', '--type STRING',
+      "Type of datasets. By default: #{cli[:dataset_type]}",
+      'Recognized types include:',
+      *MiGA::Dataset.KNOWN_TYPES
+        .map { |k, v| "~ #{k}: #{v[:description]}" unless v[:multi] }
+    ) { |v| cli[:dataset_type] = v.downcase.to_sym }
     opt.on(
       '--daemon PATH',
       'Use custom daemon configuration in JSON format',

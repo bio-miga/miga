@@ -8,34 +8,13 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
   include MiGA::Cli::Action::Wf
 
   def parse_cli
-    cli.expect_files = true
-    cli.defaults = {
-      mytaxa: false, clean: false, regexp: MiGA::Cli.FILE_REGEXP,
-      project_type: :genomes, dataset_type: :popgenome }
+    default_opts_for_wf
+    cli.defaults = { mytaxa: false }
     cli.parse do |opt|
-      opt.on(
-        '-o', '--out_dir PATH',
-        'Directory to be created with all output data'
-      ) { |v| cli[:outdir] = v }
       opt.on(
         '-m', '--mytaxa_scan',
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
-      opt.on(
-        '-c', '--clean',
-        'Clean all intermediate files after generating the reports'
-      ) { |v| cli[:clean] = v }
-      opt.on(
-        '-R', '--name-regexp REGEXP', Regexp,
-        'Regular expression indicating how to extract the name from the path',
-        "By default: '#{cli[:regexp]}'"
-      ) { |v| cli[:regexp] = v }
-      opt.on(
-        '-t', '--type STRING',
-        "Type of datasets. Recognized types include:",
-        *MiGA::Dataset.KNOWN_TYPES
-          .map { |k, v| "~ #{k}: #{v[:description]}" unless v[:multi] }
-      ) { |v| cli[:dataset_type] = v.downcase.to_sym }
       opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)')
     end
   end
