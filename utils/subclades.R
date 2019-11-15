@@ -248,6 +248,12 @@ ggplotColours <- function(n=6, h=c(0, 360)+15, alpha=1){
 
 #= Main
 options(warn = 1)
-subclades(ani_file = argv[1], out_base = argv[2],
-  thr = ifelse(is.na(argv[3]), 1, as.numeric(argv[3])), sel = argv[4])
-
+if(length(argv) >= 5 & argv[5] == 'empty'){
+  generate_empty_files(argv[2])
+  write.table(NULL, paste(argv[2], "medoids", sep="."))
+  write.table(NULL, paste(argv[2], "classif", sep="."))
+  write.table(date(), paste(argv[2], "ready", sep="."))
+}else{
+  subclades(ani_file = argv[1], out_base = argv[2],
+    thr = ifelse(is.na(argv[3]), 1, as.numeric(argv[3])), sel = argv[4])
+}

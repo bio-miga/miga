@@ -46,4 +46,4 @@ max_depth = c.values.map{|i| i.count}.max
 File.open("#{out}.tsv", 'w') do |fh|
   c.each { |k,v| fh.puts ([k] + v + ["0"]*(max_depth-v.count)).join("\t") }
 end
-File.open("#{out}.nwk", 'w') { |fh| fh.puts print_tree(c) + ";" }
+File.open("#{out}.nwk", 'w') { |fh| fh.puts print_tree(c).to_s + ";" }
