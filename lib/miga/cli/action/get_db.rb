@@ -3,6 +3,7 @@
 
 require 'miga/cli/action'
 require 'net/ftp'
+require 'digest/md5'
 
 class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
@@ -12,7 +13,8 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
       version: :latest,
       local: File.expand_path('.miga_db', ENV['MIGA_HOME']),
       host: 'ftp://microbial-genomes.org/db',
-      pb: true
+      pb: true,
+      overwrite: true
     }
     cli.parse do |opt|
       opt.on(
@@ -39,6 +41,10 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
         '--list-versions',
         'List available versions of the database and exit'
       ) { |v| cli[:list_versions] = v }
+      opt.on(
+        '--no-overwrite',
+        'Exit without downloading if the target database already exists'
+      ) { |v| cli[:overwrite] = v }
       opt.on('--no-progress', 'Supress progress bars') { |v| cli[:pb] = v }
     end
   end
@@ -52,11 +58,11 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     db = db_requested(manif)
     list_versions(db) and return
     ver = version_requested(db)
-    cli.puts "# Database size: #{version_size(ver)}"
+    check_target and return
     file = download_file(@ftp, ver[:path])
-    # TODO: Check MD5 digest
-    # TODO: Unpack
-    # TODO: Register
+    check_digest(ver, file)
+    unarchive(file)
+    register_database(manif, db, ver)
   end
 
   def empty_action
@@ -85,15 +91,11 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     Dir.mkdir(cli[:local]) unless Dir.exist? cli[:local]
     file = File.expand_path(path, cli[:local])
     filesize = ftp.size(path)
-    cli.print(" " * 100, "|\r") if cli[:pb]
     transferred = 0
-    last_compl = -1
     ftp.getbinaryfile(path, file, 1024) do |data|
       if cli[:pb]
         transferred += data.size
-        compl = ((transferred.to_f/filesize.to_f)*100).to_i
-        cli.print("=" * compl.to_i, "> #{compl}%\r") if compl > last_compl
-        last_compl = compl
+        cli.advance("#{path}:", transferred, filesize)
       end
     end
     cli.print "\n" if cli[:pb]
@@ -106,9 +108,11 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   end
 
   def db_requested(manif)
-    if cli[:database] == :recommended
-      raise 'This host has no recommended database' if manif[:recommended].nil?
-      cli[:database] = manif[:recommended].to_sym
+    [:recommended, :test].each do |n|
+      if cli[:database] == n
+        raise "This host has no #{n} database" if manif[n].nil?
+        cli[:database] = manif[n].to_sym
+      end
     end
     db = manif[:databases][cli[:database]]
     raise 'Cannot find database in this host' if db.nil?
@@ -121,6 +125,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     end
     ver = db[:versions][cli[:version]]
     raise 'Cannot find database version' if ver.nil?
+    cli.puts "# Database size: #{version_size(ver)}"
     ver
   end
 
@@ -150,7 +155,52 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     true
   end
 
+  def check_target
+    return false if cli[:overwrite]
+    file = File.expand_path(cli[:database], cli[:local])
+    if Dir.exist? file
+      warn "The target directory already exists: #{file}"
+      true
+    else
+      false
+    end
+  end
+
+  def check_digest(ver, file)
+    cli.say 'Checking MD5 digest'
+    cli.say "Expected: #{ver[:MD5]}"
+    md5 = Digest::MD5.new
+    File.open(file, 'rb') do |fh|
+      until fh.eof?
+        md5.update fh.read(1024)
+      end
+    end
+    dig = md5.hexdigest
+    cli.say "Observed: #{dig}"
+    raise 'Corrupt file, MD5 does not match' unless dig == ver[:MD5]
+  end
+
   def version_size(ver)
-    '%.1fGb' % (ver[:size].to_f/1e9)
+    cli.num_suffix(ver[:size], true) + ' (' +
+      cli.num_suffix(ver[:size_unarchived], true) + ')'
+  end
+
+  def unarchive(file)
+    cli.say "Unarchiving #{file}"
+    `cd "#{cli[:local]}" && tar -zxf "#{file}"`
+  end
+
+  def register_database(manif, db, ver)
+    cli.say "Registering database locally"
+    local_manif = File.expand_path('_local_manif.json', cli[:local])
+    reg = File.exist?(local_manif) ? MiGA::Json.parse(local_manif) : {}
+    reg[:last_update] = Time.now.to_s
+    reg[:databases] ||= {}
+    reg[:databases][cli[:database]] ||= {}
+    reg[:databases][cli[:database]][:manif_last_update] = manif[:last_update]
+    reg[:databases][cli[:database]][:manif_host] = manif[:host]
+    db.each { |k,v| reg[:databases][cli[:database]][k] = v }
+    reg[:databases][cli[:database]][:local_version] = ver
+    MiGA::Json.generate(reg, local_manif)
   end
 end

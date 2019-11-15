@@ -112,12 +112,29 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Reports the advance of a task at +step+ (String), the +n+ out of +total+
+  # Reports the advance of a task at +step+ (String), the +n+ out of +total+.
+  # The advance is reported in powers of 1,024 if +bin+ is true, or powers of
+  # 1,000 otherwise.
   # The report goes to $stderr iff --verborse
-  def advance(step, n = 0, total = nil)
+  def advance(step, n = 0, total = nil, bin = true)
     return unless self[:verbose]
-    adv = total.nil? ? '' : ('%.1f%% (%d/%d)' % [n/total, n, total])
+    adv = total.nil? ? '' :
+      ('%.1f%% (%s/%s)' % [100 * n / total,
+        num_suffix(n, bin), num_suffix(total, bin)])
     $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
+  end
+
+  def num_suffix(n, bin = false)
+    p = ''
+    {T: 4, G: 3, M: 2, K: 1}.each do |k,x|
+      v = (bin ? 1024 : 1e3) ** x
+      if n > v
+        n = '%.1f' % (n / v)
+        p = k
+        break
+      end
+    end
+    "#{n}#{p}"
   end
 
   ##
