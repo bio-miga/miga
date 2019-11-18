@@ -53,6 +53,21 @@ module MiGA::Cli::Action::Wf
     ) { |v| cli[:threads] = v.to_i }
   end
 
+  def opts_for_wf_distances(opt)
+    opt.on(
+      '--haai-p STRING',
+      'hAAI search engine. One of: blast+ (default), blat, diamond, no'
+    ) { |v| cli[:haai_p] = v }
+    opt.on(
+      '--aai-p STRING',
+      'AAI search engine. One of: blast+ (default), blat, diamond'
+    ) { |v| cli[:aai_p] = v }
+    opt.on(
+      '--ani-p STRING',
+      'ANI search engine. One of: blast+ (default), blat, fastani'
+    ) { |v| cli[:ani_p] = v }
+  end
+
   def create_project(stage)
     cli.ensure_par(
       outdir: '-o',
@@ -70,6 +85,10 @@ module MiGA::Cli::Action::Wf
     ] + cli.files)
     p = MiGA::Project.load(cli[:outdir])
     raise "Impossible to create project: #{cli[:outdir]}" if p.nil?
+    [:haai_p, :aai_p, :ani_p].each do |i|
+      p.metadata[i] = cli[i] unless cli[i].nil?
+    end
+    p.save
     p
   end
 
