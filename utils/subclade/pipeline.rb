@@ -4,7 +4,10 @@ module MiGA::SubcladeRunner::Pipeline
 
   # Run species-level clusterings using ANI > 95% / AAI > 90%
   def cluster_species
-    tasks = {ani95: [:ani_distances, 95.0], aai90: [:aai_distances, 90.0]}
+    tasks = {
+      ani95: [:ani_distances, opts[:gsp_ani], :ani],
+      aai90: [:aai_distances, opts[:gsp_aai], :aai]
+    }
     tasks.each do |k, par|
       # Final output
       ogs_file = "miga-project.#{k}-clades"
@@ -30,16 +33,20 @@ module MiGA::SubcladeRunner::Pipeline
         end
       end
       File.unlink "#{ogs_file}.tmp"
+      if par[2].to_s == opts[:gsp_metric]
+        FileUtils.cp(ogs_file, "miga-project.gsp-clades")
+      end
     end
 
-    # Find species medoids
+    # Find genomospecies medoids
     src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
-    `Rscript '#{src}' ../../09.distances/03.ani/miga-project.Rdata \
-      miga-project.ani95-medoids miga-project.ani95-clades`
+    dir = opts[:gsp_metric] == 'aai' ? '02.aai' : '03.ani'
+    `Rscript '#{src}' ../../09.distances/#{dir}/miga-project.Rdata \
+      miga-project.gsp-medoids miga-project.gsp-clades`
 
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
-    File.open('miga-project.ani95-clades', 'r') do |ifh|
+    File.open('miga-project.gsp-clades', 'r') do |ifh|
       ifh.each_line do |ln|
         next if $.==1
         r = ln.chomp.split(',')

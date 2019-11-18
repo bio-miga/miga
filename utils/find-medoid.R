@@ -5,12 +5,12 @@
 #
 
 #= Load stuff
-argv <- commandArgs(trailingOnly=T)
+argv <- commandArgs(trailingOnly = T)
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(enveomics.R))
 
 find_medoids <- function(ani.df, out, clades) {
-  if(nrow(ani.df)==0) return(NULL)
+  if(nrow(ani.df) == 0) return(NULL)
   ani.df$d <- 1 - (ani.df$value/100)
   dist <- enve.df2dist(ani.df, 'a', 'b', 'd', default.d = max(ani.df$d)*1.2)
   dist <- as.matrix(dist)
@@ -31,5 +31,6 @@ find_medoids <- function(ani.df, out, clades) {
 
 #= Main
 load(argv[1])
+if(! exists('ani')) ani <- aai
 find_medoids(ani.df = ani, out = argv[2], clades = argv[3])
 

@@ -110,7 +110,8 @@ module MiGA::Project::Result
       r.add_file(:proposal,      'miga-project.proposed-clades')
       r.add_file(:clades_aai90,  'miga-project.aai90-clades')
       r.add_file(:clades_ani95,  'miga-project.ani95-clades')
-      r.add_file(:medoids_ani95, 'miga-project.ani95-medoids')
+      r.add_file(:clades_gsp,  'miga-project.gsp-clades')
+      r.add_file(:medoids_gsp, 'miga-project.gsp-medoids')
       r
     end
 

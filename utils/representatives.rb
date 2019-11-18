@@ -9,9 +9,11 @@ proj_path = ARGV.shift or raise "Usage: #{$0} path/to/project"
 p = MiGA::Project.load(proj_path) or
   raise "Cannot load project: #{proj_path}"
 pr = p.result(:clade_finding) or
-  raise "Unavailable result: clade_finding"
-pf = pr.file_path(:clades_ani95) or
-  raise "Unavailable result file: clades_ani95"
+  raise 'Unavailable result: clade_finding'
+if (pf = pr.file_path(:clades_gsp)).nil?
+  pf = pr.file_path(:clades_ani95) or
+    raise 'Unavailable result files: clades_gsp and clades_ani95'
+end
 
 # Read ANIspp
 ani_spp = []

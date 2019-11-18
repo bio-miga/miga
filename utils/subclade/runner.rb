@@ -20,6 +20,9 @@ class MiGA::SubcladeRunner
           clades_dir)
     @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
     @opts[:run_clades] = @project.metadata.data.fetch(:run_clades) { true }
+    @opts[:gsp_ani] = @project.metadata.data.fetch(:gsp_ani) { 95.0 }
+    @opts[:gsp_aai] = @project.metadata.data.fetch(:gsp_aai) { 90.0 }
+    @opts[:gsp_metric] = @project.metadata.data.fetch(:gsp_metric) { 'ani' }
   end
 
   # Launch the appropriate analysis
