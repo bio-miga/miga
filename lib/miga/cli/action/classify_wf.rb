@@ -1,0 +1,99 @@
+# @package MiGA
+# @license Artistic-2.0
+
+require 'miga/cli/action'
+
+class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
+  require 'miga/cli/action/wf'
+  include MiGA::Cli::Action::Wf
+
+  def parse_cli
+    default_opts_for_wf
+    cli.defaults = {
+      download: false, summaries: true, pvalue: 0.05,
+      local: File.expand_path('.miga_db', ENV['MIGA_HOME'])
+    }
+    cli.parse do |opt|
+      opt.on(
+        '--download-db',
+        'Attempt to download the reference database (all default options)',
+        'It is recommended to use "miga get_db" separately instead'
+      ) { |v| cli[:download] = v }
+      opt.on(
+        '-n', '--database STRING',
+        'Name of the reference database to use',
+        'By default, the first locally listed database is used'
+      ) { |v| cli[:database] = v.to_sym }
+      opt.on(
+        '-p', '--p-value FLOAT', Float,
+        'Maximum p-value to transfer taxonomy',
+        "By default: #{cli[:pvalue]}"
+      ) { |v| cli[:pvalue] = v }
+      opt.on(
+        '-l', '--local-dir PATH',
+        "Local directory to store the database. By default: #{cli[:local]}"
+      ) { |v| cli[:local] = v }
+      opt.on(
+        '--no-summaries',
+        'Do not generate intermediate step summaries'
+      ) { |v| cli[:summaries] = v }
+      opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)')
+    end
+  end
+
+  def perform
+    # Reference DB
+    ref_db = reference_db
+    # Input data
+    p = create_project(:assembly)
+    # Customize pipeline
+    p.each_dataset do |d|
+      d.metadata[:run_ssu] = false
+      d.metadata[:run_mytaxa_scan] = false
+      d.metadata[:run_distances] = false
+      d.save
+    end
+    %w[
+      project_stats haai_distances aai_distances ani_distances clade_finding
+    ].each { |r| p.metadata["run_#{r}"] = false }
+    p.metadata[:ref_project] = ref_db.path
+    p.metadata[:tax_pvalue] = cli[:pvalue]
+    p.save
+    # Run
+    run_daemon
+    # Summarize
+    summarize(%w[cds assembly essential_genes]) if cli[:summaries]
+    summarize(['taxonomy'])
+    cli.say "Summary: classification"
+    call_cli([
+      'ls', '-P', cli[:outdir], '-m', 'tax', '--tab',
+      '-o', File.expand_path('classification.tsv', cli[:outdir])
+    ])
+    cleanup
+  end
+  
+  private
+
+  def reference_db
+    cli.say "Locating reference database"
+    if cli[:download]
+      get_db_call  = ['get_db', '-l', cli[:local]]
+      get_db_call += ['-n', cli[:database]] unless cli[:database].nil?
+      call_cli(get_db_call)
+    end
+    if cli[:database].nil?
+      lm_f = File.expand_path('_local_manif.json', cli[:local])
+      unless File.size? lm_f
+        raise 'No locally listed databases, call "miga get_db" first'
+      end
+      cli[:database] = MiGA::Json.parse(lm_f)[:databases].keys.first
+    end
+    cli.say "Reference database: #{cli[:database]}"
+    ref_db_path = File.expand_path(cli[:database].to_s, cli[:local])
+    ref_db = MiGA::Project.load(ref_db_path)
+    if ref_db.nil?
+      raise "Impossible to locate reference database: #{ref_db_path}"
+    end
+    ref_db
+  end
+end
