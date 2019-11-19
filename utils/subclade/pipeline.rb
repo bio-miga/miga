@@ -26,13 +26,17 @@ module MiGA::SubcladeRunner::Pipeline
       end
       ofh.close
       # Cluster genomes
-      `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
-      File.open(ogs_file, 'w') do |fh|
-        File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
-          fh.puts ln if lno > 0
+      if File.size? abc_path
+        `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
+        File.open(ogs_file, 'w') do |fh|
+          File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
+            fh.puts ln if lno > 0
+          end
         end
+        File.unlink "#{ogs_file}.tmp"
+      else
+        FileUtils.touch ogs_file
       end
-      File.unlink "#{ogs_file}.tmp"
       if par[2].to_s == opts[:gsp_metric]
         FileUtils.cp(ogs_file, "miga-project.gsp-clades")
       end

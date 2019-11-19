@@ -9,6 +9,7 @@ cd "$PROJECT/data/07.annotation/01.function/01.essential"
 # Initialize
 miga date > "${DATASET}.start"
 FAA="../../../06.cds/${DATASET}.faa"
+[[ -s "$FAA" ]] || FAA="${FAA}.gz"
 
 # Check if there are any proteins
 if [[ ! -s $FAA ]] ; then
