@@ -6,21 +6,21 @@ require 'miga/cli/action'
 class MiGA::Cli::Action::Stats < MiGA::Cli::Action
 
   def parse_cli
-    cli.defaults = {try_load: false}
+    cli.defaults = { try_load: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt, :result])
       opt.on(
         '--key STRING',
         'Return only the value of the requested key'
-        ){ |v| cli[:key] = v }
+      ) { |v| cli[:key] = v }
       opt.on(
         '--compute-and-save',
         'Compute and saves the statistics'
-        ){ |v| cli[:compute] = v }
+      ) { |v| cli[:compute] = v }
       opt.on(
         '--try-load',
         'Check if stat exists instead of computing on --compute-and-save'
-        ){ |v| cli[:try_load] = v }
+      ) { |v| cli[:try_load] = v }
     end
   end
 
@@ -38,9 +38,9 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
       end
     end
     if cli[:key].nil?
-      r[:stats].each do |k,v|
-        cli.puts "#{k==:g_c_content ? 'G+C content' : k.to_s.unmiga_name.capitalize}: #{
-          v.is_a?(Array) ? v.join(' ') : v}."
+      r[:stats].each do |k, v|
+        k_n = k == :g_c_content ? 'G+C content' : k.to_s.unmiga_name.capitalize
+        cli.puts "#{k_n}: #{v.is_a?(Array) ? v.join(' ') : v}"
       end
     else
       v = r[:stats][cli[:key].downcase.miga_name.to_sym]
