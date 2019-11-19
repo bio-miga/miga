@@ -28,7 +28,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
   end
 
   def configure_bash_daemon(v)
-    v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '10').to_i
+    v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '2').to_i
     v[:maxjobs] = cli.ask_user('How many jobs can I launch at once?', '6').to_i
     v[:ppn]     = cli.ask_user('How many CPUs can I use per job?', '2').to_i
     cli.puts 'Setting up internal daemon defaults.'

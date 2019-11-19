@@ -47,7 +47,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       opt.on(
         '-i', '--input-type STRING',
         'Type of input data, one of the following:',
-        *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}." }
+        *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}" }
       ) { |v| cli[:input_type] = v.downcase.to_sym }
       opt.on(
         '--ignore-dups',

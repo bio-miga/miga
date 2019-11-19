@@ -11,19 +11,21 @@ module MiGA::Cli::Action::Wf
       project_type: :genomes, dataset_type: :popgenome }
   end
 
-  def opts_for_wf(opt, files_desc)
+  def opts_for_wf(opt, files_desc, multi = false, cleanup = true)
     opt.on(
       '-o', '--out_dir PATH',
-      'Directory to be created with all output data'
+      '(Mandatory) Directory to be created with all output data'
     ) { |v| cli[:outdir] = v }
     opt.separator ''
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
     opt.separator 'Workflow Control Options'
-    opt.on(
-      '-c', '--clean',
-      'Clean all intermediate files after generating the reports'
-    ) { |v| cli[:clean] = v }
+    if cleanup
+      opt.on(
+        '-c', '--clean',
+        'Clean all intermediate files after generating the reports'
+      ) { |v| cli[:clean] = v }
+    end
     opt.on(
       '-R', '--name-regexp REGEXP', Regexp,
       'Regular expression indicating how to extract the name from the path',
@@ -34,7 +36,7 @@ module MiGA::Cli::Action::Wf
       "Type of datasets. By default: #{cli[:dataset_type]}",
       'Recognized types include:',
       *MiGA::Dataset.KNOWN_TYPES
-        .map { |k, v| "~ #{k}: #{v[:description]}" unless v[:multi] }
+        .map { |k, v| "~ #{k}: #{v[:description]}" unless !multi && v[:multi] }
     ) { |v| cli[:dataset_type] = v.downcase.to_sym }
     opt.on(
       '--daemon PATH',
