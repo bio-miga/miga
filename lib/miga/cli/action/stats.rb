@@ -169,4 +169,20 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
     end
     stats
   end
+
+  def compute_taxonomy(r)
+    stats = {}
+    File.open(r.file_path(:intax_test), 'r') do |fh|
+      fh.gets.chomp =~ /Closest relative: (\S+) with AAI: (\S+)\.?/
+      stats[:closest_relative] = $1
+      stats[:aai] = [$2.to_f, '%']
+      3.times { fh.gets }
+      fh.each_line do |ln|
+        row = ln.chomp.gsub(/^\s*/,'').split(/\s+/)
+        break if row.empty?
+        stats[:"#{row[0]}_pvalue"] = row[2].to_f unless row[0] == 'root'
+      end
+    end
+    stats
+  end
 end

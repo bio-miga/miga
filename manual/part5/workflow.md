@@ -341,7 +341,16 @@ Supported file keys:
   the query dataset
 * `ref_tree_pdf`: PDF rendering of `ref_tree`
 
-MiGA symbol: `taxonomy`.
+Statistics:
+
+* `closest_relative`: Name of the reference dataset with highest AAI
+* `aai`: AAI to the closest relative
+* `domain_pvalue`, `phylum_pvalue`, `class_pvalue`, `order_pvalue`,
+  `family_pvalue`, `genus_pvalue`, `species_pvalue`, `subspecies_pvalue`:
+  Empirical p-values for classification at each rank with respect to the closest
+  relative, based on the observed AAI
+
+MiGA symbol: `taxonomy`
 
 ## Stats
 
