@@ -161,7 +161,7 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
       fh.each_line do |ln|
         next if ln =~ /^#/
         rl = ln.chomp.split("\t")
-        len = (r[4].to_i - r[3].to_i).abs + 1
+        len = (rl[4].to_i - rl[3].to_i).abs + 1
         stats[:max_length] = [stats[:max_length] || 0, len].max
         stats[:ssu] += 1
         stats[:complete_ssu] += 1 unless rl[8] =~ /\(partial\)/
