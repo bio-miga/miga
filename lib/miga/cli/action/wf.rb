@@ -92,6 +92,27 @@ module MiGA::Cli::Action::Wf
     p
   end
 
+  def summarize(which = %w[cds assembly essential_genes ssu])
+    which.each do |r|
+      cli.say "Summary: #{r}"
+      call_cli([
+        'summary',
+        '-P', cli[:outdir],
+        '-r', r,
+        '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
+        '--tab'
+      ])
+    end
+  end
+
+  def cleanup
+    return unless cli[:clean]
+    cli.say "Cleaning up intermediate files"
+    %w[data daemon metadata miga.project.json].each do |f|
+      FileUtils.rm_rf(File.expand_path(f, cli[:outdir]))
+    end
+  end
+
   def call_cli(cmd)
     cmd << '-v' if cli[:verbose]
     MiGA::Cli.new(cmd.map(&:to_s)).launch

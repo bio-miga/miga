@@ -50,6 +50,7 @@ module MiGA::Cli::Base
     # Projects
     create_project: :new,
     project_info: :about,
+    download: :get_db,
     # Datasets
     create_dataset: :add,
     download_dataset: :get,

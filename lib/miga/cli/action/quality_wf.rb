@@ -35,15 +35,7 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
     # Run
     run_daemon
     # Summarize
-    %w[cds assembly essential_genes ssu].each do |r|
-      call_cli([
-        'summary',
-        '-P', cli[:outdir],
-        '-r', r,
-        '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
-        '--tab'
-      ])
-    end
+    summarize
     if cli[:mytaxa]
       dir = File.expand_path('mytaxa_scan', cli[:outdir])
       Dir.mkdir(dir)
@@ -53,11 +45,6 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
         FileUtils.cp(f, dir)
       end
     end
-    # Cleanup (if --clean)
-    if cli[:clean]
-      %w[data daemon metadata miga.project.json].each do |f|
-        FileUtils.rm_rf(File.expand_path(f, cli[:outdir]))
-      end
-    end
+    cleanup
   end
 end

@@ -62,23 +62,8 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
     run_daemon
     dereplicate(p)
     # Summarize
-    if cli[:summaries]
-      %w[cds assembly essential_genes].each do |r|
-        call_cli([
-          'summary',
-          '-P', cli[:outdir],
-          '-r', r,
-          '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
-          '--tab'
-        ])
-      end
-    end
-    # Cleanup (if --clean)
-    if cli[:clean]
-      %w[data daemon metadata miga.project.json].each do |f|
-        FileUtils.rm_rf(File.expand_path(f, cli[:outdir]))
-      end
-    end
+    summarize(%w[cds assembly essential_genes]) if cli[:summaries]
+    cleanup
   end
 
   private
