@@ -43,25 +43,16 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
 
   def perform
     # Input data
-    p = create_project(:assembly)
+    p = create_project(:assembly,
+      { run_project_stats: false, run_clades: false,
+        gsp_metric: cli[:metric], :"gsp_#{cli[:metric]}" => cli[:threshold] },
+      { run_mytaxa_scan: false, run_ssu: false })
     unless cli[:threshold] >= 0.0 && cli[:threshold] <= 100.0
       raise "The threshold of identity must be in the range [0,100]"
     end
-    # Customize pipeline
-    p.each_dataset do |d|
-      d.metadata[:run_mytaxa_scan] = false
-      d.metadata[:run_ssu] = false
-      d.save
-    end
-    p.metadata[:run_project_stats] = false
-    p.metadata[:run_clades] = false
-    p.metadata[:gsp_metric] = cli[:metric]
-    p.metadata["gsp_#{cli[:metric]}"] = cli[:threshold]
-    p.save
     # Run
     run_daemon
     dereplicate(p)
-    # Summarize
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
     cleanup
   end

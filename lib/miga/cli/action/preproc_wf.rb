@@ -21,30 +21,26 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
         '-m', '--mytaxa_scan',
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
-      opts_for_wf(opt, 'Input files as defined by --input-type', true, false)
+      opts_for_wf(opt, 'Input files as defined by --input-type',
+        multi: true, cleanup: false)
     end
   end
 
   def perform
     # Input data
     cli.ensure_par(input_type: '-i')
-    p = create_project(cli[:input_type])
-    # Customize pipeline
-    p.each_dataset do |d|
-      unless cli[:mytaxa]
-        d.metadata[:run_mytaxa_scan] = false
-        d.metadata[:run_mytaxa] = false
-      end
-      d.metadata[:run_distances] = false
-      d.save
+    p_metadata = Hash[
+      %w[project_stats haai_distances aai_distances ani_distances clade_finding]
+        .map { |i| ["run_#{i}", false] }
+    ]
+    d_metadata = { run_distances: false }
+    unless cli[:mytaxa]
+      d_metadata[:run_mytaxa_scan] = false
+      d_metadata[:run_mytaxa] = false
     end
-    %w[
-      project_stats haai_distances aai_distances ani_distances clade_finding
-    ].each { |r| p.metadata["run_#{r}"] = false }
-    p.save
+    p = create_project(cli[:input_type], p_metadata, d_metadata)
     # Run
     run_daemon
-    # Summarize
     summarize
   end
 end

@@ -42,26 +42,18 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
   end
 
   def perform
-    # Reference DB
-    ref_db = reference_db
     # Input data
-    p = create_project(:assembly)
-    # Customize pipeline
-    p.each_dataset do |d|
-      d.metadata[:run_ssu] = false
-      d.metadata[:run_mytaxa_scan] = false
-      d.metadata[:run_distances] = false
-      d.save
-    end
-    %w[
-      project_stats haai_distances aai_distances ani_distances clade_finding
-    ].each { |r| p.metadata["run_#{r}"] = false }
-    p.metadata[:ref_project] = ref_db.path
-    p.metadata[:tax_pvalue] = cli[:pvalue]
-    p.save
+    ref_db = reference_db
+    p_metadata = Hash[
+      %w[project_stats haai_distances aai_distances ani_distances clade_finding]
+        .map { |i| ["run_#{i}", false] }
+    ]
+    p_metadata[:ref_project] = ref_db.path
+    p_metadata[:tax_pvalue] = cli[:pvalue]
+    p = create_project(:assembly, p_metadata,
+      run_ssu: false, run_mytaxa_scan: false, run_distances: false)
     # Run
     run_daemon
-    # Summarize
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
     summarize(['taxonomy'])
     cli.say "Summary: classification"

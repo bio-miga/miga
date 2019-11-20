@@ -21,20 +21,15 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
 
   def perform
     # Input data
-    p = create_project(:assembly)
-    # Customize pipeline
-    p.each_dataset do |d|
-      d.metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]
-      d.metadata[:run_distances] = false
-      d.save
-    end
-    %w[
-      project_stats haai_distances aai_distances ani_distances clade_finding
-    ].each { |r| p.metadata["run_#{r}"] = false }
-    p.save
+    p_metadata = Hash[
+      %w[project_stats haai_distances aai_distances ani_distances clade_finding]
+        .map { |i| ["run_#{i}", false] }
+    ]
+    d_metadata = { run_distances: false }
+    d_metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]
+    p = create_project(:assembly, p_metadata, d_metadata)
     # Run
     run_daemon
-    # Summarize
     summarize
     if cli[:mytaxa]
       dir = File.expand_path('mytaxa_scan', cli[:outdir])

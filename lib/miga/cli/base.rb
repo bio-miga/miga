@@ -10,7 +10,7 @@ module MiGA::Cli::Base
     derep_wf:    'Dereplicate a collection of input genomes',
     classify_wf: 'Classify input genomes against a reference database',
     preproc_wf:  'Preprocess input genomes or metagenomes',
-    dist_wf:     'Estimate distances between input genomes',
+    index_wf:    'Generate distance indexing of input genomes',
     # Projects
     new:      'Creates an empty MiGA project',
     about:    'Displays information about a MiGA project',

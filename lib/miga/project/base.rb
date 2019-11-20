@@ -76,13 +76,13 @@ module MiGA::Project::Base
   # Supported types of projects.
   @@KNOWN_TYPES = {
     mixed: {
-      description: "Mixed collection of genomes, metagenomes, and viromes.",
+      description: "Mixed collection of genomes, metagenomes, and viromes",
       single: true, multi: true},
-    genomes: {description: "Collection of genomes.",
+    genomes: {description: "Collection of genomes",
       single: true, multi: false},
-    clade: {description: "Collection of closely-related genomes (ANI >= 90%).",
+    clade: {description: "Collection of closely-related genomes (ANI >= 90%)",
       single: true, multi: false},
-    metagenomes: {description: "Collection of metagenomes and/or viromes.",
+    metagenomes: {description: "Collection of metagenomes and/or viromes",
       single: false, multi: true}
   }
 

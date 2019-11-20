@@ -11,7 +11,10 @@ module MiGA::Cli::Action::Wf
       project_type: :genomes, dataset_type: :popgenome }
   end
 
-  def opts_for_wf(opt, files_desc, multi = false, cleanup = true)
+  def opts_for_wf(opt, files_desc, params = {})
+    { multi: false, cleanup: true, project_type: false }.each do |k, v|
+      params[k] = v if params[k].nil?
+    end
     opt.on(
       '-o', '--out_dir PATH',
       '(Mandatory) Directory to be created with all output data'
@@ -20,7 +23,7 @@ module MiGA::Cli::Action::Wf
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
     opt.separator 'Workflow Control Options'
-    if cleanup
+    if params[:cleanup]
       opt.on(
         '-c', '--clean',
         'Clean all intermediate files after generating the reports'
@@ -32,12 +35,25 @@ module MiGA::Cli::Action::Wf
       "By default: '#{cli[:regexp]}'"
     ) { |v| cli[:regexp] = v }
     opt.on(
-      '-t', '--type STRING',
+      '--type STRING',
       "Type of datasets. By default: #{cli[:dataset_type]}",
-      'Recognized types include:',
+      'Recognized types:',
       *MiGA::Dataset.KNOWN_TYPES
-        .map { |k, v| "~ #{k}: #{v[:description]}" unless !multi && v[:multi] }
+        .map do |k, v|
+          "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
+        end
     ) { |v| cli[:dataset_type] = v.downcase.to_sym }
+    if params[:project_type]
+      opt.on(
+        '--project-type STRING',
+        "Type of project. By default: #{cli[:project_type]}",
+        'Recognized types:',
+        *MiGA::Project.KNOWN_TYPES
+          .map do |k, v|
+            "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
+          end
+      ) { |v| cli[:project_type] = v.downcase.to_sym }
+    end
     opt.on(
       '--daemon PATH',
       'Use custom daemon configuration in JSON format',
@@ -56,6 +72,10 @@ module MiGA::Cli::Action::Wf
   end
 
   def opts_for_wf_distances(opt)
+    opt.on('--fast', 'Alias to: --aai-p diamond --ani-p fastani') do
+      cli[:aai_p] = 'diamond'
+      cli[:ani_p] = 'fastani'
+    end
     opt.on(
       '--haai-p STRING',
       'hAAI search engine. One of: blast+ (default), blat, diamond, no'
@@ -70,20 +90,26 @@ module MiGA::Cli::Action::Wf
     ) { |v| cli[:ani_p] = v }
   end
 
-  def create_project(stage)
+  def create_project(stage, p_metadata = {}, d_metadata = {})
     cli.ensure_par(
       outdir: '-o',
       project_type: '--project-type',
       dataset_type: '--dataset-type')
     # Create empty project
-    call_cli(['new', '-P', cli[:outdir], '-t', cli[:project_type]])
+    call_cli([
+      'new',
+      '-P', cli[:outdir],
+      '-t', cli[:project_type],
+      '-m', p_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
+    ])
     # Add datasets
     call_cli([
       'add',
       '-P', cli[:outdir],
       '-t', cli[:dataset_type],
       '-i', stage,
-      '-R', cli[:regexp]
+      '-R', cli[:regexp],
+      '-m', d_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
     ] + cli.files)
     p = MiGA::Project.load(cli[:outdir])
     raise "Impossible to create project: #{cli[:outdir]}" if p.nil?
