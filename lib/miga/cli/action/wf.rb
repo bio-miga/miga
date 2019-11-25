@@ -8,13 +8,14 @@ module MiGA::Cli::Action::Wf
     cli.expect_files = true
     cli.defaults = {
       clean: false, regexp: MiGA::Cli.FILE_REGEXP,
-      project_type: :genomes, dataset_type: :popgenome }
+      project_type: :genomes, dataset_type: :popgenome,
+      ncbi_draft: true }
   end
 
   def opts_for_wf(opt, files_desc, params = {})
-    { multi: false, cleanup: true, project_type: false }.each do |k, v|
-      params[k] = v if params[k].nil?
-    end
+    {
+      multi: false, cleanup: true, project_type: false, ncbi: true
+    }.each { |k, v| params[k] = v if params[k].nil? }
     opt.on(
       '-o', '--out_dir PATH',
       '(Mandatory) Directory to be created with all output data'
@@ -23,6 +24,16 @@ module MiGA::Cli::Action::Wf
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
     opt.separator 'Workflow Control Options'
+    if params[:ncbi]
+      opt.on(
+        '-T', '--ncbi-taxon STRING',
+        'Download all the genomes in NCBI classified as this taxon'
+      ) { |v| cli[:ncbi_taxon] = v }
+      opt.on(
+        '--no-draft',
+        'Only download complete genomes, not drafts'
+      ) { |v| cli[:ncbi_draft] = v }
+    end
     if params[:cleanup]
       opt.on(
         '-c', '--clean',
@@ -41,7 +52,7 @@ module MiGA::Cli::Action::Wf
       *MiGA::Dataset.KNOWN_TYPES
         .map do |k, v|
           "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
-        end
+        end.compact
     ) { |v| cli[:dataset_type] = v.downcase.to_sym }
     if params[:project_type]
       opt.on(
@@ -51,7 +62,7 @@ module MiGA::Cli::Action::Wf
         *MiGA::Project.KNOWN_TYPES
           .map do |k, v|
             "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
-          end
+          end.compact
       ) { |v| cli[:project_type] = v.downcase.to_sym }
     end
     opt.on(
@@ -102,6 +113,14 @@ module MiGA::Cli::Action::Wf
       '-t', cli[:project_type],
       '-m', p_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
     ])
+    # Download datasets
+    call_cli([
+      'ncbi_get',
+      '-P', cli[:outdir],
+      '-T', cli[:ncbi_taxon],
+      (cli[:ncbi_draft] ? '--all' : '--complete'),
+      '-m', d_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
+    ]) unless cli[:ncbi_taxon].nil?
     # Add datasets
     call_cli([
       'add',
@@ -110,7 +129,7 @@ module MiGA::Cli::Action::Wf
       '-i', stage,
       '-R', cli[:regexp],
       '-m', d_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
-    ] + cli.files)
+    ] + cli.files) unless cli.files.empty?
     p = MiGA::Project.load(cli[:outdir])
     raise "Impossible to create project: #{cli[:outdir]}" if p.nil?
     [:haai_p, :aai_p, :ani_p].each do |i|

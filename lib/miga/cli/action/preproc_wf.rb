@@ -22,7 +22,7 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
       opts_for_wf(opt, 'Input files as defined by --input-type',
-        multi: true, cleanup: false)
+        multi: true, cleanup: false, ncbi: false)
     end
   end
 

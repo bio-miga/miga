@@ -12,7 +12,7 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
     cli.defaults = { mytaxa: false }
     cli.parse do |opt|
       opt.on(
-        '-m', '--mytaxa_scan',
+        '-m', '--mytaxa-scan',
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
       opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)')
