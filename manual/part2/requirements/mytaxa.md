@@ -1,9 +1,10 @@
 # Installing the MyTaxa utils
 
 **The MyTaxa utilities are optional**, but without them the
-[MyTaxa](../part5/workflow.md#mytaxa) and
-[MyTaxa scan](../part5/workflow.md#mytaxa-scan) analyses are disabled. Note that
-MyTaxa requires about **15Gb** of disk available to store the database.
+[MyTaxa](../../part5/workflow.md#mytaxa) and
+[MyTaxa scan](../../part5/workflow.md#mytaxa-scan) analyses are disabled.
+Note that MyTaxa requires about **15Gb** of disk available to store the
+database.
 
 We will install the necessary software in `$HOME/apps`. You can change this
 directory if you prefer:

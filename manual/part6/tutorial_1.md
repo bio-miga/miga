@@ -44,13 +44,14 @@ miga add -P . -t popgenome -i assembly path/to/mags/*.fasta \
   -m run_mytaxa_scan=false,run_distances=false
 ```
 
-You can get more information on metadata flags [here](/part5/metadata#dataset),
-or read more about these steps: [MyTaxa Scan](/part5/workflow#mytaxa-scan) and
-[distances](/part5/workflow#distances).
+You can get more information on metadata flags
+[here](../part5/metadata.md#dataset),
+or read more about these steps: [MyTaxa Scan](../part5/workflow.md#mytaxa-scan)
+and [distances](../part5/workflow.md#distances).
 
 # 4. Launch daemon
 
-See [Launching Daemons](part4/daemons.md) for more details. The most common
+See [Launching Daemons](../part4/daemons.md) for more details. The most common
 case would be:
 
 ```bash
