@@ -34,6 +34,11 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
         "Local directory to store the database. By default: #{cli[:local]}"
       ) { |v| cli[:local] = v }
       opt.on(
+        '--db-path STRING',
+        'Path to the reference database to use, a fully indexed MiGA project',
+        'If defined, --local-dir and --database are ignored'
+      ) { |v| cli[:db_path] = v }
+      opt.on(
         '--no-summaries',
         'Do not generate intermediate step summaries'
       ) { |v| cli[:summaries] = v }
@@ -68,24 +73,25 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
 
   def reference_db
     cli.say "Locating reference database"
-    if cli[:download]
-      get_db_call  = ['get_db', '-l', cli[:local]]
-      get_db_call += ['-n', cli[:database]] unless cli[:database].nil?
-      call_cli(get_db_call)
-    end
-    if cli[:database].nil?
-      lm_f = File.expand_path('_local_manif.json', cli[:local])
-      unless File.size? lm_f
-        raise 'No locally listed databases, call "miga get_db" first'
+    ref_db_path = cli[:db_path]
+    if ref_db_path.nil?
+      if cli[:download]
+        get_db_call  = ['get_db', '-l', cli[:local]]
+        get_db_call += ['-n', cli[:database]] unless cli[:database].nil?
+        call_cli(get_db_call)
       end
-      cli[:database] = MiGA::Json.parse(lm_f)[:databases].keys.first
+      if cli[:database].nil?
+        lm_f = File.expand_path('_local_manif.json', cli[:local])
+        unless File.size? lm_f
+          raise 'No locally listed databases, call "miga get_db" first'
+        end
+        cli[:database] = MiGA::Json.parse(lm_f)[:databases].keys.first
+      end
+      ref_db_path = File.expand_path(cli[:database].to_s, cli[:local])
     end
-    cli.say "Reference database: #{cli[:database]}"
-    ref_db_path = File.expand_path(cli[:database].to_s, cli[:local])
     ref_db = MiGA::Project.load(ref_db_path)
-    if ref_db.nil?
-      raise "Impossible to locate reference database: #{ref_db_path}"
-    end
+    raise "Cannot locate reference database: #{ref_db_path}" if ref_db.nil?
+    cli.say "Reference database: #{ref_db.name}"
     ref_db
   end
 end
