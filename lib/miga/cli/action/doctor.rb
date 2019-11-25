@@ -104,6 +104,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         unless ok
           cli.say "  > Registering again #{d.name}:#{r_k}"
           d.add_result(r_k, true, force: true)
+          sr = d.result(:stats) and sr.remove!
         end
       end
     end
@@ -124,6 +125,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         end
       end
       d.add_result(:cds, true, force: true) if changed
+      sr = d.result(:stats) and sr.remove!
     end
   end
 
@@ -136,6 +138,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       if dir.nil?
         cli.say "  > Removing #{d.name}:essential_genes"
         res.remove!
+        sr = d.result(:stats) and sr.remove!
         next
       end
       next if Dir["#{dir}/*.faa"].empty?
