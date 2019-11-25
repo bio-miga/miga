@@ -84,7 +84,7 @@ class MiGA::RemoteDataset
       end
       doc
     end
-
+    
     ##
     # Looks for the entry +id+ in +dbfrom+, and returns the linked
     # identifier in +db+ (or nil).

@@ -75,39 +75,66 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Send +par+ to $stdout, ensuring new line at the end
+  # Print +par+, ensuring new line at the end.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stdout+
   def puts(*par)
-    $stdout.puts(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stdout
+    io.puts(*par)
   end
 
   ##
-  # Send +par+ to $stdout as is
+  # Print +par+.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stdout+
   def print(*par)
-    $stdout.print(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stdout
+    io.print(*par)
   end
 
   ##
-  # Display a table with headers +header+ and contents +values+, both Array
-  def table(header, values)
-    self.puts MiGA.tabulate(header, values, self[:tabular])
+  # Display a table with headers +header+ and contents +values+, both Array.
+  # The output is printed to +io+
+  def table(header, values, io = $stdout)
+    self.puts(io, MiGA.tabulate(header, values, self[:tabular]))
   end
 
   ##
-  # Send +par+ to $stderr (ensuring new line at the end), iff --verbose.
+  # Print +par+ ensuring new line at the end, iff --verbose.
   # Date/time each line.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stderr+
   def say(*par)
     return unless self[:verbose]
     par.map! { |i| "[#{Time.now}] #{i}" }
-    $stderr.puts(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stderr
+    io.puts(*par)
   end
 
   ##
-  # Reports the advance of a task at +step+ (String), the +n+ out of +total+
+  # Reports the advance of a task at +step+ (String), the +n+ out of +total+.
+  # The advance is reported in powers of 1,024 if +bin+ is true, or powers of
+  # 1,000 otherwise.
   # The report goes to $stderr iff --verborse
-  def advance(step, n = 0, total = nil)
+  def advance(step, n = 0, total = nil, bin = true)
     return unless self[:verbose]
-    adv = total.nil? ? '' : ('%.1f%% (%d/%d)' % [n/total, n, total])
+    adv = total.nil? ? '' :
+      ('%.1f%% (%s/%s)' % [100 * n / total,
+        num_suffix(n, bin), num_suffix(total, bin)])
     $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
+  end
+
+  def num_suffix(n, bin = false)
+    p = ''
+    {T: 4, G: 3, M: 2, K: 1}.each do |k,x|
+      v = (bin ? 1024 : 1e3) ** x
+      if n > v
+        n = '%.1f' % (n / v)
+        p = k
+        break
+      end
+    end
+    "#{n}#{p}"
   end
 
   ##

@@ -5,11 +5,18 @@ module MiGA::Cli::Base
 
   @@TASK_DESC = {
     generic:  'MiGA: The Microbial Genomes Atlas',
+    # Workflows
+    quality_wf:  'Evaluate the quality of input genomes',
+    derep_wf:    'Dereplicate a collection of input genomes',
+    classify_wf: 'Classify input genomes against a reference database',
+    preproc_wf:  'Preprocess input genomes or metagenomes',
+    index_wf:    'Generate distance indexing of input genomes',
     # Projects
     new:      'Creates an empty MiGA project',
     about:    'Displays information about a MiGA project',
     plugins:  'Lists or (un)installs plugins in a MiGA project',
     doctor:   'Performs consistency checks on a MiGA project',
+    get_db:   'Downloads a pre-indexed database',
     # Datasets
     add:      'Creates a dataset in a MiGA project',
     get:      'Downloads a dataset from public databases into a MiGA project',
@@ -43,6 +50,7 @@ module MiGA::Cli::Base
     # Projects
     create_project: :new,
     project_info: :about,
+    download: :get_db,
     # Datasets
     create_dataset: :add,
     download_dataset: :get,
@@ -76,6 +84,8 @@ module MiGA::Cli::Base
 
   @@EXECS = @@TASK_DESC.keys
 
+  @@FILE_REGEXP = %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?:\.f[nastq]+)?$}i
+
 end
 
 class MiGA::Cli < MiGA::MiGA
@@ -86,5 +96,6 @@ class MiGA::Cli < MiGA::MiGA
     def TASK_DESC; @@TASK_DESC end
     def TASK_ALIAS; @@TASK_ALIAS end
     def EXECS; @@EXECS end
+    def FILE_REGEXP; @@FILE_REGEXP end
   end
 end

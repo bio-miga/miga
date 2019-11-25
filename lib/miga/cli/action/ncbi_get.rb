@@ -20,6 +20,11 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '-T', '--taxon STRING',
         '(Mandatory unless --reference) Taxon name (e.g., a species binomial)'
       ) { |v| cli[:taxon] = v }
+      opt.on(
+        '-m', '--metadata STRING',
+        'Metadata as key-value pairs separated by = and delimited by comma',
+        'Values are saved as strings except for booleans (true / false) or nil'
+      ) { |v| cli[:metadata] = v }
       cli_task_flags(opt)
       cli_name_modifiers(opt)
       cli_filters(opt)
@@ -256,7 +261,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     else
       cli.say '  Creating dataset'
       rd.save_to(p, name, !cli[:query], body[:md])
-      p.add_dataset(name)
+      cli.add_metadata(p.add_dataset(name)).save
     end
   end
 end

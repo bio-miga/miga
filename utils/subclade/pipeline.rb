@@ -4,7 +4,10 @@ module MiGA::SubcladeRunner::Pipeline
 
   # Run species-level clusterings using ANI > 95% / AAI > 90%
   def cluster_species
-    tasks = {ani95: [:ani_distances, 95.0], aai90: [:aai_distances, 90.0]}
+    tasks = {
+      ani95: [:ani_distances, opts[:gsp_ani], :ani],
+      aai90: [:aai_distances, opts[:gsp_aai], :aai]
+    }
     tasks.each do |k, par|
       # Final output
       ogs_file = "miga-project.#{k}-clades"
@@ -23,23 +26,31 @@ module MiGA::SubcladeRunner::Pipeline
       end
       ofh.close
       # Cluster genomes
-      `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
-      File.open(ogs_file, 'w') do |fh|
-        File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
-          fh.puts ln if lno > 0
+      if File.size? abc_path
+        `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
+        File.open(ogs_file, 'w') do |fh|
+          File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
+            fh.puts ln if lno > 0
+          end
         end
+        File.unlink "#{ogs_file}.tmp"
+      else
+        FileUtils.touch ogs_file
       end
-      File.unlink "#{ogs_file}.tmp"
+      if par[2].to_s == opts[:gsp_metric]
+        FileUtils.cp(ogs_file, "miga-project.gsp-clades")
+      end
     end
 
-    # Find species medoids
+    # Find genomospecies medoids
     src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
-    `Rscript '#{src}' ../../09.distances/03.ani/miga-project.Rdata \
-      miga-project.ani95-medoids miga-project.ani95-clades`
+    dir = opts[:gsp_metric] == 'aai' ? '02.aai' : '03.ani'
+    `Rscript '#{src}' ../../09.distances/#{dir}/miga-project.Rdata \
+      miga-project.gsp-medoids miga-project.gsp-clades`
 
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')
-    File.open('miga-project.ani95-clades', 'r') do |ifh|
+    File.open('miga-project.gsp-clades', 'r') do |ifh|
       ifh.each_line do |ln|
         next if $.==1
         r = ln.chomp.split(',')
@@ -55,7 +66,7 @@ module MiGA::SubcladeRunner::Pipeline
     metric_res = project.result(step) or raise "Incomplete step #{step}"
     matrix = metric_res.file_path(:matrix)
     `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}' \
-      miga-project.ani95-medoids`
+      miga-project.ani95-medoids '#{opts[:run_clades] ? 'cluster' : 'empty'}'`
     File.rename('miga-project.nwk',"miga-project.#{metric}.nwk") if
           File.exist? 'miga-project.nwk'
   end

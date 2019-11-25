@@ -36,7 +36,9 @@ perl -pe 's/ID=([0-9]+_[0-9]+);/ID=gene_$1;/' "$DATASET.gff3" \
 mv "$DATASET.gff3.t" "$DATASET.gff3"
 
 # Gzip
-gzip -9 -f "$DATASET.gff3"
+for ext in gff3 faa fna ; do
+  [[ -e "$DATASET.$ext" ]] && gzip -9 -f "$DATASET.$ext"
+done
 
 # Finalize
 miga date > "$DATASET.done"

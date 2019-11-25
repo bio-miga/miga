@@ -9,7 +9,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     cli.expect_files = true
     cli.defaults = {
       ref: true, ignore_dups: false,
-      regexp: %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?i:\.f[nastq]+)?$}
+      regexp: MiGA::Cli.FILE_REGEXP
     }
     cli.parse do |opt|
       opt.separator 'You can create multiple datasets with a single command; ' \
@@ -47,7 +47,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       opt.on(
         '-i', '--input-type STRING',
         'Type of input data, one of the following:',
-        *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}." }
+        *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}" }
       ) { |v| cli[:input_type] = v.downcase.to_sym }
       opt.on(
         '--ignore-dups',

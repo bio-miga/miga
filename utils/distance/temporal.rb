@@ -1,5 +1,6 @@
 
 require 'tmpdir'
+require 'zlib'
 
 module MiGA::DistanceRunner::Temporal
 
@@ -9,7 +10,15 @@ module MiGA::DistanceRunner::Temporal
     rf.each do |res, file|
       r = dataset.result(res)
       f = r.nil? ? nil : r.file_path(file)
-      FileUtils.cp(f, tmp_file("#{file}.fa")) unless f.nil?
+      unless f.nil?
+        if f =~ /\.gz/
+          File.open(tmp_file("#{file}.fa"), 'w') do |ofh|
+            Zlib::GzipReader.open(f) { |ifh| ofh.print ifh.read }
+          end
+        else
+          FileUtils.cp(f, tmp_file("#{file}.fa"))
+        end
+      end
     end
   end
 

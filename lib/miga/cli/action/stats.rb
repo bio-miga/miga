@@ -6,21 +6,21 @@ require 'miga/cli/action'
 class MiGA::Cli::Action::Stats < MiGA::Cli::Action
 
   def parse_cli
-    cli.defaults = {try_load: false}
+    cli.defaults = { try_load: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt, :result])
       opt.on(
         '--key STRING',
         'Return only the value of the requested key'
-        ){ |v| cli[:key] = v }
+      ) { |v| cli[:key] = v }
       opt.on(
         '--compute-and-save',
         'Compute and saves the statistics'
-        ){ |v| cli[:compute] = v }
+      ) { |v| cli[:compute] = v }
       opt.on(
         '--try-load',
         'Check if stat exists instead of computing on --compute-and-save'
-        ){ |v| cli[:try_load] = v }
+      ) { |v| cli[:try_load] = v }
     end
   end
 
@@ -38,9 +38,9 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
       end
     end
     if cli[:key].nil?
-      r[:stats].each do |k,v|
-        cli.puts "#{k==:g_c_content ? 'G+C content' : k.to_s.unmiga_name.capitalize}: #{
-          v.is_a?(Array) ? v.join(' ') : v}."
+      r[:stats].each do |k, v|
+        k_n = k == :g_c_content ? 'G+C content' : k.to_s.unmiga_name.capitalize
+        cli.puts "#{k_n}: #{v.is_a?(Array) ? v.join(' ') : v}"
       end
     else
       v = r[:stats][cli[:key].downcase.miga_name.to_sym]
@@ -151,6 +151,37 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
         else         ; :low
       end
       d.save
+    end
+    stats
+  end
+
+  def compute_ssu(r)
+    stats = {ssu: 0, complete_ssu: 0}
+    Zlib::GzipReader.open(r.file_path(:gff)) do |fh|
+      fh.each_line do |ln|
+        next if ln =~ /^#/
+        rl = ln.chomp.split("\t")
+        len = (rl[4].to_i - rl[3].to_i).abs + 1
+        stats[:max_length] = [stats[:max_length] || 0, len].max
+        stats[:ssu] += 1
+        stats[:complete_ssu] += 1 unless rl[8] =~ /\(partial\)/
+      end
+    end
+    stats
+  end
+
+  def compute_taxonomy(r)
+    stats = {}
+    File.open(r.file_path(:intax_test), 'r') do |fh|
+      fh.gets.chomp =~ /Closest relative: (\S+) with AAI: (\S+)\.?/
+      stats[:closest_relative] = $1
+      stats[:aai] = [$2.to_f, '%']
+      3.times { fh.gets }
+      fh.each_line do |ln|
+        row = ln.chomp.gsub(/^\s*/,'').split(/\s+/)
+        break if row.empty?
+        stats[:"#{row[0]}_pvalue"] = row[2].to_f unless row[0] == 'root'
+      end
     end
     stats
   end

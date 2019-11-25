@@ -35,9 +35,9 @@ module MiGA::RemoteDataset::Base
   @@UNIVERSE = {
     web: {
       dbs: {
-        assembly: {stage: :assembly, format: :fasta},
-        assembly_gz: {stage: :assembly, format: :fasta_gz},
-        text: {stage: :metadata, format: :text}
+        assembly: { stage: :assembly, format: :fasta },
+        assembly_gz: { stage: :assembly, format: :fasta_gz },
+        text: { stage: :metadata, format: :text }
       },
       url: '%2$s',
       method: :net
@@ -59,8 +59,8 @@ module MiGA::RemoteDataset::Base
     },
     ncbi_map: {
       dbs: {
-        nuccore: {stage: :metadata, map_to: [:biosample, :assembly],
-          format: :json},
+        nuccore: { stage: :metadata, map_to: [:biosample, :assembly],
+          format: :json },
         biosample: {stage: :metadata, map_to: [:assembly], format: :json}
       },
       url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%4$s&retmode=%3$s",
