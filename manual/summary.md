@@ -35,7 +35,7 @@
 * [Part VI: Workflows](part6.md)
   * [Quality](part6/quality_wf.md)
   * [Dereplicate](part6/derep_wf.md)
-  * [Classify](part6/classif_wf.md)
+  * [Classify](part6/classify_wf.md)
   * [Preprocess](part6/preproc_wf.md)
   * [Index](part6/index_wf.md)
   * [Summaries](part6/summaries.md)
