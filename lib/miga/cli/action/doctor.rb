@@ -46,6 +46,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     db: ['databases', 'Check database files integrity'],
     dist: ['distances', 'Check distance summary tables'],
     files: ['files', 'Check for outdated files'],
+    cds: ['cds', 'Check for gzipped genes and proteins'],
     ess: ['essential-genes', 'Check for unarchived essential genes'],
     mts: ['mytaxa-scan', 'Check for unarchived MyTaxa scan'],
     start: ['start', 'Check for lingering .start files'],
@@ -105,6 +106,24 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           d.add_result(r_k, true, force: true)
         end
       end
+    end
+  end
+
+  def check_cds(cli)
+    cli.say 'Looking for unzipped genes or proteins'
+    cli.load_project.each_dataset do |d|
+      res = d.result(:cds) or next
+      changed = false
+      [:genes, :proteins, :gff3, :gff2, :tab].each do |f|
+        file = res.file_path(f) or next
+        if file !~ /\.gz/
+          cli.say "  > Gzipping #{d.name} #{f}"
+          cmdo = `gzip -9 '#{file}'`.chomp
+          warn(cmdo) unless cmdo.empty?
+          changed = true
+        end
+      end
+      d.add_result(:cds, true, force: true) if changed
     end
   end
 
