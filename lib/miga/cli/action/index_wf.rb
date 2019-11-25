@@ -9,7 +9,12 @@ class MiGA::Cli::Action::IndexWf < MiGA::Cli::Action
 
   def parse_cli
     default_opts_for_wf
+    cli.defaults = { mytaxa: false }
     cli.parse do |opt|
+      opt.on(
+        '-m', '--mytaxa-scan',
+        'Perform MyTaxa scan analysis'
+      ) { |v| cli[:mytaxa] = v }
       opts_for_wf_distances(opt)
       opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)',
         cleanup: false, project_type: true)
@@ -18,7 +23,7 @@ class MiGA::Cli::Action::IndexWf < MiGA::Cli::Action
 
   def perform
     # Input data
-    p = create_project(:assembly, {}, run_mytaxa_scan: false)
+    p = create_project(:assembly, {}, run_mytaxa_scan: cli[:mytaxa])
     # Run
     run_daemon
     summarize
