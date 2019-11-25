@@ -32,5 +32,11 @@
   * [Extending MiGA](part5/extending.md)
   * [Metadata](part5/metadata.md)
   * [External Software](part5/external.md)
-* [Part VI: Tutorials](part6.md)
-  * [Tutorial 1](part6/tutorial_1.md)
+* [Part VI: Workflows](part6.md)
+  * [Quality](part6/quality_wf.md)
+  * [Dereplicate](part6/derep_wf.md)
+  * [Classify](part6/classif_wf.md)
+  * [Preprocess](part6/preproc_wf.md)
+  * [Index](part6/index_wf.md)
+  * [Summaries](part6/summaries.md)
+
