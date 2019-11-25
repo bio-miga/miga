@@ -285,10 +285,10 @@ class MiGA::Daemon < MiGA::MiGA
       if [nil, '', 0].include? job[:pid]
         job[:pid] = nil
         @jobs_to_run << job
-        say "Unsuccessful #{job[:task_name]}, rescheduling."
+        say "Unsuccessful #{job[:task_name]}, rescheduling"
       else
         @jobs_running << job
-        say "Spawned pid:#{job[:pid]} for #{job[:task_name]}."
+        say "Spawned pid:#{job[:pid]} for #{job[:task_name]}"
       end
     end
 end
