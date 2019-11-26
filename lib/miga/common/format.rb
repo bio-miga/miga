@@ -25,6 +25,7 @@ module MiGA::Common::Format
   # Cleans a FastA file in place.
   def clean_fasta_file(file)
     tmp_fh = nil
+    tmp_path = nil
     begin
       if file =~ /\.gz/
         tmp_path = Tempfile.new('MiGA.gz').tap(&:close).path
@@ -52,7 +53,7 @@ module MiGA::Common::Format
       tmp_fh.print buffer.wrap_width(80)
       tmp_fh.close
       fh.close
-      FileUtils.cp(tmp_path, file)
+      FileUtils.mv(tmp_path, file)
     ensure
       begin
         tmp_fh.close unless tmp_fh.nil?
