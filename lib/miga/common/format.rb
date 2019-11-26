@@ -31,7 +31,7 @@ module MiGA::Common::Format
         tmp_path = Tempfile.new('MiGA.gz').tap(&:close).path
         File.unlink tmp_path
         tmp_path += '.gz'
-        tmp_fh = Zlib::GzipWriter.open(tmp_path)
+        tmp_fh = Zlib::GzipWriter.open(tmp_path, 9)
         fh = Zlib::GzipReader.open(file)
       else
         tmp_fh = Tempfile.new('MiGA')
