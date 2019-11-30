@@ -39,12 +39,13 @@ else
       exit 1
     fi
      
+    FAA="../../../06.cds/$DATASET.faa"
+    [[ -s "$FAA" ]] || FAA="${FAA}.gz"
     if [[ ! -s "$DATASET.mytaxa" ]] ; then
       # Execute search
       if [[ ! -s "$DATASET.blast" ]] ; then
-        diamond blastp -q "../../../06.cds/$DATASET.faa" \
-          -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60 \
-          -a "$DATASET.daa" -t "$TMPDIR"
+        diamond blastp -q "$FAA" -a "$DATASET.daa" -t "$TMPDIR" \
+          -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60
         diamond view -a "$DATASET.daa" -o "$DATASET.blast" -t "$TMPDIR"
       fi
 
@@ -53,8 +54,7 @@ else
         | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
     fi
-    ruby "$MIGA/utils/mytaxa_scan.rb" "../../../06.cds/$DATASET.faa" \
-          "$DATASET.mytaxa" "$DATASET.wintax"
+    ruby "$MIGA/utils/mytaxa_scan.rb" "$FAA" "$DATASET.mytaxa" "$DATASET.wintax"
     echo "
     source('$MIGA/utils/mytaxa_scan.R');
     pdf('$DATASET.pdf', 12, 7);
@@ -70,11 +70,18 @@ else
         let i=$i+1
         awk "NR==$win" "$DATASET.wintax.genes" | tr "\\t" "\\n" \
           > "$DATASET.reg/$i.ids"
-        FastA.filter.pl -q "$DATASET.reg/$i.ids" \
-          "../../../06.cds/$DATASET.faa" > "$DATASET.reg/$i.faa"
+        if [[ "$FAA" == *.gz ]] ; then
+          gzip -c -d "$FAA" \
+            | FastA.filter.pl -q "$DATASET.reg/$i.ids" /dev/stdin \
+            > "$DATASET.reg/$i.faa"
+        else
+          FastA.filter.pl -q "$DATASET.reg/$i.ids" "$FAA" \
+            > "$DATASET.reg/$i.faa"
+        fi
       done
       # Archive regions
-      tar zcf "$DATASET.reg.tar.gz" "$DATASET.reg"
+      tar -cf "$DATASET.reg.tar" "$DATASET.reg"
+      gzip -9 "$DATASET.reg.tar"
       rm -r "$DATASET.reg"
     fi
 
