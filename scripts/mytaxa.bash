@@ -38,7 +38,9 @@ else
     fi
      
     # Execute search
-    diamond blastp -q "../../../06.cds/$DATASET.faa" -d "$MT/AllGenomes.faa" \
+    FAA="../../../06.cds/$DATASET.faa"
+    [[ -s "$FAA" ]] || FAA="${FAA}.gz"
+    diamond blastp -q "$FAA" -d "$MT/AllGenomes.faa" \
       -a "$DATASET.daa" -k 5 -p "$CORES" --min-score 60
     diamond view -a "$DATASET.daa" -o "$DATASET.blast"
 
