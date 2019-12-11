@@ -66,6 +66,7 @@ module MiGA::Cli::ObjectsHelper
   end
 
   def add_metadata(obj, cli = self)
+    raise "Unsupported object: #{obj.class}" unless obj.respond_to? :metadata
     cli[:metadata].split(',').each do |pair|
       (k,v) = pair.split('=')
       case v

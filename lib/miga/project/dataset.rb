@@ -4,7 +4,7 @@
 ##
 # Helper module including specific functions handle datasets.
 module MiGA::Project::Dataset
-  
+
   ##
   # Returns Array of MiGA::Dataset.
   def datasets
@@ -23,7 +23,7 @@ module MiGA::Project::Dataset
   def dataset_names_hash
     @dataset_names_hash ||= Hash[dataset_names.map{ |i| [i,true] }]
   end
-  
+
   ##
   # Returns MiGA::Dataset.
   def dataset(name)
@@ -47,18 +47,19 @@ module MiGA::Project::Dataset
       end
     end
   end
-  
+
   ##
   # Add dataset identified by +name+ and return MiGA::Dataset.
   def add_dataset(name)
     unless metadata[:datasets].include? name
       MiGA::Dataset.new(self, name)
       @metadata[:datasets] << name
+      @dataset_names_hash = nil # Ensure loading even if +do_not_save+ is true
       save
     end
     dataset(name)
   end
-  
+
   ##
   # Unlink dataset identified by +name+ and return MiGA::Dataset.
   def unlink_dataset(name)
@@ -68,7 +69,7 @@ module MiGA::Project::Dataset
     save
     d
   end
-  
+
   ##
   # Import the dataset +ds+, a MiGA::Dataset, using +method+ which is any method
   # supported by File#generic_transfer.
@@ -116,7 +117,7 @@ module MiGA::Project::Dataset
     end
     datasets.uniq - metadata[:datasets]
   end
-  
+
   ##
   # Are all the datasets in the project preprocessed? Save intermediate results
   # if +save+ (until the first incomplete dataset is reached).
@@ -149,6 +150,6 @@ module MiGA::Project::Dataset
   def each_dataset_profile_advance(&blk)
     each_dataset { |ds| blk.call(ds.profile_advance) }
   end
-  
+
 end
 
