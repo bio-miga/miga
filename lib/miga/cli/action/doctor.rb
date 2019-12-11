@@ -124,8 +124,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           changed = true
         end
       end
-      d.add_result(:cds, true, force: true) if changed
-      sr = d.result(:stats) and sr.remove!
+      if changed
+        d.add_result(:cds, true, force: true)
+        sr = d.result(:stats) and sr.remove!
+      end
     end
   end
 
