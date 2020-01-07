@@ -203,7 +203,7 @@ class MiGA::Daemon < MiGA::MiGA
       else
         (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false).nil?
       end
-      say "Completed pid:#{job[:pid]} for #{job[:task_name]}." unless ongoing
+      say "Completed pid:#{job[:pid]} for #{job[:task_name]}" unless ongoing
       ongoing
     end
     # Avoid single datasets hogging resources
