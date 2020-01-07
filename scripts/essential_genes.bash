@@ -22,18 +22,19 @@ fi
 # Find and extract essential genes
 [[ -d "${DATASET}.ess" ]] && rm -R "${DATASET}.ess"
 mkdir "${DATASET}.ess"
-TYPE=$(miga list_datasets -P "$PROJECT" -D "$DATASET" \
+TYPE=$(miga ls -P "$PROJECT" -D "$DATASET" \
   --metadata "type" | awk '{print $2}')
+COLL=$(miga about -P "$PROJECT" -m ess_coll)
+[[ "$COLL" == "?" ]] && COLL=dupont_2012
+CMD="HMM.essential.rb \
+  -i '$FAA' -o '${DATASET}.ess.faa' -m '${DATASET}.ess/' \
+  -t '$CORES' -r '$DATASET' --collection '$COLL'"
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
-  HMM.essential.rb -i "$FAA" -o "${DATASET}.ess.faa" \
-    -m "${DATASET}.ess/" -t "$CORES" -r "$DATASET" --metagenome \
-    > "${DATASET}.ess/log"
+  CMD="$CMD --metagenome"
 else
-  HMM.essential.rb -i "$FAA" -o "${DATASET}.ess.faa" \
-    -m "${DATASET}.ess/" -t "$CORES" -r "$DATASET" \
-    --alignments "${DATASET}.ess/proteins.aln" \
-    > "${DATASET}.ess/log"
+  CMD="$CMD --alignments '${DATASET}.ess/proteins.aln'"
 fi
+$CMD > "${DATASET}.ess/log"
 
 # Reduce files
 if exists "$DATASET".ess/*.faa ; then

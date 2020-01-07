@@ -24,6 +24,11 @@ module MiGA::Cli::Action::Wf
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
     opt.separator 'Workflow Control Options'
+    opt.on(
+      '-C', '--collection STRING',
+      'Collection of essential genes to use as reference',
+      'One of: dupont_2012 (default), lee_2019'
+    ) { |v| cli[:ess_coll] = v }
     if params[:ncbi]
       opt.on(
         '-T', '--ncbi-taxon STRING',

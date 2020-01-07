@@ -9,7 +9,7 @@ All metadata objects support the following fields:
 | created*     | [Date](../glossary.md#miga-dates) | Date of creation
 | updated*     | [Date](../glossary.md#miga-dates) | Date of last update
 
-**\*** Mandatory.
+**\*** Mandatory
 
 ## Projects
 
@@ -38,15 +38,18 @@ The following metadata fields are recognized by different interfaces for
 | gsp_ani      | Float [0,100]    | ANI limit to propose gsp clades (def: 90)
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 95)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
+| ess_coll     | String           | Collection of essential genes to use+
 
-**\*** Mandatory.
+**\*** Mandatory
 
-**‡** By default the base name of the project path.
+**‡** By default the base name of the project path
 
 **°** By default: `blast+`. Other supported values: `blast`, `blat`,
 `diamond` (except for ANI), and `fastani` (only for ANI), `no` (only for hAAI).
 If using `diamond` and/or `fastani`, the corresponding software must be
-installed.
+installed
+
+**+** One of: `dupont_2012` (default), or `lee_2019`
 
 ## Datasets
 
@@ -79,11 +82,11 @@ The following metadata fields are recognized by different interfaces for
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
 
-**\*** Mandatory.
+**\*** Mandatory
 
-**‡** Multiple values can be provided separated by commas or colons.
+**‡** Multiple values can be provided separated by commas or colons
 
 **°** This is not a valid type, but it represents the closest available dataset
 to material that is unavailable and unlikely to ever become available.
-See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127).
+See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
 

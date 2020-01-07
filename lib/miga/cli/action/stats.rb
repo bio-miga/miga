@@ -122,17 +122,18 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
         end
       end
     else
-      # Fix estimate for Archaea
-      if !d.metadata[:tax].nil? &&
-            d.metadata[:tax].in?(Taxonomy.new('d:Archaea')) &&
-            r.file_path(:bac_report).nil?
-        scr = "#{MiGA.root_path}/utils/arch-ess-genes.rb"
+      # Fix estimate by domain
+      if !(tax = d.metadata[:tax]).nil? &&
+            %w[Archaea Bacteria].include?(tax[:d]) &&
+            r.file_path(:raw_report).nil?
+        scr = "#{MiGA.root_path}/utils/domain-ess-genes.rb"
         rep = r.file_path(:report)
         rc_p = File.expand_path('.miga_rc', ENV['HOME'])
         rc = File.exist?(rc_p) ? ". '#{rc_p}' && " : ''
-        $stderr.print `#{rc} ruby '#{scr}' '#{rep}' '#{rep}.archaea'`
-        r.add_file(:bac_report, "#{d.name}.ess/log")
-        r.add_file(:report, "#{d.name}.ess/log.archaea")
+        $stderr.print `#{rc} ruby '#{scr}' \
+          '#{rep}' '#{rep}.domain' '#{tax[:d][0]}'`
+        r.add_file(:raw_report, "#{d.name}.ess/log")
+        r.add_file(:report, "#{d.name}.ess/log.domain")
       end
       # Extract/compute quality values
       stats = {completeness: [0.0, '%'], contamination: [0.0, '%']}
