@@ -35,7 +35,7 @@ will install one package here to make sure everything is properly initialized.
 
 ```bash
 R
-install.packages('enveomics.R', repos = 'http://cran.rstudio.com/')
+install.packages('ape', repos = 'http://cran.rstudio.com/')
 q()
 ```
 

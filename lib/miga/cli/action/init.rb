@@ -220,7 +220,7 @@ BASH
 
   def check_r_packages(paths)
     cli.puts 'Looking for R packages:'
-    %w(enveomics.R ape cluster vegan).each do |pkg|
+    %w(ape cluster vegan).each do |pkg|
       cli.print "Testing #{pkg}... "
       if test_r_package(cli, paths, pkg)
         cli.puts 'yes.'

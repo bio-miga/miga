@@ -7,7 +7,12 @@
 #= Load stuff
 argv <- commandArgs(trailingOnly = T)
 suppressPackageStartupMessages(library(ape))
-suppressPackageStartupMessages(library(enveomics.R))
+if(Sys.getenv('MIGA') == ''){
+  suppressPackageStartupMessages(library(enveomics.R))
+}else{
+  source(file.path(Sys.getenv('MIGA'),
+    'utils', 'enveomics', 'enveomics.R', 'R', 'df2dist.R'))
+}
 
 find_medoids <- function(ani.df, out, clades) {
   if(nrow(ani.df) == 0) return(NULL)

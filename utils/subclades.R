@@ -10,7 +10,12 @@ suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(vegan))
 suppressPackageStartupMessages(library(cluster))
 suppressPackageStartupMessages(library(parallel))
-suppressPackageStartupMessages(library(enveomics.R))
+if(Sys.getenv('MIGA') == ''){
+  suppressPackageStartupMessages(library(enveomics.R))
+}else{
+  source(file.path(Sys.getenv('MIGA'),
+    'utils', 'enveomics', 'enveomics.R', 'R', 'df2dist.R'))
+}
 
 #= Main function
 subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {

@@ -7,7 +7,12 @@
 #= Load stuff
 argv <- commandArgs(trailingOnly=T)
 suppressPackageStartupMessages(library(ape))
-suppressPackageStartupMessages(library(enveomics.R))
+if(Sys.getenv('MIGA') == ''){
+  suppressPackageStartupMessages(library(enveomics.R))
+}else{
+  source(file.path(Sys.getenv('MIGA'),
+    'utils', 'enveomics', 'enveomics.R', 'R', 'df2dist.R'))
+}
 inst <- c("phangorn", "phytools") %in% rownames(installed.packages())
 if(inst[1]){
   suppressPackageStartupMessages(library(phangorn))
