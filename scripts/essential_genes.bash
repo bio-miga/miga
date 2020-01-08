@@ -26,15 +26,15 @@ TYPE=$(miga ls -P "$PROJECT" -D "$DATASET" \
   --metadata "type" | awk '{print $2}')
 COLL=$(miga about -P "$PROJECT" -m ess_coll)
 [[ "$COLL" == "?" ]] && COLL=dupont_2012
-CMD="HMM.essential.rb \
-  -i '$FAA' -o '${DATASET}.ess.faa' -m '${DATASET}.ess/' \
-  -t '$CORES' -r '$DATASET' --collection '$COLL'"
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
-  CMD="$CMD --metagenome"
+  FLAGS="--metagenome"
 else
-  CMD="$CMD --alignments '${DATASET}.ess/proteins.aln'"
+  FLAGS="--alignments ${DATASET}.ess/proteins.aln"
 fi
-$CMD > "${DATASET}.ess/log"
+HMM.essential.rb \
+  -i "$FAA" -o "${DATASET}.ess.faa" -m "${DATASET}.ess/" \
+  -t "$CORES" -r "$DATASET" --collection "$COLL" $FLAGS \
+  > "${DATASET}.ess/log"
 
 # Reduce files
 if exists "$DATASET".ess/*.faa ; then
