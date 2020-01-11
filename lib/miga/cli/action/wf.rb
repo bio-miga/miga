@@ -115,16 +115,18 @@ module MiGA::Cli::Action::Wf
     call_cli([
       'new',
       '-P', cli[:outdir],
-      '-t', cli[:project_type],
-      '-m', p_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
-    ])
+      '-t', cli[:project_type]
+    ]) unless MiGA::Project.exist? cli[:outdir]
+    # Define project metadata
+    p = cli.load_project(:outdir, '-o')
+    [:haai_p, :aai_p, :ani_p, :ess_coll].each { |i| p_metadata[i] = cli[i] }
+    transfer_metadata(p, p_metadata)
     # Download datasets
     call_cli([
       'ncbi_get',
       '-P', cli[:outdir],
       '-T', cli[:ncbi_taxon],
-      (cli[:ncbi_draft] ? '--all' : '--complete'),
-      '-m', d_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
+      (cli[:ncbi_draft] ? '--all' : '--complete')
     ]) unless cli[:ncbi_taxon].nil?
     # Add datasets
     call_cli([
@@ -132,15 +134,11 @@ module MiGA::Cli::Action::Wf
       '-P', cli[:outdir],
       '-t', cli[:dataset_type],
       '-i', stage,
-      '-R', cli[:regexp],
-      '-m', d_metadata.map{ |k,v| "#{k}=#{v}" }.join(',')
+      '-R', cli[:regexp]
     ] + cli.files) unless cli.files.empty?
-    p = MiGA::Project.load(cli[:outdir])
-    raise "Impossible to create project: #{cli[:outdir]}" if p.nil?
-    [:haai_p, :aai_p, :ani_p].each do |i|
-      p.metadata[i] = cli[i] unless cli[i].nil?
-    end
-    p.save
+    # Define datasets metadata
+    p.load
+    p.each_dataset { |d| transfer_metadata(d, d_metadata) }
     p
   end
 
@@ -159,7 +157,7 @@ module MiGA::Cli::Action::Wf
 
   def cleanup
     return unless cli[:clean]
-    cli.say "Cleaning up intermediate files"
+    cli.say 'Cleaning up intermediate files'
     %w[data daemon metadata miga.project.json].each do |f|
       FileUtils.rm_rf(File.expand_path(f, cli[:outdir]))
     end
@@ -178,6 +176,16 @@ module MiGA::Cli::Action::Wf
     cwd = Dir.pwd
     call_cli cmd
     Dir.chdir(cwd)
+  end
+
+  def transfer_metadata(obj, md)
+    # Clear old metadata
+    obj.metadata.each do |k,v|
+      obj.metadata[k] = nil if k.to_s =~ /^run_/ || k == :ref_project
+    end
+    # Transfer and save
+    md.each { |k, v| obj.metadata[k] = v }
+    obj.save
   end
 
 end

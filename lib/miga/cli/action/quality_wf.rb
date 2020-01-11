@@ -25,7 +25,6 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
       %w[project_stats haai_distances aai_distances ani_distances clade_finding]
         .map { |i| ["run_#{i}", false] }
     ]
-    p_metadata[:ess_coll] = cli[:ess_coll]
     d_metadata = { run_distances: false }
     d_metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]
     p = create_project(:assembly, p_metadata, d_metadata)

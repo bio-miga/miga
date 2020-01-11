@@ -84,7 +84,7 @@ module MiGA::Cli::Base
 
   @@EXECS = @@TASK_DESC.keys
 
-  @@FILE_REGEXP = %r{^(?:.*/)?(.+?)(?:\..*(?:[12]|Reads|Contigs))?(?:\.f[nastq]+)?$}i
+  @@FILE_REGEXP = %r{^(?:.*/)?(.+?)(\.[A-Z]*([12]|Reads|Contigs))?(\.f[nastq]+)?$}i
 
 end
 
