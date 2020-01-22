@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 #MIGA=${MIGA:-$(cd "$(dirname "$0")/.."; pwd)}
+MIGA_HOME=${MIGA_HOME:-"$HOME"}
 # shellcheck source=/dev/null
-. "$HOME/.miga_rc"
+. "$MIGA_HOME/.miga_rc"
 export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
 SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 
@@ -15,7 +16,9 @@ for i in $(miga plugins -P "$PROJECT") ; do
 done
 
 if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
+  echo '############'
   echo -n "Date: " ; miga date
+  echo "Hostname: $(hostname)"
   echo "MiGA: $MIGA"
   echo "Task: $SCRIPT"
   echo "Project: $PROJECT"
@@ -23,6 +26,7 @@ if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
     echo "Dataset: $DATASET"
     miga edit -P "$PROJECT" -D "$DATASET" -m "_step=$SCRIPT"
   fi
+  echo '------------'
 fi
 
 true

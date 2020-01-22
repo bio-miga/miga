@@ -46,7 +46,7 @@ case "$TYPE" in
         rm "$DATASET".*."$ct"
       fi
     done
-    echo "# Selected table: $BEST_CT"
+    echo "Selected codon table: $BEST_CT"
     ;;
 esac
 
