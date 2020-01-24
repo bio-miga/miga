@@ -48,9 +48,9 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
 
   def read_distances
     p = cli.load_project
-    opt[:metric] ||= p.is_clade? ? 'ani' : 'aai'
-    res_n  = "#{opt[:metric]}_distances"
-    cli.say "Reading distances: 1-#{opt[:metric].upcase}"
+    cli[:metric] ||= p.is_clade? ? 'ani' : 'aai'
+    res_n  = "#{cli[:metric]}_distances"
+    cli.say "Reading distances: 1-#{cli[:metric].upcase}"
     res = p.result(res_n)
     raise "#{res_n} not yet calculated" if res.nil?
     matrix = res.file_path(:matrix)
