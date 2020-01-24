@@ -16,7 +16,12 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
         '-i', '--index FILE',
         'Pre-calculated tax-index (in tabular format) to be used',
         'If passed, dataset filtering arguments are ignored'
-        ){ |v| cli[:index] = v }
+      ) { |v| cli[:index] = v }
+      opt.on(
+        '-m', '--metric STR',
+        'Distance metric used to evaluate the distribution',
+        'By default: AAI for genomes projects, ANI for clade projects'
+      ) { |v| cli[:metric] = v.downcase }
     end
   end
 
@@ -43,9 +48,9 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
 
   def read_distances
     p = cli.load_project
-    metric = p.is_clade? ? 'ani' : 'aai'
-    res_n  = "#{metric}_distances"
-    cli.say "Reading distances: 1-#{metric.upcase}"
+    opt[:metric] ||= p.is_clade? ? 'ani' : 'aai'
+    res_n  = "#{opt[:metric]}_distances"
+    cli.say "Reading distances: 1-#{opt[:metric].upcase}"
     res = p.result(res_n)
     raise "#{res_n} not yet calculated" if res.nil?
     matrix = res.file_path(:matrix)
