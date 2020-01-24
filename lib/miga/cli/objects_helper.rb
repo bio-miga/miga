@@ -43,7 +43,7 @@ module MiGA::Cli::ObjectsHelper
     k = 0
     n = ds.size
     ds.select! do |d|
-      cli.advance('', k += 1, n)
+      advance('', k += 1, n)
       o = true
       o ||= (d.is_ref? == self[:ref]) unless self[:ref].nil?
       o ||= (d.is_active? == self[:active]) unless self[:active].nil?
