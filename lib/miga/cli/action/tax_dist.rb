@@ -90,7 +90,6 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
     rank_i = 0
     Taxonomy.KNOWN_RANKS.each do |rank|
       next if rank == :ns
-      cli.say "o #{rank}: "
       rank_n = 0
       rank_i += 1
       in_rank = nil
@@ -116,7 +115,7 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
           end
         end
       end
-      cli.say "  #{rank_n} pairs of datasets"
+      cli.say "o #{rank}: #{rank_n} pairs of datasets"
     end
     dist
   end
