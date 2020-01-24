@@ -39,15 +39,11 @@ class MiGA::Dataset < MiGA::MiGA
   attr_reader :name
   
   ##
-  # MiGA::Metadata with information about the dataset.
-  attr_reader :metadata
-  
-  ##
   # Create a MiGA::Dataset object in a +project+ MiGA::Project with a
   # uniquely identifying +name+. +is_ref+ indicates if the dataset is to
   # be treated as reference (true, default) or query (false). Pass any
   # additional +metadata+ as a Hash.
-  def initialize(project, name, is_ref=true, metadata={})
+  def initialize(project, name, is_ref = true, metadata = {})
     unless name.miga_name?
       raise 'Invalid name, please use only alphanumerics and underscores: ' +
         name.to_s
@@ -55,8 +51,16 @@ class MiGA::Dataset < MiGA::MiGA
     @project = project
     @name = name
     metadata[:ref] = is_ref
-    @metadata = MiGA::Metadata.new(
-      File.expand_path("metadata/#{name}.json", project.path), metadata )
+    @metadata_future = [
+      File.expand_path("metadata/#{name}.json", project.path),
+      metadata
+    ]
+  end
+
+  ##
+  # MiGA::Metadata with information about the dataset.
+  def metadata
+    @metadata ||= MiGA::Metadata.new(*@metadata_future)
   end
   
   ##
