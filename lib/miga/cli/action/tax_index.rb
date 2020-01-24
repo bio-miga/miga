@@ -30,7 +30,7 @@ class MiGA::Cli::Action::TaxIndex < MiGA::Cli::Action
     cli.say 'Indexing taxonomy'
     tax_index = MiGA::TaxIndex.new
     ds.each_with_index do |d, i|
-      cli.advance('Datasets:', i, ds.size)
+      cli.advance('Datasets:', i, ds.size, false)
       tax_index << d unless d.metadata[:tax].nil?
     end
     cli.print "\n"

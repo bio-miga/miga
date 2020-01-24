@@ -57,7 +57,7 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
       next if mfh.lineno == 1
       row = ln.chomp.split("\t")
       dist[cannid(row[1], row[2])] = [row[3], row[5], row[6], 0, ['root:biota']]
-      cli.advance("Ln: #{mfh.lineno}") if (mfh.lineno % 1_000) == 0
+      cli.advance('Ln:', mfh.lineno, nil, false) if (mfh.lineno % 1_000) == 0
     end
     cli.say "  Lines: #{mfh.lineno}"
     mfh.close
