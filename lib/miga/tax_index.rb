@@ -1,7 +1,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require "miga/taxonomy"
+require 'miga/taxonomy'
 
 ##
 # Indexing methods based on taxonomy.
@@ -18,7 +18,7 @@ class MiGA::TaxIndex < MiGA::MiGA
   ##
   # Initialize an empty MiGA::TaxIndex
   def initialize
-    @root = MiGA::TaxIndexTaxon.new :root, "biota"
+    @root = MiGA::TaxIndexTaxon.new :root, 'biota'
     @datasets = []
   end
 
@@ -64,7 +64,9 @@ class MiGA::TaxIndex < MiGA::MiGA
 
   ##
   # Generate tabular String for the index.
-  def to_tab(unknown=false) ; root.to_tab(unknown) ; end
+  def to_tab(unknown = false)
+    root.to_tab(unknown)
+  end
 end
 
 ##
@@ -94,7 +96,7 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
 
   ##
   # String representation of the taxon.
-  def tax_str ; "#{rank}:#{name.nil? ? "?" : name}" ; end
+  def tax_str ; "#{rank}:#{name.nil? ? '?' : name}" ; end
 
   ##
   # Add child at +rank+ with +name+.
@@ -142,11 +144,12 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
   ##
   # Tabular String of the taxon.
   def to_tab(unknown, indent=0)
-    o = ""
-    o = "#{" " * indent}#{tax_str}: #{datasets_count}\n" if
-      unknown or not datasets.empty? or not name.nil?
+    o = ''
+    if unknown or not datasets.empty? or not name.nil?
+      o = "#{' ' * indent}#{tax_str}: #{datasets_count}\n"
+    end
     indent += 2
-    datasets.each{ |ds| o << "#{" " * indent}# #{ds.name}\n" }
+    datasets.each{ |ds| o << "#{' ' * indent}# #{ds.name}\n" }
     children.each{ |it| o << it.to_tab(unknown, indent) }
     o
   end

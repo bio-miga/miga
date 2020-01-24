@@ -26,11 +26,15 @@ class MiGA::Cli::Action::TaxIndex < MiGA::Cli::Action
   def perform
     cli.ensure_par(index: '-i')
     ds = cli.load_and_filter_datasets
-    ds.keep_if {|d| !d.metadata[:tax].nil? }
+    ds.keep_if { |d| !d.metadata[:tax].nil? }
 
     cli.say 'Indexing taxonomy'
     tax_index = MiGA::TaxIndex.new
-    ds.each { |d| tax_index << d }
+    ds.each_with_index do |d, i|
+      cli.advance('Datasets:', i, ds.size)
+      tax_index << d
+    end
+    cli.print "\n"
 
     cli.say 'Saving index'
     File.open(cli[:index], 'w') do |fh|
