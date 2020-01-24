@@ -43,7 +43,7 @@ module MiGA::Cli::ObjectsHelper
     k = 0
     n = ds.size
     ds.select! do |d|
-      advance('', k += 1, n)
+      advance('Datasets:', k += 1, n, false)
       o = true
       o ||= (d.is_ref? == self[:ref]) unless self[:ref].nil?
       o ||= (d.is_active? == self[:active]) unless self[:active].nil?
@@ -53,7 +53,7 @@ module MiGA::Cli::ObjectsHelper
             d.metadata[:tax].in?(self[:taxonomy]) unless self[:taxonomy].nil?
       o
     end
-    print "\n"
+    self.print "\n"
     ds = ds.values_at(self[:dataset_k]-1) unless self[:dataset_k].nil?
     @objects[:filtered_datasets] = ds
   end
