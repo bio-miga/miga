@@ -53,7 +53,7 @@ module MiGA::Cli::ObjectsHelper
             d.metadata[:tax].in?(self[:taxonomy]) unless self[:taxonomy].nil?
       o
     end
-    self.print "\n"
+    say ''
     ds = ds.values_at(self[:dataset_k]-1) unless self[:dataset_k].nil?
     @objects[:filtered_datasets] = ds
   end

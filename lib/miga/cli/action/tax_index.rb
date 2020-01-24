@@ -33,7 +33,7 @@ class MiGA::Cli::Action::TaxIndex < MiGA::Cli::Action
       cli.advance('Datasets:', i, ds.size, false)
       tax_index << d unless d.metadata[:tax].nil?
     end
-    cli.print "\n"
+    cli.say ''
 
     cli.say 'Saving index'
     File.open(cli[:index], 'w') do |fh|
