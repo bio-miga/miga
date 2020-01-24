@@ -118,7 +118,7 @@ class MiGA::Cli < MiGA::MiGA
   # The report goes to $stderr iff --verborse
   def advance(step, n = 0, total = nil, bin = true)
     return unless self[:verbose]
-    adv = total.nil? ? '' :
+    adv = total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
       ('%.1f%% (%s/%s)' % [100 * n / total,
         num_suffix(n, bin), num_suffix(total, bin)])
     $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
