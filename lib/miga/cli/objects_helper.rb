@@ -45,11 +45,11 @@ module MiGA::Cli::ObjectsHelper
     ds.select! do |d|
       advance('Datasets:', k += 1, n, false)
       o = true
-      o ||= (d.is_ref? == self[:ref]) unless self[:ref].nil?
-      o ||= (d.is_active? == self[:active]) unless self[:active].nil?
-      o ||= (self[:multi] ? d.is_multi? :
+      o &&= (d.is_ref? == self[:ref]) unless self[:ref].nil?
+      o &&= (d.is_active? == self[:active]) unless self[:active].nil?
+      o &&= (self[:multi] ? d.is_multi? :
             d.is_nonmulti?) unless self[:multi].nil?
-      o ||= (not d.metadata[:tax].nil?) &&
+      o &&= (not d.metadata[:tax].nil?) &&
             d.metadata[:tax].in?(self[:taxonomy]) unless self[:taxonomy].nil?
       o
     end
