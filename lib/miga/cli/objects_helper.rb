@@ -40,14 +40,19 @@ module MiGA::Cli::ObjectsHelper
     say 'Listing datasets'
     ds = self[:dataset].nil? ?
       load_project.datasets : [load_dataset(silent)].compact
-    ds.select! { |d| d.is_ref? == self[:ref] } unless self[:ref].nil?
-    ds.select! { |d| d.is_active? == self[:active] } unless self[:active].nil?
+    k = 0
+    n = ds.size
     ds.select! do |d|
-      self[:multi] ? d.is_multi? : d.is_nonmulti?
-    end unless self[:multi].nil?
-    ds.select! do |d|
-      (not d.metadata[:tax].nil?) && d.metadata[:tax].in?(self[:taxonomy])
-    end unless self[:taxonomy].nil?
+      cli.advance('', k += 1, n)
+      o = true
+      o ||= (d.is_ref? == self[:ref]) unless self[:ref].nil?
+      o ||= (d.is_active? == self[:active]) unless self[:active].nil?
+      o ||= (self[:multi] ? d.is_multi? :
+            d.is_nonmulti?) unless self[:multi].nil?
+      o ||= (not d.metadata[:tax].nil?) &&
+            d.metadata[:tax].in?(self[:taxonomy]) unless self[:taxonomy].nil?
+      o
+    end
     ds = ds.values_at(self[:dataset_k]-1) unless self[:dataset_k].nil?
     @objects[:filtered_datasets] = ds
   end
