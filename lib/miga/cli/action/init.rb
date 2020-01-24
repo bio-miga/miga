@@ -26,7 +26,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       ){ |v| cli[:mytaxa] = v }
       opt.on(
         '--daemon-type STRING',
-        'Type of daemon launcher, one of: bash, qsub, msub, slurm',
+        'Type of daemon launcher, one of: bash, ssh, qsub, msub, slurm',
         "By default: interactive (#{cli[:dtype]} if --auto)"
       ){ |v| cli[:dtype] = v.to_sym }
       opt.on(

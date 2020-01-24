@@ -145,7 +145,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Add the task to the internal queue with symbol key +job+. If the task is
   # dataset-specific, +ds+ specifies the dataset. To submit jobs to the
-  # scheduler (or to bash) see #flush!.
+  # scheduler (or to bash or ssh) see #flush!
   def queue_job(job, ds=nil)
     return nil unless get_job(job, ds).nil?
     ds_name = (ds.nil? ? 'miga-project' : ds.name)
@@ -272,12 +272,12 @@ class MiGA::Daemon < MiGA::MiGA
 
     def launch_job(job)
       # Execute job
-      if runopts(:type) == 'bash'
+      if %w[bash ssh].include? runopts(:type)
         # Local job
         job[:pid] = spawn job[:cmd]
         Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
       else
-        # Schedule cluster job
+        # Schedule cluster job (qsub, msub, slurm)
         job[:pid] = `#{job[:cmd]}`.chomp
       end
 
