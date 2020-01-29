@@ -146,7 +146,7 @@ class MiGA::Daemon < MiGA::MiGA
   # Add the task to the internal queue with symbol key +job+. If the task is
   # dataset-specific, +ds+ specifies the dataset. To submit jobs to the
   # scheduler (or to bash or ssh) see #flush!
-  def queue_job(job, ds=nil)
+  def queue_job(job, ds = nil)
     return nil unless get_job(job, ds).nil?
     ds_name = (ds.nil? ? 'miga-project' : ds.name)
     say 'Queueing %s:%s' % [ds_name, job]
@@ -191,7 +191,7 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # Remove finished jobs from the internal queue and launch as many as
-  # possible respecting #maxjobs.
+  # possible respecting #maxjobs or #nodelist (if set).
   def flush!
     # Check for finished jobs
     @jobs_running.select! do |job|
@@ -209,10 +209,23 @@ class MiGA::Daemon < MiGA::MiGA
     # Avoid single datasets hogging resources
     @jobs_to_run.rotate! rand(jobs_to_run.size)
     # Launch as many +jobs_to_run+ as possible
-    while jobs_running.size < maxjobs
+    while hostk = next_host
       break if jobs_to_run.empty?
-      launch_job @jobs_to_run.shift
+      launch_job(@jobs_to_run.shift, hostk)
     end
+  end
+
+  ##
+  # Retrieves the host index of an available node (if any), nil otherwise. If
+  # #nodelist is not set, returns true as long as #maxjobs is not reached
+  def next_host
+    if nodelist.nil?
+      return jobs_running.size < maxjobs
+    end
+    allk = (0 .. nodelist.size-1).to_a
+    busyk = jobs_running.map { |k| k[:hostk] }
+    availk = (allk - busyk).first
+    availk.empty? ? nil : availk.first
   end
 
   ##
@@ -270,9 +283,16 @@ class MiGA::Daemon < MiGA::MiGA
 
   private
 
-    def launch_job(job)
+    def launch_job(job, hostk = nil)
       # Execute job
-      if %w[bash ssh].include? runopts(:type)
+      case runopts(:type)
+      when 'ssh'
+        # Remote job
+        job[:hostk] = hostk
+        job[:cmd] = job[:cmd].gsub('{{host}}', nodelist[hostk])
+        job[:pid] = spawn job[:cmd]
+        Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
+      when 'bash'
         # Local job
         job[:pid] = spawn job[:cmd]
         Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])

@@ -54,7 +54,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
 
   def configure_ssh_daemon(v)
     v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '3').to_i
-    v[:maxjobs] = cli.ask_user(
+    v[:nodelist] = cli.ask_user(
       'What environmental variable points to node list?', '$MIGA_NODELIST')
     v[:ppn]     = cli.ask_user('How many CPUs can I use per job?', '2').to_i
     cli.puts 'Setting up internal daemon defaults.'
@@ -62,8 +62,9 @@ module MiGA::Cli::Action::Init::DaemonHelper
     v[:cmd]     = cli.ask_user(
       "How should I launch tasks?\n  %1$s: script path, " \
         "%2$s: variables, %3$d: CPUs, %4$s: log file, %5$s: task name, " \
-        "%6$s: remote host.\n",
-      "%2$s \"`echo \"$MIGA\"`/bin/miga\" run -r '%1$s' -l '%4$s' -R '%6$s' -e")
+        "{{host}}: remote host.\n",
+      "%2$s \"`echo \"$MIGA\"`/bin/miga\" " \
+        "run -r '%1$s' -l '%4$s' -R '{{host}}' -e")
     v[:var]     = cli.ask_user(
       "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
       "%1$s=%2$s")

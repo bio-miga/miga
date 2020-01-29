@@ -37,6 +37,10 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
         'Maximum number of jobs to use simultaneously'
       ) { |v| cli[:maxjobs] = v.to_i }
       opt.on(
+        '--node-list PATH',
+        'Path to the list of execution hostnames'
+      ) { |v| cli[:nodelist] = v }
+      opt.on(
         '--ppn INT',
         'Maximum number of cores to use in a single job'
       ) { |v| cli[:ppn] = v.to_i }
@@ -70,7 +74,7 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
   def perform
     p = cli.load_project
     d = MiGA::Daemon.new(p, cli[:json])
-    [:latency, :maxjobs, :ppn, :shutdown_when_done].each do |k|
+    [:latency, :maxjobs, :nodelist, :ppn, :shutdown_when_done].each do |k|
       d.runopts(k, cli[k]) unless cli[k].nil?
     end
     d.daemon(cli.operation, cli[:daemon_opts])
