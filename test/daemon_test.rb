@@ -9,8 +9,9 @@ class DaemonTest < Test::Unit::TestCase
     ENV["MIGA_HOME"] = $tmp
     FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
     File.open("#{ENV["MIGA_HOME"]}/.miga_daemon.json", "w") do |fh|
-      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ","var":"%s=%s",
-        "cmd":"%5$s","alive":"echo 1 # %s","type":"bash"}'
+      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ",
+        "var":"{{key}}={{value}}","cmd":"{{task_name}}",
+        "alive":"echo 1 # {{pid}}","type":"bash","format_version":1}'
     end
     $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
     $d1 = MiGA::Daemon.new($p1)
