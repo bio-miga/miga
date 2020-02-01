@@ -136,4 +136,12 @@ class String
   def wrap_width(width)
     gsub(/([^\n\r]{1,#{width}})/, "\\1\n")
   end
+
+  ##
+  # Replace {{variables}} using the +vars+ hash
+  def miga_variables(vars)
+    o = "#{self}"
+    vars.each { |k, v| o.gsub!("{{#{k}}}", v.to_s) }
+    o
+  end
 end

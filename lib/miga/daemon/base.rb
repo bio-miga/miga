@@ -1,6 +1,7 @@
 
 require 'daemons'
 require 'date'
+require 'shellwords'
 
 class MiGA::Daemon < MiGA::MiGA
 end
@@ -15,11 +16,16 @@ module MiGA::Daemon::Base
     k = k.to_sym
     unless v.nil?
       case k
-      when :latency, :maxjobs, :ppn
+      when :latency, :maxjobs, :ppn, :format_version
         v = v.to_i
       when :shutdown_when_done
         v = !!v
       when :nodelist
+        if v =~ /^\$/
+          vv = ENV[v.sub('$','')] or raise "Unset environment variable: #{v}"
+          v = vv
+        end
+        say "Reading node list: #{v}"
         v = File.readlines(v).map(&:chomp)
       end
       raise "Daemon's #{k} cannot be set to zero." if !force and v == 0

@@ -24,6 +24,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
       else # [qm]sub
         v = configure_qsub_msub_daemon(v)
       end
+      v[:format_version] = 1
       File.open(daemon_f, 'w') { |fh| fh.puts JSON.pretty_generate(v) }
     end
     cli.puts ''
@@ -36,19 +37,23 @@ module MiGA::Cli::Action::Init::DaemonHelper
     cli.puts 'Setting up internal daemon defaults.'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd]     = cli.ask_user(
-      "How should I launch tasks?\n  %1$s: script path, " \
-        "%2$s: variables, %3$d: CPUs, %4$s: log file, %5$s: task name.\n",
-      "%2$s \"`echo \"$MIGA\"`/bin/miga\" run -r '%1$s' -l '%4$s' -e")
+      "How should I launch tasks?\n" \
+        "  {{variables}}: script, vars, cpus, log, task_name, miga\n ",
+      "{{vars}} {{miga}} run -r '{{script}}' -l '{{log}}' -e")
     v[:var]     = cli.ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
+      "How should I pass variables?\n" \
+        "  {{variables}}: key, value\n ",
+      "{{key}}={{value}}")
     v[:varsep]  = cli.ask_user('What should I use to separate variables?', ' ')
     v[:alive]   = cli.ask_user(
-      "How can I know that a process is still alive?\n  %1$s: PID, " \
-        "output should be 1 for running and 0 for non-running.\n",
-      "ps -p '%1$s'|tail -n+2|wc -l")
+      "How can I know that a process is still alive?\n" \
+        "  Output should be 1 for running and 0 for non-running\n" \
+        "  {{variables}}: pid\n ",
+      "ps -p '{{pid}}' | tail -n +2 | wc -l")
     v[:kill]    = cli.ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
+      "How should I terminate tasks?\n" \
+        "  {{variables}}: pid\n ",
+      "kill -9 '{{pid}}'")
     v
   end
 
@@ -60,21 +65,23 @@ module MiGA::Cli::Action::Init::DaemonHelper
     cli.puts 'Setting up internal daemon defaults.'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd]     = cli.ask_user(
-      "How should I launch tasks?\n  %1$s: script path, " \
-        "%2$s: variables, %3$d: CPUs, %4$s: log file, %5$s: task name, " \
-        "{{host}}: remote host.\n",
-      "%2$s \"`echo \"$MIGA\"`/bin/miga\" " \
-        "run -r '%1$s' -l '%4$s' -R '{{host}}' -e")
+      "How should I launch tasks?\n" \
+        "  {{variables}}: script, vars, cpus, log, task_name, miga, host\n ",
+      "{{vars}} {{miga}} run -r '{{script}}' -l '{{log}}' -R {{host}} -e")
     v[:var]     = cli.ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
+      "How should I pass variables?\n" \
+        "  {{variables}}: key, value\n ",
+      "{{key}}={{value}}")
     v[:varsep]  = cli.ask_user('What should I use to separate variables?', ' ')
     v[:alive]   = cli.ask_user(
-      "How can I know that a process is still alive?\n  %1$s: PID, " \
-        "output should be 1 for running and 0 for non-running.\n",
-      "ps -p '%1$s'|tail -n+2|wc -l")
+      "How can I know that a process is still alive?\n" \
+        "  Output should be 1 for running and 0 for non-running\n" \
+        "  {{variables}}: pid\n ",
+      "ps -p '{{pid}}' | tail -n +2 | wc -l")
     v[:kill]    = cli.ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "kill -9 '%s'")
+      "How should I terminate tasks?\n" \
+        "  {{variables}}: pid\n ",
+      "kill -9 '{{pid}}'")
     v
   end
 
@@ -86,24 +93,28 @@ module MiGA::Cli::Action::Init::DaemonHelper
     cli.puts 'Setting up internal daemon defaults'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd]     = cli.ask_user(
-      "How should I launch tasks?\n  %1$s: script path, " \
-        "%2$s: variables, %3$d: CPUs, %4$d: log file, %5$s: task name.\n",
-      "%2$s sbatch --partition='#{queue}' --export=ALL " \
-        "--nodes=1 --ntasks-per-node=%3$d --output='%4$s' " \
-        "--job-name='%5$s' --mem=9G --time=12:00:00 %1$s " \
+      "How should I launch tasks?\n" \
+        "  {{variables}}: script, vars, cpus, log, task_name, miga\n ",
+      "{{vars}} sbatch --partition='#{queue}' --export=ALL " \
+        "--nodes=1 --ntasks-per-node={{cpus}} --output='{{log}}' " \
+        "--job-name='{{task_name}}' --mem=9G --time=12:00:00 {{script}} " \
         "| perl -pe 's/.* //'")
     v[:var]     = cli.ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
+      "How should I pass variables?\n" \
+        "  {{variables}}: key, value\n ",
+      "{{key}}={{value}}")
     v[:varsep]  = cli.ask_user(
       'What should I use to separate variables?', ' ')
     v[:alive]   = cli.ask_user(
-      "How can I know that a process is still alive?\n  %1$s: job id, " \
-        "output should be 1 for running and 0 for non-running.\n",
-      "squeue -h -o %%t -j '%1$s' | grep '^PD\\|R\\|CF\\|CG$' " \
+      "How can I know that a process is still alive?\n" \
+        "  Output should be 1 for running and 0 for non-running\n" \
+        "  {{variables}}: pid\n ",
+      "squeue -h -o %t -j '{{pid}}' | grep '^PD\\|R\\|CF\\|CG$' " \
         "| tail -n 1 | wc -l")
     v[:kill]    = cli.ask_user(
-      "How should I terminate tasks?\n  %s: process ID.", "scancel '%s'")
+      "How should I terminate tasks?\n" \
+        "  {{variables}}: pid\n ",
+        "scancel '{{pid}}'")
     v
   end
 
@@ -115,36 +126,40 @@ module MiGA::Cli::Action::Init::DaemonHelper
     cli.puts 'Setting up internal daemon defaults.'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd]     = cli.ask_user(
-      "How should I launch tasks?\n  %1$s: script path, " \
-        "%2$s: variables, %3$d: CPUs, %4$d: log file, %5$s: task name.\n",
-      "#{v[:type]} -q '#{queue}' -v '%2$s' -l nodes=1:ppn=%3$d %1$s " \
-        "-j oe -o '%4$s' -N '%5$s' -l mem=9g -l walltime=12:00:00 " \
-        "| grep .")
+      "How should I launch tasks?\n" \
+        "  {{variables}}: script, vars, cpus, log, task_name\n ",
+      "#{v[:type]} -q '#{queue}' -v '{{vars}}' -l nodes=1:ppn={{cpus}} " \
+        "{{script}} -j oe -o '{{log}}' -N '{{task_name}}' -l mem=9g " \
+        "-l walltime=12:00:00 | grep .")
     v[:var]     = cli.ask_user(
-      "How should I pass variables?\n  %1$s: keys, %2$s: values.\n",
-      "%1$s=%2$s")
+      "How should I pass variables?\n" \
+        "  {{variables}}: key, value\n ",
+      "{{key}}={{value}}")
     v[:varsep]  = cli.ask_user(
       'What should I use to separate variables?', ',')
     if v[:type] == 'qsub'
       v[:alive] = cli.ask_user(
-        "How can I know that a process is still alive?\n  " \
-          "%1$s: job id, output should be 1 for running and " \
-          "0 for non-running.\n",
-        "qstat -f '%1$s'|grep ' job_state ='|perl -pe 's/.*= //'" \
-          "|grep '[^C]'|tail -n1|wc -l|awk '{print $1}'")
+        "How can I know that a process is still alive?\n" \
+          "  Output should be 1 for running and 0 for non-running\n" \
+          "  {{variables}}: pid\n ",
+        "qstat -f '{{pid}}' | grep ' job_state =' | perl -pe 's/.*= //' " \
+          "| grep '[^C]' | tail -n 1 | wc -l | awk '{print $1}'")
       v[:kill]  = cli.ask_user(
-        "How should I terminate tasks?\n  %s: process ID.", "qdel '%s'")
+        "How should I terminate tasks?\n" \
+          "  {{variables}}: pid\n ",
+        "qdel '{{pid}}'")
     else # msub
       v[:alive] = cli.ask_user(
-        "How can I know that a process is still alive?\n  " \
-          "%1$s: job id, output should be 1 for running and " \
-          "0 for non-running.\n",
-        "checkjob '%1$s'|grep '^State:'|perl -pe 's/.*: //'" \
-          "|grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'" \
-          "|tail -n1|wc -l|awk '{print $1}'")
+        "How can I know that a process is still alive?\n" \
+          "  Output should be 1 for running and 0 for non-running\n" \
+          "  {{variables}}: pid\n ",
+        "checkjob '{{pid}}'|grep '^State:' | perl -pe 's/.*: //' " \
+          "| grep 'Deferred\\|Hold\\|Idle\\|Starting\\|Running\\|Blocked'" \
+          "| tail -n 1 | wc -l | awk '{print $1}'")
       v[:kill]  = cli.ask_user(
-        "How should I terminate tasks?\n  %s: process ID.",
-        "canceljob '%s'")
+        "How should I terminate tasks?\n" \
+          "  {{variables}}: pid\n ",
+        "canceljob '{{pid}}'")
     end
     v
   end

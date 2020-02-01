@@ -35,6 +35,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
       cli[:project] ||= ENV['PROJECT']
       cli[:dataset] ||= ENV['DATASET']
       cli[:thr] ||= ENV['CORES'].to_i unless ENV['CORES'].nil?
+      cli[:result] = File.basename(cli[:result].to_s, '.bash').to_sym
     end
     virtual_task = false
     miga = MiGA.root_path
@@ -52,8 +53,9 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     end
     cmd << MiGA.script_path(cli[:result], miga: miga, project: p).shellescape
     if cli[:remote]
-      cmd.unshift '.', '/etc/profile', ';'
-      cmd = ['ssh', cli[:remote].shellescape, cmd.join(' ').shellescape]
+      #cmd.unshift '.', '/etc/profile', ';'
+      cmd = ['ssh', '-t', '-t', cli[:remote].shellescape,
+        cmd.join(' ').shellescape]
     end
     cmd << ['>', cli[:log].shellescape, '2>&1'] if cli[:log]
     pid = spawn cmd.join(' ')
