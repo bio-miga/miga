@@ -116,7 +116,7 @@ awk 'NR % 3 == 0' < "$PBS_NODEFILE" > hosts.txt
 export MIGA_NODELIST=hosts.txt
 
 # Run MiGA (change the '3' by the value of ppn):
-miga quality_wf -T 'Candidatus Macondimonas' -o Macondimonas -v --threads 3
+miga quality_wf -T 'Macondimonas' -o Macondimonas -v --threads 3
 
 ```
 
@@ -140,9 +140,9 @@ HPCC policies.
 Therefore, when processing a defined task in HPCC, it is preferred to use
 either of the two modes above instead.
 For example, if you want to evaluate the quality of four genomes, a good option
-would be to launch a [local daemon](#local_daemons) with a maximum of 4 jobs
+would be to launch a [local daemon](#local-daemons) with a maximum of 4 jobs
 (`--max-jobs 4`).
 On the other hand, if you have hundreds of genomes to process,
-you could launch instead a [remote daemon](#remote_daemon).
+you could launch instead a [remote daemon](#remote-daemons).
 
 
