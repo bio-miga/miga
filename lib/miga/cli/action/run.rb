@@ -7,7 +7,7 @@ require 'shellwords'
 class MiGA::Cli::Action::Run < MiGA::Cli::Action
 
   def parse_cli
-    cli.defaults = {try_load: false, thr: 1}
+    cli.defaults = { try_load: false, thr: 1, env: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt, :result])
       opt.on(
@@ -23,10 +23,20 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
         '-l', '--log PATH',
         'Path to the output log file to be created. If not set, STDOUT'
       ) { |v| cli[:log] = v }
+      opt.on(
+        '-e', '--environment',
+        'Load PROJECT, DATASET, and CORES from the environment'
+      ) { |v| cli[:env] = v }
     end
   end
 
   def perform
+    if cli[:env]
+      cli[:project] ||= ENV['PROJECT']
+      cli[:dataset] ||= ENV['DATASET']
+      cli[:thr] ||= ENV['CORES'].to_i unless ENV['CORES'].nil?
+      cli[:result] = File.basename(cli[:result].to_s, '.bash').to_sym
+    end
     virtual_task = false
     miga = MiGA.root_path
     p = cli.load_project
@@ -43,10 +53,11 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     end
     cmd << MiGA.script_path(cli[:result], miga: miga, project: p).shellescape
     if cli[:remote]
-      cmd.unshift '.', '/etc/profile', ';'
-      cmd = ['ssh', cli[:remote].shellescape, cmd.join(' ').shellescape]
+      #cmd.unshift '.', '/etc/profile', ';'
+      cmd = ['ssh', '-t', '-t', cli[:remote].shellescape,
+        cmd.join(' ').shellescape]
     end
-    cmd << ['&>', cli[:log].shellescape] if cli[:log]
+    cmd << ['>', cli[:log].shellescape, '2>&1'] if cli[:log]
     pid = spawn cmd.join(' ')
     Process.wait pid
   end
