@@ -40,10 +40,10 @@ MiGA currently supports three daemon modes, and they each have specific details:
 
 ### Local daemons
 
-Local daemons, or *bash* daemons, are the simplest mode.
+Local daemons, or `bash` daemons, are the simplest mode.
 You can use this type of daemon if you are launching MiGA in a single computer.
 
-The most important consideration here is the *total number of available CPUs*.
+The most important consideration here is the **total number of available CPUs**.
 When you launch a MiGA daemon, the maximum number of jobs spawned will be
 determined by `--max-jobs` (or `maxjobs` in daemon JSON files, or `--jobs` in
 workflows), whereas the number of CPUs each job can use is determined by `--ppn`
@@ -55,16 +55,16 @@ For example, if you have 12 cores in your computer, the default configuration of
 
 ### Remote daemons
 
-Remote daemons, or *ssh* daemons, are daemons that can communicate with other
+Remote daemons, or `ssh` daemons, are daemons that can communicate with other
 machines to launch tasks remotely using a login shell through SSH.
 
 The first consideration here is: the absolute path to the MiGA project and to
-the MiGA system *must* be the same in all nodes (launcher and running nodes).
+the MiGA system **must** be the same in all nodes (launcher and running nodes).
 If this is not the case, remote executions will fail.
 
 Next, in this type of daemon the trickiest part is to configure the remote nodes
 correctly.
-This is, to correctly *define the node list file*.
+This is, to correctly **define the node list file**.
 The node list file is a raw text file that contains the list of all remote nodes
 available (hostnames), one per line.
 It can be set as an environmental variable (*e.g.*, `$MIGA_NODELIST`) that will
@@ -89,7 +89,7 @@ an environmental varible.
 For example, you could execute `export MIGA_NODELIST=/path/to/file.txt` before
 running MiGA if the node list is set to `$MIGA_NODELIST`.
 
-Finally, *remote daemons ignore `maxjobs`* (or `--max-jobs` or `--jobs`).
+Finally, **remote daemons ignore `maxjobs`** (or `--max-jobs` or `--jobs`).
 Instead, the maximum number of jobs is determined by the number of lines in the
 node list.
 This allows specifying how many jobs can be launched to each node.
@@ -123,7 +123,7 @@ miga quality_wf -T 'Macondimonas' -o Macondimonas -v --threads 3
 ### Scheduler daemons
 
 Finally, daemons can also communicate directly with schedulers.
-Currently, MiGA supports: *qsub* (Torque), *msub* (Moab), and *slurm* (SLURM).
+Currently, MiGA supports: `qsub` (Torque), `msub` (Moab), and `slurm` (SLURM).
 If your HPCC runs a different scheduler and you'd like to see it added to this
 list, [please contact us](http://support.microbial-genomes.org).
 
