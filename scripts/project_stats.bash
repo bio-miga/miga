@@ -12,7 +12,7 @@ cd "$DIR"
 miga date > "miga-project.start"
 
 # Index taxonomy
-miga index_taxonomy -P "$PROJECT" -i "miga-project.taxonomy.json" --ref
+miga tax_index -P "$PROJECT" -i "miga-project.taxonomy.json" --ref --active
 
 # Index metadata
 ruby -I "$MIGA/lib" \
