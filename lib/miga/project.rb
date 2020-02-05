@@ -49,11 +49,11 @@ class MiGA::Project < MiGA::MiGA
     dirs = [path] + @@FOLDERS.map{|d| "#{path}/#{d}" } +
       @@DATA_FOLDERS.map{ |d| "#{path}/data/#{d}"}
     dirs.each{ |d| Dir.mkdir(d) unless Dir.exist? d }
-    @metadata = MiGA::Metadata.new(self.path + "/miga.project.json",
+    @metadata = MiGA::Metadata.new(
+      File.expand_path('miga.project.json', path),
       {datasets: [], name: File.basename(path)})
-    FileUtils.cp("#{ENV["MIGA_HOME"]}/.miga_daemon.json",
-      "#{path}/daemon/daemon.json") unless
-        File.exist? "#{path}/daemon/daemon.json"
+    d_path = File.expand_path('daemon/daemon.json', path)
+    File.open(d_path, 'w') { |fh| fh.puts '{}' } unless File.exist? d_path
     self.load
   end
 
