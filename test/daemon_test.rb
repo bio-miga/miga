@@ -79,7 +79,7 @@ class DaemonTest < Test::Unit::TestCase
     dpath = File.expand_path("daemon/MiGA:#{p.name}",p.path)
     assert(File.exist?("#{dpath}.pid"))
     out = capture_stdout { d.stop }
-    assert(out.string =~ /MiGA:#{p.name}: trying to stop process with pid \d+/)
+    assert_equal('', out.string)
     assert(!File.exist?("#{dpath}.pid"))
     assert(File.exist?("#{dpath}.output"))
     File.open("#{dpath}.output", "r") do |fh|

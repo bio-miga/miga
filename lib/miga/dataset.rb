@@ -55,6 +55,7 @@ class MiGA::Dataset < MiGA::MiGA
       File.expand_path("metadata/#{name}.json", project.path),
       metadata
     ]
+    save unless File.exist? @metadata_future[0]
   end
 
   ##
@@ -66,10 +67,8 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Save any changes you've made in the dataset.
   def save
-    if t = metadata[:tax] and n = t[:ns] and n == 'COMMUNITY'
-      self.metadata[:type] = :metagenome
-    end
-    self.metadata.save
+    MiGA.DEBUG "Dataset.metadata: #{metadata.data}"
+    metadata.save
   end
   
   ##

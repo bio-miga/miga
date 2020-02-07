@@ -50,7 +50,7 @@ class DatasetTest < Test::Unit::TestCase
     assert(!d2.is_multi?)
     assert(!d2.is_nonmulti?)
     assert_nil(d2.metadata[:type])
-    d2.metadata[:tax] = {:ns=>"COMMUNITY"}
+    d2.metadata[:type] = :metagenome
     d2.save
     assert_equal(:metagenome, d2.metadata[:type])
     assert(d2.is_multi?)

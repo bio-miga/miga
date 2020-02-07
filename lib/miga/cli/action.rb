@@ -27,6 +27,7 @@ class MiGA::Cli::Action < MiGA::MiGA
   ##
   # Launch the sequence
   def launch
+    MiGA.DEBUG 'Cli::Action.launch'
     empty_action if cli.argv.empty?
     parse_cli
     perform

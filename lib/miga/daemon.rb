@@ -71,12 +71,18 @@ class MiGA::Daemon < MiGA::MiGA
   # Launches the +task+ with options +opts+ (as command-line arguments).
   # Supported tasks include: start, stop, restart, status.
   def daemon(task, opts=[])
+    MiGA.DEBUG "Daemon.daemon #{task} #{opts}"
     options = default_options
     opts.unshift(task)
     options[:ARGV] = opts
-    Daemons.run_proc("MiGA:#{project.name}", options) do
-      loop { break unless in_loop }
+    # This additional degree of separation below was introduced so the Daemons
+    # package doesn't kill the parent process in workflows.
+    pid = fork do 
+      Daemons.run_proc("MiGA:#{project.name}", options) do
+        loop { break unless in_loop }
+      end
     end
+    Process.wait pid
   end
 
   ##

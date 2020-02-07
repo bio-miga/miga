@@ -139,6 +139,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       rank = 'dataset' if lineage.empty? and rank.nil?
       lineage[rank] = name unless rank.nil? or rank.nil?
     end
+    MiGA.DEBUG "Got lineage: #{lineage}"
     MiGA::Taxonomy.new(lineage)
   end
 
@@ -210,6 +211,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
         metadata[:is_type] = true
         metadata[:type_rel] = from_type
       end
+      #metadata[:suspect] = ncbi_asm_json_doc['exclfromrefseq']
+      MiGA.DEBUG "Got type: #{from_type}"
       metadata
     end
 

@@ -113,7 +113,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   }
   write.tree(ani.ph, paste(out_base, ".nwk", sep=""))
   options(expressions=express.ori)
-  
+
   # Silhouette
   say("Silhouette")
   nn <- length(labels(ani.d))
@@ -130,13 +130,13 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
   ds <- s.avg.z - s.neg.z - 2/(1:length(k)) - (1:length(k))/50
   if(mean(s[1,]<0)<0.75) ds[s[1,]<0] <- mean(ds) # <- k's with negative average
   top.n <- k[which.max(ds)]
-  
+
   # Classify genomes
   say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
   ani.cl <- pam(ani.d, top.n, pamonce=1)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
-  
+
   # Generate graphic report
   say("Graphic report")
   pdf(paste(out_base, ".pdf", sep=""), 7, 12)
@@ -149,7 +149,7 @@ subclade_clustering <- function(out_base, thr, ani.d, dist_rdata) {
 
   # Save results
   write_text_report(out_base, ani.d, ani.medoids, ani.types)
-  
+
   # Return data
   say("Cluster ready")
   return(list(
@@ -172,8 +172,8 @@ generate_empty_files <- function(out_base) {
 }
 
 write_text_report <- function(out_base, ani.d, ani.medoids, ani.types){
-  say("Text report")
-  write.table(ani.medoids, paste(out_base, "medoids", sep="."),
+  say('Text report')
+  write.table(ani.medoids, paste(out_base, 'medoids', sep='.'),
     quote=FALSE, col.names=FALSE, row.names=FALSE)
   classif <- cbind(names(ani.types), ani.types, ani.medoids[ ani.types ], NA)
   ani.d.m <- 100 - as.matrix(ani.d)*100
