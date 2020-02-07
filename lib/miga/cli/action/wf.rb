@@ -120,6 +120,7 @@ module MiGA::Cli::Action::Wf
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
     [:haai_p, :aai_p, :ani_p, :ess_coll].each { |i| p_metadata[i] = cli[i] }
+    p_metadata[:type] = cli[:project_type]
     transfer_metadata(p, p_metadata)
     # Download datasets
     call_cli([
@@ -138,6 +139,7 @@ module MiGA::Cli::Action::Wf
     ] + cli.files) unless cli.files.empty?
     # Define datasets metadata
     p.load
+    d_metadata[:type] = cli[:dataset_type]
     p.each_dataset { |d| transfer_metadata(d, d_metadata) }
     p
   end
