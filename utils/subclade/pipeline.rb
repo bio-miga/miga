@@ -47,6 +47,9 @@ module MiGA::SubcladeRunner::Pipeline
     dir = opts[:gsp_metric] == 'aai' ? '02.aai' : '03.ani'
     `Rscript '#{src}' ../../09.distances/#{dir}/miga-project.Rdata \
       miga-project.gsp-medoids miga-project.gsp-clades`
+    if File.exist? 'miga-project.gsp-clades.sorted'
+      File.rename 'miga-project.gsp-clades.sorted', 'miga-project.gsp-clades'
+    end
 
     # Propose clades
     ofh = File.open('miga-project.proposed-clades', 'w')

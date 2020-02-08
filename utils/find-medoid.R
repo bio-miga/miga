@@ -20,18 +20,23 @@ find_medoids <- function(ani.df, out, clades) {
   dist <- enve.df2dist(ani.df, 'a', 'b', 'd', default.d = max(ani.df$d)*1.2)
   dist <- as.matrix(dist)
   cl <- read.table(clades, header = FALSE, sep = '\t', as.is = TRUE)[,1]
+  cl.s <- c()
   medoids <- c()
   for(i in cl){
     lab <- strsplit(i, ',')[[1]]
     cat('Clade of:', lab[1], '\n')
     if(length(lab) == 1) {
-      med <- lab
+      lab.s <- lab
     } else {
-      med <- lab[which.min(colSums(dist[lab, lab], na.rm = TRUE))]
+      lab.s <- lab[order(colSums(dist[lab, lab], na.rm = TRUE))]
     }
+    med <- lab.s[1]
     medoids <- c(medoids, med)
+    cl.s <- c(cl.s, paste(lab.s, collapse = ','))
   }
   write.table(medoids, out, quote = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(cl.s, paste(clades, '.sorted', sep = ''), quote = FALSE,
+    row.names = FALSE, col.names = FALSE)
 }
 
 #= Main
