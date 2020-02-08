@@ -116,6 +116,48 @@ module MiGA::Dataset::Result
     end
     adv
   end
+
+  ##
+  # Returns a Hash with tasks as key and status as value.
+  # See +result_status+ for possible values
+  def results_status
+    Hash[@@PREPROCESSING_TASKS.map { |task| [task, result_status(task)] }]
+  end
+
+  ##
+  # Returns the status of +task+. The status values are symbols:
+  # - ignore_inactive: the dataset is inactive
+  # - ignore_force: forced to ignore by metadata
+  # - ignore_project: incompatible project
+  # - ignore_noref: incompatible dataset, only for reference
+  # - ignore_multi: incompatible dataset, only for multi
+  # - ignore_nonmulti: incompatible dataset, only for nonmulti
+  # - ignore: incompatible dataset, unknown reason
+  # - complete: a task with registered results
+  # - pending: a task queued to be performed
+  def result_status(task)
+    if not get_result(task).nil?
+      :complete
+    elsif ignore_task?(task)
+      if not is_active?
+        :ignore_inactive
+      elsif metadata["run_#{task}"]
+        :ignore_force
+      elsif task == :taxonomy and project.metadata[:ref_project].nil?
+        :ignore_project
+      elsif @@_EXCLUDE_NOREF_TASKS_H[task] && ! is_ref?
+        :ignore_noref
+      elsif @@_ONLY_MULTI_TASKS_H[task] && ! is_multi?
+        :ignore_multi
+      elsif @@_ONLY_NONMULTI_TASKS_H[task] && ! is_nonmulti?
+        :ignore_nonmulti
+      else
+        :ignore
+      end
+    else
+      :pending
+    end
+  end
   
   ##
   # Clean-up all the stored distances, removing values for datasets no longer in

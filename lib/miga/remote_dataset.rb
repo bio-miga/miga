@@ -211,7 +211,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
         metadata[:is_type] = true
         metadata[:type_rel] = from_type
       end
-      #metadata[:suspect] = ncbi_asm_json_doc['exclfromrefseq']
+      metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
+      metadata[:suspect] = nil if metadata[:suspect].empty?
       MiGA.DEBUG "Got type: #{from_type}"
       metadata
     end
