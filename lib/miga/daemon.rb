@@ -333,7 +333,7 @@ class MiGA::Daemon < MiGA::MiGA
             runopts(k).gsub(/%(\d+)\$d/, '%\\1$s'),
             *v.map{ |i| "{{#{i}}}" }
           )
-        )
+        ) unless runopts(k).nil?
       end
       runopts(:format_version, 1)
     end
