@@ -327,7 +327,14 @@ class MiGA::Daemon < MiGA::MiGA
         var: %w[key value],
         alive: %w[pid],
         kill: %w[pid]
-      }.each { |k,v| runopts(k, sprintf(runopts(k), *v.map{ |i| "{{#{i}}}" })) }
+      }.each do |k,v|
+        runopts(
+          k, sprintf(
+            runopts(k).gsub(/%(\d+)\$d/, '%\\1$s'),
+            *v.map{ |i| "{{#{i}}}" }
+          )
+        )
+      end
       runopts(:format_version, 1)
     end
 end
