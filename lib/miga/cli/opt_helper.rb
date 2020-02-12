@@ -144,6 +144,10 @@ module MiGA::Cli::OptHelper
       end
     end
     opt.on(
+      '--ds-list FILE',
+      'File containing a list of dataset names, one per line'
+    ) { |v| self[:ds_list] = v }
+    opt.on(
       '--dataset-k INTEGER', Integer,
       'Use only the k-th dataset in the list'
     ) { |v| self[:dataset_k] = v }

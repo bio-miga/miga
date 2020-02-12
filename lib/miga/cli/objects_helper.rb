@@ -38,8 +38,17 @@ module MiGA::Cli::ObjectsHelper
   def load_and_filter_datasets(silent = false)
     return @objects[:filtered_datasets] unless @objects[:filtered_datasets].nil?
     say 'Listing datasets'
-    ds = self[:dataset].nil? ?
-      load_project.datasets : [load_dataset(silent)].compact
+    if ! self[:dataset].nil?
+      ds = [load_dataset(silent)].compact
+    elsif ! self[:ds_list].nil?
+      ds = File.readlines(self[:ds_list]).map do |i|
+        self[:dataset] = i.chomp
+        load_dataset(silent)
+      end.compact
+      self[:dataset] = nil
+    else
+      ds = load_project.datasets
+    end
     k = 0
     n = ds.size
     ds.select! do |d|
