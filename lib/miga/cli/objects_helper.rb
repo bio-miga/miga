@@ -16,14 +16,14 @@ module MiGA::Cli::ObjectsHelper
   ##
   # Load the dataset defined in the CLI
   # If +silent=true+, it allows failures silently
-  def load_dataset(silent = false)
-    return @objects[:dataset] unless @objects[:dataset].nil?
-    ensure_par(dataset: '-D')
-    @objects[:dataset] = load_project.dataset(self[:dataset])
-    if !silent && @objects[:dataset].nil?
-      raise "Cannot load dataset: #{self[:dataset]}"
+  def load_dataset(silent = false, name = nil)
+    if name.nil?
+      ensure_par(dataset: '-D')
+      name = self[:dataset]
     end
-    return @objects[:dataset]
+    d = load_project.dataset(name)
+    raise "Cannot load dataset: #{self[:dataset]}" if !silent && d.nil?
+    return d
   end
 
   ##
@@ -38,16 +38,14 @@ module MiGA::Cli::ObjectsHelper
   def load_and_filter_datasets(silent = false)
     return @objects[:filtered_datasets] unless @objects[:filtered_datasets].nil?
     say 'Listing datasets'
-    if ! self[:dataset].nil?
-      ds = [load_dataset(silent)].compact
+    ds = if ! self[:dataset].nil?
+      [load_dataset(silent)].compact
     elsif ! self[:ds_list].nil?
-      ds = File.readlines(self[:ds_list]).map do |i|
-        self[:dataset] = i.chomp
-        load_dataset(silent)
+      File.readlines(self[:ds_list]).map do |i|
+        load_dataset(silent, i.chomp)
       end.compact
-      self[:dataset] = nil
     else
-      ds = load_project.datasets
+      load_project.datasets
     end
     k = 0
     n = ds.size
