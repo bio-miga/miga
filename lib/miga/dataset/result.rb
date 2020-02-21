@@ -64,7 +64,7 @@ module MiGA::Dataset::Result
   # execution order). This typically corresponds to the result used as the
   # initial input. Passes +save+ to #add_result.
   def first_preprocessing(save = false)
-    @@PREPROCESSING_TASKS.find do |t|
+    @first_processing ||= @@PREPROCESSING_TASKS.find do |t|
       not ignore_task?(t) and not add_result(t, save).nil?
     end
   end
@@ -126,6 +126,8 @@ module MiGA::Dataset::Result
 
   ##
   # Returns the status of +task+. The status values are symbols:
+  # - -: the task is upstream from the initial input
+  # - ignore_empty: the dataset has no data
   # - ignore_inactive: the dataset is inactive
   # - ignore_force: forced to ignore by metadata
   # - ignore_project: incompatible project
@@ -136,8 +138,13 @@ module MiGA::Dataset::Result
   # - complete: a task with registered results
   # - pending: a task queued to be performed
   def result_status(task)
-    if not get_result(task).nil?
+    if first_preprocessing.nil?
+      :ignore_empty
+    elsif not get_result(task).nil?
       :complete
+    elsif @@PREPROCESSING_TASKS.index(task) <
+            @@PREPROCESSING_TASKS.index(first_preprocessing)
+      :-
     elsif ignore_task?(task)
       if not is_active?
         :ignore_inactive

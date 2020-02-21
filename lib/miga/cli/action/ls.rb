@@ -19,6 +19,10 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
         'Print information on processing advance'
       ) { |v| cli[:processing] = v }
       opt.on(
+        '-t', '--task-status',
+        'Print the status of each processing step'
+      ) { |v| cli[:taskstatus] = v }
+      opt.on(
         '-m', '--metadata STRING',
         'Print name and metadata field only',
         'If set, ignores -i and assumes --tab'
@@ -54,6 +58,12 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
       cli.table(
         [:name] + MiGA::Dataset.PREPROCESSING_TASKS,
         ds.map { |d| [d.name] + d.profile_advance.map { |i| comp[i] } },
+        io
+      )
+    elsif cli[:taskstatus]
+      cli.table(
+        [:name] + MiGA::Dataset.PREPROCESSING_TASKS,
+        ds.map { |d| [d.name] + d.results_status.values },
         io
       )
     else
