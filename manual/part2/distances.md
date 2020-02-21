@@ -70,10 +70,12 @@ database files. The general schema for [hAAI](#haai) and [AAI](#aai) is:
 
 ```sql
 CREATE TABLE aai(
-  seq1 varchar(256), seq2 varchar(256), aai float, sd float, n int, omega int
+  seq1 varchar(256), seq2 varchar(256),
+  aai float, sd float, n int, omega int
 );
 CREATE TABLE rbm(
-  seq1 varchar(256), seq2 varchar(256), id1 varchar(256), id2 varchar(256),
+  seq1 varchar(256), seq2 varchar(256),
+  id1 varchar(256), id2 varchar(256),
   id float, evalue float, bitscore float
 );
 ```
@@ -89,14 +91,17 @@ The general schema for [ANI](#ani) is:
 
 ```sql
 CREATE TABLE ani(
-  seq1 varchar(256), seq2 varchar(256), ani float, sd float, n int, omega int
+  seq1 varchar(256), seq2 varchar(256),
+  ani float, sd float, n int, omega int
 );
 CREATE TABLE rbm(
-  seq1 varchar(256), seq2 varchar(256), id1 int, id2 int, id float,
+  seq1 varchar(256), seq2 varchar(256),
+  id1 int, id2 int, id float,
   evalue float, bitscore float
 );
 CREATE TABLE regions(
-  seq varchar(256), id int, source varchar(256), `start` int, `end` int
+  seq varchar(256), id int, source varchar(256),
+  `start` int, `end` int
 );
 ```
 
