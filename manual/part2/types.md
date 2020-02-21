@@ -28,9 +28,9 @@ of genomes from different taxonomic groups. It can be useful for anything from
 indexing a reference database, to create a collection of metagenomic bins, and
 anything in between.
 
-### Clades
+### Clade
 
-**Symbol**: `clades`.
+**Symbol**: `clade`.
 
 A collection of closely-related genomes (ANI >= 90%). This is a project for a
 collection of genomes in the same species (or closely-related species) that
