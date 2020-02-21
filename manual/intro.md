@@ -35,9 +35,9 @@ means that you can write your own interfaces \(or pieces\) if you know how to
 talk to these Ruby objects. Sometimes I even use `irb`, which is an interactive
 shell for Ruby, but that's mostly for debugging.
 
-* [MiGA API](part3/API.md)
-* [MiGA CLI](part3/CLI.md)
-* [MiGA Web](part3/Web.md)
+* [MiGA API](part3/api.md)
+* [MiGA CLI](part3/cli.md)
+* [MiGA Web](part3/web.md)
 
 ## Deploying examples
 

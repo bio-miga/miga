@@ -486,8 +486,8 @@ Supported file keys:
 * `abc` (*gz*): When available, it includes all the individual RBM files in
   ABC format. This file is typically produced as intermediate result and
   removed before finishing, but can be maintained using
-  `miga new -P . -m clean_ogs=false --update` in the project folder using the
-  [CLI](../part3/CLI.md)
+  `miga update -P . -m clean_ogs=false` in the project folder using the
+  [CLI](../part3/cli.md)
 * `core_pan`: Summary statistics of rarefied core-genome/pangenome sizes in
   tab-delimited format
 * `core_pan_plot`: Plot of rarefied core-genome/pangenome sizes in PDF

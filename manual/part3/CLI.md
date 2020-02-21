@@ -13,5 +13,6 @@ miga task [options]
 Where `task` is one of the supported tasks and `[options]` is a set of dash-flag
 options supported by each task. `-h` is always there to provide help.
 
-If you're a MiGA administrator, this is probably the most convenient option for
-you.
+For additional information and a complete list of workflows,
+see also [Workflows](../part6.md).
+

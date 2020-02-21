@@ -22,7 +22,7 @@ gem install miga-base-*.gem
 
 ## Usage
 
-Now that you have the gem, you can use the [CLI](CLI.md), but you can also
+Now that you have the gem, you can use the [CLI](cli.md), but you can also
 interact directly with the API. The `actions` folder contains the CLI
 implementations, so you can take them as examples on how to use the API. You
 can also use `irb`. For example:
