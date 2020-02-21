@@ -14,11 +14,11 @@ For any given pair of genomes, MiGA attempts a hierarchical approach to identify
 the most appopriate metric of similarity:
 
 1. First, the genomes are compared using [hAAI](#haai). If this method is
-   skipped, if it fails, or if the value is greater than 90%, MiGA continues to
-   step 2. Otherwise, this value is used to estimate the AAI and both values are
-   recorded.
+ skipped, if it fails, or if the value is greater than 90%, MiGA continues to
+ step 2. Otherwise, this value is used to estimate the AAI and both values are
+ recorded.
 2. Next, MiGA compares genomes using [AAI](#aai). Whenever the AAI is 85% or
-   higher, MiGA continues to step 3.
+ higher, MiGA continues to step 3.
 3. Finally, MiGA estimates [ANI](#ani).
 
 ## hAAI
