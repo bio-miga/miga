@@ -9,7 +9,8 @@ module MiGA::Common::Format
   # Tabulates an +values+, and Array of Arrays, all with the same number of
   # entries as +header+. Returns an Array of String, one per line.
   def tabulate(header, values, tabular = false)
-    fields = [header.map(&:to_s)]
+    fields = []
+    fields << header.map(&:to_s) unless tabular && header.all?(&:nil?)
     fields << fields.first.map { |h| h.gsub(/\S/, '-') } unless tabular
     fields += values.map { |r| r.map { |cell| cell.nil? ? '?' : cell.to_s } }
     clen = tabular ? Array.new(header.size, 0) :

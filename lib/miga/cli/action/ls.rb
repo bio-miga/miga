@@ -25,8 +25,12 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
       opt.on(
         '-m', '--metadata STRING',
         'Print name and metadata field only',
-        'If set, ignores -i and assumes --tab'
+        'If set, ignores --info and forces --tab (without header)'
       ) { |v| cli[:datum] = v }
+      opt.on(
+        '-f', '--fields STR1,STR2,STR3', Array,
+        'Comma-delimited metadata fields to print'
+      ) { |v| cli[:fields] = v }
       opt.on(
         '--tab',
         'Return a tab-delimited table'
@@ -45,30 +49,45 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
   def perform
     ds = cli.load_and_filter_datasets(cli[:silent])
     exit(ds.empty? ? 1 : 0) if cli[:silent]
-    io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')
     if !cli[:datum].nil?
-      ds.each do |d|
-        v = d.metadata[cli[:datum]]
-        cli.puts(io, "#{d.name}\t#{v.nil? ? '?' : v}")
+      cli[:tabular] = true
+      format_table(ds, [nil,nil]) { |d| [d.name, d.metadata[cli[:datum]]] }
+    elsif !cli[:fields].nil?
+      format_table(ds, [:name] + cli[:fields]) do |d|
+        [d.name] + cli[:fields].map { |f| d.metadata[f] }
       end
     elsif cli[:info]
-      cli.table(Dataset.INFO_FIELDS, ds.map { |d| d.info }, io)
+      format_table(ds, Dataset.INFO_FIELDS) { |d| d.info }
     elsif cli[:processing]
       comp = %w[- done queued]
-      cli.table(
-        [:name] + MiGA::Dataset.PREPROCESSING_TASKS,
-        ds.map { |d| [d.name] + d.profile_advance.map { |i| comp[i] } },
-        io
-      )
+      format_table(ds, [:name] + MiGA::Dataset.PREPROCESSING_TASKS) do |d|
+        [d.name] + d.profile_advance.map { |i| comp[i] }
+      end
     elsif cli[:taskstatus]
-      cli.table(
-        [:name] + MiGA::Dataset.PREPROCESSING_TASKS,
-        ds.map { |d| [d.name] + d.results_status.values },
-        io
-      )
+      format_table(ds, [:name] + MiGA::Dataset.PREPROCESSING_TASKS) do |d|
+        [d.name] + d.results_status.values
+      end
     else
-      ds.each { |d| cli.puts(io, d.name) }
+      cli[:tabular] = true
+      format_table(ds, [nil]) { |d| [d.name] }
     end
+  end
+
+  private
+
+  def format_table(ds, header, &blk)
+    io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')
+    cli.say 'Collecting metadata'
+    k = 0
+    cli.table(
+      header,
+      ds.map do |d|
+        cli.advance('Datasets:', k += 1, ds.size, false)
+        blk[d]
+      end,
+      io
+    )
+    cli.say ''
     io.close unless cli[:output].nil?
   end
 end
