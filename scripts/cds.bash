@@ -28,7 +28,7 @@ case "$TYPE" in
     P_LEN=0
     BEST_CT=0
     echo "# Codon table selection:" > "${DATASET}.ct.t"
-    for ct in 4 11 ; do
+    for ct in 11 4 ; do
       prodigal -a "${DATASET}.faa.$ct" -d "${DATASET}.fna.$ct" \
         -o "${DATASET}.gff3.$ct" -f gff -q -p single -g "$ct" \
         -i "../05.assembly/${DATASET}.LargeContigs.fna"
@@ -36,7 +36,7 @@ case "$TYPE" in
         | perl -pe 's/[^A-Z]//ig' | wc -c | awk '{print $1}')
       echo "# codon table $ct total length: $C_LEN aa" \
         >> "${DATASET}.ct.t"
-      if [[ $C_LEN > $P_LEN ]] ; then
+      if [[ $C_LEN > $(($P_LEN * 11 / 10)) ]] ; then
         for x in faa fna gff3 ; do
           mv "${DATASET}.$x.$ct" "${DATASET}.$x"
         done
