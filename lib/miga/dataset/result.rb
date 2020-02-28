@@ -14,7 +14,8 @@ module MiGA::Dataset::Result
   def result(k)
     return nil if @@RESULT_DIRS[k.to_sym].nil?
     MiGA::Result.load(
-      "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json" )
+      "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json"
+    )
   end
   
   ##

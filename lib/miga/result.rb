@@ -1,19 +1,25 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require "miga/result/dates"
+require 'miga/result/dates'
+require 'miga/result/source'
+require 'miga/result/stats'
 
 ##
 # The result from a task run. It can be project-wide or dataset-specific.
 class MiGA::Result < MiGA::MiGA
-  
+
   include MiGA::Result::Dates
-  
+  include MiGA::Result::Source
+  include MiGA::Result::Stats
+
   # Class-level
-  
+
   ##
   # Check if the result described by the JSON in +path+ already exists.
-  def self.exist?(path) File.exist? path end
+  def self.exist?(path)
+    File.exist? path
+  end
 
   ##
   # Load the result described by the JSON in +path+. Returns MiGA::Result if it
@@ -32,14 +38,14 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Array of MiGA::Result objects nested within the result (if any).
   attr_reader :results
-  
+
   ##
   # Load or create the MiGA::Result described by the JSON file +path+.
   def initialize(path)
-    @path = path
-    MiGA::Result.exist?(path) ? self.load : create
+    @path = File.absolute_path(path)
+    MiGA::Result.exist?(@path) ? self.load : create
   end
-  
+
   ##
   # Is the result clean? Returns Boolean.
   def clean? ; !! self[:clean] ; end
@@ -109,7 +115,7 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Initialize and #save empty result.
   def create
-    @data = {:created=>Time.now.to_s, :results=>[], :stats=>{}, :files=>{}}
+    @data = { created: Time.now.to_s, results: [], stats: {}, files: {} }
     save
   end
 
@@ -181,5 +187,5 @@ class MiGA::Result < MiGA::MiGA
     @data[:results] << result.path
     save
   end
-  
+
 end
