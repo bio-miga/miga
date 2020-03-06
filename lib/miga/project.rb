@@ -4,6 +4,7 @@
 require 'miga/dataset'
 require 'miga/project/result'
 require 'miga/project/dataset'
+require 'miga/project/hooks'
 require 'miga/project/plugins'
 
 ##
@@ -12,6 +13,7 @@ class MiGA::Project < MiGA::MiGA
   
   include MiGA::Project::Result
   include MiGA::Project::Dataset
+  include MiGA::Project::Hooks
   include MiGA::Project::Plugins
 
   ##
@@ -54,6 +56,7 @@ class MiGA::Project < MiGA::MiGA
       {datasets: [], name: File.basename(path)})
     d_path = File.expand_path('daemon/daemon.json', path)
     File.open(d_path, 'w') { |fh| fh.puts '{}' } unless File.exist? d_path
+    pull_hook :on_create
     self.load
   end
 
@@ -67,6 +70,7 @@ class MiGA::Project < MiGA::MiGA
   # Save any changes persistently, regardless of +do_not_save+.
   def save!
     metadata.save
+    pull_hook :on_save
     self.load
   end
 
@@ -77,6 +81,7 @@ class MiGA::Project < MiGA::MiGA
     @dataset_names_hash = nil
     @metadata = MiGA::Metadata.load "#{path}/miga.project.json"
     raise "Couldn't find project metadata at #{path}" if metadata.nil?
+    pull_hook :on_load
   end
 
   ##

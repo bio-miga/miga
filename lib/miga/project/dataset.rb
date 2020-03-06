@@ -56,6 +56,7 @@ module MiGA::Project::Dataset
       @metadata[:datasets] << name
       @dataset_names_hash = nil # Ensure loading even if +do_not_save+ is true
       save
+      pull_hook(:on_add_dataset, name)
     end
     dataset(name)
   end
@@ -67,6 +68,7 @@ module MiGA::Project::Dataset
     return nil if d.nil?
     self.metadata[:datasets].delete(name)
     save
+    pull_hook(:on_unlink_dataset, name)
     d
   end
 
@@ -121,7 +123,7 @@ module MiGA::Project::Dataset
   ##
   # Are all the datasets in the project preprocessed? Save intermediate results
   # if +save+ (until the first incomplete dataset is reached).
-  def done_preprocessing?(save=true)
+  def done_preprocessing?(save = true)
     dataset_names.each do |dn|
       ds = dataset(dn)
       return false if ds.is_ref? and not ds.done_preprocessing?(save)

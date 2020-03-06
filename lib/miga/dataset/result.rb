@@ -6,9 +6,9 @@ require 'miga/dataset/base'
 ##
 # Helper module including specific functions to add dataset results.
 module MiGA::Dataset::Result
-  
+
   include MiGA::Dataset::Base
-  
+
   ##
   # Get the result MiGA::Result in this dataset identified by the symbol +k+.
   def result(k)
@@ -17,11 +17,11 @@ module MiGA::Dataset::Result
       "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json"
     )
   end
-  
+
   ##
   # Get all the results (Array of MiGA::Result) in this dataset.
   def results ; @@RESULT_DIRS.keys.map{ |k| result k }.compact ; end
-  
+
   ##
   # For each result executes the 2-ary +blk+ block: key symbol and MiGA::Result.
   def each_result(&blk)
@@ -29,15 +29,15 @@ module MiGA::Dataset::Result
       blk.call(k, result(k)) unless result(k).nil?
     end
   end
-  
+
   ##
   # Look for the result with symbol key +result_type+ and register it in the
   # dataset. If +save+ is false, it doesn't register the result, but it still
   # returns a result if the expected files are complete. The +opts+ hash
   # controls result creation (if necessary). Supported values include:
-  # - +is_clean+: A Boolean indicating if the input files are clean.
-  # - +force+: A Boolean indicating if the result must be re-indexed. If true,
-  #   it implies save=true.
+  # - +is_clean+: A Boolean indicating if the input files are clean
+  # - +force+: A Boolean indicating if the result must be re-indexed.
+  #   If true, it implies +save = true+
   # Returns MiGA::Result or nil.
   def add_result(result_type, save = true, opts = {})
     dir = @@RESULT_DIRS[result_type]
@@ -47,11 +47,14 @@ module MiGA::Dataset::Result
       FileUtils.rm("#{base}.json") if File.exist?("#{base}.json")
     else
       r_pre = MiGA::Result.load("#{base}.json")
-      return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+      return r_pre if (r_pre.nil? && !save) || !r_pre.nil?
     end
     r = File.exist?("#{base}.done") ?
         self.send("add_result_#{result_type}", base, opts) : nil
-    r.save unless r.nil?
+    unless r.nil?
+      r.save
+      pull_hook(:on_result_ready, result_type)
+    end
     r
   end
 
@@ -69,7 +72,7 @@ module MiGA::Dataset::Result
       not ignore_task?(t) and not add_result(t, save).nil?
     end
   end
-  
+
   ##
   # Returns the key symbol of the next task that needs to be executed. Passes
   # +save+ to #add_result.
@@ -96,7 +99,7 @@ module MiGA::Dataset::Result
   def done_preprocessing?(save = false)
     !first_preprocessing(save).nil? and next_preprocessing(save).nil?
   end
-  
+
   ##
   # Returns an array indicating the stage of each task (sorted by execution
   # order). The values are integers:
@@ -301,14 +304,17 @@ module MiGA::Dataset::Result
     # Add result type +:mytaxa+ at +base+ (no +_opts+ supported).
     def add_result_mytaxa(base, _opts)
       if is_multi?
-        return nil unless result_files_exist?(base, ".mytaxa") or
-          result_files_exist?(base, ".nomytaxa.txt")
+        return nil unless result_files_exist?(base, '.mytaxa') or
+          result_files_exist?(base, '.nomytaxa.txt')
         r = MiGA::Result.new("#{base}.json")
-        add_files_to_ds_result(r, name, mytaxa: ".mytaxa", blast: ".blast",
-          mytaxain: ".mytaxain", nomytaxa: ".nomytaxa.txt",
-          species: ".mytaxa.Species.txt", genus: ".mytaxa.Genus.txt",
-          phylum: ".mytaxa.Phylum.txt", innominate: ".mytaxa.innominate",
-          kronain: ".mytaxa.krona", krona: ".html")
+        add_files_to_ds_result(
+          r, name,
+          mytaxa: '.mytaxa', blast: '.blast',
+          mytaxain: '.mytaxain', nomytaxa: '.nomytaxa.txt',
+          species: '.mytaxa.Species.txt', genus: '.mytaxa.Genus.txt',
+          phylum: '.mytaxa.Phylum.txt', innominate: '.mytaxa.innominate',
+          kronain: '.mytaxa.krona', krona: '.html'
+        )
       else
         MiGA::Result.new("#{base}.json")
       end
@@ -358,7 +364,7 @@ module MiGA::Dataset::Result
     def add_result_stats(base, _opts)
       MiGA::Result.new("#{base}.json")
     end
-    
+
     ##
     # Add result type +:distances+ for _multi_ datasets at +base+.
     def add_result_distances_multi(base)
@@ -384,10 +390,13 @@ module MiGA::Dataset::Result
         result_files_exist?(base, %w[.aai-medoids.tsv .aai.db]) or
         result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
       r = MiGA::Result.new("#{base}.json")
-      add_files_to_ds_result(r, name, aai_medoids: ".aai-medoids.tsv",
-        haai_db: ".haai.db", aai_db: ".aai.db", ani_medoids: ".ani-medoids.tsv",
-        ani_db: ".ani.db", ref_tree: ".nwk", ref_tree_pdf: ".nwk.pdf",
-        intax_test: ".intax.txt")
+      add_files_to_ds_result(
+        r, name,
+        aai_medoids: '.aai-medoids.tsv',
+        haai_db: '.haai.db', aai_db: '.aai.db', ani_medoids: '.ani-medoids.tsv',
+        ani_db: '.ani.db', ref_tree: '.nwk', ref_tree_pdf: '.nwk.pdf',
+        intax_test: '.intax.txt'
+      )
     end
 
     ##

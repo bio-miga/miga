@@ -3,6 +3,7 @@
 
 require 'miga/metadata'
 require 'miga/dataset/result'
+require 'miga/dataset/hooks'
 require 'sqlite3'
 
 ##
@@ -10,6 +11,7 @@ require 'sqlite3'
 class MiGA::Dataset < MiGA::MiGA
   
   include MiGA::Dataset::Result
+  include MiGA::Dataset::Hooks
   
   # Class-level
   class << self
@@ -56,6 +58,7 @@ class MiGA::Dataset < MiGA::MiGA
       metadata
     ]
     save unless File.exist? @metadata_future[0]
+    pull_hook :on_load
   end
 
   ##
@@ -69,6 +72,7 @@ class MiGA::Dataset < MiGA::MiGA
   def save
     MiGA.DEBUG "Dataset.metadata: #{metadata.data}"
     metadata.save
+    pull_hook :on_save
   end
   
   ##
@@ -81,6 +85,7 @@ class MiGA::Dataset < MiGA::MiGA
   def remove!
     self.results.each{ |r| r.remove! }
     self.metadata.remove!
+    pull_hook :on_remove
   end
 
   ##
@@ -88,6 +93,7 @@ class MiGA::Dataset < MiGA::MiGA
   def inactivate!
     self.metadata[:inactive] = true
     self.metadata.save
+    pull_hook :on_inactivate
   end
 
   ##
@@ -95,6 +101,7 @@ class MiGA::Dataset < MiGA::MiGA
   def activate!
     self.metadata[:inactive] = nil
     self.metadata.save
+    pull_hook :on_activate
   end
   
   ##

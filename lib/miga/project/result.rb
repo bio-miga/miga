@@ -46,11 +46,14 @@ module MiGA::Project::Result
       FileUtils.rm("#{base}.json") if File.exist?("#{base}.json")
     else
       r_pre = MiGA::Result.load("#{base}.json")
-      return r_pre if (r_pre.nil? and not save) or not r_pre.nil?
+      return r_pre if (r_pre.nil? && !save) || !r_pre.nil?
     end
     r = result_files_exist?(base, ".done") ?
         send("add_result_#{name}", base) : nil
-    r.save unless r.nil?
+    unless r.nil?
+      r.save
+      pull_hook(:on_result_ready, name)
+    end
     r
   end
 
@@ -69,7 +72,7 @@ module MiGA::Project::Result
   # If +tasks+ is +nil+ (default), it uses the entire list of tasks.
   # Returns a Symbol.
   def next_task(tasks = nil, save = true)
-    tasks ||= @@DISTANCE_TASKS+@@INCLADE_TASKS
+    tasks ||= @@DISTANCE_TASKS + @@INCLADE_TASKS
     tasks.find do |t|
       if metadata["run_#{t}"] == false or
             (!is_clade? and @@INCLADE_TASKS.include?(t) and
