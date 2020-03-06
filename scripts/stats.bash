@@ -14,7 +14,7 @@ miga date > "$DATASET.start"
 # Calculate statistics
 for i in raw_reads trimmed_fasta assembly cds essential_genes ssu distances taxonomy ; do
   echo "# $i"
-  miga result_stats --compute-and-save -P "$PROJECT" -D "$DATASET" -r $i
+  miga stats --compute-and-save -P "$PROJECT" -D "$DATASET" -r $i
 done
 
 # Finalize
