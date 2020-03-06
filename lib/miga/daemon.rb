@@ -146,8 +146,7 @@ class MiGA::Daemon < MiGA::MiGA
   def check_project
     return if project.dataset_names.empty?
     return unless project.done_preprocessing?(false)
-    to_run = project.next_distances(true)
-    to_run = project.next_inclade(true) if to_run.nil?
+    to_run = project.next_task(nil, false)
     queue_job(:p) unless to_run.nil?
   end
 
