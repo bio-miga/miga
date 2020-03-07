@@ -51,6 +51,38 @@ installed
 
 **+** One of: `dupont_2012` (default), or `lee_2019`
 
+Additionally, hooks can be defined for projects as arrays of arrays containing
+the action name and the arguments (if any). For example, one can define:
+
+```
+on_preprocessing_ready: [
+  ['run_cmd', 'date > {{project}}/ALL_DONE.txt'],
+  ['run_cmd', 'sendmail ...']
+]
+```
+
+or
+
+```
+on_add_dataset: [
+  ['run_cmd', 'echo {{object}} > {{project}}/LATEST_DATASET.txt']
+]
+```
+
+Supported events:
+- on_create(): When created
+- on_load(): When loaded
+- on_save(): When saved
+- on_add_dataset(object): When a dataset is added, with name `object`
+- on_unlink_dataset(object): When dataset with name `object` is unlinked
+- on_result_ready(object): When any result is ready, with key `object`
+- on_result_ready_{result}(): When `result` is ready
+- on_processing_ready(): When preprocessing is complete
+
+Supported hooks:
+- run_lambda(lambda, args...)
+- run_cmd(cmd)
+
 ## Datasets
 
 The following metadata fields are recognized by different interfaces for
@@ -90,4 +122,23 @@ The following metadata fields are recognized by different interfaces for
 **°** This is not a valid type, but it represents the closest available dataset
 to material that is unavailable and unlikely to ever become available.
 See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
+
+Additionally, hooks can be defined for datasets as arrays of arrays containing
+the action name and the arguments (if any).
+See above (project hooks) for examples.
+
+Supported events:
+- on_load(): When loaded
+- on_save(): When saved
+- on_remove(): When removed
+- on_inactivate(): When inactivated
+- on_activate(): When activated
+- on_result_ready(object): When any result is ready, with key `object`
+- on_result_ready_{result}(): When `result` is ready
+- on_preprocessing_ready(): When preprocessing is complete
+
+Supported hooks:
+- run_lambda(lambda, args...)
+- clear_run_counts()
+- run_cmd(cmd)
 
