@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-$:.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
 require 'miga'
 require 'miga/cli'
 
