@@ -2,7 +2,7 @@ require 'test_helper'
 require 'miga/taxonomy'
 
 class TaxonomyTest < Test::Unit::TestCase
-  
+
   def test_ranks
     assert_respond_to(MiGA::Taxonomy, :KNOWN_RANKS)
     assert(MiGA::Taxonomy.KNOWN_RANKS.include? :s)
@@ -26,21 +26,22 @@ class TaxonomyTest < Test::Unit::TestCase
     assert_equal(txt, tx.to_s)
     assert_equal(
       [[:k, 'Fantasia'],[:f, 'Dragonaceae'],[:s, 'Dragonia azura']],
-      tx.sorted_ranks)
+      tx.sorted_ranks
+    )
     assert_equal('Irrealis', tx.namespace)
   end
 
   def test_append
     tx = MiGA::Taxonomy.new ''
-    assert_equal("", "#{tx}")
-    tx << ["domain:Public","family:GNU"]
-    assert_equal("GNU", tx[:f])
-    tx << "class:ShareAlike"
-    assert_equal("ShareAlike", tx[:c])
-    tx << { :genus => "v3" }
-    assert_equal("v3", tx[:g])
-    tx << "s:v3_0"
-    assert(tx.in? MiGA::Taxonomy.new("species:v3_0"))
+    assert_equal('', "#{tx}")
+    tx << ['domain:Public', 'family:GNU']
+    assert_equal('GNU', tx[:f])
+    tx << 'class:ShareAlike'
+    assert_equal('ShareAlike', tx[:c])
+    tx << { genus: 'v3' }
+    assert_equal('v3', tx[:g])
+    tx << 's:v3_0'
+    assert(tx.in? MiGA::Taxonomy.new('species:v3_0'))
     assert_raise(RuntimeError) { tx << 123 }
   end
 

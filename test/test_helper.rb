@@ -1,16 +1,16 @@
-require "simplecov"
+require 'simplecov'
 SimpleCov.start
 
-require "rubygems"
-require "test/unit"
-require "miga/common"
-require "stringio"
+require 'rubygems'
+require 'test/unit'
+require 'miga/common'
+require 'stringio'
 
 ##
 # Kernel extensions tp capture +$stdout+ and +$stderr+ based on
 # http://thinkingdigitally.com/archive/capturing-output-from-puts-in-ruby/
 module Kernel
-  
+
   def capture_stdout
     out = StringIO.new
     $stdout = out

@@ -2,12 +2,12 @@ require 'test_helper'
 require 'miga/project'
 
 class HookTest < Test::Unit::TestCase
-  
+
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch("#{ENV['MIGA_HOME']}/.miga_rc")
-    FileUtils.touch("#{ENV['MIGA_HOME']}/.miga_daemon.json")
+    FileUtils.touch(File.expand_path('.miga_rc', ENV['MIGA_HOME']))
+    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
     $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
     $d1 = $p1.add_dataset('dataset1')
   end
@@ -91,13 +91,20 @@ class HookTest < Test::Unit::TestCase
   def test_project_result_hooks
     $res = :test
     $counter = 1
-    $p1.add_hook(:on_result_ready,
-      :run_lambda, Proc.new { |r| $res = r })
-    $p1.add_hook(:on_result_ready_project_stats,
-      :run_lambda, Proc.new { $counter += 1 })
+    $p1.add_hook(
+      :on_result_ready,
+      :run_lambda,
+      Proc.new { |r| $res = r }
+    )
+    $p1.add_hook(
+      :on_result_ready_project_stats,
+      :run_lambda,
+      Proc.new { $counter += 1 }
+    )
     %w[taxonomy.json metadata.db done].each do |ext|
       FileUtils.touch(File.expand_path(
-        "data/90.stats/miga-project.#{ext}", $p1.path))
+        "data/90.stats/miga-project.#{ext}", $p1.path
+      ))
     end
     assert_equal(:project_stats, $p1.next_task(nil, false))
     assert_equal(:test, $res)

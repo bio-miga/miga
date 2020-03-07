@@ -1,23 +1,23 @@
-require "test_helper"
-require "miga/project"
-require "miga/remote_dataset"
+require 'test_helper'
+require 'miga/project'
+require 'miga/remote_dataset'
 
 class RemoteDatasetTest < Test::Unit::TestCase
-  
+
   def setup
     $tmp = Dir.mktmpdir
-    ENV["MIGA_HOME"] = $tmp
-    FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_rc")
-    FileUtils.touch("#{ENV["MIGA_HOME"]}/.miga_daemon.json")
-    $p1 = MiGA::Project.new(File.expand_path("project1", $tmp))
-    $remote_tests = !ENV["REMOTE_TESTS"].nil?
+    ENV['MIGA_HOME'] = $tmp
+    FileUtils.touch(File.expand_path('.miga_rc', ENV["MIGA_HOME"]))
+    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV["MIGA_HOME"]))
+    $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
+    $remote_tests = !ENV['REMOTE_TESTS'].nil?
   end
 
   def teardown
     FileUtils.rm_rf $tmp
-    ENV["MIGA_HOME"] = nil
+    ENV['MIGA_HOME'] = nil
   end
-  
+
   def test_class_universe
     assert_respond_to(MiGA::RemoteDataset, :UNIVERSE)
     assert(MiGA::RemoteDataset.UNIVERSE.keys.include? :ebi)
@@ -38,11 +38,16 @@ class RemoteDatasetTest < Test::Unit::TestCase
       msg = "Failed on #{universe}:#{db}"
       assert_equal(MiGA::Taxonomy, tx.class, msg)
       assert_equal('Lentivirus', tx[:g], msg)
-      assert_equal('ns:ncbi o:Ortervirales f:Retroviridae ' \
-        'g:Lentivirus s:Human_immunodeficiency_virus_2', tx.to_s, msg)
-      assert_equal('ns:ncbi d: k: p: c: o:Ortervirales f:Retroviridae ' \
-        'g:Lentivirus s:Human_immunodeficiency_virus_2 ssp: str: ds:',
-        tx.to_s(true), msg)
+      assert_equal(
+        'ns:ncbi o:Ortervirales f:Retroviridae ' \
+          'g:Lentivirus s:Human_immunodeficiency_virus_2',
+        tx.to_s, msg
+      )
+      assert_equal(
+        'ns:ncbi d: k: p: c: o:Ortervirales f:Retroviridae ' \
+          'g:Lentivirus s:Human_immunodeficiency_virus_2 ssp: str: ds:',
+        tx.to_s(true), msg
+      )
       assert_equal('ncbi', tx.namespace, msg)
     end
   end
