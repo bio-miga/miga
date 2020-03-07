@@ -10,11 +10,6 @@ SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 function exists { [[ -e "$1" ]] ; }
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 
-for i in $(miga plugins -P "$PROJECT") ; do
-  # shellcheck source=/dev/null
-  . "$i/scripts-plugin.bash"
-done
-
 if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
   echo '############'
   echo -n "Date: " ; miga date

@@ -5,7 +5,6 @@ require 'miga/dataset'
 require 'miga/project/result'
 require 'miga/project/dataset'
 require 'miga/project/hooks'
-require 'miga/project/plugins'
 
 ##
 # MiGA representation of a project.
@@ -14,7 +13,6 @@ class MiGA::Project < MiGA::MiGA
   include MiGA::Project::Result
   include MiGA::Project::Dataset
   include MiGA::Project::Hooks
-  include MiGA::Project::Plugins
 
   ##
   # Absolute path to the project folder.
@@ -37,7 +35,6 @@ class MiGA::Project < MiGA::MiGA
     @path = File.absolute_path(path)
     self.create if not update and not Project.exist? self.path
     self.load if self.metadata.nil?
-    self.load_plugins
     self.metadata[:type] = :mixed if type.nil?
     raise "Unrecognized project type: #{type}." if @@KNOWN_TYPES[type].nil?
   end

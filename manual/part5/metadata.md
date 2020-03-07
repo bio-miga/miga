@@ -23,7 +23,6 @@ The following metadata fields are recognized by different interfaces for
 | description  | String           | Free-form description
 | name*        | [Name](../glossary.md#miga-names) | Name‡
 | type*        | String           | [Type](../part2/types.md#project-types)
-| plugins      | Array of String  | For internal control of plugins
 | ref_project  | Path             | Project with reference taxonomy
 | db_proj_dir  | Path             | Directory containing database projects
 | tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
@@ -39,6 +38,7 @@ The following metadata fields are recognized by different interfaces for
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 95)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
 | ess_coll     | String           | Collection of essential genes to use+
+| ~~plugins~~  | Array of String  | Deprecated
 
 **\*** Mandatory
 

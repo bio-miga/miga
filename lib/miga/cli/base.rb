@@ -14,7 +14,6 @@ module MiGA::Cli::Base
     # Projects
     new:      'Creates an empty MiGA project',
     about:    'Displays information about a MiGA project',
-    plugins:  'Lists or (un)installs plugins in a MiGA project',
     doctor:   'Performs consistency checks on a MiGA project',
     get_db:   'Downloads a pre-indexed database',
     # Datasets
