@@ -38,7 +38,7 @@ class ResultTest < Test::Unit::TestCase
     r = $d1.add_result(:trimmed_reads)
     assert_equal($d1.name, r.source.name)
     assert_equal(:trimmed_reads, r.key)
-    assert_equal('02.trimmed_reads', r.relative_dir)
+    assert_equal('data/02.trimmed_reads', r.relative_dir)
     assert_equal('data/02.trimmed_reads/dataset1.json', r.relative_path)
     assert_equal($p1.path, r.project.path)
     assert_equal($p1.path, r.project_path)

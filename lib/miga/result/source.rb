@@ -18,18 +18,19 @@ module MiGA::Result::Source
   ##
   # Detect the result key assigned to this result
   def key
-    @key ||= MiGA::Result.RESULT_DIRS.find { |k, v| v == relative_dir }.first
+    @key ||= MiGA::Result.RESULT_DIRS.find do |k, v|
+      "data/#{v}" == relative_dir
+    end.first
   end
 
   ##
-  # Path of the result containing the directory relative to the +data+ folder in
-  # the parent project
+  # Path of the result containing the directory relative to the parent project
   def relative_dir
-    @relative_dir ||= dir.sub("#{project_path}/data/", '')
+    @relative_dir ||= dir.sub("#{project_path}/", '')
   end
 
   ##
-  # Path of the result's JSON definition relative to the parent project.
+  # Path of the result's JSON definition relative to the parent project
   def relative_path
     @relative_path ||= path.sub("#{project_path}/", '')
   end
