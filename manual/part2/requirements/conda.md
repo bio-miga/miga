@@ -25,8 +25,7 @@ echo 'conda activate miga' >> ~/.miga_modules
 Next, install the requirements:
 
 ```bash
-conda install -y -c anaconda sqlite r-base
-conda install -y -c conda-forge ruby
+conda install -y --strict-channel-priority -c conda-forge sqlite r-base r ruby
 conda install -y -c conda-forge -c bioconda -c faircloth-lab \
   scythe blast hmmer bedtools prodigal idba mcl barrnap \
   fastqc diamond krona fastani solexaqa
@@ -40,10 +39,6 @@ conda install -y -c conda-forge -c bioconda -c faircloth-lab \
 > [here](https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA++_v3.1.7.1.zip).
 > Simply remove `solexaqa` from the list above, and download that binary
 > manually.
-
-**Note for Linux users:**
-> In some environments you'll also need gfortran installed in order to compile
-> some R packages: `conda install gfortran_linux-64`
 
 ## R packages
 
