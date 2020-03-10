@@ -25,7 +25,13 @@ module MiGA::Result::Source
   # Path of the result containing the directory relative to the +data+ folder in
   # the parent project
   def relative_dir
-    @relative_dir ||= dir.sub("#{project_path}data/", '')
+    @relative_dir ||= dir.sub("#{project_path}/data/", '')
+  end
+
+  ##
+  # Path of the result's JSON definition relative to the parent project.
+  def relative_path
+    @relative_path ||= path.sub("#{project_path}/", '')
   end
 
   ##
@@ -40,7 +46,7 @@ module MiGA::Result::Source
   # so the path referencing is identical to that of +self.path+ whenever they
   # need to be compared.
   def project_path
-    path[ 0 .. path.rindex('/data/') ]
+    path[ 0 .. path.rindex('/data/') - 1 ]
   end
 end
 
