@@ -22,18 +22,18 @@ class MiGA::Metadata < MiGA::MiGA
   # Instance-level
 
   ##
-  # Path to the JSON file describing the metadata.
+  # Path to the JSON file describing the metadata
   attr_reader :path
 
   ##
-  # Initiate a MiGA::Metadata object with description in +path+. It will create
-  # it if it doesn't exist.
-  def initialize(path, defaults={})
+  # Initiate a MiGA::Metadata object with description in +path+.
+  # It will create it if it doesn't exist
+  def initialize(path, defaults = {})
     @data = nil
     @path = File.absolute_path(path)
     unless File.exist? path
       @data = {}
-      defaults.each_pair{ |k,v| self[k]=v }
+      defaults.each { |k,v| self[k] = v }
       create
     end
   end
@@ -57,10 +57,11 @@ class MiGA::Metadata < MiGA::MiGA
   def save
     MiGA.DEBUG "Metadata.save #{path}"
     self[:updated] = Time.now.to_s
-    json = MiGA::Json.generate(data)
+    json = to_json
     sleeper = 0.0
     slept = 0
     while File.exist?(lock_file)
+      MiGA::MiGA.DEBUG "Waiting for lock: #{lock_file}"
       sleeper += 0.1 if sleeper <= 10.0
       sleep(sleeper.to_i)
       slept += sleeper.to_i
@@ -70,7 +71,7 @@ class MiGA::Metadata < MiGA::MiGA
     ofh = File.open("#{path}.tmp", 'w')
     ofh.puts json
     ofh.close
-    raise "Lock-racing detected for #{path}." unless
+    raise "Lock-racing detected for #{path}" unless
       File.exist?("#{path}.tmp") and File.exist?(lock_file)
     File.rename("#{path}.tmp", path)
     File.unlink(lock_file)
@@ -121,5 +122,11 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Iterate +blk+ for each data with 2 arguments key and value.
   def each(&blk) data.each{ |k,v| blk.call(k,v) } ; end
+
+  ##
+  # Show contents in JSON format as a String
+  def to_json
+    MiGA::Json.generate(data)
+  end
 
 end
