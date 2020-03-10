@@ -71,14 +71,6 @@ class CommonTest < Test::Unit::TestCase
     FileUtils.rm_rf $tmp
   end
 
-  def test_tabulate
-    tab = MiGA::MiGA.tabulate(%w[a b], [%w[123 45], %w[678 90]])
-    assert_equal('  a  b ', tab[0])
-    assert_equal('  -  - ', tab[1])
-    assert_equal('123  45', tab[2])
-    assert_equal('678  90', tab[3])
-  end
-
   def test_miga_name
     assert_equal('Xa sp. C', 'Xa_sp__C'.unmiga_name)
     assert_equal('X_______', 'X^*.!{}!'.miga_name)
