@@ -39,6 +39,7 @@ module MiGA::Dataset::Hooks
     metadata.data.keys
       .select { |k| k.to_s =~ /^_try_/ }
       .each { |k| metadata[k] = nil }
+    metadata[:_step] = nil
     save
   end
 
