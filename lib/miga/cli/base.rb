@@ -24,6 +24,7 @@ module MiGA::Cli::Base
     find:     'Finds unregistered datasets based on result files',
     ln:       'Link datasets (including results) from one project to another',
     ls:       'Lists all registered datasets in an MiGA project',
+    archive:  'Generates a tar-ball with all files from select datasets',
     # Results
     add_result: 'Registers a result',
     stats:    'Extracts statistics for the given result',
