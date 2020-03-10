@@ -33,6 +33,8 @@ class HookTest < Test::Unit::TestCase
     end
   end
 
+  ##
+  # Dummy class with hooks
   class MyHanger
     include MiGA::Common::Hooks
   end
@@ -61,12 +63,15 @@ class HookTest < Test::Unit::TestCase
 
   def test_dataset_clear_run_counts
     $d1.metadata[:_try_something] = 1
+    $d1.metadata[:_step] = 'Boop'
     $d1.metadata[:_not_a_counter] = 1
     $d1.save
     assert_equal(1, $d1.metadata[:_try_something])
+    assert_equal('Boop', $d1.metadata[:_step])
     $d1.add_hook(:on_remove, :clear_run_counts)
     $d1.remove!
     assert_nil($d1.metadata[:_try_something])
+    assert_nil($d1.metadata[:_step])
     assert_equal(1, $d1.metadata[:_not_a_counter])
   end
 
