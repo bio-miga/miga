@@ -22,15 +22,15 @@ class MiGA::Daemon < MiGA::MiGA
   # Array of all spawned daemons.
   $_MIGA_DAEMON_LAIR = []
 
-  # MiGA::Project in which the daemon is running.
+  # MiGA::Project in which the daemon is running
   attr_reader :project
-  # Options used to setup the daemon.
+  # Options used to setup the daemon
   attr_reader :options
-  # Array of jobs next to be executed.
+  # Array of jobs next to be executed
   attr_reader :jobs_to_run
-  # Array of jobs currently running.
+  # Array of jobs currently running
   attr_reader :jobs_running
-  # Integer indicating the current iteration.
+  # Integer indicating the current iteration
   attr_reader :loop_i
 
   ##
@@ -47,7 +47,7 @@ class MiGA::Daemon < MiGA::MiGA
     MiGA::Json.parse(
       json, default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     ).each { |k,v| runopts(k, v) }
-    update_format_0 unless runopts(:format_version)
+    update_format_0
     @jobs_to_run = []
     @jobs_running = []
     @loop_i = -1
@@ -68,21 +68,22 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Launches the +task+ with options +opts+ (as command-line arguments).
-  # Supported tasks include: start, stop, restart, status.
-  def daemon(task, opts=[])
+  # Launches the +task+ with options +opts+ (as command-line arguments) and
+  # returns the process ID as an Integer. If +wait+ it waits for the process to
+  # complete, immediately returns otherwise.
+  # Supported tasks: start, stop, restart, status.
+  def daemon(task, opts = [], wait = true)
     MiGA.DEBUG "Daemon.daemon #{task} #{opts}"
     options = default_options
-    opts.unshift(task)
+    opts.unshift(task.to_s)
     options[:ARGV] = opts
     # This additional degree of separation below was introduced so the Daemons
     # package doesn't kill the parent process in workflows.
     pid = fork do 
-      Daemons.run_proc("MiGA:#{project.name}", options) do
-        loop { break unless in_loop }
-      end
+      Daemons.run_proc("MiGA:#{project.name}", options) { while in_loop; end }
     end
-    Process.wait pid
+    Process.wait(pid) if wait
+    pid
   end
 
   ##
@@ -130,13 +131,8 @@ class MiGA::Daemon < MiGA::MiGA
   # Traverse datasets
   def check_datasets
     project.each_dataset do |n, ds|
-      if ds.nil?
-        say "Warning: Dataset #{n} listed but not loaded, reloading project"
-        project.load
-      else
-        to_run = ds.next_preprocessing(false)
-        queue_job(:d, ds) unless to_run.nil?
-      end
+      to_run = ds.next_preprocessing(false)
+      queue_job(:d, ds) unless to_run.nil?
     end
   end
 
@@ -202,9 +198,9 @@ class MiGA::Daemon < MiGA::MiGA
     @jobs_running.select! do |job|
       ongoing = case job[:job].to_s
       when 'd'
-        not job[:ds].next_preprocessing(false).nil?
+        !job[:ds].next_preprocessing(false).nil?
       when 'p'
-        not project.next_task(nil, false).nil?
+        !project.next_task(nil, false).nil?
       else
         (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false).nil?
       end
@@ -221,16 +217,13 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Retrieves the host index of an available node (if any), nil otherwise. If
-  # #nodelist is not set, returns true as long as #maxjobs is not reached
+  # In SSH daemons, retrieve the host index of an available node, nil if none.
+  # In any other daemons, returns true as long as #maxjobs is not reached
   def next_host
-    if nodelist.nil?
-      return jobs_running.size < maxjobs
-    end
+    return jobs_running.size < maxjobs if runopts(:type) != 'ssh'
     allk = (0 .. nodelist.size-1).to_a
     busyk = jobs_running.map { |k| k[:hostk] }
-    availk = allk - busyk
-    availk.empty? ? nil : availk.first
+    (allk - busyk).first
   end
 
   ##
@@ -248,7 +241,7 @@ class MiGA::Daemon < MiGA::MiGA
     project.load
     if loop_i == -1
       say '-----------------------------------'
-      say 'MiGA:%s launched.' % project.name
+      say 'MiGA:%s launched' % project.name
       say '-----------------------------------'
       load_status
       @loop_i = 0
@@ -286,54 +279,52 @@ class MiGA::Daemon < MiGA::MiGA
     File.unlink(f) if File.exist? f
   end
 
-  private
-
-    def launch_job(job, hostk = nil)
-      # Execute job
-      case runopts(:type)
-      when 'ssh'
-        # Remote job
-        job[:hostk] = hostk
-        job[:cmd] = job[:cmd].miga_variables(host: nodelist[hostk])
-        job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
-      when 'bash'
-        # Local job
-        job[:pid] = spawn job[:cmd]
-        Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
-      else
-        # Schedule cluster job (qsub, msub, slurm)
-        job[:pid] = `#{job[:cmd]}`.chomp
-      end
-
-      # Check if registered
-      if [nil, '', 0].include? job[:pid]
-        job[:pid] = nil
-        @jobs_to_run << job
-        say "Unsuccessful #{job[:task_name]}, rescheduling"
-      else
-        @jobs_running << job
-        say "Spawned pid:#{job[:pid]}#{
-              " to #{job[:hostk]}:#{nodelist[job[:hostk]]}" if job[:hostk]
-            } for #{job[:task_name]}"
-      end
+  ##
+  # Launch the job described by Hash +job+ to +hostk+-th host
+  def launch_job(job, hostk = nil)
+    # Execute job
+    case runopts(:type)
+    when 'ssh'
+      # Remote job
+      job[:hostk] = hostk
+      job[:cmd] = job[:cmd].miga_variables(host: nodelist[hostk])
+      job[:pid] = spawn job[:cmd]
+      Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
+    when 'bash'
+      # Local job
+      job[:pid] = spawn job[:cmd]
+      Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
+    else
+      # Schedule cluster job (qsub, msub, slurm)
+      job[:pid] = `#{job[:cmd]}`.chomp
     end
 
-    def update_format_0
-      say 'Outdated daemon.json format, updating from version 0'
-      {
-        cmd: %w[script vars cpus log task_name],
-        var: %w[key value],
-        alive: %w[pid],
-        kill: %w[pid]
-      }.each do |k,v|
-        runopts(
-          k, sprintf(
-            runopts(k).gsub(/%(\d+)\$d/, '%\\1$s'),
-            *v.map{ |i| "{{#{i}}}" }
-          )
-        ) unless runopts(k).nil?
-      end
-      runopts(:format_version, 1)
+    # Check if registered
+    if [nil, '', 0].include? job[:pid]
+      job[:pid] = nil
+      @jobs_to_run << job
+      say "Unsuccessful #{job[:task_name]}, rescheduling"
+    else
+      @jobs_running << job
+      say "Spawned pid:#{job[:pid]}#{
+            " to #{job[:hostk]}:#{nodelist[job[:hostk]]}" if job[:hostk]
+          } for #{job[:task_name]}"
     end
+  end
+
+  ##
+  # Update from daemon JSON format 0 to the latest version
+  def update_format_0
+    {
+      cmd: %w[script vars cpus log task_name],
+      var: %w[key value],
+      alive: %w[pid],
+      kill: %w[pid]
+    }.each do |k,v|
+      runopts(
+        k, runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map{ |i| "{{#{i}}}" }
+      ) if !runopts(k).nil? && runopts(k) =~ /%(\d+\$)?[ds]/
+    end
+    runopts(:format_version, 1)
+  end
 end
