@@ -74,9 +74,8 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
   def perform
     p = cli.load_project
     d = MiGA::Daemon.new(p, cli[:json])
-    [:latency, :maxjobs, :nodelist, :ppn, :shutdown_when_done].each do |k|
-      d.runopts(k, cli[k]) unless cli[k].nil?
-    end
+    dopts = %i[latency maxjobs nodelist ppn shutdown_when_done]
+    dopts.each { |k| d.runopts(k, cli[k]) }
     d.daemon(cli.operation, cli[:daemon_opts])
   end
 end
