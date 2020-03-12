@@ -87,7 +87,7 @@ class MiGA::Metadata < MiGA::MiGA
     end
     tmp = MiGA::Json.parse(path, additions: true)
     @data = {}
-    tmp.each_pair{ |k,v| self[k] = v }
+    tmp.each { |k, v| self[k] = v }
   end
 
   ##
