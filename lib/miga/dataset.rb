@@ -9,10 +9,9 @@ require 'sqlite3'
 ##
 # Dataset representation in MiGA.
 class MiGA::Dataset < MiGA::MiGA
-  
   include MiGA::Dataset::Result
   include MiGA::Dataset::Hooks
-  
+
   # Class-level
   class << self
 
@@ -27,7 +26,7 @@ class MiGA::Dataset < MiGA::MiGA
     def INFO_FIELDS
       %w(name created updated type ref user description comments)
     end
-  
+
   end
 
   # Instance-level
@@ -35,11 +34,11 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # MiGA::Project that contains the dataset.
   attr_reader :project
-  
+
   ##
   # Datasets are uniquely identified by +name+ in a project.
   attr_reader :name
-  
+
   ##
   # Create a MiGA::Dataset object in a +project+ MiGA::Project with a
   # uniquely identifying +name+. +is_ref+ indicates if the dataset is to
@@ -52,21 +51,25 @@ class MiGA::Dataset < MiGA::MiGA
     end
     @project = project
     @name = name
+    @metadata = nil
     metadata[:ref] = is_ref
     @metadata_future = [
       File.expand_path("metadata/#{name}.json", project.path),
       metadata
     ]
     save unless File.exist? @metadata_future[0]
-    pull_hook :on_load
   end
 
   ##
-  # MiGA::Metadata with information about the dataset.
+  # MiGA::Metadata with information about the dataset
   def metadata
-    @metadata ||= MiGA::Metadata.new(*@metadata_future)
+    if @metadata.nil?
+      @metadata = MiGA::Metadata.new(*@metadata_future)
+      pull_hook :on_load
+    end
+    @metadata
   end
-  
+
   ##
   # Save any changes you've made in the dataset.
   def save
@@ -74,11 +77,11 @@ class MiGA::Dataset < MiGA::MiGA
     metadata.save
     pull_hook :on_save
   end
-  
+
   ##
   # Get the type of dataset as Symbol.
   def type ; metadata[:type] ; end
-  
+
   ##
   # Delete the dataset with all it's contents (including results) and returns
   # nil.
@@ -103,7 +106,7 @@ class MiGA::Dataset < MiGA::MiGA
     self.metadata.save
     pull_hook :on_activate
   end
-  
+
   ##
   # Get standard metadata values for the dataset as Array.
   def info
@@ -111,7 +114,7 @@ class MiGA::Dataset < MiGA::MiGA
       (k == 'name') ? self.name : metadata[k.to_sym]
     end
   end
-  
+
   ##
   # Is this dataset a reference?
   def is_ref? ; !!metadata[:ref] ; end
@@ -119,14 +122,14 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Is this dataset a query (non-reference)?
   def is_query? ; !metadata[:ref] ; end
-  
+
   ##
   # Is this dataset known to be multi-organism?
   def is_multi?
     return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
     @@KNOWN_TYPES[type][:multi]
   end
-  
+
   ##
   # Is this dataset known to be single-organism?
   def is_nonmulti?
@@ -139,7 +142,7 @@ class MiGA::Dataset < MiGA::MiGA
   def is_active?
     metadata[:inactive].nil? or !metadata[:inactive]
   end
-  
+
   ##
   # Should I ignore +task+ for this dataset?
   def ignore_task?(task)

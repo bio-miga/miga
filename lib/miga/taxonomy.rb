@@ -35,7 +35,6 @@ class MiGA::Taxonomy < MiGA::MiGA
     else
       initialize_by_ranks(str, ranks)
     end
-    initialize_by_str(str)
   end
 
   ##
