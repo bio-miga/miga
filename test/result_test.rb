@@ -10,14 +10,14 @@ class ResultTest < Test::Unit::TestCase
     FileUtils.touch(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
     $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
     $d1 = $p1.add_dataset('dataset1')
-    FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq", $p1.path))
-    FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{$d1.name}.done", $p1.path))
-    FileUtils.touch(File.expand_path(
-      'data/10.clades/01.find/miga-project.empty', $p1.path))
-    FileUtils.touch(File.expand_path(
-      'data/10.clades/01.find/miga-project.done', $p1.path))
+    FileUtils.touch(
+      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq"))
+    FileUtils.touch(
+      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done"))
+    FileUtils.touch(
+      File.join($p1.path, 'data/10.clades/01.find/miga-project.empty'))
+    FileUtils.touch(
+      File.join($p1.path, 'data/10.clades/01.find/miga-project.done'))
   end
 
   def teardown
@@ -44,6 +44,20 @@ class ResultTest < Test::Unit::TestCase
     assert_equal($p1.path, r.project_path)
     r = $p1.add_result(:clade_finding)
     assert_equal($p1.path, r.source.path)
+  end
+
+  def test_dates
+    r = $d1.add_result(:trimmed_reads)
+    assert_nil(r.done_at)
+    assert_nil(r.started_at)
+    tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done")
+    File.open(tf, 'w') { |fh| fh.puts Time.new(1,2,3,4,5) }
+    assert_equal(Time, r.done_at.class)
+    assert_nil(r.running_time)
+    tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.start")
+    File.open(tf, 'w') { |fh| fh.puts Time.new(1,2,3,4,0) }
+    r = $d1.add_result(:trimmed_reads)
+    assert_equal(5.0, r.running_time)
   end
 
 end
