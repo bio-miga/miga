@@ -24,10 +24,10 @@ module MiGA::Dataset::Result
   end
 
   ##
-  # For each result executes the 2-ary +blk+ block: key symbol and MiGA::Result
-  def each_result(&blk)
-    @@RESULT_DIRS.keys.each do |k|
-      blk.call(k, result(k)) unless result(k).nil?
+  # For each result executes the 2-ary block: key symbol and MiGA::Result
+  def each_result
+    @@RESULT_DIRS.each_key do |k|
+      yield(k, result(k)) unless result(k).nil?
     end
   end
 
@@ -50,20 +50,20 @@ module MiGA::Dataset::Result
       r_pre = MiGA::Result.load("#{base}.json")
       return r_pre if (r_pre.nil? && !save) || !r_pre.nil?
     end
-    r = if File.exist?("#{base}.done")
-      self.send("add_result_#{result_type}", base, opts)
-    end
-    unless r.nil?
-      r.save
-      pull_hook(:on_result_ready, result_type)
-    end
+    fun = "add_result_#{result_type}"
+    r = send(fun, base, opts) if File.exist?("#{base}.done")
+    return if r.nil?
+    r.save
+    pull_hook(:on_result_ready, result_type)
     r
   end
 
   ##
   # Gets a result as MiGA::Result for the datasets with +result_type+. This is
   # equivalent to +add_result(result_type, false)+.
-  def get_result(result_type) ; add_result(result_type, false) ; end
+  def get_result(result_type)
+    add_result(result_type, false)
+  end
 
   ##
   # Returns the key symbol of the first registered result (sorted by the
@@ -179,7 +179,7 @@ module MiGA::Dataset::Result
     r = get_result(:distances)
     ref = project.datasets.select(&:is_ref?).select(&:is_active?).map(&:name)
     return if r.nil?
-    [:haai_db, :aai_db, :ani_db].each do |db_type|
+    %i[haai_db aai_db ani_db].each do |db_type|
       db = r.file_path(db_type)
       next if db.nil? || !File.size?(db)
       sqlite_db = SQLite3::Database.new db
@@ -198,9 +198,8 @@ module MiGA::Dataset::Result
   # Add result type +:raw_reads+ at +base+ (no +_opts+ supported)
   def add_result_raw_reads(base, _opts)
     return nil unless result_files_exist?(base, '.1.fastq')
-    r = MiGA::Result.new("#{base}.json")
     add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       if result_files_exist?(base, '.2.fastq')
         { pair1: '.1.fastq', pair2: '.2.fastq' }
       else
@@ -213,25 +212,30 @@ module MiGA::Dataset::Result
   # Add result type +:trimmed_reads+ at +base+ (no +_opts+ supported)
   def add_result_trimmed_reads(base, _opts)
     return nil unless result_files_exist?(base, '.1.clipped.fastq')
-    r = MiGA::Result.new("#{base}.json")
-    if result_files_exist?(base, '.2.clipped.fastq')
-      r = add_files_to_ds_result(r, name,
-        pair1: '.1.clipped.fastq',
-        pair2: '.2.clipped.fastq',
-        single: '.1.clipped.single.fastq')
-    else
-      r = add_files_to_ds_result(r, name, single: '.1.clipped.fastq')
+    add_files_to_ds_result(
+      MiGA::Result.new("#{base}.json"), name,
+      if result_files_exist?(base, '.2.clipped.fastq')
+        {
+          pair1: '.1.clipped.fastq',
+          pair2: '.2.clipped.fastq',
+          single: '.1.clipped.single.fastq'
+        }
+      else
+        { single: '.1.clipped.fastq' }
+      end
+    ).tap do |r|
+      r.add_file(:trimming_sumary, "#{name}.1.fastq.trimmed.summary.txt")
     end
-    r.add_file(:trimming_sumary, "#{name}.1.fastq.trimmed.summary.txt")
-    r
   end
 
   ##
   # Add result type +:read_quality+ at +base+ (no +_opts+ supported)
   def add_result_read_quality(base, _opts)
     return nil unless result_files_exist?(base, %w[.solexaqa .fastqc])
-    r = MiGA::Result.new("#{base}.json")
-    add_files_to_ds_result(r, name, solexaqa: '.solexaqa', fastqc: '.fastqc')
+    add_files_to_ds_result(
+      MiGA::Result.new("#{base}.json"), name,
+      solexaqa: '.solexaqa', fastqc: '.fastqc'
+    )
   end
 
   ##
@@ -241,13 +245,13 @@ module MiGA::Dataset::Result
       result_files_exist?(base, '.CoupledReads.fa') ||
       result_files_exist?(base, '.SingleReads.fa')  ||
       result_files_exist?(base, %w[.1.fasta .2.fasta])
-    r = MiGA::Result.new("#{base}.json")
     add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       coupled: '.CoupledReads.fa',
       single: '.SingleReads.fa',
       pair1: '.1.fasta',
-      pair2: '.2.fasta')
+      pair2: '.2.fasta'
+    )
   end
 
   ##
@@ -255,12 +259,12 @@ module MiGA::Dataset::Result
   # +is_clean: Boolean+.
   def add_result_assembly(base, opts)
     return nil unless result_files_exist?(base, '.LargeContigs.fna')
-    r = MiGA::Result.new("#{base}.json")
     r = add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       largecontigs: '.LargeContigs.fna',
       allcontigs: '.AllContigs.fna',
-      assembly_data: '')
+      assembly_data: ''
+    )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]
     unless r.clean?
@@ -274,14 +278,14 @@ module MiGA::Dataset::Result
   # Add result type +:cds+ at +base+. Hash +opts+ supports +is_clean: Boolean+
   def add_result_cds(base, opts)
     return nil unless result_files_exist?(base, %w[.faa])
-    r = MiGA::Result.new("#{base}.json")
     r = add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       proteins: '.faa',
       genes: '.fna',
       gff2: '.gff2',
       gff3: '.gff3',
-      tab: '.tab')
+      tab: '.tab'
+    )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]
     unless r.clean?
@@ -296,13 +300,13 @@ module MiGA::Dataset::Result
   # Add result type +:essential_genes+ at +base+ (no +_opts+ supported).
   def add_result_essential_genes(base, _opts)
     return nil unless result_files_exist?(base, %w[.ess.faa .ess .ess/log])
-    r = MiGA::Result.new("#{base}.json")
     add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       ess_genes: '.ess.faa',
       collection: '.ess',
       report: '.ess/log',
-      alignments: '.ess/proteins.aln')
+      alignments: '.ess/proteins.aln'
+    )
   end
 
   ##
@@ -310,12 +314,12 @@ module MiGA::Dataset::Result
   def add_result_ssu(base, opts)
     return MiGA::Result.new("#{base}.json") if result(:assembly).nil?
     return nil unless result_files_exist?(base, '.ssu.fa')
-    r = MiGA::Result.new("#{base}.json")
     r = add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       longest_ssu_gene: '.ssu.fa',
       gff: '.ssu.gff',
-      all_ssu_genes: '.ssu.all.fa')
+      all_ssu_genes: '.ssu.all.fa'
+    )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]
     unless r.clean?
@@ -332,9 +336,8 @@ module MiGA::Dataset::Result
       return nil unless
         result_files_exist?(base, '.mytaxa') ||
         result_files_exist?(base, '.nomytaxa.txt')
-      r = MiGA::Result.new("#{base}.json")
       add_files_to_ds_result(
-        r, name,
+        MiGA::Result.new("#{base}.json"), name,
         mytaxa: '.mytaxa',
         blast: '.blast',
         mytaxain: '.mytaxain',
@@ -344,7 +347,8 @@ module MiGA::Dataset::Result
         phylum: '.mytaxa.Phylum.txt',
         innominate: '.mytaxa.innominate',
         kronain: '.mytaxa.krona',
-        krona: '.html')
+        krona: '.html'
+      )
     else
       MiGA::Result.new("#{base}.json")
     end
@@ -357,9 +361,8 @@ module MiGA::Dataset::Result
       return nil unless
         result_files_exist?(base, %w[.pdf .mytaxa]) ||
         result_files_exist?(base, '.nomytaxa.txt')
-      r = MiGA::Result.new("#{base}.json")
       add_files_to_ds_result(
-        r, name,
+        MiGA::Result.new("#{base}.json"), name,
         nomytaxa: '.nomytaxa.txt',
         mytaxa: '.mytaxa',
         report: '.pdf',
@@ -370,7 +373,8 @@ module MiGA::Dataset::Result
         wintax: '.wintax',
         gene_ids: '.wintax.genes',
         region_ids: '.wintax.regions',
-        regions: '.reg')
+        regions: '.reg'
+      )
     else
       MiGA::Result.new("#{base}.json")
     end
@@ -428,9 +432,8 @@ module MiGA::Dataset::Result
     return nil unless
       result_files_exist?(base, %w[.aai-medoids.tsv .aai.db]) ||
       result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
-    r = MiGA::Result.new("#{base}.json")
     add_files_to_ds_result(
-      r, name,
+      MiGA::Result.new("#{base}.json"), name,
       aai_medoids: '.aai-medoids.tsv',
       haai_db: '.haai.db',
       aai_db: '.aai.db',
@@ -438,7 +441,8 @@ module MiGA::Dataset::Result
       ani_db: '.ani.db',
       ref_tree: '.nwk',
       ref_tree_pdf: '.nwk.pdf',
-      intax_test: '.intax.txt')
+      intax_test: '.intax.txt'
+    )
   end
 
   ##
