@@ -36,5 +36,6 @@ Gem::Specification.new do |s|
   s.rdoc_options << '--title' << s.summary
   s.add_development_dependency 'rake', '~> 12'
   s.add_development_dependency 'test-unit', '~> 3'
+  s.add_development_dependency 'assertions', '~> 1'
 
 end

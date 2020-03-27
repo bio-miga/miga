@@ -3,6 +3,7 @@ SimpleCov.start
 
 require 'rubygems'
 require 'test/unit'
+require 'assertions'
 require 'miga/common'
 require 'stringio'
 
