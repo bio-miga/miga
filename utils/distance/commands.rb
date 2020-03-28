@@ -63,12 +63,12 @@ module MiGA::DistanceRunner::Commands
 
   ##
   # Execute an AAI command
-  def aai_cmd(f1, f2, n1, n2, db, o={})
+  def aai_cmd(f1, f2, n1, n2, db, o = {})
     o = opts.merge(o)
     v = `aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
           --name1 "#{n1}" --name2 "#{n2}" \
           -t "#{o[:thr]}" -a --lookup-first "--#{o[:aai_save_rbm]}" \
-          -p "#{o[:aai_p] || "blast+"}"`.chomp
+          -p "#{o[:aai_p] || 'blast+'}"`.chomp
     (v.nil? || v.empty?) ? 0 : v.to_f
   end
 
@@ -91,7 +91,7 @@ module MiGA::DistanceRunner::Commands
       v = `ani.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
             --name1 "#{n1}" --name2 "#{n2}" \
             -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm \
-            --lookup-first -p "#{o[:ani_p] || "blast+"}"`.chomp
+            --lookup-first -p "#{o[:ani_p] || 'blast+'}"`.chomp
     end
     v.nil? || v.empty? ? 0 : v.to_f
   end

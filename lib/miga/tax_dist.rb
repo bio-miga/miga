@@ -10,6 +10,7 @@ require 'zlib'
 module MiGA::TaxDist
   # Class-level
   class << self
+
     ##
     # Absolute path to the :intax or :novel data file (determined by +test+) for
     # AAI, determined for options +opts+. Supported options:
@@ -18,12 +19,13 @@ module MiGA::TaxDist
       opts[:engine] ||= :blast
       engine = opts[:engine].to_s.downcase.to_sym
       test = test.to_s.downcase.to_sym
-      return nil unless [:intax, :novel].include? test
-      engine = :blast if engine == :'blast+'
-      return nil unless [:blast, :diamond].include? engine
+      return nil unless %i[intax novel].include? test
+      engine = :blast if %i[blast+ blat].include? engine
+      return nil unless %i[blast diamond].include? engine
       File.expand_path("../_data/aai-#{test}-#{engine}.tsv.gz", __FILE__)
     end
 
+    ##
     # Returns a Hash, where the keys correspond to the taxonomic level
     # (see MiGA::Taxonomy.LONG_RANKS for the meanings), and the values
     # correspond to the p-values of +test+ (one of +:intax+ or +:novel+)
@@ -41,16 +43,17 @@ module MiGA::TaxDist
               v = row.shift
               next if v == 'NA' # <- missing data
               next if i == 1 # <- namespace, not a taxonomic rank
-              rank = i == 0 ? :root : MiGA::Taxonomy.KNOWN_RANKS[i]
+              rank = i.zero? ? :root : MiGA::Taxonomy.KNOWN_RANKS[i]
               vals[rank] = v.to_f
             end
             return vals
           end
-        end # each_line ln
-      end # open fh
+        end
+      end
       {}
     end
 
+    ##
     # Determines the degree to which a Float +aai+ value indicates similar
     # taxonomy (with +test+ :intax) or a novel taxon (with +test+ :novel) with
     # options +opts+. See +aai_path+ for supported options.

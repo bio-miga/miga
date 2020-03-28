@@ -73,14 +73,17 @@ module MiGA::DistanceRunner::Pipeline
     cr = dataset.closest_relatives(1, from_ref_project)
     return if cr.nil? or cr.empty?
     tax = ref_project.dataset(cr[0][0]).metadata[:tax] || {}
+
     # Run the test for each rank
-    r = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax).map do |k,v|
+    tax_test = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax, engine: opts[:aai_p])
+    r = tax_test.map do |k,v|
       sig = ''
-      [0.5,0.1,0.05,0.01].each{ |i| sig << '*' if v<i }
+      [0.5, 0.1, 0.05, 0.01].each { |i| sig << '*' if v < i }
       [MiGA::Taxonomy.LONG_RANKS[k], (tax[k] || '?'), v, sig]
     end
+
     # Save test
-    File.open(File.expand_path("#{dataset.name}.intax.txt", home), "w") do |fh|
+    File.open(File.expand_path("#{dataset.name}.intax.txt", home), 'w') do |fh|
       fh.puts "Closest relative: #{cr[0][0]} with AAI: #{cr[0][1]}."
       fh.puts ''
       fh.puts MiGA::MiGA.tabulate(%w[Rank Taxonomy P-value Signif.], r)

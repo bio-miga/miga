@@ -22,6 +22,7 @@ class MiGA::DistanceRunner
       raise "No project at #{project_path}"
     @dataset = project.dataset(dataset_name)
     @home = File.expand_path('data/09.distances', project.path)
+
     # Default opts
     if project.metadata[:aai_save_rbm] == false
       @opts[:aai_save_rbm] ||= 'no-save-rbm'
@@ -48,6 +49,8 @@ class MiGA::DistanceRunner
     [:haai_p, :aai_p, :ani_p, :distances_checkpoint].each do |m|
       @opts[m] ||= ref_project.metadata[m]
     end
+    @opts[:aai_p] ||= 'blast+'
+    @opts[:ani_p] ||= 'blast+'
     @opts[:distances_checkpoint] ||= 10
     @opts[:distances_checkpoint] = @opts[:distances_checkpoint].to_i
   end
