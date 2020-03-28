@@ -132,6 +132,7 @@ module MiGA::Cli::Action::Wf
     # Add datasets
     call_cli([
       'add',
+      '--ignore-dups',
       '-P', cli[:outdir],
       '-t', cli[:dataset_type],
       '-i', stage,
