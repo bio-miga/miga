@@ -118,7 +118,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
     v
   end
 
-  def configure_qsub_msub_daemon
+  def configure_qsub_msub_daemon(v)
     queue       = cli.ask_user('What queue should I use?', nil, nil, true)
     v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '150').to_i
     v[:maxjobs] = cli.ask_user('How many jobs can I launch at once?', '300').to_i
