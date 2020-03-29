@@ -18,9 +18,13 @@ module MiGA::Result::Source
   ##
   # Detect the result key assigned to this result
   def key
-    @key ||= MiGA::Result.RESULT_DIRS.find do |k, v|
-      "data/#{v}" == relative_dir
-    end.first
+    @key ||= if relative_dir == 'data/90.stats' && file_path(:metadata_index)
+      :project_stats
+    else
+      MiGA::Result.RESULT_DIRS.find do |k, v|
+        "data/#{v}" == relative_dir
+      end.first
+    end
   end
 
   ##
