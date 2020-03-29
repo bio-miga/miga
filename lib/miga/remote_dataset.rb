@@ -1,6 +1,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require 'miga/taxonomy'
 require 'miga/remote_dataset/download'
 
 ##
@@ -203,7 +204,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       when ''
         metadata[:is_type] = false
         metadata[:is_ref_type] = false
-      when 'assembly from reference material'
+      when 'assembly from reference material', 'assembly designated as reftype'
         metadata[:is_type] = false
         metadata[:is_ref_type] = true
         metadata[:type_rel] = from_type
