@@ -26,7 +26,6 @@ class TaxDistTest < Test::Unit::TestCase
     assert_lt(close_intax[:s], 0.05)
 
     distant_novel = MiGA::TaxDist.aai_pvalues(35.0, :novel, engine: :diamond)
-    $stderr.puts distant_novel
     assert_gt(distant_novel[:root], 0.05)
     assert_lt(distant_novel[:g], 0.05)
     assert_nil(distant_novel[:ns])

@@ -31,6 +31,7 @@ module MiGA::TaxDist
     # correspond to the p-values of +test+ (one of +:intax+ or +:novel+)
     # with options +opts+. See +aai_path+ for supported options.
     def aai_pvalues(aai, test, opts = {})
+      y = {}
       Zlib::GzipReader.open(aai_path(test, opts)) do |fh|
         keys = nil
         fh.each_line do |ln|
@@ -46,11 +47,13 @@ module MiGA::TaxDist
               rank = i.zero? ? :root : MiGA::Taxonomy.KNOWN_RANKS[i]
               vals[rank] = v.to_f
             end
-            return vals
+            y = vals
+            break
           end
         end
+        fh.rewind # to avoid warnings caused by the break above
       end
-      {}
+      y
     end
 
     ##
