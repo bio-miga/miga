@@ -14,19 +14,28 @@ class MiGA::Result < MiGA::MiGA
   include MiGA::Result::Stats
 
   # Class-level
+  class << self
+    ##
+    # Check if the result described by the JSON in +path+ already exists
+    def exist?(path)
+      File.exist? path
+    end
 
-  ##
-  # Check if the result described by the JSON in +path+ already exists.
-  def self.exist?(path)
-    File.exist? path
-  end
+    ##
+    # Load the result described by the JSON in +path+.
+    # Returns MiGA::Result if it already exists, nil otherwise.
+    def load(path)
+      return nil unless MiGA::Result.exist? path
+      MiGA::Result.new(path)
+    end
 
-  ##
-  # Load the result described by the JSON in +path+. Returns MiGA::Result if it
-  # already exists, nil otherwise.
-  def self.load(path)
-    return nil unless MiGA::Result.exist? path
-    MiGA::Result.new(path)
+    def create(path, force = false, &blk)
+      FileUtils.rm(path) if force && File.exist?(path)
+      r_pre = self.load(path)
+      return r_pre unless r_pre.nil?
+      yield
+      self.load(path)
+    end
   end
 
   # Instance-level

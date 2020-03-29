@@ -144,18 +144,6 @@ class MiGA::Dataset < MiGA::MiGA
   end
 
   ##
-  # Should I ignore +task+ for this dataset?
-  def ignore_task?(task)
-    return true unless is_active?
-    return !metadata["run_#{task}"] unless metadata["run_#{task}"].nil?
-    return true if task == :taxonomy and project.metadata[:ref_project].nil?
-    pattern = [true, false]
-    ( [@@_EXCLUDE_NOREF_TASKS_H[task], is_ref?     ] == pattern or
-      [@@_ONLY_MULTI_TASKS_H[task],    is_multi?   ] == pattern or
-      [@@_ONLY_NONMULTI_TASKS_H[task], is_nonmulti?] == pattern )
-  end
-
-  ##
   # Returns an Array of +how_many+ duples (Arrays) sorted by AAI:
   # - +0+: A String with the name(s) of the reference dataset.
   # - +1+: A Float with the AAI.
@@ -172,5 +160,5 @@ class MiGA::Dataset < MiGA::MiGA
       'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many])
   end
 
-end # class MiGA::Dataset
+end
 

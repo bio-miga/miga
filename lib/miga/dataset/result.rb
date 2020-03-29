@@ -1,68 +1,53 @@
-
 require 'sqlite3'
 require 'miga/result'
 require 'miga/dataset/base'
+require 'miga/common/with_result'
 
 ##
 # Helper module including specific functions to add dataset results
 module MiGA::Dataset::Result
   include MiGA::Dataset::Base
+  include MiGA::Common::WithResult
 
   ##
-  # Get the result MiGA::Result in this dataset identified by the symbol +k+
-  def result(k)
-    return nil if @@RESULT_DIRS[k.to_sym].nil?
-    MiGA::Result.load(
-      "#{project.path}/data/#{@@RESULT_DIRS[k.to_sym]}/#{name}.json"
-    )
+  # Return the basename for results
+  def result_base
+    name
   end
 
   ##
-  # Get all the results (Array of MiGA::Result) in this dataset
-  def results
-    @@RESULT_DIRS.keys.map { |k| result k }.compact
+  # Should I ignore +task+ for this dataset?
+  def ignore_task?(task)
+    why_ignore(task) != :execute
   end
 
   ##
-  # For each result executes the 2-ary block: key symbol and MiGA::Result
-  def each_result
-    @@RESULT_DIRS.each_key do |k|
-      yield(k, result(k)) unless result(k).nil?
-    end
-  end
-
-  ##
-  # Look for the result with symbol key +result_type+ and register it in the
-  # dataset. If +save+ is false, it doesn't register the result, but it still
-  # returns a result if the expected files are complete. The +opts+ hash
-  # controls result creation (if necessary). Supported values include:
-  # - +is_clean+: A Boolean indicating if the input files are clean
-  # - +force+: A Boolean indicating if the result must be re-indexed.
-  #   If true, it implies +save = true+
-  # Returns MiGA::Result or nil.
-  def add_result(result_type, save = true, opts = {})
-    dir = @@RESULT_DIRS[result_type]
-    return nil if dir.nil?
-    base = File.expand_path("data/#{dir}/#{name}", project.path)
-    if opts[:force]
-      FileUtils.rm("#{base}.json") if File.exist?("#{base}.json")
+  # Return a code explaining why a task is ignored.
+  # The values are symbols:
+  # - empty: the dataset has no data
+  # - inactive: the dataset is inactive
+  # - force: forced to ignore by metadata
+  # - project: incompatible project
+  # - noref: incompatible dataset, only for reference
+  # - multi: incompatible dataset, only for multi
+  # - nonmulti: incompatible dataset, only for nonmulti
+  # - execute: do not ignore, execute the task
+  def why_ignore(task)
+    if !is_active?
+      :inactive
+    elsif !metadata["run_#{task}"].nil?
+      metadata["run_#{task}"] ? :execute : :force
+    elsif task == :taxonomy && project.metadata[:ref_project].nil?
+      :project
+    elsif @@_EXCLUDE_NOREF_TASKS_H[task] && !is_ref?
+      :noref
+    elsif @@_ONLY_MULTI_TASKS_H[task] && !is_multi?
+      :multi
+    elsif @@_ONLY_NONMULTI_TASKS_H[task] && !is_nonmulti?
+      :nonmulti
     else
-      r_pre = MiGA::Result.load("#{base}.json")
-      return r_pre if (r_pre.nil? && !save) || !r_pre.nil?
+      :execute
     end
-    fun = "add_result_#{result_type}"
-    r = send(fun, base, opts) if File.exist?("#{base}.done")
-    return if r.nil?
-    r.save
-    pull_hook(:on_result_ready, result_type)
-    r
-  end
-
-  ##
-  # Gets a result as MiGA::Result for the datasets with +result_type+. This is
-  # equivalent to +add_result(result_type, false)+.
-  def get_result(result_type)
-    add_result(result_type, false)
   end
 
   ##
@@ -76,24 +61,22 @@ module MiGA::Dataset::Result
   end
 
   ##
-  # Returns the key symbol of the next task that needs to be executed. Passes
-  # +save+ to #add_result.
+  # Returns the key symbol of the next task that needs to be executed or nil.
+  # Passes +save+ to #add_result.
   def next_preprocessing(save = false)
-    after_first = false
-    first = first_preprocessing(save)
-    return nil if first.nil?
-    @@PREPROCESSING_TASKS.each do |t|
-      next if ignore_task? t
-      if after_first && add_result(t, save).nil?
+    first = first_preprocessing(save) or return nil
+    @@PREPROCESSING_TASKS[@@PREPROCESSING_TASKS.index(first) .. -1].find do |t|
+      if ignore_task? t
+        false
+      elsif add_result(t, save).nil?
         if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
           inactivate!
-          return nil
+          false
+        else
+          true
         end
-        return t
       end
-      after_first = (after_first || (t == first))
     end
-    nil
   end
 
   ##
@@ -133,14 +116,7 @@ module MiGA::Dataset::Result
   ##
   # Returns the status of +task+. The status values are symbols:
   # - -: the task is upstream from the initial input
-  # - ignore_empty: the dataset has no data
-  # - ignore_inactive: the dataset is inactive
-  # - ignore_force: forced to ignore by metadata
-  # - ignore_project: incompatible project
-  # - ignore_noref: incompatible dataset, only for reference
-  # - ignore_multi: incompatible dataset, only for multi
-  # - ignore_nonmulti: incompatible dataset, only for nonmulti
-  # - ignore: incompatible dataset, unknown reason
+  # - ignore_*: the task is to be ignored, see codes in #why_ignore
   # - complete: a task with registered results
   # - pending: a task queued to be performed
   def result_status(task)
@@ -152,21 +128,7 @@ module MiGA::Dataset::Result
           @@PREPROCESSING_TASKS.index(first_preprocessing)
       :-
     elsif ignore_task?(task)
-      if !is_active?
-        :ignore_inactive
-      elsif metadata["run_#{task}"]
-        :ignore_force
-      elsif task == :taxonomy && project.metadata[:ref_project].nil?
-        :ignore_project
-      elsif @@_EXCLUDE_NOREF_TASKS_H[task] && !is_ref?
-        :ignore_noref
-      elsif @@_ONLY_MULTI_TASKS_H[task] && !is_multi?
-        :ignore_multi
-      elsif @@_ONLY_NONMULTI_TASKS_H[task] && !is_nonmulti?
-        :ignore_nonmulti
-      else
-        :ignore
-      end
+      :"ignore_#{why_ignore task}"
     else
       :pending
     end
