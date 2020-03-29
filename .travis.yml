@@ -1,7 +1,8 @@
 language: ruby
+os: linux
 before_install:
   - gem install bundler -v 1.17.3
-matrix:
+jobs:
   include:
     # Run remote tests in only one version
     - rvm: 2.1.5
