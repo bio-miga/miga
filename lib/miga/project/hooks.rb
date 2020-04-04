@@ -16,7 +16,6 @@ require 'miga/common/hooks'
 # - run_lambda(lambda, args...)
 # - run_cmd(cmd)
 # Internal hooks:
-# - _pull_processing_ready_hooks()
 # - _pull_result_hooks()
 module MiGA::Project::Hooks
 
@@ -24,10 +23,7 @@ module MiGA::Project::Hooks
 
   def default_hooks
     {
-      on_result_ready: [
-        [:_pull_result_hooks],
-        [:_pull_processing_ready_hooks]
-      ]
+      on_result_ready: [[:_pull_result_hooks]]
     }
   end
 
@@ -45,16 +41,11 @@ module MiGA::Project::Hooks
   end
 
   ##
-  # Pull :dataset_ready hook if preprocessing is complete
-  def hook__pull_processing_ready_hooks(_hook_args, _event_args)
-    pull_hook(:on_processing_ready) if next_task(nil, false).nil?
-  end
-
-  ##
   # Dataset Action :pull_result_hooks([], [res])
   # Pull the hook specific to the type of result
   def hook__pull_result_hooks(_hook_args, event_args)
     pull_hook(:"on_result_ready_#{event_args.first}", *event_args)
+    pull_hook(:on_processing_ready) if next_task(nil, false).nil?
   end
 
 end

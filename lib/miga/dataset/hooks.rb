@@ -17,7 +17,6 @@ require 'miga/common/hooks'
 # - clear_run_counts()
 # - run_cmd(cmd)
 # Internal hooks:
-# - _pull_preprocessing_ready_hooks()
 # - _pull_result_hooks()
 module MiGA::Dataset::Hooks 
 
