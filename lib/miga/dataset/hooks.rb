@@ -26,10 +26,7 @@ module MiGA::Dataset::Hooks
   def default_hooks
     {
       on_preprocessing_ready: [[:clear_run_counts]],
-      on_result_ready: [
-        [:_pull_result_hooks],
-        [:_pull_preprocessing_ready_hooks]
-      ]
+      on_result_ready: [[:_pull_result_hooks]]
     }
   end
 
@@ -58,16 +55,11 @@ module MiGA::Dataset::Hooks
   end
 
   ##
-  # Pull :dataset_ready hook if preprocessing is complete
-  def hook__pull_preprocessing_ready_hooks(_hook_args, _event_args)
-    pull_hook(:on_preprocessing_ready) if done_preprocessing?
-  end
-
-  ##
   # Dataset Action :pull_result_hooks([], [res])
   # Pull the hook specific to the type of result
   def hook__pull_result_hooks(_hook_args, event_args)
     pull_hook(:"on_result_ready_#{event_args.first}", *event_args)
+    pull_hook(:on_preprocessing_ready) if done_preprocessing?
   end
 
 end
