@@ -244,6 +244,8 @@ class MiGA::Daemon < MiGA::MiGA
       say 'MiGA:%s launched' % project.name
       say '-----------------------------------'
       load_status
+      say 'Configuration options:'
+      say @runopts.to_s
       @loop_i = 0
     end
     @loop_i += 1

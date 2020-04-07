@@ -115,7 +115,7 @@ class DaemonTest < Test::Unit::TestCase
       assert(l[0] =~ /-{20}\n/)
       assert(l[1] =~ /MiGA:#{p.name} launched/)
       assert(l[2] =~ /-{20}\n/)
-      assert(l[3] =~ /Probing running jobs\n/)
+      assert(l[5] =~ /Probing running jobs\n/)
     end
   ensure
     begin
