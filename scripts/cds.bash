@@ -36,7 +36,7 @@ case "$TYPE" in
         | perl -pe 's/[^A-Z]//ig' | wc -c | awk '{print $1}')
       echo "# codon table $ct total length: $C_LEN aa" \
         >> "${DATASET}.ct.t"
-      if [[ $C_LEN > $(($P_LEN * 11 / 10)) ]] ; then
+      if [[ $C_LEN -gt $(($P_LEN * 11 / 10)) ]] ; then
         for x in faa fna gff3 ; do
           mv "${DATASET}.$x.$ct" "${DATASET}.$x"
         done
