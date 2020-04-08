@@ -159,6 +159,7 @@ Statistics:
 * `predicted_proteins`: Total number of predicted proteins
 * `average_length`: Average length of predicted proteins (in aa)
 * `coding_density`: Coding density of the genome (in %)
+* `codon_table`: Optimal coding table (4 or 11)
 
 MiGA symbol: `cds`.
 
