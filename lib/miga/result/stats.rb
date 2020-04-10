@@ -75,7 +75,7 @@ module MiGA::Result::Stats
       stats[:coding_density] =
         [300.0 * s[:tot] / asm[:stats][:total_length][0], '%']
     end
-    if file_path(:gff3) && file_path =~ /\.gz/
+    if file_path(:gff3) && file_path(:gff3) =~ /\.gz/
       GzipReader.open(file_path(:gff3)) do |fh|
         fh.each do |ln|
           if ln =~ /^# Model Data:.*;transl_table=(\d+);/
