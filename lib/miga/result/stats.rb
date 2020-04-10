@@ -77,7 +77,7 @@ module MiGA::Result::Stats
         [300.0 * s[:tot] / asm[:stats][:total_length][0], '%']
     end
     if file_path(:gff3) && file_path(:gff3) =~ /\.gz/
-      GzipReader.open(file_path(:gff3)) do |fh|
+      Zlib::GzipReader.open(file_path(:gff3)) do |fh|
         fh.each do |ln|
           if ln =~ /^# Model Data:.*;transl_table=(\d+);/
             stats[:codon_table] = $1
