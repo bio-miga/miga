@@ -1,4 +1,5 @@
 
+require 'zlib'
 require 'miga/result/base'
 
 ##
