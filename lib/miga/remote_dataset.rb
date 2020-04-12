@@ -231,7 +231,6 @@ class MiGA::RemoteDataset < MiGA::MiGA
         download l_ctg
       end
       File.unlink(a_ctg) if File.exist? a_ctg
-      File.symlink(File.basename(l_ctg), a_ctg)
       File.open("#{base}.done", 'w') { |ofh| ofh.puts Time.now.to_s }
     end
 end
