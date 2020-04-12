@@ -198,7 +198,7 @@ class MiGA::Daemon < MiGA::MiGA
     @jobs_running.select! do |job|
       ongoing = case job[:job].to_s
       when 'd'
-        !job[:ds].next_preprocessing(false).nil?
+        !job[:ds].nil? && !job[:ds].next_preprocessing(false).nil?
       when 'p'
         !project.next_task(nil, false).nil?
       else
