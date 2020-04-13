@@ -4,6 +4,7 @@
 require 'miga/cli/action'
 require 'net/ftp'
 require 'digest/md5'
+require 'open-uri'
 
 class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
@@ -80,7 +81,8 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     cli.say "Connecting to '#{cli[:host]}'"
     uri = URI.parse(cli[:host])
     raise 'Only FTP hosts are supported' unless uri.scheme == 'ftp'
-    ftp = Net::FTP.open(uri.host, port: uri.port)
+    ftp = Net::FTP.new(uri.host)
+    ftp.passive = true
     ftp.login
     ftp.chdir(uri.path)
     ftp
