@@ -106,9 +106,7 @@ class MiGA::Cli < MiGA::MiGA
   # otherwise it's sent to +$stderr+
   def say(*par)
     return unless self[:verbose]
-    par.map! { |i| "[#{Time.now}] #{i}" }
-    io = par.first.is_a?(IO) ? par.shift : $stderr
-    io.puts(*par)
+    super(*par)
   end
 
   ##

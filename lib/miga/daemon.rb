@@ -269,7 +269,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Send a datestamped message to the log.
   def say(*opts)
-    print "[#{Time.new.inspect}] ", *opts, "\n"
+    super($stdout, *opts)
   end
 
   ##

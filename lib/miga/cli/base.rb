@@ -37,6 +37,7 @@ module MiGA::Cli::Base
     # System
     init:     'Initialize MiGA to process new projects',
     daemon:   'Controls the daemon of a MiGA project',
+    lair:     'Controls groups of daemons for several MiGA projects',
     date:     'Returns the current date in standard MiGA format',
     console:  'Opens an IRB console with MiGA',
     # Taxonomy

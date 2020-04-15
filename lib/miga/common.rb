@@ -36,5 +36,15 @@ class MiGA::MiGA
     end
   end
 
+  ##
+  # Print +par+ ensuring new line at the end.
+  # Date/time-stamp each line.
+  # If the first parameter is +IO+, the output is sent there,
+  # otherwise it's sent to +$stderr+
+  def say(*par)
+    io = par.first.is_a?(IO) ? par.shift : $stderr
+    io.puts(*par.map { |i| "[#{Time.now}] #{i}" })
+  end
+
 end
 
