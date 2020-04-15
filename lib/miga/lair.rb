@@ -94,12 +94,14 @@ class MiGA::Lair < MiGA::MiGA
   # Searches for MiGA projects recursively in all
   # subdirectories that are not MiGA projects.
   def each_project(dir = path)
-    Dir.entries(dir) do |f|
+    Dir.children(dir).each do |f|
       f = File.join(dir, f)
-      if MiGA::Project.exists? f
-        yield(f)
+      if MiGA::Project.exist? f
+        project = MiGA::Project.load(f)
+        raise "Cannot load project: #{f}" if project.nil?
+        yield(project)
       elsif Dir.exists? f
-        each_project(f) { |p| yield(p) }
+        each_project(f) { |project| yield(project) }
       end
     end
   end
@@ -107,21 +109,19 @@ class MiGA::Lair < MiGA::MiGA
   ##
   # Traverse directories checking MiGA projects
   def check_directories
-    each_project do |dir|
-      alive = MiGA::Daemon.last_alive(dir)
+    each_project do |project|
+      alive = MiGA::Daemon.last_alive(project)
       next if !alive.nil? && alive > Time.now - options[:wait_for]
-      launch_daemon(dir)
+      launch_daemon(project)
     end
   end
 
   ##
-  # Launch daemon for the project stored in +dir+
-  def launch_daemon(dir)
-    project = MiGA::Project.load(dir)
-    raise "Cannot load project: #{dir}" if project.nil?
+  # Launch daemon for the MiGA::Project +project+
+  def launch_daemon(project)
+    say "Launching daemon: #{project.path}"
     d = MiGA::Daemon.new(project, options[:json])
     d.runopts(:shutdown_when_done, true) unless options[:keep_inactive]
-    say "Launching daemon: #{dir}"
     d.daemon(:start, [], false)
   end
 
