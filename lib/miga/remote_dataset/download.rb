@@ -28,7 +28,7 @@ class MiGA::RemoteDataset
       doc = send("#{getter}_#{method}", opts)
       unless file.nil?
         ofh = File.open(file, 'w')
-        ofh.print doc
+        ofh.print doc.force_encoding('UTF-8')
         ofh.close
       end
       doc
