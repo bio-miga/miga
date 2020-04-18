@@ -4,11 +4,11 @@ require 'miga/tax_dist'
 class TaxDistTest < Test::Unit::TestCase
 
   def test_aai_path
-    assert(File.size? MiGA::TaxDist.aai_path(:intax))
-    assert(File.size? MiGA::TaxDist.aai_path(:novel))
-    assert(File.size? MiGA::TaxDist.aai_path(:intax, engine: :diamond))
-    assert(File.size? MiGA::TaxDist.aai_path(:novel, engine: :blast))
-    assert(File.size? MiGA::TaxDist.aai_path(:novel, engine: :'blast+'))
+    assert_path_exist(MiGA::TaxDist.aai_path(:intax))
+    assert_path_exist(MiGA::TaxDist.aai_path(:novel))
+    assert_path_exist(MiGA::TaxDist.aai_path(:intax, engine: :diamond))
+    assert_path_exist(MiGA::TaxDist.aai_path(:novel, engine: :blast))
+    assert_path_exist(MiGA::TaxDist.aai_path(:novel, engine: :'blast+'))
   end
 
   def test_aai_pvalues

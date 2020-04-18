@@ -78,18 +78,18 @@ class HookTest < Test::Unit::TestCase
   def test_dataset_run_cmd
     f = File.expand_path('hook_ds_cmd', $tmp)
     $d1.metadata[:on_remove] = [[:run_cmd, "echo {{dataset}} > '#{f}'"]]
-    assert(! File.exist?(f))
+    assert_path_not_exist(f)
     $d1.remove!
-    assert(File.exist? f)
+    assert_path_exist(f)
     assert_equal($d1.name, File.read(f).chomp)
   end
 
   def test_project_run_cmd
     f = File.expand_path('hook_pr_cmd', $tmp)
     $p1.add_hook(:on_save, :run_cmd, "echo {{project}} > '#{f}'")
-    assert(! File.exist?(f))
+    assert_path_not_exist(f)
     $p1.save
-    assert(File.exist? f)
+    assert_path_exist(f)
     assert_equal($p1.path, File.read(f).chomp)
   end
 

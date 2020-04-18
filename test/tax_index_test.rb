@@ -17,12 +17,12 @@ class TaxIndexTest < Test::Unit::TestCase
     d = p.add_dataset('dataset1')
 
     ti = MiGA::TaxIndex.new
-    assert(ti.datasets.empty?)
+    assert_empty(ti.datasets)
     ti << d
-    assert(ti.datasets.empty?, 'Index should ignore datasets without tax.')
+    assert_empty(ti.datasets, 'index should ignore datasets without tax')
     d.metadata[:tax] = MiGA::Taxonomy.new('k:Fantasia g:Unicornia')
     ti << d
-    assert_equal(1, ti.datasets.size, 'Index should have one dataset.')
+    assert_equal(1, ti.datasets.size, 'index should have one dataset')
     assert_equal(1, ti.root.datasets_count)
   ensure
     FileUtils.rm_rf $tmp
@@ -31,9 +31,9 @@ class TaxIndexTest < Test::Unit::TestCase
 
   def test_to_json
     js = JSON.parse(MiGA::TaxIndex.new.to_json)
-    assert(js.keys.include? 'datasets')
+    assert_include(js.keys, 'datasets')
     assert_equal(2, js.keys.size)
-    assert(js['datasets'].empty?)
+    assert_empty(js['datasets'])
   end
 
   def test_to_tab

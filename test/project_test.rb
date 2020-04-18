@@ -33,7 +33,7 @@ class ProjectTest < Test::Unit::TestCase
 
   def test_create
     assert_equal("#{$tmp}/create", MiGA::Project.new("#{$tmp}/create").path)
-    assert(Dir.exist?("#{$tmp}/create"))
+    assert_path_exist("#{$tmp}/create")
     assert_raise do
       ENV['MIGA_HOME'] = $tmp + '/chez-moi'
       MiGA::Project.new($tmp + '/cuckoo')
@@ -67,25 +67,23 @@ class ProjectTest < Test::Unit::TestCase
 
   def test_import_dataset
     p1 = $p1
-    d1 = p1.add_dataset('d1')
+    d = p1.add_dataset('d1')
     File.open(
-      "#{p1.path}/data/01.raw_reads/#{d1.name}.1.fastq", 'w'
+      "#{p1.path}/data/01.raw_reads/#{d.name}.1.fastq", 'w'
     ) { |f| f.puts ':-)' }
     File.open(
-      "#{p1.path}/data/01.raw_reads/#{d1.name}.done", 'w'
+      "#{p1.path}/data/01.raw_reads/#{d.name}.done", 'w'
     ) { |f| f.puts ':-)' }
-    d1.next_preprocessing(true)
+    d.next_preprocessing(true)
     p2 = MiGA::Project.new(File.expand_path('import_dataset', $tmp))
-    assert(p2.datasets.empty?)
+    assert_empty(p2.datasets)
     assert_nil(p2.dataset('d1'))
-    p2.import_dataset(d1)
+    p2.import_dataset(d)
     assert_equal(1, p2.datasets.size)
     assert_equal(MiGA::Dataset, p2.dataset('d1').class)
     assert_equal(1, p2.dataset('d1').results.size)
-    assert(
-      File.exist?(File.join(p2.path, "data/01.raw_reads/#{d1.name}.1.fastq"))
-    )
-    assert(File.exist?(File.join(p2.path, "metadata/#{d1.name}.json")))
+    assert_path_exist(File.join(p2.path, "data/01.raw_reads/#{d.name}.1.fastq"))
+    assert_path_exist(File.join(p2.path, "metadata/#{d.name}.json"))
   end
 
   def test_add_result
@@ -113,11 +111,11 @@ class ProjectTest < Test::Unit::TestCase
 
   def test_preprocessing
     p1 = $p1
-    assert(p1.done_preprocessing?)
+    assert_predicate(p1, :done_preprocessing?)
     d1 = p1.add_dataset('BAH')
-    assert(!p1.done_preprocessing?)
+    assert_not_predicate(p1, :done_preprocessing?)
     FileUtils.touch(File.expand_path("data/90.stats/#{d1.name}.done", p1.path))
-    assert(p1.done_preprocessing?)
+    assert_predicate(p1, :done_preprocessing?)
     assert_nil(p1.next_inclade)
     p1.metadata[:type] = :clade
     assert_equal(:subclades, p1.next_inclade)

@@ -20,7 +20,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   def test_class_universe
     assert_respond_to(MiGA::RemoteDataset, :UNIVERSE)
-    assert(MiGA::RemoteDataset.UNIVERSE.keys.include? :ebi)
+    assert_include(MiGA::RemoteDataset.UNIVERSE.keys, :ebi)
   end
 
   def test_bad_remote_dataset
@@ -89,26 +89,26 @@ class RemoteDatasetTest < Test::Unit::TestCase
   def test_type_status_asm
     omit_if(!$remote_tests, 'Remote access is error-prone')
     rd = MiGA::RemoteDataset.new('GCF_000018105.1', :assembly, :ncbi)
-    assert(rd.get_metadata[:is_type])
+    assert { rd.get_metadata[:is_type] }
   end
 
   def test_nontype_status_asm
     omit_if(!$remote_tests, 'Remote access is error-prone')
     rd = MiGA::RemoteDataset.new('GCA_004684205.1', :assembly, :ncbi)
-    assert(!rd.get_metadata[:is_type])
+    assert { !rd.get_metadata[:is_type] }
   end
 
   def test_type_status_nuccore
     omit_if(!$remote_tests, 'Remote access is error-prone')
     rd = MiGA::RemoteDataset.new('NC_019748.1', :nuccore, :ncbi)
-    assert(rd.get_metadata[:is_type])
+    assert { rd.get_metadata[:is_type] }
   end
 
   def test_ref_type_status
     omit_if(!$remote_tests, 'Remote access is error-prone')
     rd = MiGA::RemoteDataset.new('GCA_002849345', :assembly, :ncbi)
-    assert(!rd.get_metadata[:is_type])
-    assert(rd.get_metadata[:is_ref_type])
+    assert { !rd.get_metadata[:is_type] }
+    assert { rd.get_metadata[:is_ref_type] }
   end
 
   # This test is too expensive (too much time to run it!)

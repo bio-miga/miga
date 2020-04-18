@@ -23,8 +23,8 @@ class MetadataTest < Test::Unit::TestCase
     t1 = Time.new
     md1.save
     t2 = Time.new
-    assert(! File.exist?(md1.lock_file))
-    assert(t2-t1 >= 1.0)
+    assert_path_not_exist(md1.lock_file)
+    assert_ge(t2 - t1, 1.0)
   end
 
   def test_load
@@ -41,8 +41,8 @@ class MetadataTest < Test::Unit::TestCase
     md1.load
     t2 = Time.new
     assert_equal(2, md1[:t])
-    assert(! File.exist?(md1.lock_file))
-    assert(t2-t1 >= 1.0)
+    assert_path_not_exist(md1.lock_file)
+    assert_ge(t2 - t1, 1.0)
   end
 
 end

@@ -4,11 +4,11 @@ class JsonTest < Test::Unit::TestCase
 
   def test_parse
     assert_equal(
-      {a: 1, b: 2},
+      { a: 1, b: 2 },
       MiGA::Json.parse('{"a": 1, "b": 2}', contents: true)
     )
     assert_equal(
-      {'a' => 1, 'b' => 2},
+      { 'a' => 1, 'b' => 2 },
       MiGA::Json.parse('{"a": 1, "b": 2}', contents: true, symbolize: false)
     )
     assert_equal(1.0, MiGA::Json.parse('1.0', contents: true))

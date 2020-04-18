@@ -33,7 +33,7 @@ class ResultStatsTest < Test::Unit::TestCase
     r = $d.add_result(:raw_reads)
     assert_equal({}, r[:stats])
     r.compute_stats
-    assert(!r[:stats].empty?)
+    assert_not_empty(r[:stats])
     assert_equal(Hash, r[:stats].class)
     assert_equal(1, r[:stats][:reads])
     assert_equal([40.0, '%'], r[:stats][:g_c_content])
@@ -48,7 +48,7 @@ class ResultStatsTest < Test::Unit::TestCase
     touch_done(dir)
     r = $d.add_result(:raw_reads)
     r.compute_stats
-    assert(!r[:stats].empty?)
+    assert_not_empty(r[:stats])
     assert_nil(r[:stats][:reads])
     assert_equal(1, r[:stats][:read_pairs])
     assert_equal([40.0, '%'], r[:stats][:reverse_g_c_content])

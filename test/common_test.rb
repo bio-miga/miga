@@ -33,7 +33,7 @@ class CommonTest < Test::Unit::TestCase
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandadi'
     end
-    assert(err.string =~ /Dandadi\n    .*block in test_debug_trace/)
+    assert_match(/Dandadi\n    .*block in test_debug_trace/, err.string)
     MiGA::MiGA.DEBUG_TRACE_OFF
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandada'
@@ -66,7 +66,7 @@ class CommonTest < Test::Unit::TestCase
     assert_raise do
       File.generic_transfer(hello, world, :monkey)
     end
-    assert(!File.exist?(world), 'A monkey shouldn\'t create files.')
+    assert_path_not_exist(world, 'A monkey shouldn\'t create files.')
   ensure
     FileUtils.rm_rf $tmp
   end
@@ -75,8 +75,8 @@ class CommonTest < Test::Unit::TestCase
     assert_equal('Xa sp. C', 'Xa_sp__C'.unmiga_name)
     assert_equal('X_______', 'X^*.!{}!'.miga_name)
     assert_equal('aB09', 'aB09'.miga_name)
-    assert('R2D2'.miga_name?)
-    assert(!'C3-PO'.miga_name?)
+    assert_predicate('R2D2', :miga_name?)
+    assert_not_predicate('C3-PO', :miga_name?)
     assert_equal("123\n1\n", '1231'.wrap_width(3))
   end
 

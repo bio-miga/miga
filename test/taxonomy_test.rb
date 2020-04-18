@@ -5,7 +5,7 @@ class TaxonomyTest < Test::Unit::TestCase
 
   def test_ranks
     assert_respond_to(MiGA::Taxonomy, :KNOWN_RANKS)
-    assert(MiGA::Taxonomy.KNOWN_RANKS.include? :s)
+    assert_include(MiGA::Taxonomy.KNOWN_RANKS, :s)
     assert_nil(MiGA::Taxonomy.normalize_rank 'No Rank')
     assert_nil(MiGA::Taxonomy.normalize_rank 'Captain')
     assert_equal(:f, MiGA::Taxonomy.normalize_rank(:Family))
@@ -41,7 +41,7 @@ class TaxonomyTest < Test::Unit::TestCase
     tx << { genus: 'v3' }
     assert_equal('v3', tx[:g])
     tx << 's:v3_0'
-    assert(tx.in? MiGA::Taxonomy.new('species:v3_0'))
+    assert { tx.in? MiGA::Taxonomy.new('species:v3_0') }
     assert_raise(RuntimeError) { tx << 123 }
   end
 
@@ -89,7 +89,7 @@ class TaxonomyTest < Test::Unit::TestCase
     # Delete
     alt = tx.delete_alternative
     assert_equal(4, alt.size)
-    assert(tx.alternative.empty?)
+    assert_empty(tx.alternative)
   end
 
   def test_reset

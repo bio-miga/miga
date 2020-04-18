@@ -19,25 +19,25 @@ class DatasetTest < Test::Unit::TestCase
 
   def test_known_types
     assert_respond_to(MiGA::Dataset, :KNOWN_TYPES)
-    assert(MiGA::Dataset.KNOWN_TYPES.has_key?(:genome))
+    assert { MiGA::Dataset.KNOWN_TYPES.has_key?(:genome) }
   end
 
   def test_exist
     assert_respond_to(MiGA::Dataset, :exist?)
-    assert(MiGA::Dataset.exist?($p1, 'dataset1'))
-    assert(!MiGA::Dataset.exist?($p1, 'Nope'))
+    assert { MiGA::Dataset.exist?($p1, 'dataset1') }
+    assert { !MiGA::Dataset.exist?($p1, 'Nope') }
   end
 
   def test_info_fields
     assert_respond_to(MiGA::Dataset, :INFO_FIELDS)
-    assert(MiGA::Dataset.INFO_FIELDS.include?('name'))
+    assert { MiGA::Dataset.INFO_FIELDS.include?('name') }
   end
 
   def test_initialize
     assert_raise { MiGA::Dataset.new($p1, 'dataset-1') }
     assert_equal($p1, $d1.project)
     assert_equal('dataset1', $d1.name)
-    assert($d1.is_ref?)
+    assert_predicate($d1, :is_ref?)
     assert_equal(MiGA::Metadata, $d1.metadata.class)
   end
 
@@ -45,21 +45,21 @@ class DatasetTest < Test::Unit::TestCase
     d2 = $p1.add_dataset('ds_save')
     assert_respond_to(d2, :save)
     d2.save
-    assert(!d2.is_multi?)
-    assert(!d2.is_nonmulti?)
+    assert_not_predicate(d2, :is_multi?)
+    assert_not_predicate(d2, :is_nonmulti?)
     assert_nil(d2.metadata[:type])
     d2.metadata[:type] = :metagenome
     d2.save
     assert_equal(:metagenome, d2.metadata[:type])
-    assert(d2.is_multi?)
-    assert(!d2.is_nonmulti?)
+    assert_predicate(d2, :is_multi?)
+    assert_not_predicate(d2, :is_nonmulti?)
   end
 
   def test_remove
     d2 = $p1.add_dataset('ds_remove')
-    assert(File.exist?(d2.metadata.path))
+    assert_path_exist(d2.metadata.path)
     d2.remove!
-    assert(! File.exist?(d2.metadata.path))
+    assert_path_not_exist(d2.metadata.path)
   end
 
   def test_info
@@ -82,7 +82,7 @@ class DatasetTest < Test::Unit::TestCase
     d2 = $p1.add_dataset('ds_preprocessing')
     assert_nil(d2.first_preprocessing)
     assert_nil(d2.next_preprocessing)
-    assert(! d2.done_preprocessing?)
+    assert_not_predicate(d2, :done_preprocessing?)
     FileUtils.touch(File.expand_path(
       "data/02.trimmed_reads/#{d2.name}.1.clipped.fastq", $p1.path
     ))
@@ -91,26 +91,26 @@ class DatasetTest < Test::Unit::TestCase
     ))
     assert_equal(:trimmed_reads, d2.first_preprocessing(true))
     assert_equal(:read_quality, d2.next_preprocessing(true))
-    assert(! d2.done_preprocessing?(true))
+    assert { !d2.done_preprocessing?(true) }
     # Ref and undeclared multi
-    assert(d2.ignore_task?(:mytaxa))
-    assert(d2.ignore_task?(:mytaxa_scan))
-    assert(d2.ignore_task?(:distances))
+    assert { d2.ignore_task?(:mytaxa) }
+    assert { d2.ignore_task?(:mytaxa_scan) }
+    assert { d2.ignore_task?(:distances) }
     # Ref and multi
     d2.metadata[:type] = :metagenome
-    assert(! d2.ignore_task?(:mytaxa))
-    assert(d2.ignore_task?(:mytaxa_scan))
-    assert(d2.ignore_task?(:distances))
+    assert { !d2.ignore_task?(:mytaxa) }
+    assert { d2.ignore_task?(:mytaxa_scan) }
+    assert { d2.ignore_task?(:distances) }
     # Ref and nonmulti
     d2.metadata[:type] = :genome
-    assert(d2.ignore_task?(:mytaxa))
-    assert(! d2.ignore_task?(:mytaxa_scan))
-    assert(! d2.ignore_task?(:distances))
+    assert { d2.ignore_task?(:mytaxa) }
+    assert { !d2.ignore_task?(:mytaxa_scan) }
+    assert { !d2.ignore_task?(:distances) }
     # Qry and nonmulti
     d2.metadata[:ref] = false
-    assert(d2.ignore_task?(:mytaxa))
-    assert(d2.ignore_task?(:mytaxa_scan))
-    assert(! d2.ignore_task?(:distances))
+    assert { d2.ignore_task?(:mytaxa) }
+    assert { d2.ignore_task?(:mytaxa_scan) }
+    assert { !d2.ignore_task?(:distances) }
   end
 
   def test_profile_advance
