@@ -1,16 +1,16 @@
 language: ruby
 os: linux
 before_install:
-  - gem install bundler -v 1.17.3
+  - gem install bundler -v 2.1.4
 jobs:
   include:
     # Run remote tests in only one version
-    - rvm: 2.1.5
+    - rvm: 2.3.0
       env: REMOTE_TESTS=true
       after_script: "bundle exec codeclimate-test-reporter"
     # Additional tests with standard versions
-    - rvm: 2.3.0
     - rvm: 2.5.1
+    - rvm: 2.6.5
     - rvm: ruby-head
 script: "bundle exec rake test:all"
 cache: bundler
