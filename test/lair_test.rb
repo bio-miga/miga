@@ -40,7 +40,7 @@ class LairTest < Test::Unit::TestCase
     lair = MiGA::Lair.new($tmp, name: 'Oh')
     omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
     child = lair.start(['--shush'])
-    assert_instance_of(Integer, child)
+    assert_not_nil(child)
     assert_gt(child, 0, 'The daemon process should have non-zero PID')
     sleep(2)
     capture_stderr { lair.stop }

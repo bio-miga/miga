@@ -100,7 +100,8 @@ class MiGA::Lair < MiGA::MiGA
   # Searches for MiGA projects recursively in all
   # subdirectories that are not MiGA projects.
   def each_project(dir = path)
-    Dir.children(dir).each do |f|
+    Dir.entries(dir).each do |f|
+      next if %w[. ..].include?(f) # Ruby <= 2.3 doesn't have Dir.children
       f = File.join(dir, f)
       if MiGA::Project.exist? f
         project = MiGA::Project.load(f)

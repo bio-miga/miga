@@ -98,7 +98,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(0, d.latency)
     omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
     child = $child = d.daemon(:start, ['--shush'])
-    assert_instance_of(Integer, child)
+    assert_not_nil(child)
     assert_gt(child, 1)
     assert_equal(0, `ps -p "#{child}" -o ppid=`.strip.to_i,
       'The daemon process should be detached')
