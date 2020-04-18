@@ -1,6 +1,4 @@
 
-require 'daemons'
-require 'date'
 require 'shellwords'
 
 class MiGA::Daemon < MiGA::MiGA
@@ -54,22 +52,6 @@ module MiGA::Daemon::Base
   # Returns Boolean indicating if the daemon should shutdown when processing is
   # complete
   def shutdown_when_done?() !!runopts(:shutdown_when_done); end
-
-  ##
-  # Initializes the daemon with +opts+
-  def start(opts = []) daemon('start', opts); end
-
-  ##
-  # Stops the daemon with +opts+
-  def stop(opts = []) daemon('stop', opts); end
-
-  ##
-  # Restarts the daemon with +opts+
-  def restart(opts = []) daemon('restart', opts); end
-
-  ##
-  # Returns the status of the daemon with +opts+.
-  def status(opts = []) daemon('status', opts); end
 
 end
 

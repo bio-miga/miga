@@ -136,6 +136,18 @@ class MiGA::Metadata < MiGA::MiGA
   end
 
   ##
+  # Time of last update
+  def updated
+    Time.parse(self[:updated]) unless self[:updated].nil?
+  end
+
+  ##
+  # Time of creation
+  def created
+    Time.parse(self[:created]) unless self[:created].nil?
+  end
+
+  ##
   # Show contents in JSON format as a String
   def to_json
     MiGA::Json.generate(data)

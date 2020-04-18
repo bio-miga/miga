@@ -11,13 +11,11 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
     cli.expect_operation = true
     cli.parse do |opt|
       opt.separator 'Available operations:'
-      { start:   'Start an instance of the application.',
-        stop:    'Start an instance of the application.',
-        restart: 'Stop all instances and restart them afterwards.',
-        reload:  'Send a SIGHUP to all instances of the application.',
-        run:     'Start the application and stay on top.',
-        zap:     'Set the application to a stopped state.',
-        status:  'Show status (PID) of application instances.'
+      { start:   'Start an instance of the application',
+        stop:    'Start an instance of the application',
+        run:     'Start the application and stay on top',
+        status:  'Show status (PID) of application instances',
+        terminate: 'Terminate all daemons in the lair and exit'
       }.each { |k,v| opt.separator sprintf '    %*s%s', -33, k, v }
       opt.separator ''
 
@@ -27,13 +25,17 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         '(Mandatory) Path to the directory where the MiGA projects are located'
       ) { |v| cli[:path] = v }
       opt.on(
+        '--json PATH',
+        'Path to a custom daemon definition in json format'
+      ) { |v| cli[:json] = v }
+      opt.on(
         '--latency INT', Integer,
         'Time to wait between iterations in seconds, by default: 120'
       ) { |v| cli[:latency] = v }
       opt.on(
         '--wait-for INT', Integer,
         'Time to wait for a daemon to report being alive in seconds',
-        'by default: 900'
+        'by default: 30'
       ) { |v| cli[:wait_for] = v }
       opt.on(
         '--keep-inactive',
@@ -41,13 +43,17 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         'i.e., when all tasks are complete'
       ) { |v| cli[:keep_inactive] = v }
       opt.on(
+        '--no-trust-timestamp',
+        'Check all results instead of trusting project timestamps'
+      ) { |v| cli[:trust_timestamp] = v }
+      opt.on(
         '--name STRING',
         'A name for the chief daemon process'
       ) { |v| cli[:name] = v }
       opt.on(
-        '--json PATH',
-        'Path to a custom daemon definition in json format'
-      ) { |v| cli[:json] = v }
+        '--dry',
+        'Report when daemons would be launched, but don\'t actually launch them'
+      ) { |v| cli[:dry] = v }
       cli.opt_common(opt)
 
       opt.separator 'Daemon options:'
@@ -73,9 +79,13 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
 
   def perform
     cli.ensure_par(path: '-p')
-    k_opts = %i[latency wait_for keep_inactive name json]
-    opts = Hash[k_opts.map { |k| [k, cli[k]] }]
-    lair = MiGA::Lair.new(cli[:path], opts)
-    lair.daemon(cli.operation, cli[:daemon_opts])
+    if cli.operation.to_sym == :terminate
+      MiGA::Lair.new(cli[:path]).terminate_daemons
+    else
+      k_opts = %i[json latency wait_for keep_inactive trust_timestamp name dry]
+      opts = Hash[k_opts.map { |k| [k, cli[k]] }]
+      lair = MiGA::Lair.new(cli[:path], opts)
+      lair.daemon(cli.operation, cli[:daemon_opts])
+    end
   end
 end

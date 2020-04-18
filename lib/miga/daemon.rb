@@ -2,6 +2,7 @@
 # @license Artistic-2.0
 
 require 'miga/project'
+require 'miga/common/with_daemon'
 require 'miga/daemon/base'
 
 ##
@@ -9,29 +10,30 @@ require 'miga/daemon/base'
 class MiGA::Daemon < MiGA::MiGA
 
   include MiGA::Daemon::Base
+  include MiGA::Common::WithDaemon
+  extend MiGA::Common::WithDaemonClass
 
-  ##
-  # When was the last time a daemon for the MiGA::Project +project+ was seen
-  # active? Returns Time.
-  def self.last_alive(project)
-    f = File.expand_path('daemon/alive', project.path)
-    return nil unless File.exist? f
-    Time.parse(File.read(f))
+  class << self
+    ##
+    # Daemon's home inside the MiGA::Project +project+ or a String with the
+    # full path to the project's 'daemon' folder
+    def daemon_home(project)
+      return project if project.is_a? String
+      File.join(project.path, 'daemon')
+    end
   end
-
-  # Array of all spawned daemons.
-  $_MIGA_DAEMON_LAIR = []
 
   # MiGA::Project in which the daemon is running
   attr_reader :project
+
   # Options used to setup the daemon
   attr_reader :options
+
   # Array of jobs next to be executed
   attr_reader :jobs_to_run
+
   # Array of jobs currently running
   attr_reader :jobs_running
-  # Integer indicating the current iteration
-  attr_reader :loop_i
 
   ##
   # Initialize an unactive daemon for the MiGA::Project +project+. See #daemon
@@ -40,72 +42,74 @@ class MiGA::Daemon < MiGA::MiGA
   # is used. In either case, missing variables are used as defined in
   # ~/.miga_daemon.json.
   def initialize(project, json = nil)
-    $_MIGA_DAEMON_LAIR << self
     @project = project
     @runopts = {}
-    json ||= File.expand_path('daemon/daemon.json', project.path)
+    json ||= File.join(project.path, 'daemon/daemon.json')
     MiGA::Json.parse(
       json, default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     ).each { |k,v| runopts(k, v) }
     update_format_0
     @jobs_to_run = []
     @jobs_running = []
-    @loop_i = -1
   end
 
   ##
-  # When was the last time a daemon for the current project was seen active?
-  # Returns Time.
-  def last_alive
-    MiGA::Daemon.last_alive project
+  # Path to the daemon home
+  def daemon_home
+    self.class.daemon_home(project)
   end
 
   ##
-  # Returns Hash containing the default options for the daemon.
-  def default_options
-    { dir_mode: :normal, dir: File.expand_path('daemon', project.path),
-      multiple: false, log_output: true }
+  # Name of the daemon
+  def daemon_name
+    "MiGA:#{project.name}"
   end
 
   ##
-  # Launches the +task+ with options +opts+ (as command-line arguments) and
-  # returns the process ID as an Integer. If +wait+ it waits for the process to
-  # complete, immediately returns otherwise.
-  # Supported tasks: start, stop, restart, status.
-  def daemon(task, opts = [], wait = true)
-    MiGA.DEBUG "Daemon.daemon #{task} #{opts}"
-    options = default_options
-    opts.unshift(task.to_s)
-    options[:ARGV] = opts
-    # This additional degree of separation below was introduced so the Daemons
-    # package doesn't kill the parent process in workflows.
-    pid = fork do 
-      Daemons.run_proc("MiGA:#{project.name}", options) { while in_loop; end }
+  # Run only in the first loop
+  def daemon_first_loop
+    say '-----------------------------------'
+    say 'MiGA:%s launched' % project.name
+    say '-----------------------------------'
+    load_status
+    say 'Configuration options:'
+    say @runopts.to_s
+  end
+
+  ##
+  # Run one loop step. Returns a Boolean indicating if the loop should continue.
+  def daemon_loop
+    project.load
+    check_datasets
+    check_project
+    if shutdown_when_done? and jobs_running.size + jobs_to_run.size == 0
+      say 'Nothing else to do, shutting down.'
+      return false
     end
-    Process.wait(pid) if wait
-    pid
-  end
-
-  ##
-  # Tell the world that you're alive.
-  def declare_alive
-    f = File.open(File.expand_path('daemon/alive', project.path), 'w')
-    f.print Time.now.to_s
-    f.close
+    flush!
+    if loop_i >= 12
+      say 'Probing running jobs'
+      @loop_i = 0
+      purge!
+    end
+    report_status
+    sleep(latency)
+    true
   end
 
   ##
   # Report status in a JSON file.
   def report_status
     MiGA::Json.generate(
-      {jobs_running: @jobs_running, jobs_to_run: @jobs_to_run},
-      File.expand_path('daemon/status.json', project.path))
+      { jobs_running: @jobs_running, jobs_to_run: @jobs_to_run },
+      File.join(daemon_home, 'status.json')
+    )
   end
 
   ##
   # Load the status of a previous instance.
   def load_status
-    f_path = File.expand_path('daemon/status.json', project.path)
+    f_path = File.join(daemon_home, 'status.json')
     return unless File.size? f_path
     say 'Loading previous status in daemon/status.json:'
     status = MiGA::Json.parse(f_path)
@@ -232,53 +236,6 @@ class MiGA::Daemon < MiGA::MiGA
     @jobs_running.select! do |job|
       `#{runopts(:alive).miga_variables(pid: job[:pid])}`.chomp.to_i == 1
     end
-  end
-
-  ##
-  # Run one loop step. Returns a Boolean indicating if the loop should continue.
-  def in_loop
-    declare_alive
-    project.load
-    if loop_i == -1
-      say '-----------------------------------'
-      say 'MiGA:%s launched' % project.name
-      say '-----------------------------------'
-      load_status
-      say 'Configuration options:'
-      say @runopts.to_s
-      @loop_i = 0
-    end
-    @loop_i += 1
-    check_datasets
-    check_project
-    if shutdown_when_done? and jobs_running.size + jobs_to_run.size == 0
-      say 'Nothing else to do, shutting down.'
-      return false
-    end
-    flush!
-    if loop_i == 12
-      say 'Probing running jobs'
-      @loop_i = 0
-      purge!
-    end
-    report_status
-    sleep(latency)
-    true
-  end
-
-  ##
-  # Send a datestamped message to the log.
-  def say(*opts)
-    print "[#{Time.new.inspect}] ", *opts, "\n"
-  end
-
-  ##
-  # Terminates a daemon.
-  def terminate
-    say 'Terminating daemon...'
-    report_status
-    f = File.expand_path('daemon/alive', project.path)
-    File.unlink(f) if File.exist? f
   end
 
   ##

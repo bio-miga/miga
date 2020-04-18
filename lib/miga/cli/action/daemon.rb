@@ -11,13 +11,10 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
     cli.expect_operation = true
     cli.parse do |opt|
       opt.separator 'Available operations:'
-      { start:   'Start an instance of the application.',
-        stop:    'Start an instance of the application.',
-        restart: 'Stop all instances and restart them afterwards.',
-        reload:  'Send a SIGHUP to all instances of the application.',
-        run:     'Start the application and stay on top.',
-        zap:     'Set the application to a stopped state.',
-        status:  'Show status (PID) of application instances.'
+      { start:   'Start an instance of the application',
+        stop:    'Start an instance of the application',
+        run:     'Start the application and stay on top',
+        status:  'Show status (PID) of application instances'
       }.each { |k,v| opt.separator sprintf '    %*s%s', -33, k, v }
       opt.separator ''
 
