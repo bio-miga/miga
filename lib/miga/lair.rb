@@ -114,6 +114,14 @@ class MiGA::Lair < MiGA::MiGA
   end
 
   ##
+  # Perform block for each daemon, including the chief daemon
+  # if +include_self+.
+  def each_daemon(include_self = true)
+    yield(self) if include_self
+    each_project { |project| yield(MiGA::Daemon.new(project)) }
+  end
+
+  ##
   # Traverse directories checking MiGA projects
   def check_directories
     each_project do |project|

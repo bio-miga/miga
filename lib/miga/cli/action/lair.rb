@@ -15,6 +15,7 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         stop:    'Start an instance of the application',
         run:     'Start the application and stay on top',
         status:  'Show status (PID) of application instances',
+        list:    'List all daemons and their status',
         terminate: 'Terminate all daemons in the lair and exit'
       }.each { |k,v| opt.separator sprintf '    %*s%s', -33, k, v }
       opt.separator ''
@@ -79,8 +80,15 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
 
   def perform
     cli.ensure_par(path: '-p')
-    if cli.operation.to_sym == :terminate
+    case cli.operation.to_sym
+    when :terminate
       MiGA::Lair.new(cli[:path]).terminate_daemons
+    when :list
+      o = []
+      MiGA::Lair.new(cli[:path]).each_daemon do |d|
+        o << [d.daemon_name, d.class, d.daemon_home, d.active?, d.last_alive]
+      end
+      cli.table(%w[name class path active last_alive], o)
     else
       k_opts = %i[json latency wait_for keep_inactive trust_timestamp name dry]
       opts = Hash[k_opts.map { |k| [k, cli[k]] }]

@@ -90,4 +90,17 @@ class LairTest < Test::Unit::TestCase
     out = capture_stderr { assert { lair.daemon_loop } }.string
     assert_equal('', out)
   end
+
+  def test_each_project
+    lair = MiGA::Lair.new($tmp)
+    y = []
+    lair.each_project { |p| y << p }
+    assert_equal(3, y.size)
+    assert_instance_of(MiGA::Project, y[0])
+    x = []
+    lair.each_daemon { |d| x << d }
+    assert_equal(4, x.size)
+    assert_instance_of(MiGA::Lair, x[0])
+    assert_instance_of(MiGA::Daemon, x[1])
+  end
 end
