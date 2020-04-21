@@ -25,7 +25,8 @@ module MiGA::Dataset::Hooks
   def default_hooks
     {
       on_preprocessing_ready: [[:clear_run_counts]],
-      on_result_ready: [[:_pull_result_hooks]]
+      on_result_ready: [[:_pull_result_hooks]],
+      on_activate: [[:clear_run_counts]]
     }
   end
 
