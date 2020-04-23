@@ -26,9 +26,10 @@ module MiGA::Common::WithDaemonClass
   def last_alive(path)
     f = alive_file(path)
     f = terminated_file(path) unless File.exist? f
-    return nil unless File.exist? f
     c = File.read(f)
     return nil if c.nil? || c.empty?
     Time.parse(c)
+  rescue Errno::ENOENT
+    return nil
   end
 end

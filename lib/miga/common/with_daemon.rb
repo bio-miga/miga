@@ -46,7 +46,7 @@ module MiGA::Common::WithDaemon
   # Is the daemon active?
   def active?
     return false unless File.exist? alive_file
-    last_alive > Time.now - 60
+    (last_alive || Time.new(0)) > Time.now - 60
   end
 
   ##
