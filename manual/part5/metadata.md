@@ -111,6 +111,7 @@ The following metadata fields are recognized by different interfaces for
 | type_rel     | String           | Relationship to type material
 | suspect      | Array(String)    | Flags indicating a suspect dataset
 | metadata_only | Boolean         | Dataset with metadata but without input data
+| status       | String           | Proc. status: complete, incomplete, inactive
 | _step        | String           | For internal control of processing
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
