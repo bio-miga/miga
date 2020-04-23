@@ -33,17 +33,17 @@ module MiGA::Dataset::Result
   # - nonmulti: incompatible dataset, only for nonmulti
   # - execute: do not ignore, execute the task
   def why_ignore(task)
-    if !is_active?
+    if !active?
       :inactive
     elsif !metadata["run_#{task}"].nil?
       metadata["run_#{task}"] ? :execute : :force
     elsif task == :taxonomy && project.metadata[:ref_project].nil?
       :project
-    elsif @@_EXCLUDE_NOREF_TASKS_H[task] && !is_ref?
+    elsif @@_EXCLUDE_NOREF_TASKS_H[task] && !ref?
       :noref
-    elsif @@_ONLY_MULTI_TASKS_H[task] && !is_multi?
+    elsif @@_ONLY_MULTI_TASKS_H[task] && !multi?
       :multi
-    elsif @@_ONLY_NONMULTI_TASKS_H[task] && !is_nonmulti?
+    elsif @@_ONLY_NONMULTI_TASKS_H[task] && !nonmulti?
       :nonmulti
     else
       :execute
@@ -139,7 +139,7 @@ module MiGA::Dataset::Result
   # the project as reference datasets.
   def cleanup_distances!
     r = get_result(:distances)
-    ref = project.datasets.select(&:is_ref?).select(&:is_active?).map(&:name)
+    ref = project.datasets.select(&:ref?).select(&:active?).map(&:name)
     return if r.nil?
     %i[haai_db aai_db ani_db].each do |db_type|
       db = r.file_path(db_type)
@@ -294,7 +294,7 @@ module MiGA::Dataset::Result
   ##
   # Add result type +:mytaxa+ at +base+ (no +_opts+ supported)
   def add_result_mytaxa(base, _opts)
-    if is_multi?
+    if multi?
       return nil unless
         result_files_exist?(base, '.mytaxa') ||
         result_files_exist?(base, '.nomytaxa.txt')
@@ -319,7 +319,7 @@ module MiGA::Dataset::Result
   ##
   # Add result type +:mytaxa_scan+ at +base+ (no +_opts+ supported)
   def add_result_mytaxa_scan(base, _opts)
-    if is_nonmulti?
+    if nonmulti?
       return nil unless
         result_files_exist?(base, %w[.pdf .mytaxa]) ||
         result_files_exist?(base, '.nomytaxa.txt')
@@ -345,8 +345,8 @@ module MiGA::Dataset::Result
   ##
   # Add result type +:distances+ at +base+ (no +_opts+ supported)
   def add_result_distances(base, _opts)
-    if is_nonmulti?
-      if is_ref?
+    if nonmulti?
+      if ref?
         add_result_distances_ref(base)
       else
         add_result_distances_nonref(base)

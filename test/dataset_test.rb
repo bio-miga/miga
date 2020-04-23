@@ -39,6 +39,7 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal('dataset1', $d1.name)
     assert_predicate($d1, :is_ref?)
     assert_equal(MiGA::Metadata, $d1.metadata.class)
+    assert_equal(:incomplete, $d1.status)
   end
 
   def test_save
@@ -181,4 +182,15 @@ class DatasetTest < Test::Unit::TestCase
     end
   end
 
+  def test_activate
+    d = $d1
+    assert_equal(:incomplete, d.status)
+    assert_predicate(d, :active?)
+    d.inactivate!
+    assert_equal(:inactive, d.status)
+    assert_not_predicate(d, :active?)
+    d.activate!
+    assert_equal(:incomplete, d.status)
+    assert_predicate(d, :active?)
+  end
 end

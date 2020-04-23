@@ -3,6 +3,7 @@
 
 require 'miga/metadata'
 require 'miga/dataset/result'
+require 'miga/dataset/status'
 require 'miga/dataset/hooks'
 require 'sqlite3'
 
@@ -10,15 +11,15 @@ require 'sqlite3'
 # Dataset representation in MiGA.
 class MiGA::Dataset < MiGA::MiGA
   include MiGA::Dataset::Result
+  include MiGA::Dataset::Status
   include MiGA::Dataset::Hooks
 
   # Class-level
   class << self
-
     ##
     # Does the +project+ already have a dataset with that +name+?
     def exist?(project, name)
-      not project.dataset_names_hash[name].nil?
+      !project.dataset_names_hash[name].nil?
     end
 
     ##
@@ -26,7 +27,6 @@ class MiGA::Dataset < MiGA::MiGA
     def INFO_FIELDS
       %w(name created updated type ref user description comments)
     end
-
   end
 
   # Instance-level
@@ -57,7 +57,10 @@ class MiGA::Dataset < MiGA::MiGA
       File.expand_path("metadata/#{name}.json", project.path),
       metadata
     ]
-    save unless File.exist? @metadata_future[0]
+    unless File.exist? @metadata_future[0]
+      save
+      pull_hook :on_create
+    end
   end
 
   ##
@@ -117,31 +120,51 @@ class MiGA::Dataset < MiGA::MiGA
 
   ##
   # Is this dataset a reference?
-  def is_ref? ; !!metadata[:ref] ; end
+  def ref? ; !!metadata[:ref] ; end
 
   ##
   # Is this dataset a query (non-reference)?
-  def is_query? ; !metadata[:ref] ; end
+  def query? ; !metadata[:ref] ; end
 
   ##
   # Is this dataset known to be multi-organism?
-  def is_multi?
+  def multi?
     return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
     @@KNOWN_TYPES[type][:multi]
   end
 
   ##
   # Is this dataset known to be single-organism?
-  def is_nonmulti?
+  def nonmulti?
     return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
     !@@KNOWN_TYPES[type][:multi]
   end
 
   ##
   # Is this dataset active?
-  def is_active?
+  def active?
     metadata[:inactive].nil? or !metadata[:inactive]
   end
+
+  ##
+  # Same as +ref?+ for backwards-compatibility
+  alias is_ref? ref?
+
+  ##
+  # Same as +query?+ for backwards-compatibility
+  alias is_query? query?
+
+  ##
+  # Same as +multi?+ for backwards-compatibility
+  alias is_multi? multi?
+
+  ##
+  # Same as +is_nonmulti?+ for backwards-compatibility
+  alias is_nonmulti? nonmulti?
+
+  ##
+  # Same as +active?+ for backwards-compatibility
+  alias is_active? active?
 
   ##
   # Returns an Array of +how_many+ duples (Arrays) sorted by AAI:
@@ -151,7 +174,7 @@ class MiGA::Dataset < MiGA::MiGA
   # +ref_project+ is false (default), and only for reference dataset when
   # +ref_project+ is true. It returns +nil+ if this analysis is not supported.
   def closest_relatives(how_many = 1, ref_project = false)
-    return nil if (is_ref? != ref_project) or is_multi?
+    return nil if (ref? != ref_project) or multi?
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
     db = SQLite3::Database.new(r.file_path :aai_db)
@@ -159,6 +182,4 @@ class MiGA::Dataset < MiGA::MiGA
       'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
       'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many])
   end
-
 end
-

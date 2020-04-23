@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'miga/project'
+require 'zlib'
 
 class ResultStatsTest < Test::Unit::TestCase
 
@@ -88,11 +89,14 @@ class ResultStatsTest < Test::Unit::TestCase
   end
 
   def test_assembly
+    # Prepare result
     dir = 'data/05.assembly'
     fa = file_path(dir, '.LargeContigs.fna')
     File.open(fa, 'w') { |fh| fh.puts '>1','ACTAC' }
     touch_done(dir)
     r = $d.add_result(:assembly)
+
+    # Test assertions
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal(1, r[:stats][:contigs])
@@ -101,11 +105,18 @@ class ResultStatsTest < Test::Unit::TestCase
   end
 
   def test_cds
+    # Prepare result
     dir = 'data/06.cds'
     fa = file_path(dir, '.faa')
     File.open(fa, 'w') { |fh| fh.puts '>1','M' }
+    gff = file_path(dir, '.gff3.gz')
+    Zlib::GzipWriter.open(gff) do |fh|
+      fh.puts '# Model Data: a=b;transl_table=11;'
+    end
     touch_done(dir)
     r = $d.add_result(:cds)
+
+    # Test assertions
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal(1, r[:stats][:predicted_proteins])
@@ -114,6 +125,28 @@ class ResultStatsTest < Test::Unit::TestCase
     test_assembly
     r.compute_stats
     assert_equal([60.0, '%'], r[:stats][:coding_density])
+    assert_equal('11', r[:stats][:codon_table])
+  end
+
+  def test_taxonomy
+    # Prepare result
+    dir = 'data/09.distances/05.taxonomy'
+    FileUtils.touch(file_path(dir, '.aai-medoids.tsv'))
+    FileUtils.touch(file_path(dir, '.aai.db'))
+    File.open(file_path(dir, '.intax.txt'), 'w') do |fh|
+      fh.puts 'Closest relative: dad with AAI: 100.0.'
+      3.times { fh.puts '' }
+      fh.puts ' phylum Abc  0.0  **** '
+    end
+    touch_done(dir)
+    r = $d.add_result(:taxonomy)
+
+    # Test assertions
+    assert_nil(r[:stats][:closest_relative])
+    r.compute_stats
+    assert_equal('dad', r[:stats][:closest_relative])
+    assert_equal([100.0, '%'], r[:stats][:aai])
+    assert_equal(0.0, r[:stats][:phylum_pvalue])
   end
 
 end

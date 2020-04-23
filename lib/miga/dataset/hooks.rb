@@ -4,29 +4,34 @@ require 'miga/common/hooks'
 ##
 # Helper module including specific functions to handle dataset hooks.
 # Supported events:
+# - on_create(): When first created
 # - on_load(): When loaded
 # - on_save(): When saved
 # - on_remove(): When removed
-# - on_inactivate(): When inactivated
 # - on_activate(): When activated
+# - on_inactivate(): When inactivated
 # - on_result_ready(result): When any result is ready, with key +result+
 # - on_result_ready_{result}(): When +result+ is ready
 # - on_preprocessing_ready(): When preprocessing is complete
 # Supported hooks:
 # - run_lambda(lambda, args...)
+# - recalculate_status()
 # - clear_run_counts()
 # - run_cmd(cmd)
 # Internal hooks:
 # - _pull_result_hooks()
 module MiGA::Dataset::Hooks 
-
   include MiGA::Common::Hooks
 
+  ##
+  # Dataset hooks triggered by default
   def default_hooks
     {
-      on_preprocessing_ready: [[:clear_run_counts]],
+      on_create: [[:recalculate_status]],
+      on_activate: [[:clear_run_counts], [:recalculate_status]],
+      on_inactivate: [[:recalculate_status]],
       on_result_ready: [[:_pull_result_hooks]],
-      on_activate: [[:clear_run_counts]]
+      on_preprocessing_ready: [[:clear_run_counts], [:recalculate_status]],
     }
   end
 
@@ -38,6 +43,12 @@ module MiGA::Dataset::Hooks
       .each { |k| metadata[k] = nil }
     metadata[:_step] = nil
     save
+  end
+
+  ##
+  # Recalculate the dataset status and save in metadata
+  def hook_recalculate_status(_hook_args, _event_args)
+    recalculate_status
   end
 
   ##
