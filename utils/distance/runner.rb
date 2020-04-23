@@ -53,10 +53,12 @@ class MiGA::DistanceRunner
     @opts[:ani_p] ||= 'blast+'
     @opts[:distances_checkpoint] ||= 10
     @opts[:distances_checkpoint] = @opts[:distances_checkpoint].to_i
+    $stderr.puts "Options: #{opts}"
   end
 
   # Launch the appropriate analysis
   def go!
+    $stderr.puts "Launching analysis"
     return if dataset.is_multi?
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
@@ -67,6 +69,7 @@ class MiGA::DistanceRunner
 
   # Launch analysis for reference datasets
   def go_ref!
+    $stderr.puts "Launching analysis for reference dataset"
     # Initialize databases
     initialize_dbs! true
 
@@ -84,6 +87,7 @@ class MiGA::DistanceRunner
   ##
   # Launch analysis for query datasets
   def go_query!
+    $stderr.puts "Launching analysis for query dataset"
     # Check if project is ready
     tsk = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
     res = ref_project.result(tsk[0])
@@ -129,6 +133,7 @@ class MiGA::DistanceRunner
 
   # Launch analysis for taxonomy jobs
   def go_taxonomy!
+    $stderr.puts "Launching taxonomy analysis"
     return unless project.metadata[:ref_project]
     go_query! # <- yeah, it's actually the same, just different ref_project
   end

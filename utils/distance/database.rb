@@ -5,6 +5,7 @@ module MiGA::DistanceRunner::Database
   ##
   # Check for corrupt files and create empty databases
   def initialize_dbs!(for_ref)
+    $stderr.puts "Initializing databases (for_ref = #{for_ref})"
     @dbs = {}
     @tmp_dbs = {}
     @db_counts = {}

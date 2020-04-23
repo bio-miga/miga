@@ -4,7 +4,7 @@ module MiGA::DistanceRunner::Pipeline
 
   # Recursively classify the dataset, returning an Array with two entries:
   # classification and cluster number
-  def classify(clades, classif, metric, result_fh, val_cls=nil)
+  def classify(clades, classif, metric, result_fh, val_cls = nil)
     dir = File.expand_path(classif, clades)
     med = File.expand_path('miga-project.medoids', dir)
     return [classif,val_cls] unless File.size? med
@@ -32,6 +32,7 @@ module MiGA::DistanceRunner::Pipeline
 
   # Builds a tree with all visited medoids from any classification level
   def build_medoids_tree(metric)
+    $stderr.puts "Building medoids tree (metric = #{metric})"
     db = query_db(metric)
     return unless File.size? db
     out_base = File.expand_path(dataset.name, home)
@@ -61,6 +62,7 @@ module MiGA::DistanceRunner::Pipeline
 
   # Tests taxonomy
   def tax_test
+    $stderr.puts "Testing taxonomy | opts = #{opts}"
     # Get taxonomy of closest relative
     from_ref_project = (project != ref_project)
     res_dir = from_ref_project ?
@@ -95,6 +97,7 @@ module MiGA::DistanceRunner::Pipeline
 
   # Transfer the taxonomy to the current dataset
   def transfer_taxonomy(tax)
+    $stderr.puts "Transferring taxonomy"
     return if tax.nil?
     pval = (project.metadata[:tax_pvalue] || 0.05).to_f
     tax_a = tax.

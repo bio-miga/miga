@@ -6,7 +6,11 @@ module MiGA::DistanceRunner::Temporal
 
   # Copy input files to the (local) temporal folder
   def create_temporals
-    rf = {essential_genes: :ess_genes, cds: :proteins, assembly: :largecontigs}
+    rf = {
+      essential_genes: :ess_genes,
+      cds: :proteins,
+      assembly: :largecontigs
+    }
     rf.each do |res, file|
       r = dataset.result(res)
       f = r.nil? ? nil : r.file_path(file)
@@ -37,6 +41,7 @@ module MiGA::DistanceRunner::Temporal
 
   # Copies temporal databases back to the MiGA Project
   def checkpoint!(metric)
+    $stderr.puts "Checkpoint (metric = #{metric})"
     SQLite3::Database.new(tmp_dbs[metric]) do |conn|
       conn.execute("select count(*) from #{metric==:haai ? :aai : metric}")
     end
