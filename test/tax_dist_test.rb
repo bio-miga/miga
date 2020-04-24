@@ -40,12 +40,12 @@ class TaxDistTest < Test::Unit::TestCase
   def test_aai_taxtest
     distant_intax = MiGA::TaxDist.aai_taxtest(35.0, :intax, engine: :diamond)
     assert_equal(:root, distant_intax[:most_likely][0])
-    assert_nil(distant_intax[:probably])
+    assert_equal(:d, distant_intax[:probably][0])
     assert_nil(distant_intax[:possibly_even])
 
     distant_intax = MiGA::TaxDist.aai_taxtest(35.0, :intax, engine: :blast)
     assert_equal(:root, distant_intax[:most_likely][0])
-    assert_nil(distant_intax[:probably])
+    assert_equal(:d, distant_intax[:probably][0])
     assert_nil(distant_intax[:possibly_even])
 
     close_intax = MiGA::TaxDist.aai_taxtest(99.0, :intax, engine: :diamond)
