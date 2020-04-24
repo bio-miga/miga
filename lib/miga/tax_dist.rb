@@ -43,7 +43,6 @@ module MiGA::TaxDist
             keys.each do |i|
               v = row.shift
               next if v == 'NA' # <- missing data
-              next if i == 1 # <- namespace, not a taxonomic rank
               rank = i.zero? ? :root : MiGA::Taxonomy.KNOWN_RANKS[i]
               vals[rank] = v.to_f
             end
