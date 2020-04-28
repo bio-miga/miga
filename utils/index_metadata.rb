@@ -16,14 +16,13 @@ def searchable(db, d, k, v)
     d.name, k.to_s, " #{v.to_s.downcase.gsub(/[^A-Za-z0-9\-]+/, ' ')} "
 end
 
-p.each_dataset do |name, d|
+p.each_dataset do |d|
   next unless d.is_ref?
   next unless d.is_active?
   searchable(db, d, :name, d.name)
   d.metadata.each do |k, v|
     next if [:created, :updated].include? k
-    v = v.sorted_ranks.map{ |r| r[1] }.join(" ") if k==:tax
+    v = v.sorted_ranks.map{ |r| r[1] }.join(' ') if k == :tax
     searchable(db, d, k, v)
   end
 end
-

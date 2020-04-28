@@ -1,15 +1,15 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require 'miga/cli/action'
-require 'sqlite3'
+require 'miga/cli/action/doctor/base'
 
 class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
+  include MiGA::Cli::Action::Doctor::Base
 
   def parse_cli
-    @@OPERATIONS.keys.each { |i| cli.defaults = { i => true } }
+    cli.defaults = Hash[@@OPERATIONS.keys.map { |i| [i, true] }]
     cli.parse do |opt|
-      operation_n = Hash[@@OPERATIONS.map { |k,v| [v[0], k] }]
+      operation_n = Hash[@@OPERATIONS.map { |k, v| [v[0], k] }]
       cli.opt_object(opt, [:project])
       opt.on(
         '--ignore TASK1,TASK2', Array,
@@ -21,18 +21,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         'Perform only the specified task (see --ignore)'
       ) do |v|
         op_k = @@OPERATIONS.find { |_, i| i[0] == v.downcase }.first
-        @@OPERATIONS.keys.each { |i| cli[i] = false }
+        @@OPERATIONS.each_keys { |i| cli[i] = false }
         cli[op_k] = true
       end
     end
-  end
-
-  def check_sqlite3_database(db_file, metric)
-    SQLite3::Database.new(db_file) do |conn|
-      conn.execute("select count(*) from #{metric}").first
-    end
-  rescue SQLite3::SQLException
-    yield
   end
 
   def perform
@@ -43,7 +35,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   end
 
   @@OPERATIONS = {
-    db: ['databases', 'Check database files integrity'],
+    status: ['status', 'Update metadata status of all datasets'],
+    db: ['databases', 'Check integrity of database files'],
     dist: ['distances', 'Check distance summary tables'],
     files: ['files', 'Check for outdated files'],
     cds: ['cds', 'Check for gzipped genes and proteins'],
@@ -52,34 +45,52 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     start: ['start', 'Check for lingering .start files'],
     tax: ['taxonomy', 'Check for taxonomy consistency (not yet implemented)']
   }
+
   class << self
+    ##
+    # All supported operations
     def OPERATIONS
       @@OPERATIONS
     end
   end
 
-  def check_db(cli)
-    cli.say 'Checking databases integrity'
-    cli.load_project.each_dataset do |d|
-      [:distances, :taxonomy].each do |r_key|
-        r = d.result(r_key) or next
-        {haai_db: :aai, aai_db: :aai, ani_db: :ani}.each do |db_key, metric|
-          db_file = r.file_path(db_key) or next
-          check_sqlite3_database(db_file, metric) do
-            cli.say(
-              "  > Removing #{db_key} #{r_key} table for #{d.name}")
-            [db_file, r.path(:done), r.path].each do |f|
-              File.unlink(f) if File.exist? f
-            end # each |f|
-          end # check_sqlite3_database
-        end # each |db_key, metric|
-      end # each |r_key|
-    end # each |d|
+  ##
+  # Perform status operation with MiGA::Cli +cli+
+  def check_status(cli)
+    cli.say 'Updating metadata status'
+    cli.load_project.each_dataset { |d| d.recalculate_status }
   end
 
+  ##
+  # Perform databases operation with MiGA::Cli +cli+
+  def check_db(cli)
+    cli.say 'Checking integrity of databases'
+    cli.load_project.each_dataset do |d|
+      %i[distances taxonomy].each do |r_key|
+        r = d.result(r_key) or next
+        { haai_db: :aai, aai_db: :aai, ani_db: :ani }.each do |db_key, metric|
+          db_file = r.file_path(db_key) or next
+          check_sqlite3_database(db_file, metric) do
+            cli.say("  > Removing #{db_key} #{r_key} table for #{d.name}")
+            [db_file, r.path(:done), r.path].each do |f|
+              File.unlink(f) if File.exist? f
+            end
+            # /each |f|
+          end
+          # /check_sqlite3_database
+        end
+        # /each |db_key, metric|
+      end
+      # /each |r_key|
+    end
+    # /each |d|
+  end
+
+  ##
+  # Perform distances operation with MiGA::Cli +cli+
   def check_dist(cli)
     p = cli.load_project
-    [:ani, :aai].each do |dist|
+    %i[ani aai].each do |dist|
       res = p.result("#{dist}_distances")
       next if res.nil?
       cli.say "Checking #{dist} table for consistent datasets"
@@ -89,6 +100,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform files operation with MiGA::Cli +cli+
   def check_files(cli)
     cli.say 'Looking for outdated files in results'
     p = cli.load_project
@@ -110,12 +123,14 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform cds operation with MiGA::Cli +cli+
   def check_cds(cli)
     cli.say 'Looking for unzipped genes or proteins'
     cli.load_project.each_dataset do |d|
       res = d.result(:cds) or next
       changed = false
-      [:genes, :proteins, :gff3, :gff2, :tab].each do |f|
+      %i[genes proteins gff3 gff2 tab].each do |f|
         file = res.file_path(f) or next
         if file !~ /\.gz/
           cli.say "  > Gzipping #{d.name} #{f}"
@@ -131,6 +146,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform essential-genes operation with MiGA::Cli +cli+
   def check_ess(cli)
     cli.say 'Looking for unarchived essential genes'
     cli.load_project.each_dataset do |d|
@@ -150,6 +167,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform mytaxa-scan operation with MiGA::Cli +cli+
   def check_mts(cli)
     cli.say 'Looking for unarchived MyTaxa Scan runs'
     cli.load_project.each_dataset do |d|
@@ -166,8 +185,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         end
         fix = true
       end
-      %w[blast mytaxain wintax gene_ids region_ids].each do |ext|
-        file = res.file_path(ext.to_sym)
+      %i[blast mytaxain wintax gene_ids region_ids].each do |ext|
+        file = res.file_path(ext)
         unless file.nil?
           FileUtils.rm(file) if File.exist? file
           fix = true
@@ -180,6 +199,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform start operation with MiGA::Cli +cli+
   def check_start(cli)
     cli.say 'Looking for legacy .start files lingering'
     cli.load_project.each_dataset do |d|
@@ -192,52 +213,12 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     end
   end
 
+  ##
+  # Perform taxonomy operation with MiGA::Cli +cli+
   def check_tax(cli)
-    #cli.say 'o Checking for taxonomy/distances consistency'
+    # cli.say 'o Checking for taxonomy/distances consistency'
     # TODO: Find 95%ANI clusters with entries from different species
-  end
-
-  private
-
-  def check_dist_eval(cli, p, res)
-    notok = {}
-    fix = {}
-    Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
-      lineno = 0
-      fh.each_line do |ln|
-        next if (lineno += 1) == 1
-        r = ln.split("\t")
-        next unless [1, 2].map { |i| p.dataset(r[i]).nil? }.any?
-        [1, 2].each do |i|
-          if p.dataset(r[i]).nil?
-            notok[r[i]] = true
-          else
-            fix[r[i]] = true
-          end
-        end
-      end
-    end
-    [notok, fix]
-  end
-
-  def check_dist_fix(cli, p, fix)
-    return if fix.empty?
-    cli.say("- Fixing #{fix.size} datasets")
-    fix.keys.each do |d_n|
-      cli.say "  > Fixing #{d_n}."
-      p.dataset(d_n).cleanup_distances!
-    end
-  end
-
-  def check_dist_recompute(cli, p, notok)
-    return if notok.empty?
-    cli.say '- Unregistered datasets detected: '
-    if notok.size <= 5
-      notok.keys.each { |i| cli.say "  > #{i}" }
-    else
-      cli.say "  > #{notok.size}, including #{notok.keys.first}"
-    end
-    cli.say '- Removing tables, recompute'
-    res.remove!
+    # TODO: Find different 95%ANI clusters with genomes from the same species
+    # TODO: Find AAI values too high or too low for each LCA rank
   end
 end

@@ -45,8 +45,9 @@ class MiGA::Daemon < MiGA::MiGA
     @project = project
     @runopts = {}
     json ||= File.join(project.path, 'daemon/daemon.json')
+    default_json = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     MiGA::Json.parse(
-      json, default: File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
+      json, default: File.exist?(default_json) ? default_json : nil
     ).each { |k,v| runopts(k, v) }
     update_format_0
     @jobs_to_run = []
@@ -77,9 +78,10 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Run one loop step. Returns a Boolean indicating if the loop should continue.
+  # Run one loop step. Returns a Boolean indicating if the loop should continue
   def daemon_loop
-    project.load
+    l_say(3, 'Daemon loop start')
+    reload_project
     check_datasets
     check_project
     if shutdown_when_done? and jobs_running.size + jobs_to_run.size == 0
@@ -87,19 +89,36 @@ class MiGA::Daemon < MiGA::MiGA
       return false
     end
     flush!
-    if loop_i >= 12
-      say 'Probing running jobs'
-      @loop_i = 0
-      purge!
-    end
-    report_status
+    purge! if loop_i > 0 && loop_i % 12 == 0
+    save_status
     sleep(latency)
+    l_say(3, 'Daemon loop end')
     true
   end
 
   ##
+  # Send +msg+ to +say+ as long as +level+ is at most +verbosity+
+  def l_say(level, *msg)
+    say(*msg) if verbosity >= level
+  end
+
+  ##
+  # Same as +l_say+ with +level = 1+
+  def say(*msg)
+    super(*msg) if 1 >= verbosity
+  end
+
+  ##
+  # Reload the project's metadata
+  def reload_project
+    l_say(2, 'Reloading project')
+    project.load
+  end
+
+  ##
   # Report status in a JSON file.
-  def report_status
+  def save_status
+    l_say(2, 'Saving current status')
     MiGA::Json.generate(
       { jobs_running: @jobs_running, jobs_to_run: @jobs_to_run },
       File.join(daemon_home, 'status.json')
@@ -134,7 +153,8 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Traverse datasets
   def check_datasets
-    project.each_dataset do |n, ds|
+    l_say(2, 'Checking datasets')
+    project.each_dataset do |ds|
       to_run = ds.next_preprocessing(false)
       queue_job(:d, ds) unless to_run.nil?
     end
@@ -144,6 +164,7 @@ class MiGA::Daemon < MiGA::MiGA
   # Check if all reference datasets are pre-processed. If yes, check the
   # project-level tasks
   def check_project
+    l_say(2, 'Checking project')
     return if project.dataset_names.empty?
     return unless project.done_preprocessing?(false)
     to_run = project.next_task(nil, false)
@@ -199,6 +220,7 @@ class MiGA::Daemon < MiGA::MiGA
   # possible respecting #maxjobs or #nodelist (if set).
   def flush!
     # Check for finished jobs
+    l_say(2, 'Checking for finished jobs')
     @jobs_running.select! do |job|
       ongoing = case job[:job].to_s
       when 'd'
@@ -211,8 +233,10 @@ class MiGA::Daemon < MiGA::MiGA
       say "Completed pid:#{job[:pid]} for #{job[:task_name]}" unless ongoing
       ongoing
     end
+
     # Avoid single datasets hogging resources
     @jobs_to_run.rotate! rand(jobs_to_run.size)
+
     # Launch as many +jobs_to_run+ as possible
     while hostk = next_host
       break if jobs_to_run.empty?
@@ -233,6 +257,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Remove dead jobs.
   def purge!
+    say 'Probing running jobs'
     @jobs_running.select! do |job|
       `#{runopts(:alive).miga_variables(pid: job[:pid])}`.chomp.to_i == 1
     end

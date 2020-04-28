@@ -58,7 +58,6 @@ class ProjectTest < Test::Unit::TestCase
     assert_equal([d], p.datasets)
     assert_equal(['d1'], p.dataset_names)
     p.each_dataset { |ds| assert_equal(d, ds) }
-    p.each_dataset { |n, ds| assert_equal(n, ds.name) }
     dr = p.unlink_dataset('d1')
     assert_equal(d, dr)
     assert_equal([], p.datasets)

@@ -2,6 +2,9 @@ version: "2"
 plugins:
   rubocop:
     enabled: true
+    checks:
+      Rubocop/Style/AndOr:
+        EnforcedStyle: conditionals
   fixme:
     enabled: true
   shellcheck:

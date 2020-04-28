@@ -14,19 +14,19 @@ module MiGA::Daemon::Base
     k = k.to_sym
     unless v.nil?
       case k
-      when :latency, :maxjobs, :ppn, :format_version
+      when :latency, :maxjobs, :ppn, :format_version, :verbosity
         v = v.to_i
       when :shutdown_when_done
         v = !!v
       when :nodelist
         if v =~ /^\$/
-          vv = ENV[v.sub('$','')] or raise "Unset environment variable: #{v}"
+          vv = ENV[v.sub('$', '')] or raise "Unset environment variable: #{v}"
           v = vv
         end
         say "Reading node list: #{v}"
         v = File.readlines(v).map(&:chomp)
       end
-      raise "Daemon's #{k} cannot be set to zero." if !force and v == 0
+      raise "Daemon's #{k} cannot be set to zero" if !force and v == 0
       @runopts[k] = v
     end
     @runopts[k]
@@ -34,24 +34,38 @@ module MiGA::Daemon::Base
 
   ##
   # Returns Integer indicating the number of seconds to sleep between checks
-  def latency() runopts(:latency); end
+  def latency
+    runopts(:latency)
+  end
 
   ##
   # Returns Integer indicating the maximum number of concurrent jobs to run
-  def maxjobs() runopts(:maxjobs); end
+  def maxjobs
+    runopts(:maxjobs)
+  end
 
   ##
   # Returns the path to the list of execution hostnames
-  def nodelist() runopts(:nodelist); end
+  def nodelist
+    runopts(:nodelist)
+  end
 
   ##
   # Returns Integer indicating the number of CPUs per job
-  def ppn() runopts(:ppn); end
+  def ppn
+    runopts(:ppn)
+  end
 
   ##
   # Returns Boolean indicating if the daemon should shutdown when processing is
   # complete
-  def shutdown_when_done?() !!runopts(:shutdown_when_done); end
+  def shutdown_when_done?
+    !!runopts(:shutdown_when_done)
+  end
 
+  ##
+  # Returns the level of verbosity for the daemon as an Integer, or 1 if unset.
+  def verbosity
+    runopts(:verbosity) || 1
+  end
 end
-

@@ -88,7 +88,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(11, d.loop_i)
     out = capture_stderr { d.in_loop }.string
     assert_match(/Probing running jobs/, out)
-    assert_equal(0, d.loop_i)
+    assert_equal(12, d.loop_i)
   end
 
   def test_start
@@ -109,6 +109,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_match(/Sending termination message/, out)
     assert_path_not_exist(d.pid_file)
     assert_path_exist(d.output_file)
+    assert_equal(1, d.verbosity)
     l = File.readlines(d.output_file)
     {
       0 => /-{20}\n/,

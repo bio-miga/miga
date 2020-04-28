@@ -35,16 +35,12 @@ module MiGA::Project::Dataset
   end
 
   ##
-  # Iterate through datasets, with one or two variables passed to +blk+.
-  # If one, the dataset MiGA::Dataset object is passed. If two, the name and
-  # the dataset object are passed.
+  # Iterate through datasets (MiGA::Dataset)
   def each_dataset(&blk)
-    metadata[:datasets].each do |name|
-      if blk.arity == 1
-        blk.call(dataset(name))
-      else
-        blk.call(name, dataset(name))
-      end
+    if block_given?
+      metadata[:datasets].each { |name| blk.call(dataset(name)) }
+    else
+      to_enum(:each_dataset)
     end
   end
 
@@ -140,9 +136,7 @@ module MiGA::Project::Dataset
   # - 2: To do.
   def profile_datasets_advance
     advance = []
-    self.each_dataset_profile_advance do |ds_adv|
-      advance << ds_adv
-    end
+    each_dataset_profile_advance { |adv| advance << adv }
     advance
   end
 
@@ -154,4 +148,3 @@ module MiGA::Project::Dataset
   end
 
 end
-
