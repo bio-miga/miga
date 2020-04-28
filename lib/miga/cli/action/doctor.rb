@@ -21,7 +21,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         'Perform only the specified task (see --ignore)'
       ) do |v|
         op_k = @@OPERATIONS.find { |_, i| i[0] == v.downcase }.first
-        @@OPERATIONS.each_keys { |i| cli[i] = false }
+        @@OPERATIONS.each_key { |i| cli[i] = false }
         cli[op_k] = true
       end
     end
