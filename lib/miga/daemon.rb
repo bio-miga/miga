@@ -84,16 +84,23 @@ class MiGA::Daemon < MiGA::MiGA
     reload_project
     check_datasets
     check_project
-    if shutdown_when_done? and jobs_running.size + jobs_to_run.size == 0
-      say 'Nothing else to do, shutting down.'
+    if shutdown_when_done? && jobs_running.size + jobs_to_run.size == 0
+      say 'Nothing else to do, shutting down'
       return false
     end
     flush!
-    purge! if loop_i > 0 && loop_i % 12 == 0
+    if loop_i % 12 == 0
+      purge!
+      recalculate_status!
+    end
     save_status
     sleep(latency)
     l_say(3, 'Daemon loop end')
     true
+  end
+
+  def recalculate_status!
+    project.each_dataset(&:recalculate_status)
   end
 
   ##
@@ -105,7 +112,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Same as +l_say+ with +level = 1+
   def say(*msg)
-    super(*msg) if 1 >= verbosity
+    super(*msg) if verbosity >= 1
   end
 
   ##
@@ -155,6 +162,7 @@ class MiGA::Daemon < MiGA::MiGA
   def check_datasets
     l_say(2, 'Checking datasets')
     project.each_dataset do |ds|
+      next unless ds.status == :incomplete
       to_run = ds.next_preprocessing(false)
       queue_job(:d, ds) unless to_run.nil?
     end

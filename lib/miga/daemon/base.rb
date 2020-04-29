@@ -16,6 +16,9 @@ module MiGA::Daemon::Base
       case k
       when :latency, :maxjobs, :ppn, :format_version, :verbosity
         v = v.to_i
+        if !force && v == 0 && k != :verbosity
+          raise "Daemon's #{k} cannot be set to zero"
+        end
       when :shutdown_when_done
         v = !!v
       when :nodelist
@@ -26,7 +29,6 @@ module MiGA::Daemon::Base
         say "Reading node list: #{v}"
         v = File.readlines(v).map(&:chomp)
       end
-      raise "Daemon's #{k} cannot be set to zero" if !force and v == 0
       @runopts[k] = v
     end
     @runopts[k]
@@ -65,6 +67,11 @@ module MiGA::Daemon::Base
 
   ##
   # Returns the level of verbosity for the daemon as an Integer, or 1 if unset.
+  # Verbosity levels are:
+  # 0: No output
+  # 1: General daemon and job information
+  # 2: Same, and indicate when each task is performed (even if nothing happens)
+  # 3: Same, and indicate when each loop begins and ends
   def verbosity
     runopts(:verbosity) || 1
   end

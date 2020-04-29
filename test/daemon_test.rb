@@ -313,6 +313,26 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(1, d1.jobs_to_run.size)
   end
 
+  def test_verbosity
+    d1 = $d1
+    d1.runopts(:verbosity, 0)
+    out = capture_stderr { d1.in_loop }.string
+    assert_empty(out)
+
+    d1.runopts(:verbosity, 1)
+    helper_datasets_with_results.first.inactivate!
+    out = capture_stderr { d1.check_project }
+    assert_match(/Queueing miga-project:p/, out.string)
+
+    d1.runopts(:verbosity, 2)
+    out = capture_stderr { d1.in_loop }.string
+    assert_match(/Reloading project/, out)
+
+    d1.runopts(:verbosity, 3)
+    out = capture_stderr { d1.in_loop }.string
+    assert_match(/Daemon loop start/, out)
+  end
+
   def helper_daemon_launch_job
     omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
     d1 = $d1
@@ -325,5 +345,4 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(0, d1.jobs_to_run.size, 'There should be nothing running')
     assert_equal(1, d1.jobs_running.size, 'There should be one job running')
   end
-
 end
