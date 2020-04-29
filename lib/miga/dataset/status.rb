@@ -20,7 +20,7 @@ module MiGA::Dataset::Status
     old_status = metadata[:status]
     metadata[:status] =
       !active? ? 'inactive' : done_preprocessing? ? 'complete' : 'incomplete'
-    self.save if save && !old_status.nil? && old_status != metadata[:status]
+    self.save if save && (old_status.nil? || old_status != metadata[:status])
     metadata[:status].to_sym
   end
 end
