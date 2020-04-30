@@ -8,7 +8,6 @@ require 'miga/daemon/base'
 ##
 # MiGA Daemons handling job submissions.
 class MiGA::Daemon < MiGA::MiGA
-
   include MiGA::Daemon::Base
   include MiGA::Common::WithDaemon
   extend MiGA::Common::WithDaemonClass
@@ -48,7 +47,7 @@ class MiGA::Daemon < MiGA::MiGA
     default_json = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     MiGA::Json.parse(
       json, default: File.exist?(default_json) ? default_json : nil
-    ).each { |k,v| runopts(k, v) }
+    ).each { |k, v| runopts(k, v) }
     update_format_0
     @jobs_to_run = []
     @jobs_running = []
@@ -83,12 +82,12 @@ class MiGA::Daemon < MiGA::MiGA
     l_say(3, 'Daemon loop start')
     reload_project
     check_datasets or check_project
-    if shutdown_when_done? && jobs_running.size + jobs_to_run.size == 0
+    if shutdown_when_done? && (jobs_running.size + jobs_to_run.size).zero?
       say 'Nothing else to do, shutting down'
       return false
     end
     flush!
-    if loop_i % 12 == 0
+    if (loop_i % 12).zero?
       purge!
       recalculate_status!
     end
@@ -138,10 +137,10 @@ class MiGA::Daemon < MiGA::MiGA
     return unless File.size? f_path
     say 'Loading previous status in daemon/status.json:'
     status = MiGA::Json.parse(f_path)
-    status.keys.each do |i|
+    status.each_key do |i|
       status[i].map! do |j|
         j.tap do |k|
-          unless k[:ds].nil? or k[:ds_name] == 'miga-project'
+          unless k[:ds].nil? || k[:ds_name] == 'miga-project'
             k[:ds] = project.dataset(k[:ds_name])
           end
           k[:job] = k[:job].to_sym unless k[:job].nil?
@@ -208,9 +207,10 @@ class MiGA::Daemon < MiGA::MiGA
     task_name = "#{project.metadata[:name][0..9]}:#{job}:#{ds_name}"
     to_run = { ds: ds, ds_name: ds_name, job: job, task_name: task_name }
     to_run[:cmd] = runopts(:cmd).miga_variables(
-      script: MiGA::MiGA.script_path(job, miga:vars['MIGA'], project: project),
-      vars: vars.map { |k, v|
-        runopts(:var).miga_variables(key: k, value: v) }.join(runopts(:varsep)),
+      script: MiGA::MiGA.script_path(job, miga: vars['MIGA'], project: project),
+      vars: vars.map do |k, v|
+              runopts(:var).miga_variables(key: k, value: v)
+            end.join(runopts(:varsep)),
       cpus: ppn,
       log: File.expand_path("#{ds_name}.log", log_dir),
       task_name: task_name,
@@ -225,9 +225,9 @@ class MiGA::Daemon < MiGA::MiGA
   def get_job(job, ds = nil)
     (jobs_to_run + jobs_running).find do |j|
       if ds.nil?
-        j[:ds].nil? and j[:job] == job
+        j[:ds].nil? && j[:job] == job
       else
-        (! j[:ds].nil?) and j[:ds].name == ds.name and j[:job] == job
+        !j[:ds].nil? && j[:ds].name == ds.name && j[:job] == job
       end
     end
   end
@@ -239,14 +239,15 @@ class MiGA::Daemon < MiGA::MiGA
     # Check for finished jobs
     l_say(2, 'Checking for finished jobs')
     @jobs_running.select! do |job|
-      ongoing = case job[:job].to_s
-      when 'd'
-        !job[:ds].nil? && !job[:ds].next_preprocessing(false).nil?
-      when 'p'
-        !project.next_task(nil, false).nil?
-      else
-        (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false).nil?
-      end
+      ongoing =
+        case job[:job].to_s
+        when 'd'
+          !job[:ds].nil? && !job[:ds].next_preprocessing(false).nil?
+        when 'p'
+          !project.next_task(nil, false).nil?
+        else
+          (job[:ds].nil? ? project : job[:ds]).add_result(job[:job], false).nil?
+        end
       say "Completed pid:#{job[:pid]} for #{job[:task_name]}" unless ongoing
       ongoing
     end
@@ -255,7 +256,7 @@ class MiGA::Daemon < MiGA::MiGA
     @jobs_to_run.rotate! rand(jobs_to_run.size)
 
     # Launch as many +jobs_to_run+ as possible
-    while hostk = next_host
+    while (hostk = next_host)
       break if jobs_to_run.empty?
       launch_job(@jobs_to_run.shift, hostk)
     end
@@ -266,7 +267,7 @@ class MiGA::Daemon < MiGA::MiGA
   # In any other daemons, returns true as long as #maxjobs is not reached
   def next_host
     return jobs_running.size < maxjobs if runopts(:type) != 'ssh'
-    allk = (0 .. nodelist.size-1).to_a
+    allk = (0..nodelist.size - 1).to_a
     busyk = jobs_running.map { |k| k[:hostk] }
     (allk - busyk).first
   end
@@ -307,9 +308,8 @@ class MiGA::Daemon < MiGA::MiGA
       say "Unsuccessful #{job[:task_name]}, rescheduling"
     else
       @jobs_running << job
-      say "Spawned pid:#{job[:pid]}#{
-            " to #{job[:hostk]}:#{nodelist[job[:hostk]]}" if job[:hostk]
-          } for #{job[:task_name]}"
+      job_host = " to #{job[:hostk]}:#{nodelist[job[:hostk]]}" if job[:hostk]
+      say "Spawned pid:#{job[:pid]}#{job_host} for #{job[:task_name]}"
     end
   end
 
@@ -321,10 +321,11 @@ class MiGA::Daemon < MiGA::MiGA
       var: %w[key value],
       alive: %w[pid],
       kill: %w[pid]
-    }.each do |k,v|
-      runopts(
-        k, runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map{ |i| "{{#{i}}}" }
-      ) if !runopts(k).nil? && runopts(k) =~ /%(\d+\$)?[ds]/
+    }.each do |k, v|
+      if !runopts(k).nil? && runopts(k) =~ /%(\d+\$)?[ds]/
+        runopts(k,
+          runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map { |i| "{{#{i}}}" })
+      end
     end
     runopts(:format_version, 1)
   end
