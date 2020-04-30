@@ -24,6 +24,8 @@ class RemoteDatasetTest < Test::Unit::TestCase
     { embl: :ebi, nuccore: :ncbi }.each do |db, universe|
       rd = MiGA::RemoteDataset.new(hiv2, db, universe)
       assert_equal([hiv2], rd.ids)
+
+      declare_remote_access
       tx = rd.get_ncbi_taxonomy
       msg = "Failed on #{universe}:#{db}"
       assert_equal(MiGA::Taxonomy, tx.class, msg)
@@ -40,11 +42,6 @@ class RemoteDatasetTest < Test::Unit::TestCase
       )
       assert_equal('ncbi', tx.namespace, msg)
     end
-  end
-
-  def test_empty_sequences
-    declare_remote_access
-    
   end
 
   def test_net_ftp
