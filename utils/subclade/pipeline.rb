@@ -1,7 +1,5 @@
-
 # High-end pipelines for SubcladeRunner
 module MiGA::SubcladeRunner::Pipeline
-
   # Run species-level clusterings using ANI > 95% / AAI > 90%
   def cluster_species
     tasks = {
@@ -12,7 +10,7 @@ module MiGA::SubcladeRunner::Pipeline
       # Final output
       ogs_file = "miga-project.#{k}-clades"
       next if File.size? ogs_file
-      
+
       # Build ABC files
       abc_path = tmp_file("#{k}.abc")
       ofh = File.open(abc_path, 'w')
@@ -20,6 +18,7 @@ module MiGA::SubcladeRunner::Pipeline
       Zlib::GzipReader.open(metric_res.file_path(:matrix)) do |ifh|
         ifh.each_line do |ln|
           next if ln =~ /^metric\t/
+
           r = ln.chomp.split("\t")
           ofh.puts "G>#{r[1]}\tG>#{r[2]}\t#{r[3]}" if r[3].to_f >= par[1]
         end
@@ -55,7 +54,8 @@ module MiGA::SubcladeRunner::Pipeline
     ofh = File.open('miga-project.proposed-clades', 'w')
     File.open('miga-project.gsp-clades', 'r') do |ifh|
       ifh.each_line do |ln|
-        next if $.==1
+        next if $. == 1
+
         r = ln.chomp.split(',')
         ofh.puts r.join("\t") if r.size >= 5
       end
@@ -70,8 +70,9 @@ module MiGA::SubcladeRunner::Pipeline
     matrix = metric_res.file_path(:matrix)
     `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}' \
       miga-project.ani95-medoids '#{opts[:run_clades] ? 'cluster' : 'empty'}'`
-    File.rename('miga-project.nwk',"miga-project.#{metric}.nwk") if
-          File.exist? 'miga-project.nwk'
+    if File.exist? 'miga-project.nwk'
+      File.rename('miga-project.nwk', "miga-project.#{metric}.nwk")
+    end
   end
 
   def compile

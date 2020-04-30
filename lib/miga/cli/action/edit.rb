@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Edit < MiGA::Cli::Action
-
   def parse_cli
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt])
@@ -28,7 +27,7 @@ class MiGA::Cli::Action::Edit < MiGA::Cli::Action
     obj = cli.load_project_or_dataset
     unless cli[:activate].nil?
       cli.ensure_par({ dataset: '-D' },
-        '%<name>s is mandatory with --[in-]activate: please provide %<flag>s')
+                     '%<name>s is mandatory with --[in-]activate: please provide %<flag>s')
       cli[:activate] ? obj.activate! : obj.inactivate!
     end
     cli.add_metadata(obj)

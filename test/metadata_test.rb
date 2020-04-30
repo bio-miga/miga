@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/metadata'
 
 class MetadataTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     $jruby_tests = !ENV['JRUBY_TESTS'].nil?
@@ -28,7 +27,7 @@ class MetadataTest < Test::Unit::TestCase
   end
 
   def test_load
-    md1 = MiGA::Metadata.new(File.expand_path('md_load.json', $tmp), {t: 1})
+    md1 = MiGA::Metadata.new(File.expand_path('md_load.json', $tmp), { t: 1 })
     assert_equal(1, md1[:t])
     omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
     FileUtils.touch(md1.lock_file)
@@ -44,5 +43,4 @@ class MetadataTest < Test::Unit::TestCase
     assert_path_not_exist(md1.lock_file)
     assert_ge(t2 - t1, 1.0)
   end
-
 end

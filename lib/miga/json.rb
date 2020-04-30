@@ -6,9 +6,7 @@ require 'json'
 ##
 # Taxonomic classifications in MiGA.
 class MiGA::Json < MiGA::MiGA
-
   class << self
-
     ##
     # Default parsing options. Supported +opts+ keys:
     # - +:contents+: If true, the input is assumed to be the contents to parse,
@@ -25,6 +23,7 @@ class MiGA::Json < MiGA::MiGA
       if opts[:additions] and opts[:symbolize]
         raise 'JSON additions are not supported with symbolized names'
       end
+
       opts
     end
 
@@ -37,12 +36,13 @@ class MiGA::Json < MiGA::MiGA
       opts = default_opts(opts)
       cont = opts[:contents] ? path : File.read(path)
       raise "Empty descriptor: #{opts[:contents] ? "''" : path}." if cont.empty?
+
       y = JSON.parse(cont,
-        symbolize_names: opts[:symbolize],
-        create_additions: opts[:additions])
+                     symbolize_names: opts[:symbolize],
+                     create_additions: opts[:additions])
       unless opts[:default].nil?
         opts[:default] = parse(opts[:default]) if opts[:default].is_a? String
-        y.each{ |k, v| opts[:default][k] = v }
+        y.each { |k, v| opts[:default][k] = v }
         y = opts[:default]
       end
       y
@@ -56,7 +56,5 @@ class MiGA::Json < MiGA::MiGA
       File.open(path, 'w') { |fh| fh.print y } unless path.nil?
       y
     end
-
   end
-
 end

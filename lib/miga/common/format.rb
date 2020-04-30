@@ -1,4 +1,3 @@
-
 require 'tempfile'
 require 'zlib'
 
@@ -79,7 +78,7 @@ module MiGA::Common::Format
     fh.each_line do |ln|
       i += 1
       if (format == :fasta and ln =~ /^>/) or
-            (format == :fastq and (i % 4) == 1)
+         (format == :fastq and (i % 4) == 1)
         l << 0
       elsif format == :fasta or (i % 4) == 2
         l[l.size - 1] += ln.chomp.size

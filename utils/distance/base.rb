@@ -1,4 +1,3 @@
-
 require 'miga'
 require 'miga/tax_dist'
 

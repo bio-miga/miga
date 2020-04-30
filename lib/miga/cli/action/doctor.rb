@@ -93,6 +93,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     %i[ani aai].each do |dist|
       res = p.result("#{dist}_distances")
       next if res.nil?
+
       cli.say "Checking #{dist} table for consistent datasets"
       notok, fix = check_dist_eval(cli, p, res)
       check_dist_fix(cli, p, fix)
@@ -153,6 +154,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     cli.load_project.each_dataset do |d|
       res = d.result(:essential_genes)
       next if res.nil?
+
       dir = res.file_path(:collection)
       if dir.nil?
         cli.say "  > Removing #{d.name}:essential_genes"
@@ -161,6 +163,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         next
       end
       next if Dir["#{dir}/*.faa"].empty?
+
       cli.say "  > Fixing #{d.name}"
       cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
       warn(cmdo) unless cmdo.empty?
@@ -174,6 +177,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     cli.load_project.each_dataset do |d|
       res = d.result(:mytaxa_scan)
       next if res.nil?
+
       dir = res.file_path(:regions)
       fix = false
       unless dir.nil?

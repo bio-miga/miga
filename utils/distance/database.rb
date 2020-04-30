@@ -1,4 +1,3 @@
-
 require 'sqlite3'
 
 module MiGA::DistanceRunner::Database
@@ -9,7 +8,7 @@ module MiGA::DistanceRunner::Database
     @dbs = {}
     @tmp_dbs = {}
     @db_counts = {}
-    {haai: :aai, aai: :aai, ani: :ani}.each do |m, t|
+    { haai: :aai, aai: :aai, ani: :ani }.each do |m, t|
       @db_counts[m] = 0
       @dbs[m] = for_ref ? ref_db(m) : query_db(m)
       # Remove if corrupt
@@ -25,9 +24,9 @@ module MiGA::DistanceRunner::Database
       # Initialize if it doesn't exist
       SQLite3::Database.new(dbs[m]) do |conn|
         conn.execute "create table if not exists #{t}(" +
-            "seq1 varchar(256), seq2 varchar(256), " +
-            "#{t} float, sd float, n int, omega int" +
-          ")"
+                     "seq1 varchar(256), seq2 varchar(256), " +
+                     "#{t} float, sd float, n int, omega int" +
+                     ")"
       end unless File.size? dbs[m]
       # Copy over to (local) temporals
       @tmp_dbs[m] = tmp_file("#{m}.db")
@@ -38,16 +37,17 @@ module MiGA::DistanceRunner::Database
   ##
   # Path to the database +metric+ for +dataset_name+ in +project+
   # (assumes that +dataset_name+ is a reference dataset)
-  def ref_db(metric, dataset_name=nil)
+  def ref_db(metric, dataset_name = nil)
     dataset_name ||= dataset.name
-    b = case metric
-    when :haai
-      "01.haai/#{dataset_name}.db"
-    when :aai
-      "02.aai/#{dataset_name}.db"
-    when :ani
-      "03.ani/#{dataset_name}.db"
-    end
+    b =
+      case metric
+      when :haai
+        "01.haai/#{dataset_name}.db"
+      when :aai
+        "02.aai/#{dataset_name}.db"
+      when :ani
+        "03.ani/#{dataset_name}.db"
+      end
     File.expand_path(b, home)
   end
 
@@ -63,13 +63,14 @@ module MiGA::DistanceRunner::Database
   def stored_value(target, metric)
     # Check if self.dataset -> target is done (previous run)
     y = value_from_db(dataset.name, target.name, tmp_dbs[metric], metric)
-    return y unless y.nil? or y.zero?
+    return y unless y.nil? || y.zero?
 
     # Check if self.dataset <- target is done (another thread)
-    if dataset.is_ref? and project.path == ref_project.path
+    if dataset.is_ref? && project.path == ref_project.path
       y = data_from_db(
-        target.name, dataset.name, ref_db(metric, target.name), metric)
-      unless y.nil? or y.first.nil? or y.first.zero?
+        target.name, dataset.name, ref_db(metric, target.name), metric
+      )
+      unless y.nil? || y.first.nil? || y.first.zero?
         # Store a copy
         data_to_db(dataset.name, target.name, tmp_dbs[metric], metric, y)
         return y.first
@@ -94,7 +95,8 @@ module MiGA::DistanceRunner::Database
     SQLite3::Database.new(db) do |conn|
       y = conn.execute(
         "select #{metric}, sd, n, omega from #{metric} where seq1=? and seq2=?",
-        [n1, n2]).first
+        [n1, n2]
+      ).first
     end if File.size? db
     y
   end
@@ -105,7 +107,8 @@ module MiGA::DistanceRunner::Database
     SQLite3::Database.new(db) do |conn|
       conn.execute(
         "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
-        "values (?, ?, ?, ?, ?, ?)", [n1, n2] + data)
+        "values (?, ?, ?, ?, ?, ?)", [n1, n2] + data
+      )
     end
     checkpoint metric
   end
@@ -114,7 +117,7 @@ module MiGA::DistanceRunner::Database
   # Iterates for each entry in +db+
   def foreach_in_db(db, metric, &blk)
     SQLite3::Database.new(db) do |conn|
-      conn.execute("select * from #{metric}").each{ |r| blk[r] }
+      conn.execute("select * from #{metric}").each { |r| blk[r] }
     end
   end
 end

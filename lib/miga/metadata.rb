@@ -16,6 +16,7 @@ class MiGA::Metadata < MiGA::MiGA
   # exists, or nil otherwise.
   def self.load(path)
     return nil unless Metadata.exist? path
+
     MiGA::Metadata.new(path)
   end
 
@@ -33,11 +34,11 @@ class MiGA::Metadata < MiGA::MiGA
     @path = File.absolute_path(path)
     unless File.exist? path
       @data = {}
-      defaults.each { |k,v| self[k] = v }
+      defaults.each { |k, v| self[k] = v }
       create
     end
   end
-  
+
   ##
   # Parsed data as a Hash
   def data
@@ -73,6 +74,7 @@ class MiGA::Metadata < MiGA::MiGA
     ofh.close
     raise "Lock-racing detected for #{path}" unless
       File.exist?("#{path}.tmp") and File.exist?(lock_file)
+
     File.rename("#{path}.tmp", path)
     File.unlink(lock_file)
   end
@@ -152,5 +154,4 @@ class MiGA::Metadata < MiGA::MiGA
   def to_json
     MiGA::Json.generate(data)
   end
-
 end

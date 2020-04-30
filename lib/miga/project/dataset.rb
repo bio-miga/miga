@@ -4,11 +4,10 @@
 ##
 # Helper module including specific functions handle datasets.
 module MiGA::Project::Dataset
-
   ##
   # Returns Array of MiGA::Dataset.
   def datasets
-    metadata[:datasets].map{ |name| dataset(name) }
+    metadata[:datasets].map { |name| dataset(name) }
   end
 
   ##
@@ -21,7 +20,7 @@ module MiGA::Project::Dataset
   # Returns Hash of Strings => true. Similar to +dataset_names+ but as
   # Hash for efficiency.
   def dataset_names_hash
-    @dataset_names_hash ||= Hash[dataset_names.map{ |i| [i,true] }]
+    @dataset_names_hash ||= Hash[dataset_names.map { |i| [i, true] }]
   end
 
   ##
@@ -29,6 +28,7 @@ module MiGA::Project::Dataset
   def dataset(name)
     name = name.miga_name
     return nil unless MiGA::Dataset.exist?(self, name)
+
     @datasets ||= {}
     @datasets[name] ||= MiGA::Dataset.new(self, name)
     @datasets[name]
@@ -62,6 +62,7 @@ module MiGA::Project::Dataset
   def unlink_dataset(name)
     d = dataset(name)
     return nil if d.nil?
+
     self.metadata[:datasets].delete(name)
     save
     pull_hook(:on_unlink_dataset, name)
@@ -71,28 +72,40 @@ module MiGA::Project::Dataset
   ##
   # Import the dataset +ds+, a MiGA::Dataset, using +method+ which is any method
   # supported by File#generic_transfer.
-  def import_dataset(ds, method=:hardlink)
+  def import_dataset(ds, method = :hardlink)
     raise "Impossible to import dataset, it already exists: #{ds.name}." if
       MiGA::Dataset.exist?(self, ds.name)
+
     # Import dataset results
     ds.each_result do |task, result|
       # import result files
       result.each_file do |file|
-        File.generic_transfer("#{result.dir}/#{file}",
-          "#{path}/data/#{MiGA::Dataset.RESULT_DIRS[task]}/#{file}", method)
+        File.generic_transfer(
+          File.join(result.dir, file),
+          File.join(path, 'data', MiGA::Dataset.RESULT_DIRS[task], file),
+          method
+        )
       end
       # import result metadata
       %w(json start done).each do |suffix|
-        if File.exist? "#{result.dir}/#{ds.name}.#{suffix}"
-          File.generic_transfer("#{result.dir}/#{ds.name}.#{suffix}",
-            "#{path}/data/#{MiGA::Dataset.RESULT_DIRS[task]}/" +
-	                      "#{ds.name}.#{suffix}", method)
+        if File.exist? File.join(result.dir, "#{ds.name}.#{suffix}")
+          File.generic_transfer(
+            File.join(result.dir, "#{ds.name}.#{suffix}"),
+            File.join(
+              path, 'data', MiGA::Dataset.RESULT_DIRS[task],
+              "#{ds.name}.#{suffix}"
+            ),
+            method
+          )
         end
       end
     end
     # Import dataset metadata
-    File.generic_transfer("#{ds.project.path}/metadata/#{ds.name}.json",
-      "#{self.path}/metadata/#{ds.name}.json", method)
+    File.generic_transfer(
+      File.join(ds.project.path, 'metadata', "#{ds.name}.json"),
+      File.join(self.path, 'metadata', "#{ds.name}.json"),
+      method
+    )
     # Save dataset
     self.add_dataset(ds.name)
   end
@@ -104,11 +117,13 @@ module MiGA::Project::Dataset
     MiGA::Dataset.RESULT_DIRS.values.each do |dir|
       dir_p = "#{path}/data/#{dir}"
       next unless Dir.exist? dir_p
+
       Dir.entries(dir_p).each do |file|
         next unless
           file =~ %r{
             \.(fa(a|sta|stqc?)?|fna|solexaqa|gff[23]?|done|ess)(\.gz)?$
           }x
+
         m = /([^\.]+)/.match(file)
         datasets << m[1] unless m.nil? or m[1] == "miga-project"
       end
@@ -146,5 +161,4 @@ module MiGA::Project::Dataset
   def each_dataset_profile_advance(&blk)
     each_dataset { |ds| blk.call(ds.profile_advance) }
   end
-
 end

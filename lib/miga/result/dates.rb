@@ -1,4 +1,3 @@
-
 require 'miga/result/base'
 
 ##
@@ -29,7 +28,7 @@ module MiGA::Result::Dates
   end
 
   private
-    
+
   ##
   # Internal function to detect start and end dates
   def date_at(event)
@@ -42,4 +41,3 @@ module MiGA::Result::Dates
     Time.parse(date) unless date.nil?
   end
 end
-

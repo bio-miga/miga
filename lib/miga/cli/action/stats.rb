@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Stats < MiGA::Cli::Action
-
   def parse_cli
     cli.defaults = { try_load: false }
     cli.parse do |opt|
@@ -25,8 +24,9 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
   end
 
   def perform
-    cli[:compute] = false if cli[:try_load] and
-      (not r[:stats].nil?) and (not r[:stats].empty?)
+    if cli[:try_load] && !r[:stats].nil? && !r[:stats].empty?
+      cli[:compute] = false
+    end
     r = cli.load_result
     if cli[:compute]
       cli.say 'Computing statistics'

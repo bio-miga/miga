@@ -1,4 +1,3 @@
-
 class MiGA::Result < MiGA::MiGA
   class << self
     def RESULT_DIRS
@@ -10,4 +9,3 @@ end
 
 module MiGA::Result::Base
 end
-

@@ -1,21 +1,20 @@
-
 require 'open-uri'
 require 'cgi'
 
 class MiGA::RemoteDataset < MiGA::MiGA
-
   # Class-level
   class << self
-    def UNIVERSE ; @@UNIVERSE ; end
+    def UNIVERSE
+      @@UNIVERSE
+    end
   end
-
 end
 
 module MiGA::RemoteDataset::Base
-
   @@_EUTILS = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
   @@_NCBI_API_KEY = lambda { |url|
-    ENV['NCBI_API_KEY'].nil? ? url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}" }
+    ENV['NCBI_API_KEY'].nil? ? url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}"
+  }
 
   ##
   # Structure of the different database Universes or containers. The structure
@@ -43,7 +42,7 @@ module MiGA::RemoteDataset::Base
       method: :net
     },
     ebi: {
-      dbs: { embl: {stage: :assembly, format: :fasta} },
+      dbs: { embl: { stage: :assembly, format: :fasta } },
       url: 'https://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s',
       method: :rest
     },
@@ -59,9 +58,10 @@ module MiGA::RemoteDataset::Base
     },
     ncbi_map: {
       dbs: {
-        nuccore: { stage: :metadata, map_to: [:biosample, :assembly],
-          format: :json },
-        biosample: {stage: :metadata, map_to: [:assembly], format: :json}
+        nuccore: {
+          stage: :metadata, map_to: [:biosample, :assembly], format: :json
+        },
+        biosample: { stage: :metadata, map_to: [:assembly], format: :json }
       },
       url: "#{@@_EUTILS}elink.fcgi?dbfrom=%1$s&id=%2$s&db=%4$s&retmode=%3$s",
       method: :net,
@@ -81,6 +81,4 @@ module MiGA::RemoteDataset::Base
       api_key: @@_NCBI_API_KEY
     }
   }
-
 end
-

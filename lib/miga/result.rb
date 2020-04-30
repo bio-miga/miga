@@ -8,7 +8,6 @@ require 'miga/result/stats'
 ##
 # The result from a task run. It can be project-wide or dataset-specific.
 class MiGA::Result < MiGA::MiGA
-
   include MiGA::Result::Dates
   include MiGA::Result::Source
   include MiGA::Result::Stats
@@ -26,6 +25,7 @@ class MiGA::Result < MiGA::MiGA
     # Returns MiGA::Result if it already exists, nil otherwise.
     def load(path)
       return nil unless MiGA::Result.exist? path
+
       MiGA::Result.new(path)
     end
 
@@ -33,6 +33,7 @@ class MiGA::Result < MiGA::MiGA
       FileUtils.rm(path) if force && File.exist?(path)
       r_pre = self.load(path)
       return r_pre unless r_pre.nil?
+
       yield
       self.load(path)
     end
@@ -41,34 +42,38 @@ class MiGA::Result < MiGA::MiGA
   # Instance-level
 
   ##
-  # Hash with the result metadata.
+  # Hash with the result metadata
   attr_reader :data
 
   ##
-  # Array of MiGA::Result objects nested within the result (if any).
+  # Array of MiGA::Result objects nested within the result (if any)
   attr_reader :results
 
   ##
-  # Load or create the MiGA::Result described by the JSON file +path+.
+  # Load or create the MiGA::Result described by the JSON file +path+
   def initialize(path)
     @path = File.absolute_path(path)
     MiGA::Result.exist?(@path) ? self.load : create
   end
 
   ##
-  # Is the result clean? Returns Boolean.
-  def clean? ; !! self[:clean] ; end
+  # Is the result clean? Returns Boolean
+  def clean?
+    !!self[:clean]
+  end
 
   ##
-  # Register the result as cleaned.
-  def clean! ; self[:clean] = true ; end
+  # Register the result as cleaned
+  def clean!
+    self[:clean] = true
+  end
 
   ##
   # Path to the standard files of the result. +which+ must be one of:
   # - :json (default) : JSON file describing the result.
   # - :start : File with the date when the processing started.
   # - :done : File with the date when the processing ended.
-  def path(which=:json)
+  def path(which = :json)
     case which.to_sym
     when :json
       @path
@@ -80,28 +85,33 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Directory containing the result.
+  # Directory containing the result
   def dir
     File.dirname(path)
   end
 
   ##
-  # Absolute path to the file(s) defined by symbol +k+.
+  # Absolute path to the file(s) defined by symbol +k+
   def file_path(k)
     k = k.to_sym
     f = self[:files].nil? ? nil : self[:files][k]
     return nil if f.nil?
     return File.expand_path(f, dir) unless f.is_a? Array
-    f.map{ |fi| File.expand_path(fi, dir) }
+
+    f.map { |fi| File.expand_path(fi, dir) }
   end
 
   ##
-  # Entry with symbol +k+. 
-  def [](k) data[k.to_sym] ; end
+  # Entry with symbol +k+
+  def [](k)
+    data[k.to_sym]
+  end
 
   ##
-  # Adds value +v+ to entry with symbol +k+.
-  def []=(k,v) data[k.to_sym]=v ; end
+  # Adds value +v+ to entry with symbol +k+
+  def []=(k, v)
+    data[k.to_sym] = v
+  end
 
   ##
   # Register +file+ (path relative to #dir) with the symbol +k+. If the file
@@ -116,20 +126,20 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # #add_file for each key-value pair in the +files+ Hash.
+  # #add_file for each key-value pair in the +files+ Hash
   def add_files(files)
     files.each { |k, v| add_file(k, v) }
   end
 
   ##
-  # Initialize and #save empty result.
+  # Initialize and #save empty result
   def create
     @data = { created: Time.now.to_s, results: [], stats: {}, files: {} }
     save
   end
 
   ##
-  # Save the result persistently (in the JSON file #path).
+  # Save the result persistently (in the JSON file #path)
   def save
     @data[:updated] = Time.now.to_s
     s = path(:start)
@@ -142,15 +152,15 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Load (or reload) result data in the JSON file #path.
+  # Load (or reload) result data in the JSON file #path
   def load
     @data = MiGA::Json.parse(path)
     @data[:files] ||= {}
-    @results = (self[:results] || []).map{ |rs| MiGA::Result.new rs }
+    @results = (self[:results] || []).map { |rs| MiGA::Result.new rs }
   end
 
   ##
-  # Remove result, including all associated files.
+  # Remove result, including all associated files
   def remove!
     each_file do |file|
       f = File.expand_path(file, dir)
@@ -173,7 +183,7 @@ class MiGA::Result < MiGA::MiGA
   # arrays of files are supported.
   def each_file(&blk)
     @data[:files] ||= {}
-    self[:files].each do |k,files|
+    self[:files].each do |k, files|
       files = [files] unless files.kind_of? Array
       files.each do |file|
         case blk.arity
@@ -191,10 +201,9 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Add the MiGA::Result +result+ as part of the current result.
+  # Add the MiGA::Result +result+ as part of the current result
   def add_result(result)
     @data[:results] << result.path
     save
   end
-
 end

@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/common/with_daemon'
 
 class WithDaemonTest < Test::Unit::TestCase
-
   def setup
     $jruby_tests = !ENV['JRUBY_TESTS'].nil?
     $tmp = Dir.mktmpdir
@@ -40,7 +39,7 @@ class WithDaemonTest < Test::Unit::TestCase
       puts(*o)
     end
   end
-  
+
   class TestWithDaemon2 < TestWithDaemon
     def daemon_loop
       puts 'I am 2.0!'

@@ -70,6 +70,7 @@ class MiGA::Lair < MiGA::MiGA
   def daemon_loop
     check_directories
     return false if options[:dry]
+
     sleep(options[:latency])
     true
   end
@@ -102,10 +103,12 @@ class MiGA::Lair < MiGA::MiGA
   def each_project(dir = path)
     Dir.entries(dir).each do |f|
       next if %w[. ..].include?(f) # Ruby <= 2.3 doesn't have Dir.children
+
       f = File.join(dir, f)
       if MiGA::Project.exist? f
         project = MiGA::Project.load(f)
         raise "Cannot load project: #{f}" if project.nil?
+
         yield(project)
       elsif Dir.exist? f
         each_project(f) { |project| yield(project) }
@@ -127,6 +130,7 @@ class MiGA::Lair < MiGA::MiGA
     each_project do |project|
       d = MiGA::Daemon.new(project)
       next if d.active?
+
       l_alive = d.last_alive
       unless l_alive.nil?
         next if options[:trust_timestamp] && project.metadata.updated < l_alive

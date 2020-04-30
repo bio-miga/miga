@@ -51,24 +51,24 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
     ref_db = reference_db
     p_metadata = Hash[
       %w[project_stats haai_distances aai_distances ani_distances clade_finding]
-        .map { |i| ["run_#{i}", false] }
+                 .map { |i| ["run_#{i}", false] }
     ]
     p_metadata[:ref_project] = ref_db.path
     p_metadata[:tax_pvalue] = cli[:pvalue]
     p = create_project(:assembly, p_metadata,
-      run_ssu: false, run_mytaxa_scan: false, run_distances: false)
+                       run_ssu: false, run_mytaxa_scan: false, run_distances: false)
     # Run
     run_daemon
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
     summarize(['taxonomy'])
     cli.say "Summary: classification"
     call_cli([
-      'ls', '-P', cli[:outdir], '-m', 'tax', '--tab',
-      '-o', File.expand_path('classification.tsv', cli[:outdir])
-    ])
+               'ls', '-P', cli[:outdir], '-m', 'tax', '--tab',
+               '-o', File.expand_path('classification.tsv', cli[:outdir])
+             ])
     cleanup
   end
-  
+
   private
 
   def reference_db
@@ -85,12 +85,14 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
         unless File.size? lm_f
           raise 'No locally listed databases, call "miga get_db" first'
         end
+
         cli[:database] = MiGA::Json.parse(lm_f)[:databases].keys.first
       end
       ref_db_path = File.expand_path(cli[:database].to_s, cli[:local])
     end
     ref_db = MiGA::Project.load(ref_db_path)
     raise "Cannot locate reference database: #{ref_db_path}" if ref_db.nil?
+
     cli.say "Reference database: #{ref_db.name}"
     ref_db
   end

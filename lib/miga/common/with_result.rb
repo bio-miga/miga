@@ -1,4 +1,3 @@
-
 ##
 # Helper module including specific functions to handle objects that
 # have results.
@@ -24,6 +23,7 @@ module MiGA::Common::WithResult
   def add_result(task, save = true, opts = {})
     task = task.to_sym
     return nil if result_dirs[task].nil?
+
     base = File.join(
       project.path, "data/#{result_dirs[task]}/#{result_base}"
     )
@@ -44,6 +44,7 @@ module MiGA::Common::WithResult
   def result(task)
     task = task.to_sym
     return nil if result_dirs[task].nil?
+
     MiGA::Result.load(
       "#{project.path}/data/#{result_dirs[task]}/#{result_base}.json"
     )

@@ -3,7 +3,6 @@ require 'miga/project'
 require 'zlib'
 
 class ResultStatsTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
@@ -29,7 +28,7 @@ class ResultStatsTest < Test::Unit::TestCase
   def test_single_raw_reads
     dir = 'data/01.raw_reads'
     fq = file_path(dir, '.1.fastq')
-    File.open(fq, 'w') { |fh| fh.puts '@1','ACTAC','+','####' }
+    File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     touch_done(dir)
     r = $d.add_result(:raw_reads)
     assert_equal({}, r[:stats])
@@ -43,9 +42,9 @@ class ResultStatsTest < Test::Unit::TestCase
   def test_coupled_raw_reads
     dir = 'data/01.raw_reads'
     fq = file_path(dir, '.1.fastq')
-    File.open(fq, 'w') { |fh| fh.puts '@1','ACTAC','+','####' }
+    File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     fq = file_path(dir, '.2.fastq')
-    File.open(fq, 'w') { |fh| fh.puts '@1','ACTAC','+','####' }
+    File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     touch_done(dir)
     r = $d.add_result(:raw_reads)
     r.compute_stats
@@ -79,7 +78,7 @@ class ResultStatsTest < Test::Unit::TestCase
   def test_trimmed_fasta
     dir = 'data/04.trimmed_fasta'
     fa = file_path(dir, '.CoupledReads.fa')
-    File.open(fa, 'w') { |fh| fh.puts '>1','ACTAC' }
+    File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
     touch_done(dir)
     r = $d.add_result(:trimmed_fasta)
     assert_equal({}, r[:stats])
@@ -92,7 +91,7 @@ class ResultStatsTest < Test::Unit::TestCase
     # Prepare result
     dir = 'data/05.assembly'
     fa = file_path(dir, '.LargeContigs.fna')
-    File.open(fa, 'w') { |fh| fh.puts '>1','ACTAC' }
+    File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
     touch_done(dir)
     r = $d.add_result(:assembly)
 
@@ -108,7 +107,7 @@ class ResultStatsTest < Test::Unit::TestCase
     # Prepare result
     dir = 'data/06.cds'
     fa = file_path(dir, '.faa')
-    File.open(fa, 'w') { |fh| fh.puts '>1','M' }
+    File.open(fa, 'w') { |fh| fh.puts '>1', 'M' }
     gff = file_path(dir, '.gff3.gz')
     Zlib::GzipWriter.open(gff) do |fh|
       fh.puts '# Model Data: a=b;transl_table=11;'
@@ -148,5 +147,4 @@ class ResultStatsTest < Test::Unit::TestCase
     assert_equal([100.0, '%'], r[:stats][:aai])
     assert_equal(0.0, r[:stats][:phylum_pvalue])
   end
-
 end

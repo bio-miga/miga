@@ -6,10 +6,10 @@ domain = ARGV.shift
 
 def quality(hsh)
   q = {}
-  q[:found] = hsh.values.map{ |i| i==0 ? 0 : 1 }.inject(:+)
-  q[:multi] = hsh.values.map{ |i| i==0 ? 0 : i-1 }.inject(:+)
-  q[:cmp] = 100.0*q[:found].to_f/hsh.size
-  q[:cnt] = 100.0*q[:multi].to_f/hsh.size
+  q[:found] = hsh.values.map { |i| i == 0 ? 0 : 1 }.inject(:+)
+  q[:multi] = hsh.values.map { |i| i == 0 ? 0 : i - 1 }.inject(:+)
+  q[:cmp] = 100.0 * q[:found].to_f / hsh.size
+  q[:cnt] = 100.0 * q[:multi].to_f / hsh.size
   q
 end
 
@@ -39,7 +39,7 @@ end
 # Find expected genes for domain
 n_dom = Hash[
   `HMM.essential.rb -L -q '-#{domain}' -c '#{collection}'`
-    .chomp.split("\n").map { |i| i.split("\t") }
+        .chomp.split("\n").map { |i| i.split("\t") }
 ]
 l_dom = n_dom.keys
 cnt_dom = {}
@@ -54,10 +54,10 @@ File.open(outlog, 'w') do |ofh|
   ofh.puts "! Contamination: #{q[:cnt].round(1)}%."
   if q[:multi] > 0
     ofh.puts "! Multiple copies: "
-    cnt_dom.each{ |k,v| ofh.puts "!   #{v} #{k}: #{n_dom[k]}." if v>1 }
+    cnt_dom.each { |k, v| ofh.puts "!   #{v} #{k}: #{n_dom[k]}." if v > 1 }
   end
   if q[:found] < cnt_dom.size
     ofh.puts "! Missing genes: "
-    cnt_dom.each{ |k,v| ofh.puts "!   #{k}: #{n_dom[k]}." if v==0 }
+    cnt_dom.each { |k, v| ofh.puts "!   #{k}: #{n_dom[k]}." if v == 0 }
   end
 end

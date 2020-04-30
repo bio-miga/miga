@@ -1,8 +1,6 @@
-
 require 'tmpdir'
 
 module MiGA::SubcladeRunner::Temporal
-
   # Create the empty temporal structure
   def create_temporals
   end

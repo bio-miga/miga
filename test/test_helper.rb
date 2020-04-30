@@ -11,7 +11,6 @@ require 'stringio'
 # Kernel extensions tp capture +$stdout+ and +$stderr+ based on
 # http://thinkingdigitally.com/archive/capturing-output-from-puts-in-ruby/
 module Kernel
-
   def capture_stdout
     out = StringIO.new
     $stdout = out
@@ -29,5 +28,4 @@ module Kernel
   ensure
     $stderr = STDERR
   end
-
 end

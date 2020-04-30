@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/tax_dist'
 
 class TaxDistTest < Test::Unit::TestCase
-
   def test_aai_path
     assert_path_exist(MiGA::TaxDist.aai_path(:intax))
     assert_path_exist(MiGA::TaxDist.aai_path(:novel))
@@ -54,5 +53,4 @@ class TaxDistTest < Test::Unit::TestCase
     close_intax = MiGA::TaxDist.aai_taxtest(99.0, :intax, engine: :blast)
     assert_equal(:s, close_intax[:probably][0])
   end
-
 end

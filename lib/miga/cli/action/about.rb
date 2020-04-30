@@ -4,23 +4,22 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::About < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {info: false, processing: false, tabular: false}
+    cli.defaults = { info: false, processing: false, tabular: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project])
       opt.on(
         '-p', '--processing',
         'Print information on processing advance'
-        ){ |v| cli[:processing] = v }
+      ) { |v| cli[:processing] = v }
       opt.on(
         '-m', '--metadata STRING',
         'Print name and metadata field only'
-        ){ |v| cli[:datum] = v }
+      ) { |v| cli[:datum] = v }
       opt.on(
         '--tab',
         'Return a tab-delimited table'
-        ){ |v| cli[:tabular] = v }
+      ) { |v| cli[:tabular] = v }
     end
   end
 
@@ -37,7 +36,7 @@ class MiGA::Cli::Action::About < MiGA::Cli::Action
     else
       cli.puts MiGA.tabulate([:key, :value], p.metadata.data.keys.map do |k|
         v = p.metadata[k]
-        [k, k==:datasets ? v.size : v]
+        [k, k == :datasets ? v.size : v]
       end, cli[:tabular])
     end
   end

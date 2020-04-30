@@ -1,4 +1,3 @@
-
 require 'miga/common/hooks'
 
 ##
@@ -18,7 +17,6 @@ require 'miga/common/hooks'
 # Internal hooks:
 # - _pull_result_hooks()
 module MiGA::Project::Hooks
-
   include MiGA::Common::Hooks
 
   def default_hooks
@@ -47,5 +45,4 @@ module MiGA::Project::Hooks
     pull_hook(:"on_result_ready_#{event_args.first}", *event_args)
     pull_hook(:on_processing_ready) if next_task(nil, false).nil?
   end
-
 end

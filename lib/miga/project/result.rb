@@ -62,6 +62,7 @@ module MiGA::Project::Result
   # Add result of any type +:*_distances+ at +base+ (no +_opts+ supported).
   def add_result_distances(base, _opts)
     return nil unless result_files_exist?(base, %w[.Rdata .log .txt])
+
     r = MiGA::Result.new("#{base}.json")
     r.add_file(:rdata,  'miga-project.Rdata')
     r.add_file(:matrix, 'miga-project.txt')
@@ -79,8 +80,13 @@ module MiGA::Project::Result
       return r
     end
     return nil unless result_files_exist?(base, %w[.proposed-clades])
-    return nil unless is_clade? or result_files_exist?(base,
-        %w[.pdf .classif .medoids .class.tsv .class.nwk])
+    unless is_clade? ||
+           result_files_exist?(
+             base, %w[.pdf .classif .medoids .class.tsv .class.nwk]
+           )
+      return nil
+    end
+
     r = add_result_iter_clades(base)
     r.add_file(:aai_tree,      'miga-project.aai.nwk')
     r.add_file(:proposal,      'miga-project.proposed-clades')
@@ -99,8 +105,10 @@ module MiGA::Project::Result
       r.add_file(:empty, 'miga-project.empty')
       return r
     end
-    return nil unless result_files_exist?(base,
-      %w[.pdf .classif .medoids .class.tsv .class.nwk])
+    return nil unless result_files_exist?(
+      base, %w[.pdf .classif .medoids .class.tsv .class.nwk]
+    )
+
     r = add_result_iter_clades(base)
     r.add_file(:ani_tree, 'miga-project.ani.nwk')
     r
@@ -127,6 +135,7 @@ module MiGA::Project::Result
       return r
     end
     return nil unless result_files_exist?(base, %w[.ogs .stats])
+
     r = MiGA::Result.new("#{base}.json")
     r.add_file(:ogs,   'miga-project.ogs')
     r.add_file(:abc,   'miga-project.abc')
@@ -141,6 +150,7 @@ module MiGA::Project::Result
   def add_result_project_stats(base, _opts)
     return nil unless
       result_files_exist?(base, %w[.taxonomy.json .metadata.db])
+
     r = MiGA::Result.new("#{base}.json")
     r.add_file(:taxonomy_index, 'miga-project.taxonomy.json')
     r.add_file(:metadata_index, 'miga-project.metadata.db')
@@ -151,5 +161,4 @@ module MiGA::Project::Result
   alias add_result_aai_distances add_result_distances
   alias add_result_ani_distances add_result_distances
   alias add_result_ssu_distances add_result_distances
-
 end

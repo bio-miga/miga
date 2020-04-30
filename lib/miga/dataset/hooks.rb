@@ -1,4 +1,3 @@
-
 require 'miga/common/hooks'
 
 ##
@@ -20,7 +19,7 @@ require 'miga/common/hooks'
 # - run_cmd(cmd)
 # Internal hooks:
 # - _pull_result_hooks()
-module MiGA::Dataset::Hooks 
+module MiGA::Dataset::Hooks
   include MiGA::Common::Hooks
 
   ##
@@ -38,7 +37,8 @@ module MiGA::Dataset::Hooks
   ##
   # Clear metadata from run counts
   def hook_clear_run_counts(_hook_args, _event_args)
-    metadata.data.keys
+    metadata
+      .data.keys
       .select { |k| k.to_s =~ /^_try_/ }
       .each { |k| metadata[k] = nil }
     metadata[:_step] = nil
@@ -72,5 +72,4 @@ module MiGA::Dataset::Hooks
     pull_hook(:"on_result_ready_#{event_args.first}", *event_args)
     pull_hook(:on_preprocessing_ready) if done_preprocessing?
   end
-
 end

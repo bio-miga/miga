@@ -8,7 +8,6 @@ require 'miga/cli'
 # by MiGA::Cli::Action::* classes. Do not attempt creating directly with +new+,
 # use instead the MiGA::Cli::Action.load interface.
 class MiGA::Cli::Action < MiGA::MiGA
-
   class << self
     def load(task, cli)
       require "miga/cli/action/#{task}"
@@ -55,8 +54,8 @@ class MiGA::Cli::Action < MiGA::MiGA
   ##
   # Name of the action, as referred to by the CLI
   def name
-    camel = self.class.to_s.gsub(/.*::/,'')
-    camel.gsub(/(\S)([A-Z])/,'\1_\2').downcase
+    camel = self.class.to_s.gsub(/.*::/, '')
+    camel.gsub(/(\S)([A-Z])/, '\1_\2').downcase
   end
 
   ##

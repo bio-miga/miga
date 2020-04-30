@@ -1,8 +1,6 @@
-
 ##
 # Helper module including specific functions to handle dataset hooks.
 module MiGA::Common::Hooks
-
   ##
   # Call the hook with symbol +event+ and any parameters +event_args+
   def pull_hook(event, *event_args)
@@ -12,7 +10,7 @@ module MiGA::Common::Hooks
     event_queue.each do |i|
       action = i.first
       hook_name = :"hook_#{action}"
-      hook_args = i[1 .. -1]
+      hook_args = i[1..-1]
       if respond_to? hook_name
         MiGA::MiGA.DEBUG "Hook: #{self.class}(#{event} > #{action})"
         self.send(hook_name, hook_args, event_args)
@@ -45,5 +43,4 @@ module MiGA::Common::Hooks
   def hook_run_lambda(hook_args, event_args)
     hook_args.first[*event_args]
   end
-
 end

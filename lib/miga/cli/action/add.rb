@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Add < MiGA::Cli::Action
-
   def parse_cli
     cli.expect_files = true
     cli.defaults = {
@@ -47,7 +46,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       opt.on(
         '-i', '--input-type STRING',
         'Type of input data, one of the following:',
-        *self.class.INPUT_TYPES.map{ |k,v| "~ #{k}: #{v[0]}" }
+        *self.class.INPUT_TYPES.map { |k, v| "~ #{k}: #{v[0]}" }
       ) { |v| cli[:input_type] = v.downcase.to_sym }
       opt.on(
         '--ignore-dups',
@@ -64,6 +63,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     files.each do |file|
       d = create_dataset(file, p)
       next if d.nil?
+
       copy_file_to_project(file, file_type, d, p)
       d = cli.add_metadata(d)
       d.save
@@ -76,22 +76,22 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
   @@INPUT_TYPES = {
     raw_reads_single:
       ['Single raw reads in a single FastQ file',
-        :raw_reads, %w[.1.fastq]],
+       :raw_reads, %w[.1.fastq]],
     raw_reads_paired:
       ['Paired raw reads in two FastQ files',
-        :raw_reads, %w[.1.fastq .2.fastq]],
+       :raw_reads, %w[.1.fastq .2.fastq]],
     trimmed_reads_single:
       ['Single trimmed reads in a single FastA file',
-        :trimmed_fasta, %w[.SingleReads.fa]],
+       :trimmed_fasta, %w[.SingleReads.fa]],
     trimmed_reads_paired:
       ['Paired trimmed reads in two FastA files',
-        :trimmed_fasta, %w[.1.fasta .2.fasta]],
+       :trimmed_fasta, %w[.1.fasta .2.fasta]],
     trimmed_reads_interleaved:
       ['Paired trimmed reads in a single FastA file',
-        :trimmed_fasta, %w[.CoupledReads.fa]],
+       :trimmed_fasta, %w[.CoupledReads.fa]],
     assembly:
       ['Assembled contigs or scaffolds in FastA format',
-        :assembly, %w[.LargeContigs.fna]]
+       :assembly, %w[.LargeContigs.fna]]
   }
 
   class << self
@@ -106,23 +106,26 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     files = cli.files
     file_type = nil
     if files.empty?
-      cli.ensure_par({dataset: '-D'},
-        'dataset is mandatory (-D) unless files are provided')
+      cli.ensure_par({ dataset: '-D' },
+                     'dataset is mandatory (-D) unless files are provided')
       cli.ensure_type(Dataset)
       files = [nil]
     else
       raise 'Please specify input type (-i).' if cli[:input_type].nil?
+
       file_type = self.class.INPUT_TYPES[cli[:input_type]]
       raise "Unrecognized input type: #{cli[:input_type]}." if file_type.nil?
       raise 'Some files are duplicated, files must be unique.' if
         files.size != files.uniq.size
+
       if cli[:input_type].to_s =~ /_paired$/
         if files.size.odd?
           raise 'Odd number of files incompatible with input type.'
         end
+
         files = Hash[*files].to_a
       else
-        files = files.map{ |i| [i] }
+        files = files.map { |i| [i] }
       end
       if files.size > 1 && !cli[:dataset].nil?
         raise 'The dataset name (-D) can only be specified with one input file.'
@@ -137,6 +140,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       ref_file = file.is_a?(Array) ? file.first : file
       m = cli[:regexp].match(ref_file)
       raise "Cannot extract name from file: #{ref_file}" if m.nil? or m[1].nil?
+
       name = cli[:prefix].to_s + m[1].miga_name
     end
     if Dataset.exist?(p, name)
@@ -151,12 +155,14 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     cli.say "o #{name}"
     d = Dataset.new(p, name, cli[:ref])
     raise "Unexpected: Couldn't create dataset: #{name}." if d.nil?
+
     d
   end
 
   def copy_file_to_project(file, file_type, d, p)
     return if file.nil?
-    r_dir = Dataset.RESULT_DIRS[ file_type[1] ]
+
+    r_dir = Dataset.RESULT_DIRS[file_type[1]]
     r_path = File.expand_path("data/#{r_dir}/#{d.name}", p.path)
     file_type[2].each_with_index do |ext, i|
       gz = file[i] =~ /\.gz/ ? '.gz' : ''

@@ -1,9 +1,7 @@
-
 require 'tmpdir'
 require 'zlib'
 
 module MiGA::DistanceRunner::Temporal
-
   # Copy input files to the (local) temporal folder
   def create_temporals
     rf = {
@@ -43,7 +41,7 @@ module MiGA::DistanceRunner::Temporal
   def checkpoint!(metric)
     $stderr.puts "Checkpoint (metric = #{metric})"
     SQLite3::Database.new(tmp_dbs[metric]) do |conn|
-      conn.execute("select count(*) from #{metric==:haai ? :aai : metric}")
+      conn.execute("select count(*) from #{metric == :haai ? :aai : metric}")
     end
     FileUtils.cp(tmp_dbs[metric], dbs[metric])
     @db_counts[metric] = 0

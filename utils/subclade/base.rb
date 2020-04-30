@@ -1,4 +1,3 @@
-
 require 'zlib'
 require 'miga'
 

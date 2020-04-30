@@ -1,4 +1,3 @@
-
 require 'daemons'
 require 'miga/common/with_daemon_class'
 
@@ -23,7 +22,7 @@ module MiGA::Common::WithDaemon
   def output_file
     File.join(daemon_home, "#{daemon_name}.output")
   end
-  
+
   def terminate_file
     File.join(daemon_home, 'terminate-daemon')
   end
@@ -46,6 +45,7 @@ module MiGA::Common::WithDaemon
   # Is the daemon active?
   def active?
     return false unless File.exist? alive_file
+
     (last_alive || Time.new(0)) > Time.now - 60
   end
 
@@ -74,8 +74,10 @@ module MiGA::Common::WithDaemon
       i += 1
       return :no_home unless Dir.exist? daemon_home
       return :no_process_alive unless process_alive? pid
+
       write_alive_file if i % 30 == 0
       return :termination_file if termination_file? pid
+
       sleep(1)
     end
   end
@@ -100,6 +102,7 @@ module MiGA::Common::WithDaemon
   # if it does. Do not kill any process if +pid+ is +nil+
   def termination_file?(pid)
     return false unless File.exist? terminate_file
+
     say 'Found termination file, terminating'
     File.unlink(terminate_file)
     terminate

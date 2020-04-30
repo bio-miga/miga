@@ -10,7 +10,6 @@ require 'zlib'
 module MiGA::TaxDist
   # Class-level
   class << self
-
     ##
     # Absolute path to the :intax or :novel data file (determined by +test+) for
     # AAI, determined for options +opts+. Supported options:
@@ -20,8 +19,10 @@ module MiGA::TaxDist
       engine = opts[:engine].to_s.downcase.to_sym
       test = test.to_s.downcase.to_sym
       return nil unless %i[intax novel].include? test
+
       engine = :blast if %i[blast+ blat].include? engine
       return nil unless %i[blast diamond].include? engine
+
       File.expand_path("../_data/aai-#{test}-#{engine}.tsv.gz", __FILE__)
     end
 
@@ -43,6 +44,7 @@ module MiGA::TaxDist
             keys.each do |i|
               v = row.shift
               next if v == 'NA' # <- missing data
+
               rank = i.zero? ? :root : MiGA::Taxonomy.KNOWN_RANKS[i]
               vals[rank] = v.to_f
             end
@@ -63,8 +65,8 @@ module MiGA::TaxDist
     # with cannonical rank (as in MiGA::Taxonomy) and estimated p-value.
     def aai_taxtest(aai, test, opts = {})
       meaning = {
-        most_likely:   [0.00, 0.01],
-        probably:      [0.01, 0.10],
+        most_likely: [0.00, 0.01],
+        probably: [0.01, 0.10],
         possibly_even: [0.10, 0.50]
       }
       pvalues = aai_pvalues(aai, test, opts)
@@ -73,6 +75,7 @@ module MiGA::TaxDist
         lwr, upr = thresholds
         min = pvalues.values.select { |v| v < upr }.max
         return out if min.nil?
+
         if min >= lwr
           v = pvalues.select { |_, vj| vj == min }
           out[phrase] = (test == :intax ? v.reverse_each : v).first

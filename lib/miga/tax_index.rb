@@ -6,7 +6,6 @@ require 'miga/taxonomy'
 ##
 # Indexing methods based on taxonomy.
 class MiGA::TaxIndex < MiGA::MiGA
-
   # Instance-level
 
   ##
@@ -26,9 +25,11 @@ class MiGA::TaxIndex < MiGA::MiGA
   # Index +dataset+, a MiGA::Dataset object.
   def <<(dataset)
     return nil if dataset.metadata[:tax].nil?
+
     taxon = @root
     MiGA::Taxonomy.KNOWN_RANKS.each do |rank|
       next if rank == :ns
+
       taxon = taxon.add_child(rank, dataset.metadata[:tax][rank])
     end
     taxon.add_dataset dataset
@@ -43,7 +44,7 @@ class MiGA::TaxIndex < MiGA::MiGA
     select = []
     loop do
       new_taxa = []
-      taxa.map{ |tx| tx.children }.flatten.each do |ch|
+      taxa.map { |tx| tx.children }.flatten.each do |ch|
         if ch.rank == rank
           select << ch
         elsif not ch.children.empty?
@@ -59,7 +60,8 @@ class MiGA::TaxIndex < MiGA::MiGA
   # Generate JSON String for the index.
   def to_json
     MiGA::Json.generate(
-      { root: root.to_hash, datasets: datasets.map{ |d| d.name } })
+      { root: root.to_hash, datasets: datasets.map { |d| d.name } }
+    )
   end
 
   ##
@@ -72,7 +74,6 @@ end
 ##
 # Helper class for MiGA::TaxIndex.
 class MiGA::TaxIndexTaxon < MiGA::MiGA
-
   # Instance-level
 
   ##
@@ -96,14 +97,14 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
 
   ##
   # String representation of the taxon.
-  def tax_str ; "#{rank}:#{name.nil? ? '?' : name}" ; end
+  def tax_str; "#{rank}:#{name.nil? ? '?' : name}"; end
 
   ##
   # Add child at +rank+ with +name+.
   def add_child(rank, name)
     rank = rank.to_sym
     name = name.miga_name unless name.nil?
-    child = children.find{ |it| it.rank==rank and it.name==name }
+    child = children.find { |it| it.rank == rank and it.name == name }
     if child.nil?
       child = MiGA::TaxIndexTaxon.new(rank, name)
       @children << child
@@ -113,45 +114,44 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
 
   ##
   # Add dataset at the current taxon (not children).
-  def add_dataset(dataset) @datasets << dataset ; end
+  def add_dataset(dataset) @datasets << dataset; end
 
   ##
   # Get the number of datasets in the taxon (including children).
   def datasets_count
-    children.map{ |it| it.datasets_count }.reduce(datasets.size, :+)
+    children.map { |it| it.datasets_count }.reduce(datasets.size, :+)
   end
 
   ##
   # Get all the datasets in the taxon (including children).
   def all_datasets
-    children.map{ |it| it.datasets }.reduce(datasets, :+)
+    children.map { |it| it.datasets }.reduce(datasets, :+)
   end
 
   ##
   # JSON String of the taxon.
   def to_json(*a)
-    { str:tax_str, datasets:datasets.map{|d| d.name},
-      children:children }.to_json(a)
+    { str: tax_str, datasets: datasets.map { |d| d.name },
+      children: children }.to_json(a)
   end
 
   ##
   # Hash representation of the taxon.
   def to_hash
-    { str:tax_str, datasets:datasets.map{|d| d.name},
-      children:children.map{ |it| it.to_hash } }
+    { str: tax_str, datasets: datasets.map { |d| d.name },
+      children: children.map { |it| it.to_hash } }
   end
 
   ##
   # Tabular String of the taxon.
-  def to_tab(unknown, indent=0)
+  def to_tab(unknown, indent = 0)
     o = ''
     if unknown or not datasets.empty? or not name.nil?
       o = "#{' ' * indent}#{tax_str}: #{datasets_count}\n"
     end
     indent += 2
-    datasets.each{ |ds| o << "#{' ' * indent}# #{ds.name}\n" }
-    children.each{ |it| o << it.to_tab(unknown, indent) }
+    datasets.each { |ds| o << "#{' ' * indent}# #{ds.name}\n" }
+    children.each { |it| o << it.to_tab(unknown, indent) }
     o
   end
-
 end

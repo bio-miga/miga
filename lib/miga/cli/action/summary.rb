@@ -4,9 +4,8 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Summary < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {units: false, tabular: false}
+    cli.defaults = { units: false, tabular: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt])
       cli.opt_filter_datasets(opt)
@@ -37,7 +36,7 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
     stats = ds.map do |d|
       r = d.add_result(cli[:result].to_sym, false)
       s = r.nil? ? {} : r[:stats]
-      s.tap{ |i| i[:dataset] = d.name }
+      s.tap { |i| i[:dataset] = d.name }
     end
     keys = cli[:key_md].nil? ? stats.map(&:keys).flatten.uniq :
       [:dataset, cli[:key_md].downcase.miga_name.to_sym]
@@ -45,9 +44,11 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
     keys.unshift :dataset
 
     table = cli[:units] ?
-      stats.map{ |s| keys.
-        map{ |k| s[k].is_a?(Array) ? s[k].map(&:to_s).join('') : s[k] } } :
-      stats.map{ |s| keys.map{ |k| s[k].is_a?(Array) ? s[k].first : s[k] } }
+      stats.map { |s|
+        keys
+          .map { |k| s[k].is_a?(Array) ? s[k].map(&:to_s).join('') : s[k] }
+      } :
+      stats.map { |s| keys.map { |k| s[k].is_a?(Array) ? s[k].first : s[k] } }
     io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')
     cli.puts(io, MiGA.tabulate(keys, table, cli[:tabular]))
     io.close unless cli[:output].nil?

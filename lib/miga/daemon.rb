@@ -18,6 +18,7 @@ class MiGA::Daemon < MiGA::MiGA
     # full path to the project's 'daemon' folder
     def daemon_home(project)
       return project if project.is_a? String
+
       File.join(project.path, 'daemon')
     end
   end
@@ -135,6 +136,7 @@ class MiGA::Daemon < MiGA::MiGA
   def load_status
     f_path = File.join(daemon_home, 'status.json')
     return unless File.size? f_path
+
     say 'Loading previous status in daemon/status.json:'
     status = MiGA::Json.parse(f_path)
     status.each_key do |i|
@@ -164,6 +166,7 @@ class MiGA::Daemon < MiGA::MiGA
     project.each_dataset do |ds|
       next unless ds.status == :incomplete
       next if ds.next_preprocessing(false).nil?
+
       o = true
       queue_job(:d, ds)
     end
@@ -193,13 +196,14 @@ class MiGA::Daemon < MiGA::MiGA
   # scheduler (or to bash or ssh) see #flush!
   def queue_job(job, ds = nil)
     return nil unless get_job(job, ds).nil?
+
     ds_name = (ds.nil? ? 'miga-project' : ds.name)
     say 'Queueing %s:%s' % [ds_name, job]
     vars = {
       'PROJECT' => project.path,
       'RUNTYPE' => runopts(:type),
-      'CORES'   => ppn,
-      'MIGA'    => MiGA::MiGA.root_path
+      'CORES' => ppn,
+      'MIGA' => MiGA::MiGA.root_path
     }
     vars['DATASET'] = ds.name unless ds.nil?
     log_dir = File.expand_path("daemon/#{job}", project.path)
@@ -258,6 +262,7 @@ class MiGA::Daemon < MiGA::MiGA
     # Launch as many +jobs_to_run+ as possible
     while (hostk = next_host)
       break if jobs_to_run.empty?
+
       launch_job(@jobs_to_run.shift, hostk)
     end
   end
@@ -267,6 +272,7 @@ class MiGA::Daemon < MiGA::MiGA
   # In any other daemons, returns true as long as #maxjobs is not reached
   def next_host
     return jobs_running.size < maxjobs if runopts(:type) != 'ssh'
+
     allk = (0..nodelist.size - 1).to_a
     busyk = jobs_running.map { |k| k[:hostk] }
     (allk - busyk).first
@@ -324,7 +330,7 @@ class MiGA::Daemon < MiGA::MiGA
     }.each do |k, v|
       if !runopts(k).nil? && runopts(k) =~ /%(\d+\$)?[ds]/
         runopts(k,
-          runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map { |i| "{{#{i}}}" })
+                runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map { |i| "{{#{i}}}" })
       end
     end
     runopts(:format_version, 1)

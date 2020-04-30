@@ -4,29 +4,28 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Find < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {add: false, ref: true}
+    cli.defaults = { add: false, ref: true }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_type])
       opt.on(
         '-a', '--add',
         'Register the datasets found',
         'By default, only lists them (dry run)'
-        ){ |v| cli[:add] = v }
+      ) { |v| cli[:add] = v }
       opt.on(
         '-q', '--query',
         'Register datasets as query'
-        ){ |v| cli[:ref] = !v }
+      ) { |v| cli[:ref] = !v }
       opt.on(
         '-u', '--user STRING',
         'Owner of the dataset.'
-        ){ |v| cli[:user] = v }
+      ) { |v| cli[:user] = v }
       opt.on(
         '-m', '--metadata STRING',
         'Metadata as key-value pairs separated by = and delimited by comma',
         'Values are saved as strings except for booleans (true / false) or nil'
-        ){ |v| cli[:metadata] = v }
+      ) { |v| cli[:metadata] = v }
     end
   end
 

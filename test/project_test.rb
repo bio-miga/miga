@@ -126,7 +126,7 @@ class ProjectTest < Test::Unit::TestCase
       aai_distances: %w[.Rdata .log .txt],
       ani_distances: %w[.Rdata .log .txt],
       clade_finding: %w[.pdf .classif .medoids
-        .class.tsv .class.nwk .proposed-clades],
+                        .class.tsv .class.nwk .proposed-clades],
       subclades: %w[.pdf .classif .medoids .class.tsv .class.nwk],
       ogs: %w[.ogs .stats]
     }

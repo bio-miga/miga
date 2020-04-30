@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/lair'
 
 class LairTest < Test::Unit::TestCase
-
   def setup
     $jruby_tests = !ENV['JRUBY_TESTS'].nil?
     $tmp = Dir.mktmpdir
@@ -24,7 +23,7 @@ class LairTest < Test::Unit::TestCase
     FileUtils.rm_rf $tmp
     ENV['MIGA_HOME'] = nil
   end
-  
+
   def test_lair_init
     path = $tmp
     lair = MiGA::Lair.new(path, name: 'Alt-X')

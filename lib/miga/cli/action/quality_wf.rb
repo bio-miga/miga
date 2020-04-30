@@ -23,7 +23,7 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
     # Input data
     p_metadata = Hash[
       %w[project_stats haai_distances aai_distances ani_distances clade_finding]
-        .map { |i| ["run_#{i}", false] }
+                 .map { |i| ["run_#{i}", false] }
     ]
     d_metadata = { run_distances: false }
     d_metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]

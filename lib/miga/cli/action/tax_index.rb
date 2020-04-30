@@ -5,20 +5,19 @@ require 'miga/cli/action'
 require 'miga/tax_index'
 
 class MiGA::Cli::Action::TaxIndex < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {format: :json}
+    cli.defaults = { format: :json }
     cli.parse do |opt|
       cli.opt_object(opt, [:project])
       opt.on(
         '-i', '--index PATH',
         '(Mandatory) File to create with the index'
-        ){ |v| cli[:index] = v }
+      ) { |v| cli[:index] = v }
       opt.on(
         '-f', '--format STRING',
         "Format of the index file, by default: #{cli[:format]}",
         'Supported: json, tab.'
-        ){ |v| cli[:format] = v.downcase.to_sym }
+      ) { |v| cli[:format] = v.downcase.to_sym }
       cli.opt_filter_datasets(opt)
     end
   end

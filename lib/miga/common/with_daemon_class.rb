@@ -1,4 +1,3 @@
-
 ##
 # Helper module with specific class-level functions to be used with
 # +include MiGA::Common::WithDaemon+.
@@ -28,6 +27,7 @@ module MiGA::Common::WithDaemonClass
     f = terminated_file(path) unless File.exist? f
     c = File.read(f)
     return nil if c.nil? || c.empty?
+
     Time.parse(c)
   rescue Errno::ENOENT
     return nil

@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/project'
 
 class ResultTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
@@ -11,13 +10,17 @@ class ResultTest < Test::Unit::TestCase
     $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
     $d1 = $p1.add_dataset('dataset1')
     FileUtils.touch(
-      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq"))
+      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq")
+    )
     FileUtils.touch(
-      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done"))
+      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done")
+    )
     FileUtils.touch(
-      File.join($p1.path, 'data/10.clades/01.find/miga-project.empty'))
+      File.join($p1.path, 'data/10.clades/01.find/miga-project.empty')
+    )
     FileUtils.touch(
-      File.join($p1.path, 'data/10.clades/01.find/miga-project.done'))
+      File.join($p1.path, 'data/10.clades/01.find/miga-project.done')
+    )
   end
 
   def teardown
@@ -51,13 +54,12 @@ class ResultTest < Test::Unit::TestCase
     assert_nil(r.done_at)
     assert_nil(r.started_at)
     tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done")
-    File.open(tf, 'w') { |fh| fh.puts Time.new(1,2,3,4,5) }
+    File.open(tf, 'w') { |fh| fh.puts Time.new(1, 2, 3, 4, 5) }
     assert_equal(Time, r.done_at.class)
     assert_nil(r.running_time)
     tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.start")
-    File.open(tf, 'w') { |fh| fh.puts Time.new(1,2,3,4,0) }
+    File.open(tf, 'w') { |fh| fh.puts Time.new(1, 2, 3, 4, 0) }
     r = $d1.add_result(:trimmed_reads)
     assert_equal(5.0, r.running_time)
   end
-
 end

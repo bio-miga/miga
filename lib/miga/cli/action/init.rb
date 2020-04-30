@@ -7,44 +7,44 @@ require 'shellwords'
 class MiGA::Cli::Action::Init < MiGA::Cli::Action
   require 'miga/cli/action/init/daemon_helper'
   include MiGA::Cli::Action::Init::DaemonHelper
-  
+
   def parse_cli
     cli.interactive = true
     cli.defaults = { mytaxa: nil,
-      config: File.expand_path('.miga_modules', ENV['HOME']),
-      ask: false, auto: false, dtype: :bash }
+                     config: File.expand_path('.miga_modules', ENV['HOME']),
+                     ask: false, auto: false, dtype: :bash }
     cli.parse do |opt|
       opt.on(
         '-c', '--config PATH',
         'Path to the Bash configuration file',
         "By default: #{cli[:config]}"
-      ){ |v| cli[:config] = v }
+      ) { |v| cli[:config] = v }
       opt.on(
         '--[no-]mytaxa',
         'Should I try setting up MyTaxa its dependencies?',
         'By default: interactive (true if --auto)'
-      ){ |v| cli[:mytaxa] = v }
+      ) { |v| cli[:mytaxa] = v }
       opt.on(
         '--daemon-type STRING',
         'Type of daemon launcher, one of: bash, ssh, qsub, msub, slurm',
         "By default: interactive (#{cli[:dtype]} if --auto)"
-      ){ |v| cli[:dtype] = v.to_sym }
+      ) { |v| cli[:dtype] = v.to_sym }
       opt.on(
         '--ask-all',
         'Ask for the location of all software',
         'By default, only the locations missing in PATH are requested'
-      ){ |v| cli[:ask] = v }
+      ) { |v| cli[:ask] = v }
     end
   end
 
   def perform
-    cli.puts <<BANNER
-===[ Welcome to MiGA, the Microbial Genome Atlas ]===
+    cli.puts <<~BANNER
+      ===[ Welcome to MiGA, the Microbial Genome Atlas ]===
 
-I'm the initialization script, and I'll sniff around your computer to
-make sure you have all the requirements for MiGA data processing.
+      I'm the initialization script, and I'll sniff around your computer to
+      make sure you have all the requirements for MiGA data processing.
 
-BANNER
+    BANNER
     list_requirements
     rc_fh = open_rc_file
     check_configuration_script rc_fh
@@ -67,7 +67,7 @@ BANNER
 
   def run_r_cmd(cli, paths, cmd)
     run_cmd(cli,
-      "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1")
+            "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1")
   end
 
   def test_r_package(cli, paths, pkg)
@@ -82,7 +82,7 @@ BANNER
 
   def test_ruby_gem(cli, paths, pkg)
     run_cmd(cli,
-      "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null")
+            "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null")
     $?.success?
   end
 
@@ -95,8 +95,9 @@ BANNER
 
   def list_requirements
     if cli.ask_user(
-          'Would you like to see all the requirements before starting?',
-          'no', %w(yes no)) == 'yes'
+      'Would you like to see all the requirements before starting?',
+      'no', %w(yes no)
+    ) == 'yes'
       cli.puts ''
       req_path = File.expand_path('utils/requirements.txt', MiGA.root_path)
       File.open(req_path, 'r') do |fh|
@@ -112,26 +113,28 @@ BANNER
     rc_path = File.expand_path('.miga_rc', ENV['HOME'])
     if File.exist? rc_path
       if cli.ask_user(
-            'I found a previous configuration. Do you want to continue?',
-            'yes', %w(yes no)) == 'no'
+        'I found a previous configuration. Do you want to continue?',
+        'yes', %w(yes no)
+      ) == 'no'
         cli.puts 'OK, see you soon!'
         exit(0)
       end
     end
     rc_fh = File.open(rc_path, 'w')
-    rc_fh.puts <<BASH
-#!/bin/bash
-# `miga init` made this on #{Time.now}
+    rc_fh.puts <<~BASH
+      #!/bin/bash
+      # `miga init` made this on #{Time.now}
 
-BASH
+    BASH
     rc_fh
   end
 
   def check_configuration_script(rc_fh)
     unless File.exist? cli[:config]
       cli[:config] = cli.ask_user(
-            'Is there a script I need to load at startup?',
-            cli[:config])
+        'Is there a script I need to load at startup?',
+        cli[:config]
+      )
     end
     if File.exist? cli[:config]
       cli[:config] = File.expand_path(cli[:config])
@@ -154,8 +157,10 @@ BASH
     File.open(req_path, 'r') do |fh|
       fh.each_line do |ln|
         next if $. < 3
+
         r = ln.chomp.split(/\t+/)
         next if r[0] =~ /\(opt\)$/ && !cli[:mytaxa]
+
         cli.print "Testing #{r[0]}#{" (#{r[3]})" if r[3]}... "
         path = find_software(r[1])
         paths[r[1]] = File.expand_path(r[1], path).shellescape
@@ -256,13 +261,13 @@ BASH
   end
 
   def close_rc_file(rc_fh)
-    rc_fh.puts <<FOOT
+    rc_fh.puts <<~FOOT
 
-MIGA_CONFIG_VERSION='#{MiGA::MiGA.VERSION}'
-MIGA_CONFIG_LONGVERSION='#{MiGA::MiGA.LONG_VERSION}'
-MIGA_CONFIG_DATE='#{Time.now}'
+      MIGA_CONFIG_VERSION='#{MiGA::MiGA.VERSION}'
+      MIGA_CONFIG_LONGVERSION='#{MiGA::MiGA.LONG_VERSION}'
+      MIGA_CONFIG_DATE='#{Time.now}'
 
-FOOT
+    FOOT
     rc_fh.close
   end
 end

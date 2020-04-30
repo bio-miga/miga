@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/daemon'
 
 class DaemonTest < Test::Unit::TestCase
-
   def setup
     $jruby_tests = !ENV['JRUBY_TESTS'].nil?
     $tmp = Dir.mktmpdir
@@ -28,11 +27,11 @@ class DaemonTest < Test::Unit::TestCase
     Array.new(n) do |i|
       d = "d#{i}"
       FileUtils.touch(File.expand_path(
-        "data/02.trimmed_reads/#{d}.1.clipped.fastq", p1.path
-      ))
+                        "data/02.trimmed_reads/#{d}.1.clipped.fastq", p1.path
+                      ))
       FileUtils.touch(File.expand_path(
-        "data/02.trimmed_reads/#{d}.done", p1.path
-      ))
+                        "data/02.trimmed_reads/#{d}.done", p1.path
+                      ))
       p1.add_dataset(MiGA::Dataset.new(p1, d, true).name).tap do |ds|
         ds.first_preprocessing(true)
       end
@@ -101,7 +100,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_not_nil(child)
     assert_gt(child, 1)
     assert_equal(0, `ps -p "#{child}" -o ppid=`.strip.to_i,
-      'The daemon process should be detached')
+                 'The daemon process should be detached')
     sleep(3)
     assert_path_exist(d.pid_file)
     out = capture_stderr { d.stop }.string

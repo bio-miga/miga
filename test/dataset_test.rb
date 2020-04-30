@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/project'
 
 class DatasetTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
@@ -72,10 +71,12 @@ class DatasetTest < Test::Unit::TestCase
     assert_nil(d2.add_result(:koop))
     assert_nil(d2.add_result(:raw_reads))
     FileUtils.touch(
-      File.expand_path("data/01.raw_reads/#{d2.name}.1.fastq",$p1.path))
+      File.expand_path("data/01.raw_reads/#{d2.name}.1.fastq", $p1.path)
+    )
     assert_nil(d2.add_result(:raw_reads))
     FileUtils.touch(
-      File.expand_path("data/01.raw_reads/#{d2.name}.done",$p1.path))
+      File.expand_path("data/01.raw_reads/#{d2.name}.done", $p1.path)
+    )
     assert_equal(MiGA::Result, d2.add_result(:raw_reads).class)
   end
 
@@ -85,11 +86,11 @@ class DatasetTest < Test::Unit::TestCase
     assert_nil(d2.next_preprocessing)
     assert_not_predicate(d2, :done_preprocessing?)
     FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{d2.name}.1.clipped.fastq", $p1.path
-    ))
+                      "data/02.trimmed_reads/#{d2.name}.1.clipped.fastq", $p1.path
+                    ))
     FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{d2.name}.done", $p1.path
-    ))
+                      "data/02.trimmed_reads/#{d2.name}.done", $p1.path
+                    ))
     assert_equal(:trimmed_reads, d2.first_preprocessing(true))
     assert_equal(:read_quality, d2.next_preprocessing(true))
     assert { !d2.done_preprocessing?(true) }
@@ -120,23 +121,23 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal(0, d2.profile_advance(true).last)
     assert_equal(0, d2.profile_advance(true).inject(:+))
     Dir.mkdir(File.expand_path(
-      "data/03.read_quality/#{d2.name}.solexaqa", $p1.path
-    ))
+                "data/03.read_quality/#{d2.name}.solexaqa", $p1.path
+              ))
     Dir.mkdir(File.expand_path(
-      "data/03.read_quality/#{d2.name}.fastqc", $p1.path
-    ))
+                "data/03.read_quality/#{d2.name}.fastqc", $p1.path
+              ))
     FileUtils.touch(File.expand_path(
-      "data/03.read_quality/#{d2.name}.done", $p1.path
-    ))
-    assert_equal([0,0,1,2], d2.profile_advance(true)[0..3])
+                      "data/03.read_quality/#{d2.name}.done", $p1.path
+                    ))
+    assert_equal([0, 0, 1, 2], d2.profile_advance(true)[0..3])
     assert_equal(2, d2.profile_advance(true).last)
   end
 
   def test_add_result_other
     d2 = $p1.add_dataset('ds_add_result_other')
     Dir.mkdir(File.expand_path(
-      "data/07.annotation/01.function/01.essential/#{d2.name}.ess", $p1.path
-    ))
+                "data/07.annotation/01.function/01.essential/#{d2.name}.ess", $p1.path
+              ))
     to_test = {
       trimmed_fasta: [
         "data/04.trimmed_fasta/#{d2.name}.SingleReads.fa",
@@ -152,28 +153,28 @@ class DatasetTest < Test::Unit::TestCase
         "data/06.cds/#{d2.name}.done"
       ],
       essential_genes: %w[ess.faa ess/log done]
-        .map do |x|
-          "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}"
-        end,
+              .map do |x|
+                         "data/07.annotation/01.function/01.essential/#{d2.name}.#{x}"
+                       end,
       ssu: [
         "data/07.annotation/01.function/02.ssu/#{d2.name}.ssu.fa",
         "data/07.annotation/01.function/02.ssu/#{d2.name}.done"
       ],
       mytaxa_scan: %w[pdf wintax mytaxa reg done]
-        .map do |x|
-          "data/07.annotation/03.qa/02.mytaxa_scan/#{d2.name}.#{x}"
-        end,
+              .map do |x|
+                     "data/07.annotation/03.qa/02.mytaxa_scan/#{d2.name}.#{x}"
+                   end,
       distances: [
         "data/09.distances/01.haai/#{d2.name}.db",
         "data/09.distances/#{d2.name}.done"
       ]
     }
-    to_test.each do |k,v|
+    to_test.each do |k, v|
       assert_nil(d2.add_result(k), "Result for #{k} should be nil.")
       v.each { |i| FileUtils.touch(File.expand_path(i, $p1.path)) }
       FileUtils.touch(File.expand_path(
-        "data/04.trimmed_fasta/#{d2.name}.done", $p1.path
-      ))
+                        "data/04.trimmed_fasta/#{d2.name}.done", $p1.path
+                      ))
       assert_equal(
         MiGA::Result,
         d2.add_result(k).class,

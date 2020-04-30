@@ -7,7 +7,6 @@ require 'zlib'
 require 'tmpdir'
 
 class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
-
   def parse_cli
     cli.parse do |opt|
       cli.opt_object(opt, [:project])
@@ -49,17 +48,20 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
   def read_distances
     p = cli.load_project
     cli[:metric] ||= p.is_clade? ? 'ani' : 'aai'
-    res_n  = "#{cli[:metric]}_distances"
+    res_n = "#{cli[:metric]}_distances"
     cli.say "Reading distances: 1-#{cli[:metric].upcase}"
     res = p.result(res_n)
     raise "#{res_n} not yet calculated" if res.nil?
+
     matrix = res.file_path(:matrix)
     raise "#{res_n} has no matrix" if matrix.nil?
+
     dist = {}
     mfh = (matrix =~ /\.gz$/) ?
       Zlib::GzipReader.open(matrix) : File.open(matrix, 'r')
     mfh.each_line do |ln|
       next if mfh.lineno == 1
+
       row = ln.chomp.split("\t")
       dist[cannid(row[1], row[2])] = [row[3], row[5], row[6], 0, ['root:biota']]
       cli.advance('Lines:', mfh.lineno, nil, false) if (mfh.lineno % 1_000) == 0
@@ -90,16 +92,17 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
     rank_i = 0
     Taxonomy.KNOWN_RANKS.each do |rank|
       next if rank == :ns
+
       rank_n = 0
       rank_i += 1
       in_rank = nil
       ds_name = []
       File.open(tab, 'r') do |fh|
         fh.each_line do |ln|
-          if ln =~ /^ {#{(rank_i-1)*2}}\S+:\S+:/
+          if ln =~ /^ {#{(rank_i - 1) * 2}}\S+:\S+:/
             in_rank = nil
             ds_name = []
-          elsif ln =~ /^ {#{rank_i*2}}(#{rank}:(\S+)):/
+          elsif ln =~ /^ {#{rank_i * 2}}(#{rank}:(\S+)):/
             in_rank = $2 == '?' ? nil : $1
             ds_name = []
           elsif ln =~ /^ *# (\S+)/ and not in_rank.nil?
@@ -108,6 +111,7 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
             ds_name.each do |ds_j|
               k = cannid(ds_i, ds_j)
               next if dist[k].nil?
+
               rank_n += 1
               dist[k][3] = rank_i
               dist[k][4].unshift in_rank

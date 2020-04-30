@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class FormatTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
   end
@@ -76,7 +75,7 @@ class FormatTest < Test::Unit::TestCase
     o = MiGA::MiGA.seqs_length(f, :fastq, n50: true)
     assert_equal(3, o[:med])
   end
-  
+
   def test_tabulate
     tab = MiGA::MiGA.tabulate(%w[a b], [%w[123 45], %w[678 90]])
     assert_equal('  a  b ', tab[0])
@@ -84,5 +83,4 @@ class FormatTest < Test::Unit::TestCase
     assert_equal('123  45', tab[2])
     assert_equal('678  90', tab[3])
   end
-
 end

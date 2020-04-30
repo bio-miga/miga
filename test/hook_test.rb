@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/project'
 
 class HookTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
@@ -48,13 +47,15 @@ class HookTest < Test::Unit::TestCase
     $res = :test
     $counter = 1
     $d1.add_hook(:on_result_ready,
-      :run_lambda, Proc.new { |r| $res = r })
+                 :run_lambda, Proc.new { |r| $res = r })
     $d1.add_hook(:on_result_ready_trimmed_reads,
-      :run_lambda, Proc.new { $counter += 1 })
+                 :run_lambda, Proc.new { $counter += 1 })
     FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq", $p1.path))
+                      "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq", $p1.path
+                    ))
     FileUtils.touch(File.expand_path(
-      "data/02.trimmed_reads/#{$d1.name}.done", $p1.path))
+                      "data/02.trimmed_reads/#{$d1.name}.done", $p1.path
+                    ))
     assert_equal(:test, $res)
     $d1.add_result(:trimmed_reads)
     assert_equal(:trimmed_reads, $res)
@@ -108,8 +109,8 @@ class HookTest < Test::Unit::TestCase
     )
     %w[taxonomy.json metadata.db done].each do |ext|
       FileUtils.touch(File.expand_path(
-        "data/90.stats/miga-project.#{ext}", $p1.path
-      ))
+                        "data/90.stats/miga-project.#{ext}", $p1.path
+                      ))
     end
     assert_equal(:project_stats, $p1.next_task(nil, false))
     assert_equal(:test, $res)
@@ -118,5 +119,4 @@ class HookTest < Test::Unit::TestCase
     assert_equal(:project_stats, $res)
     assert_equal(2, $counter)
   end
-
 end

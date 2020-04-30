@@ -9,7 +9,8 @@ module MiGA::Cli::Action::Wf
     cli.defaults = {
       clean: false, regexp: MiGA::Cli.FILE_REGEXP,
       project_type: :genomes, dataset_type: :popgenome,
-      ncbi_draft: true }
+      ncbi_draft: true
+    }
   end
 
   def opts_for_wf(opt, files_desc, params = {})
@@ -110,13 +111,14 @@ module MiGA::Cli::Action::Wf
     cli.ensure_par(
       outdir: '-o',
       project_type: '--project-type',
-      dataset_type: '--dataset-type')
+      dataset_type: '--dataset-type'
+    )
     # Create empty project
     call_cli([
-      'new',
-      '-P', cli[:outdir],
-      '-t', cli[:project_type]
-    ]) unless MiGA::Project.exist? cli[:outdir]
+               'new',
+               '-P', cli[:outdir],
+               '-t', cli[:project_type]
+             ]) unless MiGA::Project.exist? cli[:outdir]
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
     [:haai_p, :aai_p, :ani_p, :ess_coll].each { |i| p_metadata[i] = cli[i] }
@@ -124,11 +126,11 @@ module MiGA::Cli::Action::Wf
     transfer_metadata(p, p_metadata)
     # Download datasets
     call_cli([
-      'ncbi_get',
-      '-P', cli[:outdir],
-      '-T', cli[:ncbi_taxon],
-      (cli[:ncbi_draft] ? '--all' : '--complete')
-    ]) unless cli[:ncbi_taxon].nil?
+               'ncbi_get',
+               '-P', cli[:outdir],
+               '-T', cli[:ncbi_taxon],
+               (cli[:ncbi_draft] ? '--all' : '--complete')
+             ]) unless cli[:ncbi_taxon].nil?
     # Add datasets
     call_cli([
       'add',
@@ -149,17 +151,18 @@ module MiGA::Cli::Action::Wf
     which.each do |r|
       cli.say "Summary: #{r}"
       call_cli([
-        'summary',
-        '-P', cli[:outdir],
-        '-r', r,
-        '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
-        '--tab'
-      ])
+                 'summary',
+                 '-P', cli[:outdir],
+                 '-r', r,
+                 '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
+                 '--tab'
+               ])
     end
   end
 
   def cleanup
     return unless cli[:clean]
+
     cli.say 'Cleaning up intermediate files'
     %w[data daemon metadata miga.project.json].each do |f|
       FileUtils.rm_rf(File.expand_path(f, cli[:outdir]))
@@ -184,12 +187,11 @@ module MiGA::Cli::Action::Wf
 
   def transfer_metadata(obj, md)
     # Clear old metadata
-    obj.metadata.each do |k,v|
+    obj.metadata.each do |k, v|
       obj.metadata[k] = nil if k.to_s =~ /^run_/ || k == :ref_project
     end
     # Transfer and save
     md.each { |k, v| obj.metadata[k] = v }
     obj.save
   end
-
 end

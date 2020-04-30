@@ -5,7 +5,6 @@ require 'miga/cli/action'
 require 'rubygems/package'
 
 class MiGA::Cli::Action::Archive < MiGA::Cli::Action
-
   def parse_cli
     cli.parse do |opt|
       opt.on(
@@ -26,6 +25,7 @@ class MiGA::Cli::Action::Archive < MiGA::Cli::Action
     unless cli[:tarball] =~ /\.tar\.gz$/
       raise 'The tarball path (-o) must have .tar.gz extension'
     end
+
     cli[:folder] ||= cli.load_project.name
     ds = cli.load_and_filter_datasets
 
@@ -95,5 +95,4 @@ class MiGA::Cli::Action::Archive < MiGA::Cli::Action
     in_tar = File.join(cli[:folder], rel_path)
     tar.add_file_simple(in_tar, 0666, string.size) { |fh| fh.write(string) }
   end
-
 end

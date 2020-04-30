@@ -53,6 +53,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       end
     end
     return unless cli[:unlink]
+
     unlink = p.dataset_names - d
     unlink.each { |i| p.unlink_dataset(i).remove! }
     cli.say "Datasets unlinked: #{unlink.size}"
@@ -105,14 +106,16 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     ) { |v| cli[:ignore_until] = v }
     cli.opt_flag(
       opt, 'get-metadata',
-      'Only download and update metadata for existing datasets', :get_md)
+      'Only download and update metadata for existing datasets', :get_md
+    )
   end
 
   def cli_save_actions(opt)
     cli.opt_flag(
       opt, 'only-metadata',
       'Create datasets without input data but retrieve all metadata',
-      :only_md)
+      :only_md
+    )
     opt.on(
       '--save-every INT', Integer,
       'Save project every this many downloaded datasets',
@@ -139,6 +142,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     unless tasks.any? { |i| cli[i.to_sym] }
       raise 'No action requested: pick at least one type of genome'
     end
+
     cli[:save_every] = 1 if cli[:dry]
   end
 
@@ -151,12 +155,13 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       asm = r['assembly']
       next if asm.nil? || asm.empty? || asm == '-'
       next unless r['ftp_path_genbank']
+
       rep = remote_row_replicons(r)
       n = remote_row_name(r, rep, asm)
 
       # Register for download
       fna_url = '%s/%s_genomic.fna.gz' %
-        [r['ftp_path_genbank'], File.basename(r['ftp_path_genbank'])]
+                [r['ftp_path_genbank'], File.basename(r['ftp_path_genbank'])]
       ds[n] = {
         ids: [fna_url], db: :assembly_gz, universe: :web,
         md: {
@@ -173,6 +178,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   def remote_row_replicons(r)
     return if r['replicons'].nil?
+
     r['replicons']
       .split('; ')
       .map { |i| i.gsub(/.*:/, '') }
@@ -181,6 +187,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   def remote_row_name(r, rep, asm)
     return r['#organism'].miga_name if cli[:legacy_name] && cli[:reference]
+
     if cli[:legacy_name] && ['Complete', ' Chromosome'].include?(r['level'])
       acc = rep.nil? ? '' : rep.first
     else
@@ -240,6 +247,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       cli.puts name
       ignore = false if ignore && name == cli[:ignore_until]
       next if ignore || p.dataset(name).nil? == cli[:get_md]
+
       downloaded += 1
       unless cli[:dry]
         save_entry(name, body, p)

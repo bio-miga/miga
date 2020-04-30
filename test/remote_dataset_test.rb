@@ -3,7 +3,6 @@ require 'miga/project'
 require 'miga/remote_dataset'
 
 class RemoteDatasetTest < Test::Unit::TestCase
-
   def setup
     $tmp = Dir.mktmpdir
     ENV['MIGA_HOME'] = $tmp
@@ -112,11 +111,10 @@ class RemoteDatasetTest < Test::Unit::TestCase
   end
 
   # This test is too expensive (too much time to run it!)
-  #def test_net_timeout
+  # def test_net_timeout
   #  omit_if(!$remote_tests, "Remote access is error-prone")
   #  bad = "ftp://example.com/miga"
   #  rd = MiGA::RemoteDataset.new(bad, :assembly, :web)
   #  assert_raise(Net::ReadTimeout) { rd.save_to($p1, "bad") }
-  #end
-
+  # end
 end

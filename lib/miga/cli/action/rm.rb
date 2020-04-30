@@ -4,16 +4,15 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Rm < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {remove: false}
+    cli.defaults = { remove: false }
     cli.parse do |opt|
       cli.opt_object(opt)
       opt.on(
         '-r', '--remove',
         'Also remove all associated files',
         'By default, only unlinks from metadata'
-        ){ |v| cli[:remove] = v }
+      ) { |v| cli[:remove] = v }
     end
   end
 

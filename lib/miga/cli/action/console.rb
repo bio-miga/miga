@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Console < MiGA::Cli::Action
-
   def parse_cli
   end
 

@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Ls < MiGA::Cli::Action
-
   def parse_cli
     cli.defaults = { info: false, processing: false, silent: false }
     cli.parse do |opt|
@@ -51,7 +50,7 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
     exit(ds.empty? ? 1 : 0) if cli[:silent]
     if !cli[:datum].nil?
       cli[:tabular] = true
-      format_table(ds, [nil,nil]) { |d| [d.name, d.metadata[cli[:datum]]] }
+      format_table(ds, [nil, nil]) { |d| [d.name, d.metadata[cli[:datum]]] }
     elsif !cli[:fields].nil?
       format_table(ds, [:name] + cli[:fields]) do |d|
         [d.name] + cli[:fields].map { |f| d.metadata[f] }

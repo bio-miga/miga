@@ -4,7 +4,6 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::Date < MiGA::Cli::Action
-
   def parse_cli
     cli.parse { |_| }
   end

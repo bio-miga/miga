@@ -1,13 +1,12 @@
-
 # High-end pipelines for DistanceRunner
 module MiGA::DistanceRunner::Pipeline
-
   # Recursively classify the dataset, returning an Array with two entries:
   # classification and cluster number
   def classify(clades, classif, metric, result_fh, val_cls = nil)
     dir = File.expand_path(classif, clades)
     med = File.expand_path('miga-project.medoids', dir)
-    return [classif,val_cls] unless File.size? med
+    return [classif, val_cls] unless File.size? med
+
     max_val = 0
     val_med = ''
     val_cls = nil
@@ -35,6 +34,7 @@ module MiGA::DistanceRunner::Pipeline
     $stderr.puts "Building medoids tree (metric = #{metric})"
     db = query_db(metric)
     return unless File.size? db
+
     out_base = File.expand_path(dataset.name, home)
     ds_matrix = "#{out_base}.txt"
     ds_matrix_fh = File.open(ds_matrix, 'w')
@@ -43,7 +43,7 @@ module MiGA::DistanceRunner::Pipeline
     seq2 = []
     foreach_in_db(db, metric) do |r|
       seq2 << r[0]
-      ds_matrix_fh.puts r[0,3].join("\t")
+      ds_matrix_fh.puts r[0, 3].join("\t")
     end
     # Find all values among visited datasets in ref_project
     ref_r = ref_project.result("#{metric}_distances") or return
@@ -51,7 +51,8 @@ module MiGA::DistanceRunner::Pipeline
       fh.each_line do |ln|
         r = ln.chomp.split("\t")
         next unless seq2.include?(r[1]) or seq2.include?(r[2])
-        ds_matrix_fh.puts r[1,3].join("\t")
+
+        ds_matrix_fh.puts r[1, 3].join("\t")
       end
     end
     ds_matrix_fh.close
@@ -74,11 +75,12 @@ module MiGA::DistanceRunner::Pipeline
     dataset.add_result(from_ref_project ? :taxonomy : :distances, true)
     cr = dataset.closest_relatives(1, from_ref_project)
     return if cr.nil? or cr.empty?
+
     tax = ref_project.dataset(cr[0][0]).metadata[:tax] || {}
 
     # Run the test for each rank
     tax_test = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax, engine: opts[:aai_p])
-    r = tax_test.map do |k,v|
+    r = tax_test.map do |k, v|
       sig = ''
       [0.5, 0.1, 0.05, 0.01].each { |i| sig << '*' if v < i }
       [MiGA::Taxonomy.LONG_RANKS[k], (tax[k] || '?'), v, sig]
@@ -99,10 +101,11 @@ module MiGA::DistanceRunner::Pipeline
   def transfer_taxonomy(tax)
     $stderr.puts "Transferring taxonomy"
     return if tax.nil?
+
     pval = (project.metadata[:tax_pvalue] || 0.05).to_f
-    tax_a = tax.
-      select { |i| i[1] != '?' && i[2] <= pval }.
-      map { |i| i[0,2].join(':') }
+    tax_a = tax
+            .select { |i| i[1] != '?' && i[2] <= pval }
+            .map { |i| i[0, 2].join(':') }
     dataset.metadata[:tax] = MiGA::Taxonomy.new(tax_a)
     dataset.save
   end

@@ -19,7 +19,8 @@ end
 ani_spp = []
 File.open(pf, 'r') do |fh|
   fh.each_line do |ln|
-    next if $.==1 and ln.chomp == 'G' # <- Legacy check
+    next if $. == 1 and ln.chomp == 'G' # <- Legacy check
+
     ani_spp << ln.chomp.split(',')
   end
 end
@@ -32,10 +33,10 @@ ani_spp.each_with_index do |datasets, i|
     dr = d.result(:essential_genes) or next
     q = dr[:stats][:quality] or next
     if best.nil? or q > best[:q]
-      best = {d: d, q: q}
+      best = { d: d, q: q }
     end
   end
   raise "Unavailable statistics for any of:\n#{datasets}\n" if best.nil?
-  puts "ANIsp_#{i+1}\t#{best[:d].name}"
-end
 
+  puts "ANIsp_#{i + 1}\t#{best[:d].name}"
+end

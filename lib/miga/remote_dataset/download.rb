@@ -1,4 +1,3 @@
-
 require 'miga/remote_dataset/base'
 
 class MiGA::RemoteDataset
@@ -45,8 +44,10 @@ class MiGA::RemoteDataset
     def ncbi_asm_rest(opts)
       url_dir = opts[:obj].ncbi_asm_json_doc['ftppath_genbank']
       url = "#{url_dir}/#{File.basename url_dir}_genomic.fna.gz"
-      download(:web, :assembly_gz, url,
-        opts[:format], opts[:file], opts[:extra], opts[:obj])
+      download(
+        :web, :assembly_gz, url,
+        opts[:format], opts[:file], opts[:extra], opts[:obj]
+      )
     end
 
     ##
@@ -58,8 +59,9 @@ class MiGA::RemoteDataset
     # +extra+: Array
     def download_rest(opts)
       u = @@UNIVERSE[opts[:universe]]
-      url = sprintf(u[:url],
-        opts[:db], opts[:ids].join(','), opts[:format], *opts[:extra])
+      url = sprintf(
+        u[:url], opts[:db], opts[:ids].join(','), opts[:format], *opts[:extra]
+      )
       url = u[:api_key][url] unless u[:api_key].nil?
       download_url url
     end
@@ -80,17 +82,19 @@ class MiGA::RemoteDataset
       rescue => e
         @timeout_try += 1
         raise e if @timeout_try >= 3
+
         retry
       end
       doc
     end
-    
+
     ##
     # Looks for the entry +id+ in +dbfrom+, and returns the linked
     # identifier in +db+ (or nil).
     def ncbi_map(id, dbfrom, db)
       doc = download(:ncbi_map, dbfrom, id, :json, nil, [db])
       return if doc.empty?
+
       tree = MiGA::Json.parse(doc, contents: true)
       [:linksets, 0, :linksetdbs, 0, :links, 0].each do |i|
         tree = tree[i]
@@ -102,11 +106,12 @@ class MiGA::RemoteDataset
 end
 
 module MiGA::RemoteDataset::Download
-
   ##
-  # Download data into +file+.
+  # Download data into +file+
   def download(file)
-    self.class.download(universe, db, ids,
-          self.class.UNIVERSE[universe][:dbs][db][:format], file, [], self)
+    self.class.download(
+      universe, db, ids, self.class.UNIVERSE[universe][:dbs][db][:format],
+      file, [], self
+    )
   end
 end

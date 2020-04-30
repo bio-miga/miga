@@ -14,9 +14,11 @@ class MiGA::RemoteDataset < MiGA::MiGA
   class << self
     def ncbi_asm_acc2id(acc)
       return acc if acc =~ /^\d+$/
+
       search_doc = MiGA::Json.parse(
         download(:ncbi_search, :assembly, acc, :json),
-        symbolize: false, contents: true)
+        symbolize: false, contents: true
+      )
       (search_doc['esearchresult']['idlist'] || []).first
     end
   end
@@ -90,14 +92,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # and optionally the Hash +metadata+.
   def update_metadata(dataset, metadata = {})
     metadata = get_metadata(metadata)
-    metadata.each { |k,v| dataset.metadata[k] = v }
+    metadata.each { |k, v| dataset.metadata[k] = v }
     dataset.save
   end
 
   ##
   # Get metadata from the remote location.
   def get_metadata(metadata_def = {})
-    metadata_def.each { |k,v| @metadata[k] = v }
+    metadata_def.each { |k, v| @metadata[k] = v }
     case universe
     when :ebi, :ncbi, :web
       # Get taxonomy
@@ -131,7 +133,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def get_ncbi_taxonomy
     tax_id = get_ncbi_taxid
     return nil if tax_id.nil?
-    lineage = {ns: 'ncbi'}
+
+    lineage = { ns: 'ncbi' }
     doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
     doc.scan(%r{<Taxon>(.*?)</Taxon>}m).map(&:first).each do |i|
       name = i.scan(%r{<ScientificName>(.*)</ScientificName>}).first.to_a.first
@@ -148,89 +151,99 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get the JSON document describing an NCBI assembly entry.
   def ncbi_asm_json_doc
     return @_ncbi_asm_json_doc unless @_ncbi_asm_json_doc.nil?
+
     metadata[:ncbi_asm] ||= ids.first if universe == :ncbi and db == :assembly
     return nil unless metadata[:ncbi_asm]
+
     ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]
     doc = MiGA::Json.parse(
       self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json),
-      symbolize: false, contents: true)
+      symbolize: false, contents: true
+    )
     @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
   end
 
-
   private
 
-    def get_ncbi_taxid_from_web
-      return nil if ncbi_asm_json_doc.nil?
-      ncbi_asm_json_doc['taxid']
-    end
+  def get_ncbi_taxid_from_web
+    return nil if ncbi_asm_json_doc.nil?
 
-    def get_ncbi_taxid_from_ncbi
-      doc = self.class.download(universe, db, ids, :gb).split(/\n/)
-      ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
-      return nil if ln.nil?
-      ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, '\\1')
-      return nil unless ln =~ /^\d+$/
-      ln
-    end
+    ncbi_asm_json_doc['taxid']
+  end
 
-    def get_ncbi_taxid_from_ebi
-      doc = self.class.download(universe, db, ids, :annot).split(/\n/)
-      ln = doc.grep(%r{^FT\s+/db_xref="taxon:}).first
-      ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
-      return nil if ln.nil?
-      ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, '\\1')
-      return nil unless ln =~ /^\d+$/
-      ln
-    end
+  def get_ncbi_taxid_from_ncbi
+    doc = self.class.download(universe, db, ids, :gb).split(/\n/)
+    ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
+    return nil if ln.nil?
 
-    def get_type_status_ncbi_nuccore(metadata)
-      return metadata if metadata[:ncbi_nuccore].nil?
-      biosample = self.class.ncbi_map(metadata[:ncbi_nuccore],
-        :nuccore, :biosample)
-      return metadata if biosample.nil?
-      asm = self.class.ncbi_map(biosample, :biosample, :assembly)
-      metadata[:ncbi_asm] = asm.to_s unless asm.nil?
-      get_type_status_ncbi_asm metadata
-    end
+    ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, '\\1')
+    return nil unless ln =~ /^\d+$/
 
-    def get_type_status_ncbi_asm(metadata)
-      return metadata if ncbi_asm_json_doc.nil?
-      from_type = ncbi_asm_json_doc['from_type']
-      from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
-      case from_type
-      when nil
-        # Do nothing
-      when ''
-        metadata[:is_type] = false
-        metadata[:is_ref_type] = false
-      when 'assembly from reference material', 'assembly designated as reftype'
-        metadata[:is_type] = false
-        metadata[:is_ref_type] = true
-        metadata[:type_rel] = from_type
-      else
-        metadata[:is_type] = true
-        metadata[:type_rel] = from_type
-      end
-      metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
-      metadata[:suspect] = nil if metadata[:suspect].empty?
-      MiGA.DEBUG "Got type: #{from_type}"
-      metadata
-    end
+    ln
+  end
 
-    def save_assembly_to(project, name, udb)
-      dir = MiGA::Dataset.RESULT_DIRS[:assembly]
-      base = "#{project.path}/data/#{dir}/#{name}"
-      l_ctg = "#{base}.LargeContigs.fna"
-      a_ctg = "#{base}.AllContigs.fna"
-      File.open("#{base}.start", 'w') { |ofh| ofh.puts Time.now.to_s }
-      if udb[:format] == :fasta_gz
-        download "#{l_ctg}.gz"
-        system "gzip -d '#{l_ctg}.gz'"
-      else
-        download l_ctg
-      end
-      File.unlink(a_ctg) if File.exist? a_ctg
-      File.open("#{base}.done", 'w') { |ofh| ofh.puts Time.now.to_s }
+  def get_ncbi_taxid_from_ebi
+    doc = self.class.download(universe, db, ids, :annot).split(/\n/)
+    ln = doc.grep(%r{^FT\s+/db_xref="taxon:}).first
+    ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
+    return nil if ln.nil?
+
+    ln.sub!(/.*(?:"taxon:|NCBI_TaxID=)(\d+)["; ].*/, '\\1')
+    return nil unless ln =~ /^\d+$/
+
+    ln
+  end
+
+  def get_type_status_ncbi_nuccore(metadata)
+    return metadata if metadata[:ncbi_nuccore].nil?
+
+    biosample =
+      self.class.ncbi_map(metadata[:ncbi_nuccore], :nuccore, :biosample)
+    return metadata if biosample.nil?
+
+    asm = self.class.ncbi_map(biosample, :biosample, :assembly)
+    metadata[:ncbi_asm] = asm.to_s unless asm.nil?
+    get_type_status_ncbi_asm metadata
+  end
+
+  def get_type_status_ncbi_asm(metadata)
+    return metadata if ncbi_asm_json_doc.nil?
+
+    from_type = ncbi_asm_json_doc['from_type']
+    from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
+    case from_type
+    when nil
+      # Do nothing
+    when ''
+      metadata[:is_type] = false
+      metadata[:is_ref_type] = false
+    when 'assembly from reference material', 'assembly designated as reftype'
+      metadata[:is_type] = false
+      metadata[:is_ref_type] = true
+      metadata[:type_rel] = from_type
+    else
+      metadata[:is_type] = true
+      metadata[:type_rel] = from_type
     end
+    metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
+    metadata[:suspect] = nil if metadata[:suspect].empty?
+    MiGA.DEBUG "Got type: #{from_type}"
+    metadata
+  end
+
+  def save_assembly_to(project, name, udb)
+    dir = MiGA::Dataset.RESULT_DIRS[:assembly]
+    base = "#{project.path}/data/#{dir}/#{name}"
+    l_ctg = "#{base}.LargeContigs.fna"
+    a_ctg = "#{base}.AllContigs.fna"
+    File.open("#{base}.start", 'w') { |ofh| ofh.puts Time.now.to_s }
+    if udb[:format] == :fasta_gz
+      download "#{l_ctg}.gz"
+      system "gzip -d '#{l_ctg}.gz'"
+    else
+      download l_ctg
+    end
+    File.unlink(a_ctg) if File.exist? a_ctg
+    File.open("#{base}.done", 'w') { |ofh| ofh.puts Time.now.to_s }
+  end
 end

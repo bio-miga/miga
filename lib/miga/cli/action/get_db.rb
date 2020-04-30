@@ -7,7 +7,6 @@ require 'digest/md5'
 require 'open-uri'
 
 class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
-
   def parse_cli
     cli.defaults = {
       database: :recommended,
@@ -81,6 +80,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     cli.say "Connecting to '#{cli[:host]}'"
     uri = URI.parse(cli[:host])
     raise 'Only FTP hosts are supported' unless uri.scheme == 'ftp'
+
     ftp = Net::FTP.new(uri.host)
     ftp.passive = true
     ftp.login
@@ -113,11 +113,13 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     [:recommended, :test].each do |n|
       if cli[:database] == n
         raise "This host has no #{n} database" if manif[n].nil?
+
         cli[:database] = manif[n].to_sym
       end
     end
     db = manif[:databases][cli[:database]]
     raise 'Cannot find database in this host' if db.nil?
+
     db
   end
 
@@ -127,12 +129,14 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     end
     ver = db[:versions][cli[:version]]
     raise 'Cannot find database version' if ver.nil?
+
     cli.puts "# Database size: #{version_size(ver)}"
     ver
   end
 
   def list_databases(manif)
     return false unless cli[:list_databases]
+
     cli.puts "# Recommended database: #{manif[:recommended]}"
     cli.puts ''
     cli.table(
@@ -146,6 +150,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def list_versions(db)
     return false unless cli[:list_versions]
+
     cli.puts "# Database: #{cli[:database]}"
     cli.puts ''
     cli.table(
@@ -159,6 +164,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def check_target
     return false if cli[:overwrite]
+
     file = File.expand_path(cli[:database], cli[:local])
     if Dir.exist? file
       warn "The target directory already exists: #{file}"
@@ -201,7 +207,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     reg[:databases][cli[:database]] ||= {}
     reg[:databases][cli[:database]][:manif_last_update] = manif[:last_update]
     reg[:databases][cli[:database]][:manif_host] = manif[:host]
-    db.each { |k,v| reg[:databases][cli[:database]][k] = v }
+    db.each { |k, v| reg[:databases][cli[:database]][k] = v }
     reg[:databases][cli[:database]][:local_version] = ver
     MiGA::Json.generate(reg, local_manif)
   end

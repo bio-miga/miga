@@ -1,7 +1,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-module MiGA::Cli::OptHelper 
+module MiGA::Cli::OptHelper
   ##
   # Send MiGA's banner to OptionParser +opt+
   def banner(opt)
@@ -19,6 +19,7 @@ module MiGA::Cli::OptHelper
   # Executes only once, unless +#opt_common = true+ is passed between calls
   def opt_common(opt)
     return unless @opt_common
+
     if interactive
       opt.on(
         '--auto',
@@ -159,6 +160,6 @@ module MiGA::Cli::OptHelper
   # If +sym+ is nil, +flag+ is used as Symbol
   def opt_flag(opt, flag, description, sym = nil)
     sym = flag.to_sym if sym.nil?
-    opt.on("--#{flag.to_s.gsub('_','-')}", description) { |v| self[sym] = v }
+    opt.on("--#{flag.to_s.gsub('_', '-')}", description) { |v| self[sym] = v }
   end
 end

@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name	= 'miga-base'
   s.version	= MiGA::MiGA.FULL_VERSION
   s.date	= MiGA::MiGA.VERSION_DATE.to_s
-  
+
   # Metadata
   s.license	= 'Artistic-2.0'
   s.summary	= 'MiGA'
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.authors	= ['Luis M. Rodriguez-R']
   s.email	= 'lmrodriguezr@gmail.com'
   s.homepage	= 'http://enve-omics.ce.gatech.edu/miga'
-  
+
   # Files
   s.files = Dir[
     'lib/**/*.rb', 'test/**/*.rb', 'lib/miga/_data/**/*',
@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
     'Gemfile', 'Rakefile', 'README.md', 'LICENSE'
   ]
   s.executables	<< 'miga'
-  
+
   # Dependencies
   s.add_runtime_dependency 'daemons', '~> 1.3'
   s.add_runtime_dependency 'json', '~> 2'
@@ -37,5 +37,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake', '~> 12'
   s.add_development_dependency 'test-unit', '~> 3'
   s.add_development_dependency 'assertions', '~> 1'
-
 end

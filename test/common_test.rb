@@ -1,9 +1,8 @@
 require 'test_helper'
 
 class CommonTest < Test::Unit::TestCase
-
   def setup
-    #$jruby_tests = !ENV["JRUBY_TESTS"].nil?
+    # $jruby_tests = !ENV["JRUBY_TESTS"].nil?
   end
 
   def test_debug
@@ -28,7 +27,7 @@ class CommonTest < Test::Unit::TestCase
     assert_respond_to(MiGA::MiGA, :DEBUG)
     assert_respond_to(MiGA::MiGA, :DEBUG_ON)
     assert_respond_to(MiGA::MiGA, :DEBUG_OFF)
-    #omit_if($jruby_tests, "JRuby doesn't like interceptions.")
+    # omit_if($jruby_tests, "JRuby doesn't like interceptions.")
     MiGA::MiGA.DEBUG_TRACE_ON
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandadi'
@@ -79,5 +78,4 @@ class CommonTest < Test::Unit::TestCase
     assert_not_predicate('C3-PO', :miga_name?)
     assert_equal("123\n1\n", '1231'.wrap_width(3))
   end
-
 end

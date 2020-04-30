@@ -4,15 +4,14 @@
 require 'miga/cli/action'
 
 class MiGA::Cli::Action::AddResult < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {force: false}
+    cli.defaults = { force: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt, :result])
       opt.on(
         '-f', '--force',
         'Force re-indexing of the result even if it\'s already registered'
-        ){ |v| cli[:force] = v }
+      ) { |v| cli[:force] = v }
     end
   end
 

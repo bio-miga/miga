@@ -2,7 +2,6 @@ require 'test_helper'
 require 'miga/tax_index'
 
 class TaxIndexTest < Test::Unit::TestCase
-
   def test_initialization
     ti = MiGA::TaxIndex.new
     assert_equal(:root, ti.root.rank)
@@ -40,5 +39,4 @@ class TaxIndexTest < Test::Unit::TestCase
     ti = MiGA::TaxIndex.new
     assert_equal("root:biota: 0\n", ti.to_tab)
   end
-
 end

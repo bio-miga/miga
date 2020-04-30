@@ -11,12 +11,11 @@ require 'miga/common/format'
 # Generic class used to handle system-wide information and methods, and parent
 # of all other MiGA::* classes.
 class MiGA::MiGA
-
   include MiGA::Common
-  
+
   extend MiGA::Common::Path
   extend MiGA::Common::Format
-  
+
   ENV['MIGA_HOME'] ||= ENV['HOME']
 
   ##
@@ -45,6 +44,4 @@ class MiGA::MiGA
     io = par.first.is_a?(IO) ? par.shift : $stderr
     io.puts(*par.map { |i| "[#{Time.now}] #{i}" })
   end
-
 end
-

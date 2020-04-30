@@ -5,19 +5,18 @@ require 'miga/cli/action'
 require 'miga/tax_dist'
 
 class MiGA::Cli::Action::TaxTest < MiGA::Cli::Action
-
   def parse_cli
-    cli.defaults = {test: 'both', ref_project: false}
+    cli.defaults = { test: 'both', ref_project: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset])
       opt.on(
         '--ref-project',
         'Use the taxonomy from the reference project, not the current project'
-        ){ |v| cli[:ref_project] = v }
+      ) { |v| cli[:ref_project] = v }
       opt.on(
         '-t', '--test STRING',
         'Test to perform. Supported values: intax, novel, both'
-        ){ |v| cli[:test] = v.downcase }
+      ) { |v| cli[:test] = v.downcase }
     end
   end
 
@@ -27,6 +26,7 @@ class MiGA::Cli::Action::TaxTest < MiGA::Cli::Action
     cr = d.closest_relatives(1, cli[:ref_project])
     if cr.nil? or cr.empty?
       raise 'Action not supported for the project or dataset' if cr.nil?
+
       raise 'No close relatives found'
     else
       query_probability_distributions(d, cr[0])
@@ -65,6 +65,7 @@ class MiGA::Cli::Action::TaxTest < MiGA::Cli::Action
       if (q = MiGA::Project.load(ref)).nil?
         raise '--ref-project requested but reference project doesn\'t exist'
       end
+
       cr_d = q.dataset(cr[0])
     else
       cr_d = p.dataset(cr[0])
@@ -75,7 +76,7 @@ class MiGA::Cli::Action::TaxTest < MiGA::Cli::Action
   end
 
   def test_closest_relative(cr, tax, test)
-    TaxDist.aai_pvalues(cr[1], test).map do |k,v|
+    TaxDist.aai_pvalues(cr[1], test).map do |k, v|
       sig = ''
       [0.5, 0.1, 0.05, 0.01].each { |i| sig << '*' if v < i }
       [Taxonomy.LONG_RANKS[k], (tax[k] || '?'), v, sig]

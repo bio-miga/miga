@@ -1,11 +1,9 @@
-
 require 'zlib'
 require 'miga/result/base'
 
 ##
 # Helper module including stats-specific functions for results
 module MiGA::Result::Stats
-
   ##
   # (Re-)calculate and save the statistics for the result
   def compute_stats
@@ -28,7 +26,8 @@ module MiGA::Result::Stats
         reads: s[:n],
         length_average: [s[:avg], 'bp'],
         length_standard_deviation: [s[:sd], 'bp'],
-        g_c_content: [s[:gc], '%']}
+        g_c_content: [s[:gc], '%']
+      }
     else
       s1 = MiGA::MiGA.seqs_length(file_path(:pair1), :fastq, gc: true)
       s2 = MiGA::MiGA.seqs_length(file_path(:pair2), :fastq, gc: true)
@@ -39,7 +38,8 @@ module MiGA::Result::Stats
         forward_g_c_content: [s1[:gc], '%'],
         reverse_length_average: [s2[:avg], 'bp'],
         reverse_length_standard_deviation: [s2[:sd], 'bp'],
-        reverse_g_c_content: [s2[:gc], '%']}
+        reverse_g_c_content: [s2[:gc], '%']
+      }
     end
     stats
   end
@@ -56,8 +56,9 @@ module MiGA::Result::Stats
   end
 
   def compute_stats_assembly
-    s = MiGA::MiGA.seqs_length(file_path(:largecontigs), :fasta,
-      n50: true, gc: true)
+    s = MiGA::MiGA.seqs_length(
+      file_path(:largecontigs), :fasta, n50: true, gc: true
+    )
     {
       contigs: s[:n],
       n50: [s[:n50], 'bp'],
@@ -70,7 +71,8 @@ module MiGA::Result::Stats
     s = MiGA::MiGA.seqs_length(file_path(:proteins), :fasta)
     stats = {
       predicted_proteins: s[:n],
-      average_length: [s[:avg], 'aa']}
+      average_length: [s[:avg], 'aa']
+    }
     asm = source.result(:assembly)
     unless asm.nil? or asm[:stats][:total_length].nil?
       stats[:coding_density] =
@@ -92,7 +94,7 @@ module MiGA::Result::Stats
   def compute_stats_essential_genes
     stats = {}
     if source.is_multi?
-      stats = {median_copies: 0, mean_copies: 0}
+      stats = { median_copies: 0, mean_copies: 0 }
       File.open(file_path(:report), 'r') do |fh|
         fh.each_line do |ln|
           if /^! (Mean|Median) number of copies per model: (.*)\./.match(ln)
@@ -103,8 +105,8 @@ module MiGA::Result::Stats
     else
       # Fix estimate by domain
       if !(tax = source.metadata[:tax]).nil? &&
-            %w[Archaea Bacteria].include?(tax[:d]) &&
-            file_path(:raw_report).nil?
+         %w[Archaea Bacteria].include?(tax[:d]) &&
+         file_path(:raw_report).nil?
         scr = "#{MiGA::MiGA.root_path}/utils/domain-ess-genes.rb"
         rep = file_path(:report)
         rc_p = File.expand_path('.miga_rc', ENV['HOME'])
@@ -115,7 +117,7 @@ module MiGA::Result::Stats
         add_file(:report, "#{source.name}.ess/log.domain")
       end
       # Extract/compute quality values
-      stats = {completeness: [0.0, '%'], contamination: [0.0, '%']}
+      stats = { completeness: [0.0, '%'], contamination: [0.0, '%'] }
       File.open(file_path(:report), 'r') do |fh|
         fh.each_line do |ln|
           if /^! (Completeness|Contamination): (.*)%/.match(ln)
@@ -124,22 +126,24 @@ module MiGA::Result::Stats
         end
       end
       stats[:quality] = stats[:completeness][0] - stats[:contamination][0] * 5
-      source.metadata[:quality] = case stats[:quality]
-        when 80..100 ; :excellent
-        when 50..80  ; :high
-        when 20..50  ; :intermediate
-        else         ; :low
-      end
+      source.metadata[:quality] =
+        case stats[:quality]
+        when 80..100; :excellent
+        when 50..80; :high
+        when 20..50; :intermediate
+        else; :low
+        end
       source.save
     end
     stats
   end
 
   def compute_stats_ssu
-    stats = {ssu: 0, complete_ssu: 0}
+    stats = { ssu: 0, complete_ssu: 0 }
     Zlib::GzipReader.open(file_path(:gff)) do |fh|
       fh.each_line do |ln|
         next if ln =~ /^#/
+
         rl = ln.chomp.split("\t")
         len = (rl[4].to_i - rl[3].to_i).abs + 1
         stats[:max_length] = [stats[:max_length] || 0, len].max
@@ -158,8 +162,9 @@ module MiGA::Result::Stats
       stats[:aai] = [$2.to_f, '%']
       3.times { fh.gets }
       fh.each_line do |ln|
-        row = ln.chomp.gsub(/^\s*/,'').split(/\s+/)
+        row = ln.chomp.gsub(/^\s*/, '').split(/\s+/)
         break if row.empty?
+
         stats[:"#{row[0]}_pvalue"] = row[2].to_f unless row[0] == 'root'
       end
     end

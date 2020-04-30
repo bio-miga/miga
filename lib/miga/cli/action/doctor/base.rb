@@ -1,4 +1,3 @@
-
 require 'miga/cli/action'
 require 'sqlite3'
 
@@ -33,8 +32,10 @@ module MiGA::Cli::Action::Doctor::Base
       lineno = 0
       fh.each_line do |ln|
         next if (lineno += 1) == 1
+
         r = ln.split("\t")
         next unless [1, 2].map { |i| p.dataset(r[i]).nil? }.any?
+
         [1, 2].each do |i|
           if p.dataset(r[i]).nil? || !p.dataset(r[i]).active?
             notok[r[i]] = true
@@ -53,6 +54,7 @@ module MiGA::Cli::Action::Doctor::Base
   # This is a subtask of +check_dist+
   def check_dist_fix(cli, p, fix)
     return if fix.empty?
+
     cli.say("- Fixing #{fix.size} datasets")
     fix.each do |d_n|
       cli.say "  > Fixing #{d_n}."
@@ -66,6 +68,7 @@ module MiGA::Cli::Action::Doctor::Base
   # This is a subtask of +check_dist+
   def check_dist_recompute(cli, res, notok)
     return if notok.empty?
+
     cli.say '- Unregistered datasets detected: '
     if notok.size <= 5
       notok.each { |i| cli.say "  > #{i}" }
@@ -76,4 +79,3 @@ module MiGA::Cli::Action::Doctor::Base
     res.remove!
   end
 end
-

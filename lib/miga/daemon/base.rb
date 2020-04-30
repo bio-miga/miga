@@ -1,11 +1,9 @@
-
 require 'shellwords'
 
 class MiGA::Daemon < MiGA::MiGA
 end
 
 module MiGA::Daemon::Base
-
   ##
   # Set/get #options, where +k+ is the Symbol of the option and +v+ is the value
   # (or nil to use as getter). Skips consistency tests if +force+. Returns new

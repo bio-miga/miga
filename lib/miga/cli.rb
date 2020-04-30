@@ -7,7 +7,6 @@ require 'optparse'
 ##
 # MiGA Command Line Interface API.
 class MiGA::Cli < MiGA::MiGA
-
   require 'miga/cli/base'
   require 'miga/cli/opt_helper'
   require 'miga/cli/objects_helper'
@@ -61,7 +60,7 @@ class MiGA::Cli < MiGA::MiGA
 
   def initialize(argv)
     @data = {}
-    @defaults = {verbose: false, tabular: false}
+    @defaults = { verbose: false, tabular: false }
     @opt_common = true
     @objects = {}
     if argv[0].nil? or argv[0].to_s[0] == '-'
@@ -106,6 +105,7 @@ class MiGA::Cli < MiGA::MiGA
   # otherwise it's sent to +$stderr+
   def say(*par)
     return unless self[:verbose]
+
     super(*par)
   end
 
@@ -116,16 +116,17 @@ class MiGA::Cli < MiGA::MiGA
   # The report goes to $stderr iff --verborse
   def advance(step, n = 0, total = nil, bin = true)
     return unless self[:verbose]
+
     adv = total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
       ('%.1f%% (%s/%s)' % [100.0 * n / total,
-        num_suffix(n, bin), num_suffix(total, bin)])
+                           num_suffix(n, bin), num_suffix(total, bin)])
     $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
   end
 
   def num_suffix(n, bin = false)
     p = ''
-    {T: 4, G: 3, M: 2, K: 1}.each do |k,x|
-      v = (bin ? 1024 : 1e3) ** x
+    { T: 4, G: 3, M: 2, K: 1 }.each do |k, x|
+      v = (bin ? 1024 : 1e3)**x
       if n > v
         n = '%.1f' % (n / v)
         p = k
@@ -160,7 +161,7 @@ class MiGA::Cli < MiGA::MiGA
   ##
   # Set default values in the Hash +hsh+
   def defaults=(hsh)
-    hsh.each{ |k,v| @defaults[k] = v }
+    hsh.each { |k, v| @defaults[k] = v }
   end
 
   ##
@@ -192,6 +193,7 @@ class MiGA::Cli < MiGA::MiGA
   def launch
     begin
       raise "See `miga -h`" if action.nil?
+
       action.launch
     rescue => err
       $stderr.puts "Exception: #{err}"
@@ -222,8 +224,8 @@ class MiGA::Cli < MiGA::MiGA
   # +par+, a Hash with object names as keys and parameter flag as values.
   # If missing, raise an error with message +msg+
   def ensure_par(req, msg = '%<name>s is mandatory: please provide %<flag>s')
-    req.each do |k,v|
-      raise (msg % {name: k, flag: v}) if self[k].nil?
+    req.each do |k, v|
+      raise (msg % { name: k, flag: v }) if self[k].nil?
     end
   end
 

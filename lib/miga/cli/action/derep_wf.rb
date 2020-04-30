@@ -44,12 +44,13 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
   def perform
     # Input data
     p = create_project(:assembly,
-      { run_project_stats: false, run_clades: false,
-        gsp_metric: cli[:metric], :"gsp_#{cli[:metric]}" => cli[:threshold] },
-      { run_mytaxa_scan: false, run_ssu: false })
+                       { run_project_stats: false, run_clades: false,
+                         gsp_metric: cli[:metric], :"gsp_#{cli[:metric]}" => cli[:threshold] },
+                       { run_mytaxa_scan: false, run_ssu: false })
     unless cli[:threshold] >= 0.0 && cli[:threshold] <= 100.0
       raise "The threshold of identity must be in the range [0,100]"
     end
+
     # Run
     run_daemon
     dereplicate(p)
@@ -68,7 +69,7 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
     File.open(File.expand_path('genomospecies.tsv', cli[:outdir]), 'w') do |fh|
       fh.puts "Clade\tRepresentative\tMembers"
       clades.each_with_index do |i, k|
-        fh.puts ["gsp_#{k+1}", rep[k], i.join(',')].join("\t")
+        fh.puts ["gsp_#{k + 1}", rep[k], i.join(',')].join("\t")
       end
     end
     if cli[:collection]

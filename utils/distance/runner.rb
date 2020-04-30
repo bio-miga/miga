@@ -1,13 +1,10 @@
-
 require_relative 'base.rb'
 require_relative 'temporal.rb'
 require_relative 'database.rb'
 require_relative 'commands.rb'
 require_relative 'pipeline.rb'
 
-
 class MiGA::DistanceRunner
-
   include MiGA::DistanceRunner::Temporal
   include MiGA::DistanceRunner::Database
   include MiGA::DistanceRunner::Commands
@@ -16,7 +13,7 @@ class MiGA::DistanceRunner
   attr_reader :project, :ref_project, :dataset, :opts, :home
   attr_reader :tmp, :tmp_dbs, :dbs, :db_counts
 
-  def initialize(project_path, dataset_name, opts_hash={})
+  def initialize(project_path, dataset_name, opts_hash = {})
     @opts = opts_hash
     @project = MiGA::Project.load(project_path) or
       raise "No project at #{project_path}"
@@ -30,7 +27,7 @@ class MiGA::DistanceRunner
     @opts[:aai_save_rbm] ||= ENV.fetch('MIGA_AAI_SAVE_RBM') do
       project.is_clade? ? 'save-rbm' : 'no-save-rbm'
     end
-    @opts[:thr] ||= ENV.fetch('CORES'){ 2 }.to_i
+    @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
     if opts[:run_taxonomy] and project.metadata[:ref_project]
       ref_path = project.metadata[:ref_project]
       @home = File.expand_path('05.taxonomy', @home)
@@ -60,6 +57,7 @@ class MiGA::DistanceRunner
   def go!
     $stderr.puts "Launching analysis"
     return if dataset.is_multi?
+
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
       create_temporals
@@ -76,12 +74,13 @@ class MiGA::DistanceRunner
     # first-come-first-serve traverse
     ref_project.each_dataset do |ds|
       next if !ds.is_ref? or ds.is_multi? or ds.result(:essential_genes).nil?
+
       puts "[ #{Time.now} ] #{ds.name}"
       ani_after_aai(ds)
     end
 
     # Finalize
-    [:haai, :aai, :ani].each{ |m| checkpoint! m if db_counts[m] > 0 }
+    [:haai, :aai, :ani].each { |m| checkpoint! m if db_counts[m] > 0 }
   end
 
   ##
@@ -104,14 +103,15 @@ class MiGA::DistanceRunner
     # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
     par_dir = File.dirname(File.expand_path(classif, res.dir))
     par = File.expand_path('miga-project.classif', par_dir)
-    closest = {dataset: nil, ani: 0.0}
+    closest = { dataset: nil, ani: 0.0 }
     if File.size? par
       File.open(par, 'r') do |fh|
         fh.each_line do |ln|
           r = ln.chomp.split("\t")
           next unless r[1].to_i == val_cls
+
           ani = ani_after_aai(ref_project.dataset(r[0]), 80.0)
-          closest = {ds: r[0], ani: ani} unless ani.nil? or ani < closest[:ani]
+          closest = { ds: r[0], ani: ani } unless ani.nil? or ani < closest[:ani]
         end
       end
     end
@@ -119,14 +119,14 @@ class MiGA::DistanceRunner
     # Calculate all the AAIs/ANIs against the closest ANI95-clade (if AAI > 80%)
     cl_path = res.file_path :clades_ani95
     if !cl_path.nil? and File.size? cl_path and tsk[0] == :clade_finding
-      File.foreach(cl_path).
-        map  { |i| i.chomp.split(',') }.
-        find( lambda{[]} ){ |i| i.include? closest[:ds] }.
-        each { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
+      File.foreach(cl_path)
+          .map { |i| i.chomp.split(',') }
+          .find(lambda { [] }) { |i| i.include? closest[:ds] }
+          .each { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
     end
 
     # Finalize
-    [:haai, :aai, :ani].each{ |m| checkpoint! m if db_counts[m] > 0 }
+    [:haai, :aai, :ani].each { |m| checkpoint! m if db_counts[m] > 0 }
     build_medoids_tree(tsk[1])
     transfer_taxonomy(tax_test)
   end
@@ -135,6 +135,7 @@ class MiGA::DistanceRunner
   def go_taxonomy!
     $stderr.puts "Launching taxonomy analysis"
     return unless project.metadata[:ref_project]
+
     go_query! # <- yeah, it's actually the same, just different ref_project
   end
 end

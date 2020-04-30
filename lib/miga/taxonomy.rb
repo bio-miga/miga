@@ -45,6 +45,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     when Hash
       value.each do |r, n|
         next if n.nil? || n == ''
+
         @ranks[self.class.normalize_rank(r)] = n.tr('_', ' ')
       end
     when Array
@@ -87,6 +88,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # the alternative (or master) is replaced instead if +replace+ is true.
   def add_alternative(tax, replace = true)
     raise 'Unsupported taxonomy class.' unless tax.is_a? MiGA::Taxonomy
+
     alt_ns = alternative(tax.namespace)
     if !replace || tax.namespace.nil? || alt_ns.nil?
       @alt << tax
@@ -96,7 +98,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   end
 
   ##
-  # Removes (and returns) all alternative taxonomies. 
+  # Removes (and returns) all alternative taxonomies.
   def delete_alternative
     alt = @alt.dup
     @alt = []
@@ -109,6 +111,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   def in?(taxon)
     r = taxon.ranks.keys.first
     return false if self[r].nil?
+
     self[r].casecmp(taxon[r]).zero?
   end
 
@@ -120,6 +123,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     @@KNOWN_RANKS.map do |r|
       next if
         (r == :ns && !with_namespace) || (ranks[r].nil? && !force_ranks)
+
       [r, ranks[r]]
     end.compact
   end
@@ -179,6 +183,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     unless ranks.size == str.size
       raise "Unequal number of ranks and names: #{ranks} => #{str}"
     end
+
     str.each_with_index { |i, k| self << "#{ranks[k]}:#{i}" }
   end
 end
