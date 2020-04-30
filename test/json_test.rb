@@ -35,7 +35,9 @@ class JsonTest < Test::Unit::TestCase
   end
 
   def test_generate
-    assert_equal("{\n  \"a\": 1,\n  \"b\": 2\n}",
-                 MiGA::Json.generate({ a: 1, b: 2 }))
+    assert_equal(
+      "{\n  \"a\": 1,\n  \"b\": 2\n}",
+      MiGA::Json.generate({ a: 1, b: 2 })
+    )
   end
 end

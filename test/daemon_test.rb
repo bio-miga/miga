@@ -2,28 +2,25 @@ require 'test_helper'
 require 'miga/daemon'
 
 class DaemonTest < Test::Unit::TestCase
+  include TestHelper
+
   def setup
-    $jruby_tests = !ENV['JRUBY_TESTS'].nil?
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV['MIGA_HOME']))
-    daemon_json = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
-    File.open(daemon_json, 'w') do |fh|
-      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ",
-        "var":"{{key}}={{value}}","cmd":"echo {{task_name}} >/dev/null",
-        "alive":"echo 1 # {{pid}}","type":"bash","format_version":1}'
-    end
-    $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
-    $d1 = MiGA::Daemon.new($p1)
+    initialize_miga_home(
+      <<~DAEMON
+        { "maxjobs": 1, "ppn": 1, "latency": 2, "varsep": " ",
+          "var": "{{key}}={{value}}", "cmd": "echo {{task_name}} >/dev/null",
+          "alive": "echo 1 # {{pid}}", "type": "bash", "format_version": 1 }
+      DAEMON
+    )
   end
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV['MIGA_HOME'] = nil
+  def daemon(i = 0)
+    @daemon ||= []
+    @daemon[i] ||= MiGA::Daemon.new(project(i))
   end
 
-  def helper_datasets_with_results(n = 1)
-    p1 = $p1
+  def helper_datasets_with_results(n = 1, project_i = 0)
+    p1 = project(project_i)
     Array.new(n) do |i|
       d = "d#{i}"
       FileUtils.touch(File.expand_path(
@@ -39,30 +36,30 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_check_project
-    d1 = $d1
-    helper_datasets_with_results.first.inactivate!
-    out = capture_stderr { d1.check_project }
-    assert_match(/Queueing miga-project:p/, out.string)
+    d1 = daemon(1)
+    helper_datasets_with_results(1, 1).first.inactivate!
+    out = capture_stderr { d1.check_project }.string
+    assert_match(/Queueing miga-project:p/, out)
     assert_equal(1, d1.jobs_to_run.size)
     assert_equal(:p, d1.jobs_to_run.first[:job])
     assert_equal('project1:p:miga-project', d1.get_job(:p)[:task_name])
   end
 
   def test_check_datasets
-    p = $p1
-    d = $d1
+    p = project
+    d = daemon
     d.runopts(:maxjobs, 0, true)
     assert_empty(d.jobs_to_run)
     ds = p.add_dataset('ds1')
     d.check_datasets
     assert_empty(d.jobs_to_run)
     FileUtils.cp(
-      File.expand_path('daemon/daemon.json', p.path),
-      File.expand_path('data/01.raw_reads/ds1.1.fastq', p.path)
+      File.join(p.path, 'daemon/daemon.json'),
+      File.join(p.path, 'data/01.raw_reads/ds1.1.fastq')
     )
     FileUtils.cp(
-      File.expand_path('daemon/daemon.json', p.path),
-      File.expand_path('data/01.raw_reads/ds1.done', p.path)
+      File.join(p.path, 'daemon/daemon.json'),
+      File.join(p.path, 'data/01.raw_reads/ds1.done')
     )
     ds.first_preprocessing(true)
     out = capture_stderr do
@@ -70,13 +67,13 @@ class DaemonTest < Test::Unit::TestCase
     end
     assert_match(/Queueing #{ds.name}:d/, out.string)
     assert_equal(1, d.jobs_to_run.size)
-    assert_equal('echo project1:d:ds1 >/dev/null', d.jobs_to_run.first[:cmd])
+    assert_equal('echo project0:d:ds1 >/dev/null', d.jobs_to_run.first[:cmd])
     assert_equal(d.jobs_to_run.first, d.get_job(:d, ds))
   end
 
   def test_in_loop
-    p = $p1
-    d = $d1
+    p = project
+    d = daemon
     d.runopts(:latency, 0, true)
     assert_nil(d.loop_i)
     assert_nil(d.last_alive)
@@ -91,12 +88,13 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_start
-    p = $p1
-    d = $d1
+    p = project
+    d = daemon
     d.runopts(:latency, 0, true)
     assert_equal(0, d.latency)
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
-    child = $child = d.daemon(:start, ['--shush'])
+
+    declare_forks
+    child = d.daemon(:start, ['--shush'])
     assert_not_nil(child)
     assert_gt(child, 1)
     assert_equal(0, `ps -p "#{child}" -o ppid=`.strip.to_i,
@@ -118,23 +116,24 @@ class DaemonTest < Test::Unit::TestCase
     }.each { |k, v| assert_match(v, l[k], "unexpected line: #{k}") }
   ensure
     begin
-      Process.kill('KILL', $child) if !$child.nil?
+      Process.kill('KILL', child) unless child.nil?
     rescue Errno::ESRCH
       false
     end
   end
 
   def test_last_alive
-    p = MiGA::Project.new(File.expand_path('last_alive', $tmp))
+    p = MiGA::Project.new(tmpfile('last_alive'))
     d = MiGA::Daemon.new(p)
     assert_nil(d.last_alive)
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+
+    declare_forks
     d.declare_alive
     assert_lt(d.last_alive, Time.now)
   end
 
   def test_options
-    d1 = $d1
+    d1 = daemon
     assert_respond_to(d1, :default_options)
     assert_equal(:normal, d1.default_options[:dir_mode])
     assert_equal(2, d1.runopts(:latency))
@@ -150,17 +149,17 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_say
-    out = capture_stderr { $d1.say 'Olm' }.string
+    out = capture_stderr { daemon.say 'Olm' }.string
     assert_match(/^\[.*\] Olm/, out)
   end
 
   def test_terminate
-    d = $d1
+    d = daemon
     assert_not_predicate(d, :active?)
     assert_path_not_exist(d.alive_file)
     assert_path_not_exist(d.terminated_file)
 
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+    declare_forks
     d.declare_alive
     assert_predicate(d, :active?)
     assert_not_nil(d.last_alive)
@@ -175,7 +174,7 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_maxjobs_json
-    d1 = $d1
+    d1 = daemon
     helper_datasets_with_results(3)
     assert_equal(0, d1.jobs_running.size)
     assert_equal(0, d1.jobs_to_run.size)
@@ -185,7 +184,7 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_maxjobs_runopts
-    d1 = $d1
+    d1 = daemon
     helper_datasets_with_results(3)
     d1.runopts(:maxjobs, 2)
     assert_equal(0, d1.jobs_running.size)
@@ -196,8 +195,8 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_load_status
-    d1 = $d1
-    p1 = $p1
+    d1 = daemon
+    p1 = project
     assert_equal(0, d1.jobs_running.size)
     assert_nil(d1.load_status)
     assert_equal(0, d1.jobs_running.size)
@@ -214,8 +213,8 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_flush
-    d1 = $d1
-    p1 = $p1
+    d1 = daemon
+    p1 = project
     helper_datasets_with_results
     p1.add_dataset(MiGA::Dataset.new(p1, 'd1').name)
     MiGA::Project.RESULT_DIRS.keys.each { |i| p1.metadata["run_#{i}"] = false }
@@ -234,8 +233,8 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_next_host
-    d1 = $d1
-    f = File.join($tmp, 'nodes.txt')
+    d1 = daemon
+    f = tmpfile('nodes.txt')
     File.open(f, 'w') { |h| h.puts 'localhost' }
     assert_equal(true, d1.next_host)
     out = capture_stderr { d1.runopts(:nodelist, f) }.string
@@ -243,7 +242,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(true, d1.next_host)
     d1.runopts(:type, 'ssh')
     assert_equal(0, d1.next_host)
-    f = File.join($p1.path, 'daemon', 'status.json')
+    f = File.join(project.path, 'daemon', 'status.json')
     File.open(f, 'w') do |h|
       h.puts '{"jobs_running":[{"job":"p","hostk":0}], "jobs_to_run":[]}'
     end
@@ -252,60 +251,61 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_shutdown_when_done
-    $d1.runopts(:shutdown_when_done, true)
-    out = capture_stderr { assert { !$d1.in_loop } }.string
+    daemon.runopts(:shutdown_when_done, true)
+    out = capture_stderr { assert { !daemon.in_loop } }.string
     assert_match(/Nothing else to do/, out)
   end
 
   def test_update_format_0
-    f = File.join($tmp, 'daemon.json')
+    f = tmpfile('daemon.json')
     File.open(f, 'w') do |fh|
       fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ",
         "var":"%1$s=%1$s","cmd":"echo %1$s","alive":"echo %1$d","type":"bash"}'
     end
-    d2 = MiGA::Daemon.new($p1, f)
+    d2 = MiGA::Daemon.new(project, f)
     assert_equal('echo {{script}}', d2.runopts(:cmd))
     assert_equal('echo {{pid}}', d2.runopts(:alive))
   end
 
   def test_launch_job_bash
-    t = File.join($tmp, 'launch_job_bash')
-    $d1.runopts(:type, 'bash')
-    $d1.runopts(:cmd, "echo {{task_name}} > '#{t}'")
+    t = tmpfile('launch_job_bash')
+    daemon.runopts(:type, 'bash')
+    daemon.runopts(:cmd, "echo {{task_name}} > '#{t}'")
     helper_daemon_launch_job
-    assert_equal("project1:p:miga-project\n", File.read(t))
+    assert_equal("project0:p:miga-project\n", File.read(t))
   end
 
   def test_launch_job_ssh
-    d1 = $d1
-    t = File.join($tmp, 'launch_job_ssh')
+    d1 = daemon(1)
+    t = tmpfile('launch_job_ssh')
     d1.runopts(:type, 'ssh')
     d1.runopts(:cmd, "echo {{task_name}} > '#{t}'")
-    f = File.join($tmp, 'nodes.txt')
+    f = tmpfile('nodes.txt')
     File.open(f, 'w') { |h| h.puts 'localhost' }
     assert_raise('Unset environment variable: $MIGA_TEST_NODELIST') do
       d1.runopts(:nodelist, '$MIGA_TEST_NODELIST')
     end
     ENV['MIGA_TEST_NODELIST'] = f
     capture_stderr { d1.runopts(:nodelist, '$MIGA_TEST_NODELIST') }
-    helper_daemon_launch_job
+    helper_daemon_launch_job(1)
     assert_equal("project1:p:miga-project\n", File.read(t))
   end
 
   def test_launch_job_qsub
-    $d1.runopts(:type, 'qsub')
-    $d1.runopts(:cmd, 'echo {{task_name}}')
+    daemon.runopts(:type, 'qsub')
+    daemon.runopts(:cmd, 'echo {{task_name}}')
     helper_daemon_launch_job
-    assert_equal('project1:p:miga-project', $d1.jobs_running.first[:pid])
+    assert_equal('project0:p:miga-project', daemon.jobs_running.first[:pid])
   end
 
   def test_launch_job_failure
-    d1 = $d1
+    d1 = daemon(1)
     d1.runopts(:type, 'qsub')
     d1.runopts(:cmd, 'echo ""')
-    helper_datasets_with_results.first.inactivate!
+    helper_datasets_with_results(1, 1).first.inactivate!
     capture_stderr { d1.check_project }
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+
+    declare_forks
     out = capture_stderr { d1.launch_job(d1.jobs_to_run.shift) }.string
     assert_match(/Unsuccessful project1:p:miga-project, rescheduling/, out)
     assert_equal(0, d1.jobs_running.size)
@@ -313,7 +313,7 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_verbosity
-    d1 = $d1
+    d1 = daemon
     d1.runopts(:verbosity, 0)
     out = capture_stderr { d1.in_loop }.string
     assert_empty(out)
@@ -332,10 +332,10 @@ class DaemonTest < Test::Unit::TestCase
     assert_match(/Daemon loop start/, out)
   end
 
-  def helper_daemon_launch_job
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
-    d1 = $d1
-    helper_datasets_with_results.first.inactivate!
+  def helper_daemon_launch_job(project_i = 0)
+    declare_forks
+    d1 = daemon(project_i)
+    helper_datasets_with_results(1, project_i).first.inactivate!
     assert_equal(0, d1.jobs_to_run.size, 'The queue should be empty')
     capture_stderr { d1.check_project }
     assert_equal(1, d1.jobs_to_run.size, 'The queue should have one job')

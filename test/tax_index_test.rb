@@ -1,19 +1,18 @@
 require 'test_helper'
+require 'miga'
 require 'miga/tax_index'
 
 class TaxIndexTest < Test::Unit::TestCase
+  include TestHelper
+
   def test_initialization
     ti = MiGA::TaxIndex.new
     assert_equal(:root, ti.root.rank)
   end
 
   def test_dataset
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV["MIGA_HOME"]))
-    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV["MIGA_HOME"]))
-    p = MiGA::Project.new(File.expand_path('project1', $tmp))
-    d = p.add_dataset('dataset1')
+    initialize_miga_home
+    d = dataset
 
     ti = MiGA::TaxIndex.new
     assert_empty(ti.datasets)
@@ -23,9 +22,6 @@ class TaxIndexTest < Test::Unit::TestCase
     ti << d
     assert_equal(1, ti.datasets.size, 'index should have one dataset')
     assert_equal(1, ti.root.datasets_count)
-  ensure
-    FileUtils.rm_rf $tmp
-    ENV["MIGA_HOME"] = nil
   end
 
   def test_to_json

@@ -2,30 +2,26 @@ require 'test_helper'
 require 'miga/lair'
 
 class LairTest < Test::Unit::TestCase
-  def setup
-    $jruby_tests = !ENV['JRUBY_TESTS'].nil?
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV['MIGA_HOME']))
-    daemon_json = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
-    File.open(daemon_json, 'w') do |fh|
-      fh.puts '{"maxjobs":1,"ppn":1,"latency":1,"varsep":" ",
-        "var":"{{key}}={{value}}","cmd":"echo {{task_name}} >/dev/null",
-        "alive":"echo 1 # {{pid}}","type":"bash","format_version":1}'
-    end
-    Dir.mkdir(File.join($tmp, 'sub'))
-    $p1 = MiGA::Project.new(File.join($tmp, 'project1'))
-    $p2 = MiGA::Project.new(File.join($tmp, 'project2'))
-    $p3 = MiGA::Project.new(File.join($tmp, 'sub/project3'))
-  end
+  include TestHelper
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV['MIGA_HOME'] = nil
+  def setup
+    initialize_miga_home(
+      <<~DAEMON
+        { "maxjobs": 1, "ppn": 1, "latency": 1, "varsep": " ",
+          "var": "{{key}}={{value}}", "cmd": "echo {{task_name}} >/dev/null",
+          "alive": "echo 1 # {{pid}}", "type": "bash", "format_version": 1 }
+      DAEMON
+    )
+
+    # Make sure projects already exist
+    Dir.mkdir(tmpfile('sub'))
+    project(1)
+    project(2)
+    project('sub/project3')
   end
 
   def test_lair_init
-    path = $tmp
+    path = tmpdir
     lair = MiGA::Lair.new(path, name: 'Alt-X')
     assert_equal(MiGA::Lair, lair.class)
     assert_equal(path, lair.path)
@@ -35,9 +31,8 @@ class LairTest < Test::Unit::TestCase
   end
 
   def test_in_loop
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
-    lair = MiGA::Lair.new($tmp, name: 'Oh')
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+    declare_forks
+    lair = MiGA::Lair.new(tmpdir, name: 'Oh')
     child = lair.start(['--shush'])
     assert_not_nil(child)
     assert_gt(child, 0, 'The daemon process should have non-zero PID')
@@ -52,13 +47,13 @@ class LairTest < Test::Unit::TestCase
   end
 
   def test_first_loop
-    lair = MiGA::Lair.new($tmp, name: 'Ew')
+    lair = MiGA::Lair.new(tmpdir, name: 'Ew')
     out = capture_stderr { lair.daemon_first_loop }.string
     assert_match(/-{20}/, out)
   end
 
   def test_loop
-    lair = MiGA::Lair.new($tmp, name: 'Ew', latency: 1, dry: true)
+    lair = MiGA::Lair.new(tmpdir, name: 'Ew', latency: 1, dry: true)
     out = capture_stderr { assert { !lair.daemon_loop } }.string
     assert_match(/Launching daemon: \S*project1/, out)
     assert_match(/Launching daemon: \S*project2/, out)
@@ -66,13 +61,13 @@ class LairTest < Test::Unit::TestCase
   end
 
   def test_daemon_launch
-    lair = MiGA::Lair.new(File.join($tmp, 'sub'), latency: 1)
+    lair = MiGA::Lair.new(tmpfile('sub'), latency: 1)
     p = MiGA::Project.load(File.join(lair.path, 'project3'))
     d = MiGA::Daemon.new(p)
     assert_not_predicate(d, :active?)
     assert_path_exist(d.daemon_home)
 
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+    declare_forks
     capture_stdout do
       FileUtils.touch(d.output_file) # <- To prevent test racing
       out = capture_stderr { lair.check_directories }.string
@@ -91,7 +86,7 @@ class LairTest < Test::Unit::TestCase
   end
 
   def test_each_project
-    lair = MiGA::Lair.new($tmp)
+    lair = MiGA::Lair.new(tmpdir)
     y = []
     lair.each_project { |p| y << p }
     assert_equal(3, y.size)

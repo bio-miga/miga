@@ -3,22 +3,14 @@ require 'miga/project'
 require 'zlib'
 
 class ResultStatsTest < Test::Unit::TestCase
-  def setup
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV['MIGA_HOME']))
-    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
-    $p = MiGA::Project.new(File.expand_path('project1', $tmp))
-    $d = $p.add_dataset('dataset1')
-  end
+  include TestHelper
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV['MIGA_HOME'] = nil
+  def setup
+    initialize_miga_home
   end
 
   def file_path(dir, ext)
-    File.join($p.path, dir, "#{$d.name}#{ext}")
+    File.join(project.path, dir, "#{dataset.name}#{ext}")
   end
 
   def touch_done(dir)
@@ -30,7 +22,7 @@ class ResultStatsTest < Test::Unit::TestCase
     fq = file_path(dir, '.1.fastq')
     File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     touch_done(dir)
-    r = $d.add_result(:raw_reads)
+    r = dataset.add_result(:raw_reads)
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_not_empty(r[:stats])
@@ -46,7 +38,7 @@ class ResultStatsTest < Test::Unit::TestCase
     fq = file_path(dir, '.2.fastq')
     File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     touch_done(dir)
-    r = $d.add_result(:raw_reads)
+    r = dataset.add_result(:raw_reads)
     r.compute_stats
     assert_not_empty(r[:stats])
     assert_nil(r[:stats][:reads])
@@ -58,7 +50,7 @@ class ResultStatsTest < Test::Unit::TestCase
     dir = 'data/02.trimmed_reads'
     FileUtils.touch(file_path(dir, '.1.clipped.fastq'))
     touch_done(dir)
-    r = $d.add_result(:trimmed_reads)
+    r = dataset.add_result(:trimmed_reads)
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal({}, r[:stats])
@@ -69,7 +61,7 @@ class ResultStatsTest < Test::Unit::TestCase
     Dir.mkdir(file_path(dir, '.solexaqa'))
     Dir.mkdir(file_path(dir, '.fastqc'))
     touch_done(dir)
-    r = $d.add_result(:read_quality)
+    r = dataset.add_result(:read_quality)
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal({}, r[:stats])
@@ -80,7 +72,7 @@ class ResultStatsTest < Test::Unit::TestCase
     fa = file_path(dir, '.CoupledReads.fa')
     File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
     touch_done(dir)
-    r = $d.add_result(:trimmed_fasta)
+    r = dataset.add_result(:trimmed_fasta)
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal(1, r[:stats][:reads])
@@ -93,7 +85,7 @@ class ResultStatsTest < Test::Unit::TestCase
     fa = file_path(dir, '.LargeContigs.fna')
     File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
     touch_done(dir)
-    r = $d.add_result(:assembly)
+    r = dataset.add_result(:assembly)
 
     # Test assertions
     assert_equal({}, r[:stats])
@@ -113,7 +105,7 @@ class ResultStatsTest < Test::Unit::TestCase
       fh.puts '# Model Data: a=b;transl_table=11;'
     end
     touch_done(dir)
-    r = $d.add_result(:cds)
+    r = dataset.add_result(:cds)
 
     # Test assertions
     assert_equal({}, r[:stats])
@@ -138,7 +130,7 @@ class ResultStatsTest < Test::Unit::TestCase
       fh.puts ' phylum Abc  0.0  **** '
     end
     touch_done(dir)
-    r = $d.add_result(:taxonomy)
+    r = dataset.add_result(:taxonomy)
 
     # Test assertions
     assert_nil(r[:stats][:closest_relative])

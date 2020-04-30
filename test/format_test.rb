@@ -1,16 +1,10 @@
 require 'test_helper'
 
 class FormatTest < Test::Unit::TestCase
-  def setup
-    $tmp = Dir.mktmpdir
-  end
-
-  def teardown
-    FileUtils.rm_rf $tmp
-  end
+  include TestHelper
 
   def helper_write_file(content)
-    f = File.join($tmp, 'f.fa')
+    f = tmpfile('f.fa')
     File.open(f, 'w') { |h| h.print content }
     f
   end

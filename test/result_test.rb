@@ -2,64 +2,69 @@ require 'test_helper'
 require 'miga/project'
 
 class ResultTest < Test::Unit::TestCase
-  def setup
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV['MIGA_HOME']))
-    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
-    $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
-    $d1 = $p1.add_dataset('dataset1')
-    FileUtils.touch(
-      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.1.clipped.fastq")
-    )
-    FileUtils.touch(
-      File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done")
-    )
-    FileUtils.touch(
-      File.join($p1.path, 'data/10.clades/01.find/miga-project.empty')
-    )
-    FileUtils.touch(
-      File.join($p1.path, 'data/10.clades/01.find/miga-project.done')
-    )
-  end
+  include TestHelper
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV['MIGA_HOME'] = nil
+  def setup
+    initialize_miga_home
+    FileUtils.touch(
+      File.join(
+        project.path, 'data', '02.trimmed_reads',
+        "#{dataset.name}.1.clipped.fastq"
+      )
+    )
+    FileUtils.touch(
+      File.join(
+        project.path, 'data', '02.trimmed_reads', "#{dataset.name}.done"
+      )
+    )
+    FileUtils.touch(
+      File.join(
+        project.path, 'data', '10.clades', '01.find', 'miga-project.empty'
+      )
+    )
+    FileUtils.touch(
+      File.join(
+        project.path, 'data', '10.clades', '01.find', 'miga-project.done'
+      )
+    )
   end
 
   def test_add_result
-    r = $d1.add_result(:trimmed_reads)
-    assert_equal(MiGA::Result, r.class)
-    r = $d1.add_result(:asssembly)
+    r = dataset.add_result(:trimmed_reads)
+    assert_instance_of(MiGA::Result, r)
+    r = dataset.add_result(:asssembly)
     assert_nil(r)
-    r = $p1.add_result(:clade_finding)
-    assert_equal(MiGA::Result, r.class)
+    r = project.add_result(:clade_finding)
+    assert_instance_of(MiGA::Result, r)
   end
 
   def test_result_source
-    r = $d1.add_result(:trimmed_reads)
-    assert_equal($d1.name, r.source.name)
+    r = dataset.add_result(:trimmed_reads)
+    assert_equal(dataset.name, r.source.name)
     assert_equal(:trimmed_reads, r.key)
     assert_equal('data/02.trimmed_reads', r.relative_dir)
-    assert_equal('data/02.trimmed_reads/dataset1.json', r.relative_path)
-    assert_equal($p1.path, r.project.path)
-    assert_equal($p1.path, r.project_path)
-    r = $p1.add_result(:clade_finding)
-    assert_equal($p1.path, r.source.path)
+    assert_equal('data/02.trimmed_reads/dataset0.json', r.relative_path)
+    assert_equal(project.path, r.project.path)
+    assert_equal(project.path, r.project_path)
+    r = project.add_result(:clade_finding)
+    assert_equal(project.path, r.source.path)
   end
 
   def test_dates
-    r = $d1.add_result(:trimmed_reads)
+    r = dataset.add_result(:trimmed_reads)
     assert_nil(r.done_at)
     assert_nil(r.started_at)
-    tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.done")
+    tf = File.join(
+      project.path, 'data', '02.trimmed_reads', "#{dataset.name}.done"
+    )
     File.open(tf, 'w') { |fh| fh.puts Time.new(1, 2, 3, 4, 5) }
     assert_equal(Time, r.done_at.class)
     assert_nil(r.running_time)
-    tf = File.join($p1.path, "data/02.trimmed_reads/#{$d1.name}.start")
+    tf = File.join(
+      project.path, 'data', '02.trimmed_reads', "#{dataset.name}.start"
+    )
     File.open(tf, 'w') { |fh| fh.puts Time.new(1, 2, 3, 4, 0) }
-    r = $d1.add_result(:trimmed_reads)
+    r = dataset.add_result(:trimmed_reads)
     assert_equal(5.0, r.running_time)
   end
 end

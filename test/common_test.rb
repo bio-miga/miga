@@ -1,9 +1,7 @@
 require 'test_helper'
 
 class CommonTest < Test::Unit::TestCase
-  def setup
-    # $jruby_tests = !ENV["JRUBY_TESTS"].nil?
-  end
+  include TestHelper
 
   def test_debug
     assert_respond_to(MiGA::MiGA, :DEBUG)
@@ -27,7 +25,6 @@ class CommonTest < Test::Unit::TestCase
     assert_respond_to(MiGA::MiGA, :DEBUG)
     assert_respond_to(MiGA::MiGA, :DEBUG_ON)
     assert_respond_to(MiGA::MiGA, :DEBUG_OFF)
-    # omit_if($jruby_tests, "JRuby doesn't like interceptions.")
     MiGA::MiGA.DEBUG_TRACE_ON
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandadi'
@@ -44,9 +41,8 @@ class CommonTest < Test::Unit::TestCase
   end
 
   def test_generic_transfer
-    $tmp = Dir.mktmpdir
-    hello = File.expand_path('Hello', $tmp)
-    world = File.expand_path('World', $tmp)
+    hello = File.expand_path('Hello', tmpdir)
+    world = File.expand_path('World', tmpdir)
     assert_respond_to(File, :generic_transfer)
     FileUtils.touch(hello)
     File.generic_transfer(hello, world, :symlink)
@@ -66,8 +62,6 @@ class CommonTest < Test::Unit::TestCase
       File.generic_transfer(hello, world, :monkey)
     end
     assert_path_not_exist(world, 'A monkey shouldn\'t create files.')
-  ensure
-    FileUtils.rm_rf $tmp
   end
 
   def test_miga_name

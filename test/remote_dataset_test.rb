@@ -3,18 +3,10 @@ require 'miga/project'
 require 'miga/remote_dataset'
 
 class RemoteDatasetTest < Test::Unit::TestCase
-  def setup
-    $tmp = Dir.mktmpdir
-    ENV['MIGA_HOME'] = $tmp
-    FileUtils.touch(File.expand_path('.miga_rc', ENV["MIGA_HOME"]))
-    FileUtils.touch(File.expand_path('.miga_daemon.json', ENV["MIGA_HOME"]))
-    $p1 = MiGA::Project.new(File.expand_path('project1', $tmp))
-    $remote_tests = !ENV['REMOTE_TESTS'].nil?
-  end
+  include TestHelper
 
-  def teardown
-    FileUtils.rm_rf $tmp
-    ENV['MIGA_HOME'] = nil
+  def setup
+    initialize_miga_home
   end
 
   def test_class_universe
@@ -32,7 +24,6 @@ class RemoteDatasetTest < Test::Unit::TestCase
     { embl: :ebi, nuccore: :ncbi }.each do |db, universe|
       rd = MiGA::RemoteDataset.new(hiv2, db, universe)
       assert_equal([hiv2], rd.ids)
-      omit_if(!$remote_tests, 'Remote access is error-prone')
       tx = rd.get_ncbi_taxonomy
       msg = "Failed on #{universe}:#{db}"
       assert_equal(MiGA::Taxonomy, tx.class, msg)
@@ -51,13 +42,19 @@ class RemoteDatasetTest < Test::Unit::TestCase
     end
   end
 
+  def test_empty_sequences
+    declare_remote_access
+    
+  end
+
   def test_net_ftp
     cjac = 'ftp://ftp.ebi.ac.uk/pub/databases/ena/tsa/public/ga/GAPJ01.fasta.gz'
     n = 'Cjac_L14'
     rd = MiGA::RemoteDataset.new(cjac, :assembly_gz, :web)
     assert_equal([cjac], rd.ids)
-    omit_if(!$remote_tests, 'Remote access is error-prone')
-    p = $p1
+
+    declare_remote_access
+    p = project
     assert_nil(p.dataset(n))
     rd.save_to(p, n)
     p.add_dataset(n)
@@ -66,7 +63,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
   end
 
   def test_asm_acc2id
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     assert_nil(MiGA::RemoteDataset.ncbi_asm_acc2id('NotAnAccession'))
     id = MiGA::RemoteDataset.ncbi_asm_acc2id('GCA_004684205.1')
     assert_equal('2514661', id)
@@ -74,9 +71,9 @@ class RemoteDatasetTest < Test::Unit::TestCase
   end
 
   def test_update_metadata
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     hiv1 = 'GCF_000856385.1'
-    d1 = MiGA::Dataset.new($p1, 'd1')
+    d1 = MiGA::Dataset.new(project, 'd1')
     assert_nil(d1.metadata[:ncbi_assembly])
     rd = MiGA::RemoteDataset.new(hiv1, :assembly, :ncbi)
     rd.update_metadata(d1, passthrough: 123, metadata_only: true)
@@ -86,25 +83,25 @@ class RemoteDatasetTest < Test::Unit::TestCase
   end
 
   def test_type_status_asm
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     rd = MiGA::RemoteDataset.new('GCF_000018105.1', :assembly, :ncbi)
     assert { rd.get_metadata[:is_type] }
   end
 
   def test_nontype_status_asm
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     rd = MiGA::RemoteDataset.new('GCA_004684205.1', :assembly, :ncbi)
     assert { !rd.get_metadata[:is_type] }
   end
 
   def test_type_status_nuccore
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     rd = MiGA::RemoteDataset.new('NC_019748.1', :nuccore, :ncbi)
     assert { rd.get_metadata[:is_type] }
   end
 
   def test_ref_type_status
-    omit_if(!$remote_tests, 'Remote access is error-prone')
+    declare_remote_access
     rd = MiGA::RemoteDataset.new('GCA_002849345', :assembly, :ncbi)
     assert { !rd.get_metadata[:is_type] }
     assert { rd.get_metadata[:is_ref_type] }
@@ -112,9 +109,9 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   # This test is too expensive (too much time to run it!)
   # def test_net_timeout
-  #  omit_if(!$remote_tests, "Remote access is error-prone")
-  #  bad = "ftp://example.com/miga"
-  #  rd = MiGA::RemoteDataset.new(bad, :assembly, :web)
-  #  assert_raise(Net::ReadTimeout) { rd.save_to($p1, "bad") }
+  #   declare_remote_access
+  #   bad = "ftp://example.com/miga"
+  #   rd = MiGA::RemoteDataset.new(bad, :assembly, :web)
+  #   assert_raise(Net::ReadTimeout) { rd.save_to(project, "bad") }
   # end
 end

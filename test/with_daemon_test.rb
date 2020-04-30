@@ -2,14 +2,7 @@ require 'test_helper'
 require 'miga/common/with_daemon'
 
 class WithDaemonTest < Test::Unit::TestCase
-  def setup
-    $jruby_tests = !ENV['JRUBY_TESTS'].nil?
-    $tmp = Dir.mktmpdir
-  end
-
-  def teardown
-    FileUtils.rm_rf $tmp
-  end
+  include TestHelper
 
   class TestWithDaemon < MiGA::MiGA
     include MiGA::Common::WithDaemon
@@ -53,20 +46,20 @@ class WithDaemonTest < Test::Unit::TestCase
   end
 
   def test_with_daemon
-    d = TestWithDaemon.new($tmp)
+    d = TestWithDaemon.new(tmpdir)
     assert_respond_to(d, :pid_file)
     assert_respond_to(d.class, :daemon_home)
     assert_nil(d.loop_i)
   end
 
   def test_daemon_run
-    d = TestWithDaemon2.new($tmp)
+    d = TestWithDaemon2.new(tmpdir)
     capture_stdout { d.run }
     assert_path_not_exist(d.pid_file)
   end
 
   def test_daemmon_status
-    d = TestWithDaemon.new($tmp)
+    d = TestWithDaemon.new(tmpdir)
     out = capture_stdout { d.status }.string
     assert_match(/Not running/, out)
 
@@ -83,11 +76,11 @@ class WithDaemonTest < Test::Unit::TestCase
   end
 
   def test_daemon_operations
-    d = TestWithDaemon.new($tmp)
+    d = TestWithDaemon.new(tmpdir)
     FileUtils.touch(d.output_file)
     assert_not_predicate(d, :active?)
 
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+    declare_forks
     capture_stdout do
       pid = d.start
       assert_gt(pid, 0)
@@ -111,7 +104,7 @@ class WithDaemonTest < Test::Unit::TestCase
   end
 
   def test_termination_file
-    d = TestWithDaemon2.new($tmp)
+    d = TestWithDaemon2.new(tmpdir)
     assert { !d.termination_file?(nil) }
     FileUtils.touch(d.terminate_file)
     err = capture_stdout do
@@ -123,19 +116,19 @@ class WithDaemonTest < Test::Unit::TestCase
   end
 
   def test_process_alive
-    d = TestWithDaemon2.new($tmp)
+    d = TestWithDaemon2.new(tmpdir)
     assert { d.process_alive?(Process.pid) }
     assert { !d.process_alive?(1e9) }
   end
 
   def test_declare_alive_loop
-    d = TestWithDaemon.new(File.join($tmp, 'nope'))
+    d = TestWithDaemon.new(tmpfile('nope'))
     assert_equal(:no_home, d.declare_alive_loop)
 
-    d = TestWithDaemon.new($tmp)
+    d = TestWithDaemon.new(tmpdir)
     assert_equal(:no_process_alive, d.declare_alive_loop(1e9))
 
-    omit_if($jruby_tests, 'JRuby doesn\'t implement fork.')
+    declare_forks
     FileUtils.touch(d.terminate_file)
     child = fork { sleep(3) }
     capture_stdout do
@@ -144,12 +137,12 @@ class WithDaemonTest < Test::Unit::TestCase
   end
 
   def test_write_alive_file
-    d = TestWithDaemon.new(File.join($tmp, 'nope'))
+    d = TestWithDaemon.new(tmpfile('nope'))
     assert_not_predicate(d, :active?)
     assert_raise { d.write_alive_file }
     assert_not_predicate(d, :active?)
 
-    d = TestWithDaemon.new($tmp)
+    d = TestWithDaemon.new(tmpdir)
     assert_not_predicate(d, :active?)
     d.write_alive_file
     assert_predicate(d, :active?)
