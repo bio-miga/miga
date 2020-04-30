@@ -48,7 +48,7 @@ module MiGA::RemoteDataset::Base
     },
     ncbi: {
       dbs: {
-        nuccore: { stage: :assembly, format: :fasta },
+        nuccore: { stage: :assembly, format: :fasta, getter: :ncbi_gb },
         assembly: { stage: :assembly, format: :fasta_gz, getter: :ncbi_asm },
         taxonomy: { stage: :metadata, format: :xml }
       },

@@ -35,8 +35,8 @@ class MiGA::Cli::Action::New < MiGA::Cli::Action
   def perform
     cli.ensure_type(MiGA::Project)
     cli.ensure_par(project: '-P')
-    unless File.exist? "#{ENV["HOME"]}/.miga_rc" &&
-           File.exist? "#{ENV["HOME"]}/.miga_daemon.json"
+    unless File.exist?(File.join(ENV['HOME'], '.miga_rc')) &&
+           File.exist?(File.join(ENV['HOME'], '.miga_daemon.json'))
       raise "You must initialize MiGA before creating the first project.\n" +
             'Please use "miga init".'
     end

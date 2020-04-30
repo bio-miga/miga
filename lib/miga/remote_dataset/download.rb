@@ -25,8 +25,8 @@ class MiGA::RemoteDataset
         obj: obj
       }
       doc = send("#{getter}_#{method}", opts)
-      unless file.nil?
-        ofh = File.open(file, 'w')
+      unless opts[:file].nil?
+        ofh = File.open(opts[:file], 'w')
         ofh.print doc.force_encoding('UTF-8')
         ofh.close
       end
@@ -48,6 +48,22 @@ class MiGA::RemoteDataset
         :web, :assembly_gz, url,
         opts[:format], opts[:file], opts[:extra], opts[:obj]
       )
+    end
+
+    ##
+    # Download data from NCBI GenBank (nuccore) database using the REST method.
+    # Supported +opts+ (Hash) are the same as #download_rest and #ncbi_asm_rest.
+    def ncbi_gb_rest(opts)
+      o = download_rest(opts)
+      return o unless o.strip.empty?
+
+      MiGA::MiGA.DEBUG 'Empty sequence, attempting download from NCBI assembly'
+      opts[:format] = :fasta_gz
+      if opts[:file]
+        File.unlink(opts[:file]) if File.exist? opts[:file]
+        opts[:file] = "#{opts[:file]}.gz"
+      end
+      ncbi_asm_rest(opts)
     end
 
     ##
