@@ -82,8 +82,7 @@ class MiGA::Daemon < MiGA::MiGA
   def daemon_loop
     l_say(3, 'Daemon loop start')
     reload_project
-    check_datasets
-    check_project
+    check_datasets or check_project
     if shutdown_when_done? && jobs_running.size + jobs_to_run.size == 0
       say 'Nothing else to do, shutting down'
       return false
@@ -158,14 +157,18 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Traverse datasets
+  # Traverse datasets, and returns boolean indicating if at any datasets
+  # are incomplete
   def check_datasets
     l_say(2, 'Checking datasets')
+    o = false
     project.each_dataset do |ds|
       next unless ds.status == :incomplete
-      to_run = ds.next_preprocessing(false)
-      queue_job(:d, ds) unless to_run.nil?
+      next if ds.next_preprocessing(false).nil?
+      o = true
+      queue_job(:d, ds)
     end
+    o
   end
 
   ##
@@ -173,8 +176,14 @@ class MiGA::Daemon < MiGA::MiGA
   # project-level tasks
   def check_project
     l_say(2, 'Checking project')
+
+    # Ignore task if the project has no datasets
     return if project.dataset_names.empty?
+
+    # Double-check if all datasets are ready
     return unless project.done_preprocessing?(false)
+
+    # Queue project-level job
     to_run = project.next_task(nil, false)
     queue_job(:p) unless to_run.nil?
   end
