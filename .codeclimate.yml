@@ -2,13 +2,6 @@ version: "2"
 plugins:
   rubocop:
     enabled: true
-    checks:
-      Rubocop/Style/AndOr:
-        EnforcedStyle: conditionals
-      Rubocop/Style/ClassAndModuleChildren:
-        EnforcedStyle: compact
-      Rubocop/Style/FormatString:
-        EnforcedStyle: percent
   fixme:
     enabled: true
   shellcheck:

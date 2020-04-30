@@ -1,0 +1,6 @@
+Style/AndOr:
+  EnforcedStyle: conditionals
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+Style/FormatString:
+  EnforcedStyle: percent
