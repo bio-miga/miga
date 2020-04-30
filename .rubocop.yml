@@ -1,6 +1,13 @@
+#Style
 Style/AndOr:
   EnforcedStyle: conditionals
+
 Style/ClassAndModuleChildren:
   EnforcedStyle: compact
+
 Style/FormatString:
   EnforcedStyle: percent
+
+# Global configuration
+AllCops:
+  TargetRubyVersion: 2.3

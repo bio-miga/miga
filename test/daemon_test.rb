@@ -23,12 +23,12 @@ class DaemonTest < Test::Unit::TestCase
     p1 = project(project_i)
     Array.new(n) do |i|
       d = "d#{i}"
-      FileUtils.touch(File.expand_path(
-                        "data/02.trimmed_reads/#{d}.1.clipped.fastq", p1.path
-                      ))
-      FileUtils.touch(File.expand_path(
-                        "data/02.trimmed_reads/#{d}.done", p1.path
-                      ))
+      FileUtils.touch(
+        File.join(p1.path, 'data', '02.trimmed_reads', "#{d}.1.clipped.fastq")
+      )
+      FileUtils.touch(
+        File.join(p1.path, 'data', '02.trimmed_reads', "#{d}.done")
+      )
       p1.add_dataset(MiGA::Dataset.new(p1, d, true).name).tap do |ds|
         ds.first_preprocessing(true)
       end
@@ -259,8 +259,13 @@ class DaemonTest < Test::Unit::TestCase
   def test_update_format_0
     f = tmpfile('daemon.json')
     File.open(f, 'w') do |fh|
-      fh.puts '{"maxjobs":1,"ppn":1,"latency":2,"varsep":" ",
-        "var":"%1$s=%1$s","cmd":"echo %1$s","alive":"echo %1$d","type":"bash"}'
+      fh.puts(
+        <<~DAEMON
+          { "maxjobs": 1, "ppn": 1, "latency": 2, "varsep": " ",
+            "var": "%1$s=%1$s", "cmd": "echo %1$s", "alive": "echo %1$d",
+            "type": "bash" }
+        DAEMON
+      )
     end
     d2 = MiGA::Daemon.new(project, f)
     assert_equal('echo {{script}}', d2.runopts(:cmd))
