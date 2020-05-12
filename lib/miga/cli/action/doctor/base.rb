@@ -12,7 +12,7 @@ module MiGA::Cli::Action::Doctor::Base
     SQLite3::Database.new(db_file) do |conn|
       conn.execute("select count(*) from #{metric}").first
     end
-  rescue SQLite3::SQLException
+  rescue SQLite3::SQLException, SQLite3::CorruptException
     yield
   end
 
