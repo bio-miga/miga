@@ -17,6 +17,24 @@ module MiGA::Cli::Action::Doctor::Base
     blk.call
   end
 
+  def each_database_file(dataset, &blk)
+    ref_db = { '01.haai' => :aai, '02.aai' => :aai, '03.ani' => :ani }
+    qry_db = { '.haai.db' => :aai, '.aai.db' => :aai, '.ani.db' => :ani }
+    base = File.join(dataset.project.path, 'data', '09.distances')
+    if dataset.ref?
+      file_db = "#{dataset.name}.db"
+      ref_db.each do |dir, metric|
+        file = File.join(base, dir, file_db)
+        blk[file, metric] if File.exist? file
+      end
+      base = File.join(base, '05.taxonomy')
+    end
+    qry_db.each do |ext, metric|
+      file = File.join(base, "#{dataset.name}#{ext}")
+      blk[file, metric] if File.exist? file
+    end
+  end
+
   ##
   # Scans the all-vs-all matrix registered in +res+ (MiGA::Result) in search of
   # pairs where one or both datasets are missing or inactive in the project +p+
