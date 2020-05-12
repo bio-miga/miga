@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # @package MiGA
 # @license Artistic-2.0
 
@@ -25,7 +27,7 @@ class MiGA::Dataset < MiGA::MiGA
     ##
     # Standard fields of metadata for datasets
     def INFO_FIELDS
-      %w(name created updated type ref user description comments)
+      %w[name created updated type ref user description comments]
     end
   end
 
@@ -45,22 +47,19 @@ class MiGA::Dataset < MiGA::MiGA
   # be treated as reference (true, default) or query (false). Pass any
   # additional +metadata+ as a Hash.
   def initialize(project, name, is_ref = true, metadata = {})
-    unless name.miga_name?
+    name.miga_name? or
       raise 'Invalid name, please use only alphanumerics and underscores: ' +
             name.to_s
-    end
-    @project = project
-    @name = name
-    @metadata = nil
+    @project, @name, @metadata = project, name, nil
     metadata[:ref] = is_ref
     @metadata_future = [
-      File.expand_path("metadata/#{name}.json", project.path),
+      File.join(project.path, 'metadata', "#{name}.json"),
       metadata
     ]
-    unless File.exist? @metadata_future[0]
-      save
-      pull_hook :on_create
-    end
+    return if File.exist? @metadata_future[0]
+
+    save
+    pull_hook :on_create
   end
 
   ##
@@ -91,24 +90,24 @@ class MiGA::Dataset < MiGA::MiGA
   # Delete the dataset with all it's contents (including results) and returns
   # nil
   def remove!
-    self.results.each { |r| r.remove! }
-    self.metadata.remove!
+    results.each(&:remove!)
+    metadata.remove!
     pull_hook :on_remove
   end
 
   ##
   # Inactivate a dataset. This halts automated processing by the daemon
   def inactivate!
-    self.metadata[:inactive] = true
-    self.metadata.save
+    metadata[:inactive] = true
+    metadata.save
     pull_hook :on_inactivate
   end
 
   ##
   # Activate a dataset. This removes the +:inactive+ flag
   def activate!
-    self.metadata[:inactive] = nil
-    self.metadata.save
+    metadata[:inactive] = nil
+    metadata.save
     pull_hook :on_activate
   end
 
@@ -116,22 +115,26 @@ class MiGA::Dataset < MiGA::MiGA
   # Get standard metadata values for the dataset as Array
   def info
     MiGA::Dataset.INFO_FIELDS.map do |k|
-      (k == 'name') ? self.name : metadata[k.to_sym]
+      k == 'name' ? name : metadata[k]
     end
   end
 
   ##
   # Is this dataset a reference?
-  def ref?; !!metadata[:ref]; end
+  def ref?
+    !query?
+  end
 
   ##
   # Is this dataset a query (non-reference)?
-  def query?; !metadata[:ref]; end
+  def query?
+    !metadata[:ref]
+  end
 
   ##
   # Is this dataset known to be multi-organism?
   def multi?
-    return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
+    return false if metadata[:type].nil? || @@KNOWN_TYPES[type].nil?
 
     @@KNOWN_TYPES[type][:multi]
   end
@@ -139,7 +142,7 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Is this dataset known to be single-organism?
   def nonmulti?
-    return false if metadata[:type].nil? or @@KNOWN_TYPES[type].nil?
+    return false if metadata[:type].nil? || @@KNOWN_TYPES[type].nil?
 
     !@@KNOWN_TYPES[type][:multi]
   end
@@ -178,12 +181,12 @@ class MiGA::Dataset < MiGA::MiGA
   # +ref_project+ is false (default), and only for reference dataset when
   # +ref_project+ is true. It returns +nil+ if this analysis is not supported.
   def closest_relatives(how_many = 1, ref_project = false)
-    return nil if (ref? != ref_project) or multi?
+    return nil if (ref? != ref_project) || multi?
 
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
 
-    db = SQLite3::Database.new(r.file_path :aai_db)
+    db = SQLite3::Database.new(r.file_path(:aai_db))
     db.execute(
       'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
       'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many]
