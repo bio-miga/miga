@@ -58,23 +58,31 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform status operation with MiGA::Cli +cli+
   def check_status(cli)
     cli.say 'Updating metadata status'
-    cli.load_project.each_dataset { |d| d.recalculate_status }
+    n, k = cli.load_project.dataset_names.size, 0
+    cli.load_project.each_dataset do |d|
+      cli.advance('Datasets:', k += 1, n, false)
+      d.recalculate_status
+    end
+    cli.say
   end
 
   ##
   # Perform databases operation with MiGA::Cli +cli+
   def check_db(cli)
     cli.say 'Checking integrity of databases'
+    n, k = cli.load_project.dataset_names.size, 0
     cli.load_project.each_dataset do |d|
-      each_database_file(d) do |db_file, metric|
+      cli.advance('Datasets:', k += 1, n, false)
+      each_database_file(d) do |db_file, metric, result|
         check_sqlite3_database(db_file, metric) do
-          cli.say("  > Removing #{db_key} #{r_key} table for #{d.name}")
-          [db_file, r.path(:done), r.path].each do |f|
-            File.unlink(f) if File.exist? f
-          end
+          cli.say("  > Removing #{db_file} from #{d.name}:#{result}   ")
+          File.unlink(db_file)
+          r = d.result(result) or next
+          [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }
         end
       end
     end
+    cli.say
   end
 
   ##
@@ -96,8 +104,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform files operation with MiGA::Cli +cli+
   def check_files(cli)
     cli.say 'Looking for outdated files in results'
-    p = cli.load_project
-    p.each_dataset do |d|
+    n, k = cli.load_project.dataset_names.size, 0
+    cli.load_project.each_dataset do |d|
+      cli.advance('Datasets:', k += 1, n, false)
       d.each_result do |r_k, r|
         ok = true
         r.each_file do |_f_sym, _f_rel, f_abs|
@@ -107,25 +116,28 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           end
         end
         unless ok
-          cli.say "  > Registering again #{d.name}:#{r_k}"
+          cli.say "  > Registering again #{d.name}:#{r_k}   "
           d.add_result(r_k, true, force: true)
           sr = d.result(:stats) and sr.remove!
         end
       end
     end
+    cli.say
   end
 
   ##
   # Perform cds operation with MiGA::Cli +cli+
   def check_cds(cli)
     cli.say 'Looking for unzipped genes or proteins'
+    n, k = cli.load_project.dataset_names.size, 0
     cli.load_project.each_dataset do |d|
+      cli.advance('Datasets:', k += 1, n, false)
       res = d.result(:cds) or next
       changed = false
       %i[genes proteins gff3 gff2 tab].each do |f|
         file = res.file_path(f) or next
         if file !~ /\.gz/
-          cli.say "  > Gzipping #{d.name} #{f}"
+          cli.say "  > Gzipping #{d.name} #{f}   "
           cmdo = `gzip -9 '#{file}'`.chomp
           warn(cmdo) unless cmdo.empty?
           changed = true
@@ -136,6 +148,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         sr = d.result(:stats) and sr.remove!
       end
     end
+    cli.say
   end
 
   ##

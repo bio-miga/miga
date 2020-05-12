@@ -21,17 +21,19 @@ module MiGA::Cli::Action::Doctor::Base
     ref_db = { '01.haai' => :aai, '02.aai' => :aai, '03.ani' => :ani }
     qry_db = { '.haai.db' => :aai, '.aai.db' => :aai, '.ani.db' => :ani }
     base = File.join(dataset.project.path, 'data', '09.distances')
+    result = :distances
     if dataset.ref?
       file_db = "#{dataset.name}.db"
       ref_db.each do |dir, metric|
         file = File.join(base, dir, file_db)
-        blk[file, metric] if File.exist? file
+        blk[file, metric, result] if File.exist? file
       end
       base = File.join(base, '05.taxonomy')
+      result = :taxonomy
     end
     qry_db.each do |ext, metric|
       file = File.join(base, "#{dataset.name}#{ext}")
-      blk[file, metric] if File.exist? file
+      blk[file, metric, result] if File.exist? file
     end
   end
 
