@@ -7,13 +7,14 @@ end
 module MiGA::Cli::Action::Doctor::Base
   ##
   # Check the database in +db_file+ maintains integrity for the
-  # tables saving +metric+ (:ani or :aai)
-  def check_sqlite3_database(db_file, metric)
+  # tables saving +metric+ (:ani or :aai) and call +blk+ if the
+  # file is corrupt or doesn't contain the expected structure
+  def check_sqlite3_database(db_file, metric, &blk)
     SQLite3::Database.new(db_file) do |conn|
       conn.execute("select count(*) from #{metric}").first
     end
   rescue SQLite3::SQLException, SQLite3::CorruptException
-    yield
+    blk.call
   end
 
   ##
