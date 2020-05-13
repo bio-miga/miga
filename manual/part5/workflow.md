@@ -35,14 +35,17 @@ Statistics:
   * `length_average`: Average read length (in bp)
   * `length_standard_deviation`: Standard deviation of read length (in bp)
   * `g_c_content`: G+C content of all reads (in %)
+  * `x_content`: Undetermined bases content of all reads (in %)
 * **For paired-end reads only**
   * `read_pairs`: Total number of read pairs
   * `forward_length_average`: Average forward read length (in bp)
   * `forward_length_standard_deviation`: Standard deviation of forward read
     length (in bp)
   * `forward_g_c_content`: G+C content of forward reads (in %)
+  * `forward_x_content`: Undetermined bases content of forward reads (in %)
   * `reverse_length_average`, `reverse_length_standard_deviation`,
-    `reverse_g_c_content`: Same as above, for reverse reads
+  * `reverse_g_c_content`: Same as above, for reverse reads
+  * `reverse_x_content`: Undetermined bases content of reverse reads (in %)
 
 MiGA symbol: `raw_reads`.
 
@@ -107,6 +110,7 @@ Statistics:
 * `length_average`: Average read length (in bp)
 * `length_standard_deviation`: Standard deviation of read length (in bp)
 * `g_c_content`: G+C content of all reads (in %)
+* `x_content`: Undetermined bases content of all reads (in %)
 
 MiGA symbol: `trimmed_fasta`.
 
@@ -128,8 +132,11 @@ Statistics:
 
 * `contigs`: Total number of (large) contigs
 * `n50`: N50 of (large) contigs (in bp)
-* `total_length`: Total length of (large) contigs (in bp)
-* `g_c_content`: G+C content of (large) contigs (in %)
+* `total_length`: Total length of large contigs (in bp)
+* `longest_sequence`: Length of the longest contig (in bp)
+* `n_content`: Undetermined bases content of large contigs (in %)
+* `g_c_content`: G+C content of large contigs (in %)
+* `x_content`: Undetermined bases content of large contigs (in %)
 
 MiGA symbol: `assembly`.
 

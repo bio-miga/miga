@@ -21,24 +21,27 @@ module MiGA::Result::Stats
   def compute_stats_raw_reads
     stats = {}
     if self[:files][:pair1].nil?
-      s = MiGA::MiGA.seqs_length(file_path(:single), :fastq, gc: true)
+      s = MiGA::MiGA.seqs_length(file_path(:single), :fastq, gc: true, x: true)
       stats = {
         reads: s[:n],
         length_average: [s[:avg], 'bp'],
         length_standard_deviation: [s[:sd], 'bp'],
-        g_c_content: [s[:gc], '%']
+        g_c_content: [s[:gc], '%'],
+        x_content: [s[:x], '%']
       }
     else
-      s1 = MiGA::MiGA.seqs_length(file_path(:pair1), :fastq, gc: true)
-      s2 = MiGA::MiGA.seqs_length(file_path(:pair2), :fastq, gc: true)
+      s1 = MiGA::MiGA.seqs_length(file_path(:pair1), :fastq, gc: true, x: true)
+      s2 = MiGA::MiGA.seqs_length(file_path(:pair2), :fastq, gc: true, x: true)
       stats = {
         read_pairs: s1[:n],
         forward_length_average: [s1[:avg], 'bp'],
         forward_length_standard_deviation: [s1[:sd], 'bp'],
         forward_g_c_content: [s1[:gc], '%'],
+        forward_x_content: [s1[:x], '%'],
         reverse_length_average: [s2[:avg], 'bp'],
         reverse_length_standard_deviation: [s2[:sd], 'bp'],
-        reverse_g_c_content: [s2[:gc], '%']
+        reverse_g_c_content: [s2[:gc], '%'],
+        reverse_x_content: [s2[:x], '%']
       }
     end
     stats
@@ -46,24 +49,27 @@ module MiGA::Result::Stats
 
   def compute_stats_trimmed_fasta
     f = self[:files][:coupled].nil? ? file_path(:single) : file_path(:coupled)
-    s = MiGA::MiGA.seqs_length(f, :fasta, gc: true)
+    s = MiGA::MiGA.seqs_length(f, :fasta, gc: true, x: true)
     {
       reads: s[:n],
       length_average: [s[:avg], 'bp'],
       length_standard_deviation: [s[:sd], 'bp'],
-      g_c_content: [s[:gc], '%']
+      g_c_content: [s[:gc], '%'],
+      x_content: [s[:x], '%']
     }
   end
 
   def compute_stats_assembly
     s = MiGA::MiGA.seqs_length(
-      file_path(:largecontigs), :fasta, n50: true, gc: true
+      file_path(:largecontigs), :fasta, n50: true, gc: true, x: true
     )
     {
       contigs: s[:n],
       n50: [s[:n50], 'bp'],
       total_length: [s[:tot], 'bp'],
-      g_c_content: [s[:gc], '%']
+      longest_sequence: [s[:max], 'bp'],
+      g_c_content: [s[:gc], '%'],
+      x_content: [s[:x], '%']
     }
   end
 

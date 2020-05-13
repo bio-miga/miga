@@ -75,7 +75,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       cli.advance('Datasets:', k += 1, n, false)
       each_database_file(d) do |db_file, metric, result|
         check_sqlite3_database(db_file, metric) do
-          cli.say("  > Removing #{db_file} from #{d.name}:#{result}   ")
+          cli.say("  > Removing malformed database from #{d.name}:#{result}   ")
           File.unlink(db_file)
           r = d.result(result) or next
           [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }

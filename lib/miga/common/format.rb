@@ -68,12 +68,14 @@ module MiGA::Common::Format
   # a FastA or FastQ file (supports gzipped files). The +format+ must be a
   # Symbol, one of +:fasta+ or +:fastq+. Additional estimations can be
   # controlled via the +opts+ Hash. Supported options include:
-  # - +:n50+: If true, it also returns the N50 and the median (in bp).
-  # - +gc+: If true, it also returns the G+C content (in %).
+  # - +:n50+: If true, it also returns the N50 and the median (in bp)
+  # - +:gc+: If true, it also returns the G+C content (in %)
+  # - +:x+: If true, it also returns the undetermined bases content (in %)
   def seqs_length(file, format, opts = {})
     fh = file =~ /\.gz/ ? Zlib::GzipReader.open(file) : File.open(file, 'r')
     l = []
     gc = 0
+    xn = 0
     i = 0 # <- Zlib::GzipReader doesn't set `$.`
     fh.each_line do |ln|
       i += 1
@@ -83,15 +85,17 @@ module MiGA::Common::Format
       elsif format == :fasta or (i % 4) == 2
         l[l.size - 1] += ln.chomp.size
         gc += ln.scan(/[GCgc]/).count if opts[:gc]
+        xn += ln.scan(/[XNxn]/).count if opts[:x]
       end
     end
     fh.close
 
-    o = { n: l.size, tot: l.inject(:+) }
+    o = { n: l.size, tot: l.inject(:+), max: l.max }
     o[:avg] = o[:tot].to_f / l.size
     o[:var] = l.map { |a| a**2 }.inject(:+).to_f / l.size - o[:avg]**2
     o[:sd]  = Math.sqrt o[:var]
     o[:gc]  = 100.0 * gc / o[:tot] if opts[:gc]
+    o[:x]   = 100.0 * xn / o[:tot] if opts[:x]
     if opts[:n50]
       l.sort!
       thr = o[:tot] / 2
