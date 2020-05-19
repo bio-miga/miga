@@ -66,8 +66,10 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   end
 
   def run_r_cmd(cli, paths, cmd)
-    run_cmd(cli,
-            "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1")
+    run_cmd(
+      cli,
+      "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1"
+    )
   end
 
   def test_r_package(cli, paths, pkg)
@@ -81,16 +83,21 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   end
 
   def test_ruby_gem(cli, paths, pkg)
-    run_cmd(cli,
-            "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null")
+    run_cmd(
+      cli,
+      "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null"
+    )
     $?.success?
   end
 
   def install_ruby_gem(cli, paths, pkg)
     gem_cmd = "Gem::GemRunner.new.run %w(install --user #{pkg})"
-    run_cmd(cli, "#{paths['ruby'].shellescape} \
+    run_cmd(
+      cli,
+      "#{paths['ruby'].shellescape} \
         -r rubygems -r rubygems/gem_runner \
-        -e #{gem_cmd.shellescape} 2>&1")
+        -e #{gem_cmd.shellescape} 2>&1"
+    )
   end
 
   def list_requirements
@@ -99,7 +106,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       'no', %w(yes no)
     ) == 'yes'
       cli.puts ''
-      req_path = File.expand_path('utils/requirements.txt', MiGA.root_path)
+      req_path = File.join(MiGA.root_path, 'utils', 'requirements.txt')
       File.open(req_path, 'r') do |fh|
         fh.each_line { |ln| cli.puts ln }
       end
@@ -205,18 +212,18 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   def check_additional_files(paths)
     if cli[:mytaxa]
       cli.puts 'Looking for MyTaxa databases:'
-      mt = File.dirname paths["MyTaxa"]
+      mt = File.dirname paths['MyTaxa']
       cli.print 'Looking for scores... '
       unless Dir.exist?(File.expand_path('db', mt))
-        cli.puts "no.\nExecute 'python2 #{mt}/utils/download_db.py'."
+        cli.puts "no\nExecute 'python2 #{mt}/utils/download_db.py'"
         exit(1)
       end
-      cli.puts 'yes.'
+      cli.puts 'yes'
       cli.print 'Looking for diamond db... '
       unless File.exist?(File.expand_path('AllGenomes.faa.dmnd', mt))
-        cli.puts "no.\nDownload " \
+        cli.puts "no\nDownload " \
           "'http://enve-omics.ce.gatech.edu/data/public_mytaxa/" \
-          "AllGenomes.faa.dmnd' into #{mt}."
+          "AllGenomes.faa.dmnd' into #{mt}"
         exit(1)
       end
       cli.puts ''
@@ -228,7 +235,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     %w(ape cluster vegan).each do |pkg|
       cli.print "Testing #{pkg}... "
       if test_r_package(cli, paths, pkg)
-        cli.puts 'yes.'
+        cli.puts 'yes'
       else
         cli.puts 'no, installing'
         cli.print '' + install_r_package(cli, paths, pkg)
@@ -245,7 +252,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     %w(sqlite3 daemons json).each do |pkg|
       cli.print "Testing #{pkg}... "
       if test_ruby_gem(cli, paths, pkg)
-        cli.puts 'yes.'
+        cli.puts 'yes'
       else
         cli.puts 'no, installing'
         # This hackey mess is meant to ensure the test and installation are done

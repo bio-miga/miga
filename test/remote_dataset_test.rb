@@ -31,13 +31,15 @@ class RemoteDatasetTest < Test::Unit::TestCase
       assert_equal(MiGA::Taxonomy, tx.class, msg)
       assert_equal('Lentivirus', tx[:g], msg)
       assert_equal(
-        'ns:ncbi o:Ortervirales f:Retroviridae ' \
-          'g:Lentivirus s:Human_immunodeficiency_virus_2',
+        'ns:ncbi k:Pararnavirae p:Artverviricota c:Revtraviricetes ' \
+          'o:Ortervirales f:Retroviridae g:Lentivirus ' \
+          's:Human_immunodeficiency_virus_2',
         tx.to_s, msg
       )
       assert_equal(
-        'ns:ncbi d: k: p: c: o:Ortervirales f:Retroviridae ' \
-          'g:Lentivirus s:Human_immunodeficiency_virus_2 ssp: str: ds:',
+        'ns:ncbi d: k:Pararnavirae p:Artverviricota c:Revtraviricetes ' \
+          'o:Ortervirales f:Retroviridae g:Lentivirus ' \
+          's:Human_immunodeficiency_virus_2 ssp: str: ds:',
         tx.to_s(true), msg
       )
       assert_equal('ncbi', tx.namespace, msg)

@@ -8,7 +8,7 @@ module MiGA
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
   # - Integer representing minor changes that require new version number.
-  VERSION = [0.7, 5, 0]
+  VERSION = [0.7, 6, 0]
 
   ##
   # Nickname for the current major.minor version.
@@ -16,7 +16,7 @@ module MiGA
 
   ##
   # Date of the current gem release.
-  VERSION_DATE = Date.new(2020, 5, 13)
+  VERSION_DATE = Date.new(2020, 5, 19)
 
   ##
   # Reference of MiGA.

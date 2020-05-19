@@ -85,9 +85,7 @@ The full list of R packages are automatically installed by MiGA. However, we
 will install one package here to make sure everything is properly initialized.
 
 ```bash
-R
-install.packages('ape', repos = 'http://cran.rstudio.com/')
-q()
+Rscript -e "install.packages('ape', repos = 'http://cran.rstudio.com/')"
 ```
 
 ## MyTaxa utils
