@@ -99,6 +99,7 @@ class MiGA::RemoteDataset
         @timeout_try += 1
         raise e if @timeout_try >= 3
 
+        sleep 5 # <- For: 429 Too Many Requests
         retry
       end
       doc
