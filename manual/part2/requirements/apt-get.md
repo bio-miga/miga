@@ -1,5 +1,11 @@
 # Installing requirements using `apt-get`
 
+## Live notebook
+
+If you prefer to see code in action, the full installation process
+with apt-get is available as a
+[Notebook in Google Collab](https://colab.research.google.com/drive/1xP5l0p1osRwrzw39IyAplRhbVeCdgmsJ).
+
 ## Essentials
 
 If you have `apt-get`, execute:
@@ -70,9 +76,9 @@ It can be used instead of BLAST ANI to speed up indexing.
 If you have a 64-bits Linux:
 
 ```bash
-curl -L -o fastani-Linux64-v1.1.zip \
-  "https://github.com/ParBLiSS/FastANI/releases/download/v1.1/fastani-Linux64-v1.1.zip"
-unzip fastani-Linux64-v1.1.zip fastANI
+curl -L -o fastani-Linux64-v1.3.zip \
+  "https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastani-Linux64-v1.3.zip"
+unzip fastani-Linux64-v1.3.zip fastANI
 sudo install fastANI /usr/bin/
 ```
 
