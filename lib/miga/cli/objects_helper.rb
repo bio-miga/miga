@@ -80,7 +80,9 @@ module MiGA::Cli::ObjectsHelper
       raise "Unsupported result for #{klass}: #{self[:result]}"
     end
     r = obj.add_result(self[:result], false)
-    raise "Cannot load result: #{self[:result]}" if r.nil?
+    if r.nil? && !self[:ignore_result_empty]
+      raise "Cannot load result: #{self[:result]}"
+    end
 
     @objects[:result] = r
   end

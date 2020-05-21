@@ -20,6 +20,10 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
         '--try-load',
         'Check if stat exists instead of computing on --compute-and-save'
       ) { |v| cli[:try_load] = v }
+      opt.on(
+        '--ignore-empty',
+        'If the result does not exist, exit without throwing exceptions'
+      ) { |v| cli[:ignore_result_empty] = v }
     end
   end
 
@@ -27,7 +31,7 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
     if cli[:try_load] && !r[:stats].nil? && !r[:stats].empty?
       cli[:compute] = false
     end
-    r = cli.load_result
+    r = cli.load_result or return
     if cli[:compute]
       cli.say 'Computing statistics'
       r.compute_stats
