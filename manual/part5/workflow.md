@@ -4,14 +4,41 @@ This is the general overview of the MiGA workflow:
 
 ![MiGA Workflow][workflow]
 
-For each step, performed analyses may include the use of external Software, and
-produce one or more result files (indexed in a hash). In most steps, different
-utilities from the [Enveomics Collection](external.md#enveomics-collection) are
-used in addition to the Software detailed below. See more details of each
-step below, including file keys and descriptions. Some files are mandatory to
-continue with the analysis (marked with *req*), some can be gzipped during or
-after the analysis (marked with *gz*), and some are directories (marked with
-*dir*).
+For each step, performed analyses may include the use of
+[external Software](external.md), and produce one or more result files
+(indexed in a hash).
+In most steps, different utilities from the
+[Enveomics Collection](external.md#enveomics-collection) are
+used in addition to the Software detailed below.
+Some files are mandatory to continue with the analysis (marked with *req*),
+some can be gzipped during or after the analysis (marked with *gz*),
+and some are directories (marked with *dir*).
+
+## List of individual steps
+
+- [Dataset Results](#dataset-results)
+  - [Raw Reads](#raw-reads)
+  - [Trimmed Reads](#trimmed-reads)
+  - [Read Quality](#read-quality)
+  - [Trimmed FastA](#trimmed-fasta)
+  - [Assembly](#assembly)
+  - [CDS](#cds)
+  - [Essential Genes](#essential-genes)
+  - [SSU](#ssu)
+  - [MyTaxa](#mytaxa)
+  - [MyTaxa Scan](#mytaxa-scan)
+  - [Distances](#distances)
+  - [Taxonomy](#taxonomy)
+  - [Stats](#stats)
+- [Project Results](#project-results)
+  - [hAAI Distances](#haai-distances)
+  - [AAI Distances](#aai-distances)
+  - [ANI Distances](#ani-distances)
+  - [Clade Finding](#clade-finding)
+  - [Subclades](#subclades)
+  - [OGS](#ogs)
+  - [Project Stats](#project-stats)
+
 
 # Dataset Results
 

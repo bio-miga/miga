@@ -4,7 +4,7 @@ MiGA is a [data management](#data-management) and [processing](#processing)
 system for [microbial genomes and metagenomes](#data-types). Its main aim is
 to provide a [uniform system](#standards) for
 [genome-based taxonomic classification](#taxonomy) and [diversity](#diversity)
-studies, but its base can be used for [other purposes](#more).
+studies, and its base can be used for [other purposes](#more).
 
 ## Data management
 
@@ -143,8 +143,8 @@ authority.
 
 ## Diversity
 
-MiGA can catalogue datasets, even in the absence of a reference taxonomy. This
-allows many advanced analyses, including (but not restricted to):
+MiGA can catalogue datasets, even in the absence of a reference taxonomy.
+This allows many advanced analyses, including (but not restricted to):
 
 * Phylogenomic reconstructions using
   [orthologous groups of proteins](part5/workflow.md#ogs)
