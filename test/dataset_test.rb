@@ -192,4 +192,9 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal(:incomplete, d.status)
     assert_predicate(d, :active?)
   end
+
+  def test_preprocessing_tasks
+    assert_include(MiGA::Dataset.PREPROCESSING_TASKS, :cds)
+    assert_include(MiGA::Dataset.PREPROCESSING_TASKS, :taxonomy)
+  end
 end
