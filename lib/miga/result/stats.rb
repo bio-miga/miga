@@ -168,10 +168,9 @@ module MiGA::Result::Stats
       stats[:aai] = [$2.to_f, '%']
       3.times { fh.gets }
       fh.each_line do |ln|
-        row = ln.chomp.gsub(/^\s*/, '').split(/\s+/)
-        break if row.empty?
+        next unless ln.chomp =~ /^\s*(\S+)\s+(.+)\s+([0-9\.e-]+)\s+\**\s*$/
 
-        stats[:"#{row[0]}_pvalue"] = row[2].to_f unless row[0] == 'root'
+        stats[:"#{$1}_pvalue"] = $3.to_f unless $1 == 'root'
       end
     end
     stats
