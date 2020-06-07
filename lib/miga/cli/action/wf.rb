@@ -89,6 +89,10 @@ module MiGA::Cli::Action::Wf
   end
 
   def opts_for_wf_distances(opt)
+    opt.on('--sensitive', 'Alias to: --aai-p blast+ --ani-p blast+') do
+      cli[:aai_p] = 'blast+'
+      cli[:ani_p] = 'blast+'
+    end
     opt.on('--fast', 'Alias to: --aai-p diamond --ani-p fastani') do
       cli[:aai_p] = 'diamond'
       cli[:ani_p] = 'fastani'
