@@ -46,10 +46,6 @@ class MiGA::Result < MiGA::MiGA
   attr_reader :data
 
   ##
-  # Array of MiGA::Result objects nested within the result (if any)
-  attr_reader :results
-
-  ##
   # Load or create the MiGA::Result described by the JSON file +path+
   def initialize(path)
     @path = File.absolute_path(path)
@@ -134,7 +130,7 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Initialize and #save empty result
   def create
-    @data = { created: Time.now.to_s, results: [], stats: {}, files: {} }
+    @data = { created: Time.now.to_s, stats: {}, files: {} }
     save
   end
 
@@ -156,7 +152,6 @@ class MiGA::Result < MiGA::MiGA
   def load
     @data = MiGA::Json.parse(path)
     @data[:files] ||= {}
-    @results = (self[:results] || []).map { |rs| MiGA::Result.new rs }
   end
 
   ##
@@ -196,12 +191,5 @@ class MiGA::Result < MiGA::MiGA
         end
       end
     end
-  end
-
-  ##
-  # Add the MiGA::Result +result+ as part of the current result
-  def add_result(result)
-    @data[:results] << result.path
-    save
   end
 end
