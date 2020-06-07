@@ -168,6 +168,10 @@ Metadata entries that trigger specific behaviors in MiGA:
 | ------------:|:----------------:|:----------------------------------
 | run_`step`   | Boolean          | Forces running or not `step`
 | db_project   | Path             | Project to use as database
+| dist_req     | Array of String  | Run distances against these datasets*
+
+\* When searching best-matching datasets, include these datasets even if
+they are not visited using the medoid tree
 
 
 ### Dataset Hooks

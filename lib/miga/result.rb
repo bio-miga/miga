@@ -78,9 +78,9 @@ class MiGA::Result < MiGA::MiGA
     when :json
       @path
     when :start
-      @path.sub(/\.json$/, ".start")
+      @path.sub(/\.json$/, '.start')
     when :done
-      @path.sub(/\.json$/, ".done")
+      @path.sub(/\.json$/, '.done')
     end
   end
 
@@ -162,14 +162,14 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Remove result, including all associated files
   def remove!
-    each_file do |file|
-      f = File.expand_path(file, dir)
-      FileUtils.rm_rf(f)
-    end
-    %w(.start .done).each do |ext|
-      f = path.sub(/\.json$/, ext)
-      File.unlink f if File.exist? f
-    end
+    each_file { |file| FileUtils.rm_rf(File.join(dir, file)) }
+    unlink
+  end
+
+  # Unlink result by removing the .done and .start timestamps and the
+  # .json descriptor, but don't remove any other associated files
+  def unlink
+    %i(start done).each { |i| f = path(i) and File.unlink(f) }
     File.unlink path
   end
 
@@ -182,19 +182,17 @@ class MiGA::Result < MiGA::MiGA
   # Note that multiple files may have the same symbol (file_sym), since
   # arrays of files are supported.
   def each_file(&blk)
+    return to_enum(:each_file) unless block_given?
+
     @data[:files] ||= {}
     self[:files].each do |k, files|
       files = [files] unless files.kind_of? Array
       files.each do |file|
         case blk.arity
-        when 1
-          blk.call(file)
-        when 2
-          blk.call(k, file)
-        when 3
-          blk.call(k, file, File.expand_path(file, dir))
-        else
-          raise "Wrong number of arguments: #{blk.arity} for 1..3"
+        when 1; blk.call(file)
+        when 2; blk.call(k, file)
+        when 3; blk.call(k, file, File.expand_path(file, dir))
+        else; raise "Wrong number of arguments: #{blk.arity} for 1..3"
         end
       end
     end

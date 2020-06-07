@@ -29,6 +29,16 @@ module MiGA::DistanceRunner::Pipeline
     classify(clades, classif, metric, result_fh, val_cls)
   end
 
+  # Run distances against datasets listed in metadata's +:dist_req+
+  def distances_by_request(metric)
+    return unless dataset.metadata[:dist_req]
+
+    $stderr.puts 'Running distances by request'
+    dataset.metadata[:dist_req].each do |target|
+      ds = ref_project.dataset(target) and send(metric, ds)
+    end
+  end
+
   # Builds a tree with all visited medoids from any classification level
   def build_medoids_tree(metric)
     $stderr.puts "Building medoids tree (metric = #{metric})"
@@ -99,7 +109,7 @@ module MiGA::DistanceRunner::Pipeline
 
   # Transfer the taxonomy to the current dataset
   def transfer_taxonomy(tax)
-    $stderr.puts "Transferring taxonomy"
+    $stderr.puts 'Transferring taxonomy'
     return if tax.nil?
 
     pval = (project.metadata[:tax_pvalue] || 0.05).to_f

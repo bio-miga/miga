@@ -67,7 +67,7 @@ class MiGA::DistanceRunner
 
   # Launch analysis for reference datasets
   def go_ref!
-    $stderr.puts "Launching analysis for reference dataset"
+    $stderr.puts 'Launching analysis for reference dataset'
     # Initialize databases
     initialize_dbs! true
 
@@ -80,13 +80,13 @@ class MiGA::DistanceRunner
     end
 
     # Finalize
-    [:haai, :aai, :ani].each { |m| checkpoint! m if db_counts[m] > 0 }
+    %i[haai aai ani].each { |m| checkpoint! m if db_counts[m] > 0 }
   end
 
   ##
   # Launch analysis for query datasets
   def go_query!
-    $stderr.puts "Launching analysis for query dataset"
+    $stderr.puts 'Launching analysis for query dataset'
     # Check if project is ready
     tsk = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
     res = ref_project.result(tsk[0])
@@ -94,6 +94,7 @@ class MiGA::DistanceRunner
 
     # Initialize the databases
     initialize_dbs! false
+    distances_by_request(tsk[1])
     # Calculate the classification-informed AAI/ANI traverse
     results = File.expand_path("#{dataset.name}.#{tsk[1]}-medoids.tsv", home)
     fh = File.open(results, 'w')
@@ -111,7 +112,9 @@ class MiGA::DistanceRunner
           next unless r[1].to_i == val_cls
 
           ani = ani_after_aai(ref_project.dataset(r[0]), 80.0)
-          closest = { ds: r[0], ani: ani } unless ani.nil? or ani < closest[:ani]
+          unless ani.nil? || ani < closest[:ani]
+            closest = { ds: r[0], ani: ani }
+          end
         end
       end
     end
@@ -133,7 +136,7 @@ class MiGA::DistanceRunner
 
   # Launch analysis for taxonomy jobs
   def go_taxonomy!
-    $stderr.puts "Launching taxonomy analysis"
+    $stderr.puts 'Launching taxonomy analysis'
     return unless project.metadata[:ref_project]
 
     go_query! # <- yeah, it's actually the same, just different ref_project
