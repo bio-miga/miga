@@ -26,6 +26,10 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
         '--with-units',
         'Include units in each cell'
       ) { |v| cli[:units] = v }
+      opt.on(
+        '--compute-and-save',
+        'Compute and save the statistics if not yet available'
+      ) { |v| cli[:compute] = v }
     end
   end
 
@@ -34,7 +38,8 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
     ds = cli.load_and_filter_datasets
     cli.say 'Loading results'
     stats = ds.map do |d|
-      r = d.add_result(cli[:result].to_sym, false)
+      r = d.result(cli[:result])
+      r.compute_stats if cli[:compute] && !r.nil? && r[:stats].empty?
       s = r.nil? ? {} : r[:stats]
       s.tap { |i| i[:dataset] = d.name }
     end

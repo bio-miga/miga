@@ -14,7 +14,7 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
       ) { |v| cli[:key] = v }
       opt.on(
         '--compute-and-save',
-        'Compute and saves the statistics'
+        'Compute and save the statistics'
       ) { |v| cli[:compute] = v }
       opt.on(
         '--try-load',
