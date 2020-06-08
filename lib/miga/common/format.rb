@@ -90,7 +90,8 @@ module MiGA::Common::Format
     end
     fh.close
 
-    o = { n: l.size, tot: l.inject(:+), max: l.max }
+    o = { n: l.size, tot: l.inject(0, :+), max: l.max }
+    return o if o[:tot].zero?
     o[:avg] = o[:tot].to_f / l.size
     o[:var] = l.map { |a| a**2 }.inject(:+).to_f / l.size - o[:avg]**2
     o[:sd]  = Math.sqrt o[:var]
@@ -106,7 +107,8 @@ module MiGA::Common::Format
         break if pos >= thr
       end
       o[:med] = o[:n].even? ?
-            0.5 * l[o[:n] / 2 - 1, 2].inject(:+) : l[(o[:n] - 1) / 2]
+            0.5 * l[o[:n] / 2 - 1, 2].inject(:+) :
+            l[(o[:n] - 1) / 2]
     end
     o
   end
