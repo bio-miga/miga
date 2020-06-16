@@ -164,7 +164,9 @@ class MiGA::Result < MiGA::MiGA
   # Unlink result by removing the .done and .start timestamps and the
   # .json descriptor, but don't remove any other associated files
   def unlink
-    %i(start done).each { |i| f = path(i) and File.unlink(f) }
+    %i(start done).each do |i|
+      f = path(i) and File.exists?(f) and File.unlink(f)
+    end
     File.unlink path
   end
 
