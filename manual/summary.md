@@ -3,7 +3,7 @@
 * [Introduction](intro.md)
 * [Part I: What is MiGA?](part1.md)
   * [How can MiGA help me?](part1/pitch.md)
-  * [Who's using MiGA?](part1/use-cases.md)
+  * [Who is using MiGA?](part1/use-cases.md)
   * [Definitions](glossary.md)
 * [Part II: Getting started](part2.md)
   * [Requirements](part2/requirements.md)

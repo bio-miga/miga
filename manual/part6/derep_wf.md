@@ -28,7 +28,7 @@ Once your run is complete, you may expect the
 as well as a table (`genomospecies.tsv`) with three columns: (1) a clade name,
 (2) the name of the representative genome, and (3) the names of all the members
 in the clade separated by commas.
-In addition, you can expect the subdirectory `representatives` including
-assemblies (FastA files, nucleotides) of all representative genomes. This is the
-dereplicated set of genomes.
+Additionally you can expect the subdirectory `representatives` including
+assemblies (FastA files, nucleotides) of all representative genomes.
+This is the dereplicated set of genomes.
 

@@ -30,7 +30,7 @@ databases depend on it.
 
 ## R packages
 
-The full list of R packages are automatically installed by MiGA. However, we
+The full list of R packages is automatically installed by MiGA. However, we
 will install one package here to make sure everything is properly initialized.
 
 ```bash

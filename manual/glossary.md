@@ -13,9 +13,7 @@ Web-based interface to MiGA.
 # MiGA Names
 
 MiGA names are non-empty strings composed exclusively of alphanumerics and
-underscores. All the dataset names in MiGA must conform this restriction, but
-not all the projects do. Other objects must conform the MiGA name restrictions,
-such as taxonomic entries.
+underscores. All the dataset names in MiGA must conform to this restriction.
 
 # MiGA Dates
 

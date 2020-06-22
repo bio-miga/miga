@@ -21,7 +21,7 @@ but it has been optimized for short reads.
 
 Sequencing reads already processed to remove low quality or other artifacts.
 MiGA can handle different sequencing technologies,
-but it has been optimized for short reads.
+but has been optimized for short reads.
 
 - **Format**: FastA, optionally gzipped (with .gz extension)
 - **Workflow step**: [Trimmed FastA](../part5/workflow.md#trimmed-fasta)

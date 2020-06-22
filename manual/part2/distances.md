@@ -29,7 +29,7 @@ higher, MiGA continues to step 3. Otherwise the comparison ends.
 The hAAI is the average amino acid identity between the highly conserved
 proteins of two genomes, as identified by
 [essential genes](../part5/workflow.md#essential-genes).
-It is used to estimate AAI for distant pairs, but it looses resolution between
+It is used to estimate AAI for distant pairs, but it loses resolution between
 close relatives.
 This metric is completely bypassed in projects of
 [type clade](../part2/types.md#clade) as well as projects with the
@@ -47,7 +47,7 @@ also stored in projects of [type clade](../part2/types.md#clade).
 This feature can be turned off to save storage space or forced to be on in any
 project type using the [metadata field](../part5/metadata.md#projects)
 `aai_save_rbm=false` or `aai_save_rbm=true`, respectively.
-The Software used as search engine can be controlled using the
+The Software used as a search engine can be controlled using the
 [metadata field](../part5/metadata.md#projects) `haai_p`: `blast+` (default),
 `blast`, `blat`, or `diamond`.
 [Workflows](../part6.md) use `blast+` by default, or `diamond` if the flag
@@ -57,7 +57,7 @@ The Software used as search engine can be controlled using the
 
 **Average Nucleotide Identity**.
 The ANI is the average nucleotide identity between fragments of two genomes.
-The Software used as search engine can be controlled using the
+The Software used as a search engine can be controlled using the
 [metadata field](../part5/metadata.md#projects) `haai_p`: `blast+` (default),
 `blast`, `blat`, or `fastani`.
 [Workflows](../part6.md) use `blast+` by default, or `fastani` if the flag

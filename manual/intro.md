@@ -3,7 +3,7 @@
 ## What is MiGA?
 
 MiGA is a data management and processing system for microbial genomes and
-metagenomes. Its main aim is to provide a uniform system for genome-based
+metagenomes. Its main goal is to provide a uniform system for genome-based
 taxonomic classification and diversity studies, but its base can be used for
 other purposes.
 
@@ -13,13 +13,14 @@ other purposes.
 
 ## Getting started with MiGA
 
-MiGA iself doesn't require much, but processing large data collections may
+MiGA itself doesn't require much but processing large data collections may
 require large infrastructures. With that in mind, MiGA is designed to support
 both single machines and cluster infrastructures.
 
 * [Requirements](part2/requirements.md)
 * [Installation](part2/installation.md)
 * [MiGA types](part2/types.md)
+* [Input data](part2/input.md)
 * [Distances](part2/distances.md)
 * [Clustering](part2/clustering.md)
 
@@ -38,6 +39,7 @@ shell for Ruby, but that's mostly for debugging.
 * [MiGA API](part3/api.md)
 * [MiGA CLI](part3/cli.md)
 * [MiGA Web](part3/web.md)
+* See also: [Help for MiGA Online](https://help.microbial-genomes.org/)
 
 ## Deploying examples
 
@@ -55,5 +57,18 @@ Ready for more? Here are some technical details for advanced users.
 
 * [Advanced configuration](part5/advanced-configuration.md)
 * [MiGA workflow](part5/workflow.md)
-* [Extending MiGA](part5/extending.md)
+* [Metadata](part5/metadata.md)
+* [External Software](part5/external.md)
+
+## Workflows
+
+MiGA comes with ready-to-use pre-configured workflows for different analyses:
+
+* [Quality](part6/quality_wf.md)
+* [Dereplicate](part6/derep_wf.md)
+* [Classify](part6/classify_wf.md)
+* [Preprocess](part6/preproc_wf.md)
+* [Index](part6/index_wf.md)
+* [Summaries](part6/summaries.md)
+
 

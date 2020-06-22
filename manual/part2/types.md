@@ -54,7 +54,7 @@ are:
 **Symbol**: `genome`.
 
 The genome from an isolate. This is the most typical case, in which you have
-a genomes (complete or draft) from a pure culture (excluding SGA).
+a genome (complete or draft) from a pure culture (excluding SAGs).
 
 ### Single-cell genome
 
@@ -69,8 +69,8 @@ and sometimes have contamination from external DNA.
 
 **Symbol**: `popgenome`.
 
-A population genome (including metagenomic bins). This is the type of datasets
-that include sequences from different strains of the same species, such as
+A population genome (including metagenomic bins). This is the type of dataset
+that includes sequences from different strains of the same species, such as
 metagenomic bins or metagenomes of highly enriched (but not pure) cultures.
 
 ### Metagenome

@@ -2,7 +2,7 @@
 
 MiGA generates a clustering-based indexing of databases using ANI distances
 (for clade projects) or AAI distances (for all other projects). This indexing
-enables quickly searching databases with query genomes.
+enables quick searching of databases with query genomes.
 
 ## General algorithm
 
@@ -15,7 +15,7 @@ genomes minus 1, whichever is smaller).
 Once the partitions are defined, the same algorithm is applied recursively
 to each partition with 8 or more genomes.
 The resulting clustering-based indexing is used to speed-up query searches.
-In some cases it can also be used as *de novo* typing scheme, in particular
+In some cases, it can also be used as *de novo* typing scheme, in particular
 for ANI distances (clade projects).
 
 ## Genomospecies proposals

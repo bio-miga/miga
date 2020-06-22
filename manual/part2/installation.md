@@ -3,7 +3,8 @@
 ## Prerequisites
 
 If you simply want to access projects previously processed, you can skip this
-step. To install the prequisites follow [system requirements](requirements.md).
+step.
+To install the prerequisites follow [system requirements](requirements.md).
 
 
 ## Getting MiGA

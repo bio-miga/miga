@@ -44,12 +44,12 @@ conda install -y -c conda-forge -c bioconda -c faircloth-lab \
 > However, a precompiled SolexaQA++ binary for MacOS can be obtained directly
 > from the developers
 > [here](https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA++_v3.1.7.1.zip).
-> Simply remove `solexaqa` from the list above, and download that binary
+> Simply remove `solexaqa` from the list above and download that binary
 > manually.
 
 ## R packages
 
-The full list of R packages are automatically installed by MiGA. However, we
+The full list of R packages is automatically installed by MiGA. However, we
 will install one package here to make sure everything is properly initialized.
 
 ```bash

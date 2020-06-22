@@ -5,9 +5,9 @@ should install the [dependencies](../part2/requirements.md) and
 [MiGA-base](../part2/installation.md) on a networked file system.
 
 When you first initialize MiGA, the program will prompt the user for the type of
-daemon. For a cluster with TORQUE, the user can choose a qsub daemon. During the
-initialize, MiGA will also ask for the number of jobs to submit and the number
-of CPUs per job.
+daemon. For a cluster with TORQUE, the user can choose a qsub daemon.
+During the initialization, MiGA will also ask for the number of jobs to submit
+and the number of CPUs per job.
 
 After you have setup a MiGA project, you can create a job script to start
 daemon. The daemon requires to be alive until all the jobs for the have

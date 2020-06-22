@@ -23,8 +23,8 @@ sudo ln -s $(which diamond-aligner) /usr/bin/diamond
 
 ## IDBA
 
-Some indexes may still have an old version of IDBA that didn't build the
-IDBA-UD flavor (you'll need at least v1.1.3-2).
+The index of some distros may still have an old version of IDBA that didn't
+build the IDBA-UD flavor (you'll need at least v1.1.3-2).
 Check first if you have it:
 
 ```bash
@@ -32,6 +32,7 @@ idba_ud
 ```
 
 If you don't, you can get it by adding the Ubuntu Universe source to APT:
+
 ```bash
 echo 'deb http://us.archive.ubuntu.com/ubuntu/ cosmic universe' \
   | sudo tee /etc/apt/sources.list.d/ubuntu-universe.list
@@ -87,7 +88,7 @@ If you have a 32-bits Linux, you can build it from source following the
 
 ## R packages
 
-The full list of R packages are automatically installed by MiGA. However, we
+The full list of R packages is automatically installed by MiGA. However, we
 will install one package here to make sure everything is properly initialized.
 
 ```bash

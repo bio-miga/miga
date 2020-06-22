@@ -17,7 +17,7 @@ cd E_coli
 ## 1. Download publicly available genomes
 
 There are different stages of completeness defined in the NCBI Genome database,
-and you may want to include only some cases depending on you analysis. The
+and you may want to include only some cases depending on your analysis. The
 stages (from higher to lower quality) are:
 
 1. *Complete*: Genomes including all replicons in the organism(s) sequenced.

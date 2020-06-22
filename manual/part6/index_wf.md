@@ -17,11 +17,12 @@ miga index_wf -h
 ## Expected output
 
 Once your run is complete, you may expect the [standard summaries](summaries.md)
-for `cds`, `assembly`, `essential_genes`, and `ssu`. In addition, all the
-intermediate files are preserved, including assemblies, predicted genes, and
-detected essential and ribosomal genes. Importantly, all-vs-all comparisons are
-generated using Average Amino Acid Identity (AAI) and Average Nucleotide
-Identity (ANI), making this a queriable project.
+for `cds`, `assembly`, `essential_genes`, and `ssu`.
+Additionally all the intermediate files are preserved, including assemblies,
+predicted genes, and detected essential and ribosomal genes.
+Importantly, all-vs-all comparisons are generated using
+Average Amino Acid Identity (AAI) and Average Nucleotide Identity (ANI),
+making this a queriable project.
 
 ## Indexing publicly available genomes
 

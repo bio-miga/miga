@@ -28,7 +28,7 @@ miga preproc_wf -h
 ## Expected output
 
 Once your run is complete, you may expect the [standard summaries](summaries.md)
-for `cds`, `assembly`, `essential_genes`, and `ssu`. In addition, all the
-intermediate files are preserved, including assemblies, predicted genes, and
-detected essential and ribosomal genes.
+for `cds`, `assembly`, `essential_genes`, and `ssu`.
+Additionally all the intermediate files are preserved, including assemblies,
+predicted genes, and detected essential and ribosomal genes.
 

@@ -1,4 +1,4 @@
-# Who's using MiGA?
+# Who is using MiGA?
 
 MiGA provides a wide range of utility to suit a variety of users. Exploration
 of existing datasets can be beneficial for newcomers and experienced scientists
