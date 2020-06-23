@@ -6,7 +6,7 @@ If you don't have Homebrew, execute (and follow the instructions):
 
 ```bash
 /usr/bin/ruby -e "$(curl -fsSL \
-      https://raw.githubusercontent.com/Homebrew/install/master/install)"
+      https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 ```
 
 Next, make sure you have the brewsci/science and brewsci/bio taps:
@@ -23,7 +23,9 @@ Now that you have Homebrew and the science tap, execute:
 ```bash
 # General-purpose software
 brew install r sqlite3 python
-brew cask install java
+rbenv
+# Install a recent ruby
+rbenv install 2.6.6
 # Bioinformatics software
 brew install blast hmmer bedtools \
       prodigal idba mcl barrnap fastqc solexaqa \
@@ -33,6 +35,21 @@ brew install jonchang/biology/scythe
 # See: https://github.com/brewsci/homebrew-bio/issues/23
 # See also: https://github.com/vsbuffalo/scythe/pull/20
 ```
+
+## A recent Ruby
+
+It's possible you already have a recent version of ruby (2.3+).
+To check which version you have, simply run: `ruby -v`.
+If your version of Ruby is older than 2.3, you can install a recent
+version using:
+
+```bash
+brew install libyaml rbenv
+rbenv install 2.7.1
+rbenv global 2.7.1
+```
+
+And make sure to restart your session (close and re-open the terminal).
 
 ## R packages
 
