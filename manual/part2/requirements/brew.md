@@ -1,12 +1,18 @@
-# Installing requirements using Homebrew or Linuxbrew
+# Live notebook
+
+If you prefer to see code in action, the full installation process
+with homebrew is available as a
+[Notebook in Google Collab](https://colab.research.google.com/drive/1Wv4uZwLGuzc5RiAT8NkgJ6B_IKAeM0KU).
+
+# Installing requirements using Homebrew
 
 You can use [Homebrew](https://brew.sh/) to install most of the software
 required by MiGA.
 If you don't have Homebrew, execute (and follow the instructions):
 
 ```bash
-/usr/bin/ruby -e "$(curl -fsSL \
-      https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+/bin/bash -c "$(curl -fsSL \
+  https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 ```
 
 Next, make sure you have the brewsci/science and brewsci/bio taps:
@@ -23,9 +29,6 @@ Now that you have Homebrew and the science tap, execute:
 ```bash
 # General-purpose software
 brew install r sqlite3 python
-rbenv
-# Install a recent ruby
-rbenv install 2.6.6
 # Bioinformatics software
 brew install blast hmmer bedtools \
       prodigal idba mcl barrnap fastqc solexaqa \
@@ -48,8 +51,6 @@ brew install libyaml rbenv
 rbenv install 2.7.1
 rbenv global 2.7.1
 ```
-
-And make sure to restart your session (close and re-open the terminal).
 
 ## R packages
 

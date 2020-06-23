@@ -8,9 +8,9 @@ If you want to use MiGA to process your data, please follow these instructions.
 MiGA has a relatively long list of requirements, but most of them are easy to
 install. Find your system below and follow the instructions using:
 
-* [Anaconda or Miniconda](requirements/conda.md),
+* [Homebrew](requirements/brew.md) (preferred),
 * [`apt-get`](requirements/apt-get.md),
-* [Homebrew or Linuxbrew](requirements/brew.md),
+* [Anaconda](requirements/conda.md),
 * [Installing from source](requirements/source.md).
 
 Additionally you will need [MyTaxa utils](requirements/mytaxa.md)
