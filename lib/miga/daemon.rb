@@ -158,8 +158,8 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Traverse datasets, and returns boolean indicating if at any datasets
-  # are incomplete
+  # Traverse datasets, and returns boolean indicating if at any reference
+  # datasets are incomplete
   def check_datasets
     l_say(2, 'Checking datasets')
     o = false
@@ -167,7 +167,7 @@ class MiGA::Daemon < MiGA::MiGA
       next unless ds.status == :incomplete
       next if ds.next_preprocessing(false).nil?
 
-      o = true
+      o = true if ds.ref?
       queue_job(:d, ds)
     end
     o
