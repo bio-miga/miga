@@ -26,14 +26,15 @@ module MiGA::Project::Hooks
   end
 
   ##
-  # Run +cmd+ in the command-line with {{variables}}: project, miga,
-  # object (as defined by the event, if any)
+  # Run +cmd+ in the command-line with {{variables}}:
+  # project, project_name, miga, object (if defined by the event)
   # - +hook_args+: +[cmd]+
   # - +event_args+: +[object (optional)]+
   def hook_run_cmd(hook_args, event_args)
     Process.wait(
       spawn hook_args.first.miga_variables(
-        project: path, miga: MiGA::MiGA.root_path, object: event_args.first
+        project: path, project_name: name,
+        miga: MiGA::MiGA.root_path, object: event_args.first
       )
     )
   end

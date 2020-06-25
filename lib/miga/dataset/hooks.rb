@@ -52,15 +52,15 @@ module MiGA::Dataset::Hooks
   end
 
   ##
-  # Run +cmd+ in the command-line with {{variables}}: dataset, project, miga,
-  # object (as defined for the event, if any)
+  # Run +cmd+ in the command-line with {{variables}}:
+  # dataset, project, project_name, miga, object (if defined for the event)
   # - +hook_args+: +[cmd]+
   # - +event_args+: +[object (optional)]+
   def hook_run_cmd(hook_args, event_args)
     Process.wait(
       spawn hook_args.first.miga_variables(
-        dataset: name, project: project.path, miga: MiGA::MiGA.root_path,
-        object: event_args.first
+        dataset: name, project: project.path, project_name: project.name,
+        miga: MiGA::MiGA.root_path, object: event_args.first
       )
     )
   end
