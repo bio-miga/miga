@@ -101,7 +101,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   def test_ref_type_status
     declare_remote_access
-    rd = MiGA::RemoteDataset.new('GCA_002849345', :assembly, :ncbi)
+    rd = MiGA::RemoteDataset.new('GCA_003144295.1', :assembly, :ncbi)
     assert { !rd.get_metadata[:is_type] }
     assert { rd.get_metadata[:is_ref_type] }
   end

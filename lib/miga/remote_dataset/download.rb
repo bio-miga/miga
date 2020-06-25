@@ -94,7 +94,7 @@ class MiGA::RemoteDataset
       @timeout_try = 0
       begin
         DEBUG 'GET: ' + url
-        open(url, read_timeout: 600) { |f| doc = f.read }
+        URI.open(url, read_timeout: 600) { |f| doc = f.read }
       rescue => e
         @timeout_try += 1
         raise e if @timeout_try >= 3
