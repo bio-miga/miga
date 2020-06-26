@@ -94,12 +94,13 @@ class MiGA::RemoteDataset
       @timeout_try = 0
       begin
         DEBUG 'GET: ' + url
-        URI.open(url, read_timeout: 600) { |f| doc = f.read }
+        URI.parse(url).open(read_timeout: 600) { |f| doc = f.read }
       rescue => e
         @timeout_try += 1
         raise e if @timeout_try >= 3
 
         sleep 5 # <- For: 429 Too Many Requests
+        DEBUG "RETRYING after: #{e}"
         retry
       end
       doc
