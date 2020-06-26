@@ -1,6 +1,6 @@
 # Contributors
 
-## Project conception and design
+## Conception and Design
 
 - [Luis M Rodriguez-R](https://rodriguez-r.com/)
 - [Konstantinos T Konstantinidis](http://enve-omics.gatech.edu/)
@@ -22,4 +22,13 @@
 - [John Quensen](https://john-quensen.com/)
 - William T Harvey
 - Tanya Kiryutina
+
+## Testing and Evaluation
+
+- [Luis M Rodriguez-R](https://rodriguez-r.com/)
+- Brittany J Suttner
+- Fang Yuan
+- Santosh Gunturu
+- Jianshu Zhao
+- Roth Conrad
 

@@ -41,6 +41,7 @@ Developed and maintained by [Luis M. Rodriguez-R][lrr]. MiGA is the result of a
 collaboration between [Kostas Lab][kostas] at the Georgia Institute of
 Technology and [RDP][rdp] at Michigan State University.
 
+See also the [complete list of contributors](manual/part1/contributors.md).
 
 # License
 
