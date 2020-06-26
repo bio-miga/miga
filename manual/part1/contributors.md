@@ -1,7 +1,5 @@
 # Contributors
 
-**Lead developer**: [Luis M Rodriguez-R](https://rodriguez-r.com/)
-
 ## Project conception and design
 
 - [Luis M Rodriguez-R](https://rodriguez-r.com/)
