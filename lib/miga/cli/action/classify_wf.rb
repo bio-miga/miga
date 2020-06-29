@@ -42,7 +42,9 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
         '--no-summaries',
         'Do not generate intermediate step summaries'
       ) { |v| cli[:summaries] = v }
-      opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)')
+      opts_for_wf(
+        opt, 'Input genome assemblies (nucleotides, FastA)', qual: false
+      )
     end
   end
 

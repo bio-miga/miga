@@ -72,6 +72,7 @@ class MiGA::Daemon < MiGA::MiGA
     say '-----------------------------------'
     say 'MiGA:%s launched' % project.name
     say '-----------------------------------'
+    recalculate_status!
     load_status
     say 'Configuration options:'
     say @runopts.to_s
@@ -99,6 +100,7 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   def recalculate_status!
+    say 'Recalculating status for all datasets'
     project.each_dataset(&:recalculate_status)
   end
 

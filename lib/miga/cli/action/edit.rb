@@ -17,18 +17,21 @@ class MiGA::Cli::Action::Edit < MiGA::Cli::Action
         'Activate dataset; requires -D'
       ) { |v| cli[:activate] = v }
       opt.on(
-        '--inactivate',
-        'Inactivate dataset; requires -D'
-      ) { |v| cli[:activate] = !v }
+        '--inactivate [reason]',
+        'Inactivate dataset; requires -D',
+        'The argument is optional: reason to inactivate dataset'
+      ) { |v| cli[:activate] = false ; cli[:reason] = v }
     end
   end
 
   def perform
     obj = cli.load_project_or_dataset
     unless cli[:activate].nil?
-      cli.ensure_par({ dataset: '-D' },
-                     '%<name>s is mandatory with --[in-]activate: please provide %<flag>s')
-      cli[:activate] ? obj.activate! : obj.inactivate!
+      cli.ensure_par(
+        { dataset: '-D' },
+        '%<name>s is mandatory with --[in-]activate: please provide %<flag>s'
+      )
+      cli[:activate] ? obj.activate! : obj.inactivate!(cli[:reason])
     end
     cli.add_metadata(obj)
     obj.save

@@ -97,7 +97,10 @@ class MiGA::Dataset < MiGA::MiGA
 
   ##
   # Inactivate a dataset. This halts automated processing by the daemon
-  def inactivate!
+  # 
+  # If given, the +reason+ string is saved as a metadata +:warn+ entry
+  def inactivate!(reason = nil)
+    metadata[:warn] = "Inactive: #{reason}" unless reason.nil?
     metadata[:inactive] = true
     metadata.save
     pull_hook :on_inactivate
@@ -107,6 +110,7 @@ class MiGA::Dataset < MiGA::MiGA
   # Activate a dataset. This removes the +:inactive+ flag
   def activate!
     metadata[:inactive] = nil
+    metadata[:warn] = nil if metadata[:warn] && metadata[:warn] =~ /^Inactive: /
     metadata.save
     pull_hook :on_activate
   end

@@ -70,7 +70,7 @@ module MiGA::Dataset::Result
         false
       elsif add_result(t, save).nil?
         if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
-          inactivate!
+          inactivate! "Too many errors in step #{t}"
           false
         else
           true

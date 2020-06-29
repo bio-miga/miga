@@ -35,8 +35,8 @@ module MiGA::Dataset::Base
     mytaxa: '07.annotation/02.taxonomy/01.mytaxa',
     mytaxa_scan: '07.annotation/03.qa/02.mytaxa_scan',
     # Distances (for single-species datasets)
-    distances: '09.distances',
     taxonomy: '09.distances/05.taxonomy',
+    distances: '09.distances',
     # General statistics
     stats: '90.stats'
   }

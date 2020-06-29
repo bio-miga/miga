@@ -5,7 +5,7 @@ before_install:
 jobs:
   include:
     # Run remote tests in only one version
-    - rvm: 2.3.0
+    - rvm: 2.3.8
       env: REMOTE_TESTS=true
       after_script: "bundle exec codeclimate-test-reporter"
     # Additional tests with standard versions

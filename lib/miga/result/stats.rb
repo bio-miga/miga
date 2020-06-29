@@ -8,6 +8,7 @@ module MiGA::Result::Stats
   # (Re-)calculate and save the statistics for the result
   def compute_stats
     method = :"compute_stats_#{key}"
+    MiGA::MiGA.DEBUG "Result(#{key}).compute_stats"
     stats = self.respond_to?(method, true) ? send(method) : nil
     unless stats.nil?
       self[:stats] = stats
@@ -109,20 +110,8 @@ module MiGA::Result::Stats
         end
       end
     else
-      # Fix estimate by domain
-      if !(tax = source.metadata[:tax]).nil? &&
-         %w[Archaea Bacteria].include?(tax[:d]) &&
-         file_path(:raw_report).nil?
-        scr = "#{MiGA::MiGA.root_path}/utils/domain-ess-genes.rb"
-        rep = file_path(:report)
-        rc_p = File.expand_path('.miga_rc', ENV['HOME'])
-        rc = File.exist?(rc_p) ? ". '#{rc_p}' && " : ''
-        $stderr.print `#{rc} ruby '#{scr}' \
-          '#{rep}' '#{rep}.domain' '#{tax[:d][0]}'`
-        add_file(:raw_report, "#{source.name}.ess/log")
-        add_file(:report, "#{source.name}.ess/log.domain")
-      end
-      # Extract/compute quality values
+      # Estimate quality metrics
+      fix_essential_genes_by_domain
       stats = { completeness: [0.0, '%'], contamination: [0.0, '%'] }
       File.open(file_path(:report), 'r') do |fh|
         fh.each_line do |ln|
@@ -131,6 +120,8 @@ module MiGA::Result::Stats
           end
         end
       end
+
+      # Determine qualitative range
       stats[:quality] = stats[:completeness][0] - stats[:contamination][0] * 5
       source.metadata[:quality] =
         case stats[:quality]
@@ -140,6 +131,12 @@ module MiGA::Result::Stats
         else; :low
         end
       source.save
+
+      # Inactivate low-quality datasets
+      min_qual = (project.metadata[:min_qual] || 50)
+      if min_qual != 'no' && stats[:quality] < min_qual
+        source.inactivate! 'Low genome quality'
+      end
     end
     stats
   end
@@ -174,5 +171,22 @@ module MiGA::Result::Stats
       end
     end
     stats
+  end
+
+  # Fix estimates based on essential genes based on taxonomy
+  def fix_essential_genes_by_domain
+    return if (tax = source.metadata[:tax]).nil? ||
+       !%w[Archaea Bacteria].include?(tax[:d]) ||
+       file_path(:raw_report)
+
+    MiGA::MiGA.DEBUG "Fixing essential genes by domain"
+    scr = "#{MiGA::MiGA.root_path}/utils/domain-ess-genes.rb"
+    rep = file_path(:report)
+    rc_p = File.expand_path('.miga_rc', ENV['HOME'])
+    rc = File.exist?(rc_p) ? ". '#{rc_p}' && " : ''
+    $stderr.print `#{rc} ruby '#{scr}' \
+      '#{rep}' '#{rep}.domain' '#{tax[:d][0]}'`
+    add_file(:raw_report, "#{source.name}.ess/log")
+    add_file(:report, "#{source.name}.ess/log.domain")
   end
 end

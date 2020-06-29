@@ -15,7 +15,7 @@ module MiGA::Cli::Action::Wf
 
   def opts_for_wf(opt, files_desc, params = {})
     {
-      multi: false, cleanup: true, project_type: false, ncbi: true
+      multi: false, cleanup: true, project_type: false, ncbi: true, qual: true
     }.each { |k, v| params[k] = v if params[k].nil? }
     opt.on(
       '-o', '--out_dir PATH',
@@ -39,6 +39,13 @@ module MiGA::Cli::Action::Wf
         '--no-draft',
         'Only download complete genomes, not drafts'
       ) { |v| cli[:ncbi_draft] = v }
+    end
+    if params[:qual]
+      opt.on(
+        '--min-qual FLOAT', Float,
+        'Minimum genome quality to include in analysis',
+        'By default: 50.0'
+      ) { |v| cli[:min_qual] = v }
     end
     if params[:cleanup]
       opt.on(
@@ -125,7 +132,7 @@ module MiGA::Cli::Action::Wf
              ]) unless MiGA::Project.exist? cli[:outdir]
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
-    [:haai_p, :aai_p, :ani_p, :ess_coll].each { |i| p_metadata[i] = cli[i] }
+    %i[haai_p aai_p ani_p ess_coll min_qual].each { |i| p_metadata[i] = cli[i] }
     p_metadata[:type] = cli[:project_type]
     transfer_metadata(p, p_metadata)
     # Download datasets
@@ -159,7 +166,7 @@ module MiGA::Cli::Action::Wf
                  '-P', cli[:outdir],
                  '-r', r,
                  '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
-                 '--tab'
+                 '--tab', '--ref', '--active'
                ])
     end
   end

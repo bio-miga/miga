@@ -185,11 +185,13 @@ class DatasetTest < Test::Unit::TestCase
     d = dataset
     assert_equal(:incomplete, d.status)
     assert_predicate(d, :active?)
-    d.inactivate!
+    d.inactivate! 'Too annoying'
     assert_equal(:inactive, d.status)
+    assert_equal('Inactive: Too annoying', d.metadata[:warn])
     assert_not_predicate(d, :active?)
     d.activate!
     assert_equal(:incomplete, d.status)
+    assert_nil(d.metadata[:warn])
     assert_predicate(d, :active?)
   end
 

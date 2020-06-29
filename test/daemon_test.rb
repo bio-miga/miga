@@ -93,7 +93,7 @@ class DaemonTest < Test::Unit::TestCase
       0 => /-{20}\n/,
       1 => /MiGA:#{p.name} launched/,
       2 => /-{20}\n/,
-      5 => /Probing running jobs\n/
+      6 => /Probing running jobs\n/
     }.each { |k, v| assert_match(v, l[k], "unexpected line: #{k}") }
   ensure
     begin

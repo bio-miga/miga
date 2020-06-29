@@ -9,7 +9,12 @@ cd "$PROJECT/data/09.distances"
 # Initialize
 miga date > "$DATASET.start"
 
-# Run
+# Check quality first
+miga stats -P "$PROJECT" -D "$DATASET" -r essential_genes --compute-and-save
+inactive=$(miga ls -P "$PROJECT" -D "$DATASET" -m inactive | cut -f 2)
+[[ "$inactive" == "true" ]] && exit
+
+# Run distances
 ruby -I "$MIGA/lib" "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET"
 
 # Finalize
