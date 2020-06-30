@@ -135,7 +135,7 @@ module MiGA::Result::Stats
       # Inactivate low-quality datasets
       min_qual = (project.metadata[:min_qual] || 50)
       if min_qual != 'no' && stats[:quality] < min_qual
-        source.inactivate! 'Low genome quality'
+        source.inactivate! 'Low quality genome'
       end
     end
     stats
