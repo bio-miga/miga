@@ -134,12 +134,10 @@ module MiGA::Project::Dataset
   ##
   # Are all the datasets in the project preprocessed? Save intermediate results
   # if +save+ (until the first incomplete dataset is reached).
-  def done_preprocessing?(save = true)
-    dataset_names.each do |dn|
-      ds = dataset(dn)
-      return false if ds.is_ref? and not ds.done_preprocessing?(save)
+  def done_preprocessing?(save = false)
+    !each_dataset.any? do |d|
+      d.ref? && d.active? && !d.done_preprocessing?(save)
     end
-    true
   end
 
   ##

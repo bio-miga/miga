@@ -185,7 +185,7 @@ class MiGA::Daemon < MiGA::MiGA
     return if project.dataset_names.empty?
 
     # Double-check if all datasets are ready
-    return unless project.done_preprocessing?(false)
+    return unless project.done_preprocessing?
 
     # Queue project-level job
     to_run = project.next_task(nil, false)

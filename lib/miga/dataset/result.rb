@@ -26,15 +26,24 @@ module MiGA::Dataset::Result
   # The values are symbols:
   # - empty: the dataset has no data
   # - inactive: the dataset is inactive
+  # - upstream: the task is upstream from dataset's input
   # - force: forced to ignore by metadata
   # - project: incompatible project
   # - noref: incompatible dataset, only for reference
   # - multi: incompatible dataset, only for multi
   # - nonmulti: incompatible dataset, only for nonmulti
+  # - complete: the task is already complete
   # - execute: do not ignore, execute the task
   def why_ignore(task)
-    if !active?
+    if !get_result(task).nil?
+      :complete
+    elsif !active?
       :inactive
+    elsif first_preprocessing.nil?
+      :empty
+    elsif @@PREPROCESSING_TASKS.index(task) <
+          @@PREPROCESSING_TASKS.index(first_preprocessing)
+      :upstream
     elsif !metadata["run_#{task}"].nil?
       metadata["run_#{task}"] ? :execute : :force
     elsif task == :taxonomy && project.metadata[:ref_project].nil?
@@ -56,7 +65,7 @@ module MiGA::Dataset::Result
   # initial input. Passes +save+ to #add_result.
   def first_preprocessing(save = false)
     @first_processing ||= @@PREPROCESSING_TASKS.find do |t|
-      !ignore_task?(t) && !add_result(t, save).nil?
+      !add_result(t, save).nil?
     end
   end
 
@@ -121,17 +130,12 @@ module MiGA::Dataset::Result
   # - complete: a task with registered results
   # - pending: a task queued to be performed
   def result_status(task)
-    if first_preprocessing.nil?
-      :ignore_empty
-    elsif !get_result(task).nil?
-      :complete
-    elsif @@PREPROCESSING_TASKS.index(task) <
-          @@PREPROCESSING_TASKS.index(first_preprocessing)
-      :-
-    elsif ignore_task?(task)
-      :"ignore_#{why_ignore task}"
-    else
-      :pending
+    reason = why_ignore(task)
+    case reason
+    when :upstream; :-
+    when :execute; :pending
+    when :complete; :complete
+    else; :"ignore_#{reason}"
     end
   end
 

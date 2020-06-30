@@ -108,7 +108,7 @@ class ProjectTest < Test::Unit::TestCase
     d1 = p1.add_dataset('BAH')
     assert_not_predicate(p1, :done_preprocessing?)
     FileUtils.touch(File.join(p1.path, 'data', '90.stats', "#{d1.name}.done"))
-    assert_predicate(p1, :done_preprocessing?)
+    assert { p1.done_preprocessing? true }
     assert_nil(p1.next_inclade)
     p1.metadata[:type] = :clade
     assert_equal(:subclades, p1.next_inclade)

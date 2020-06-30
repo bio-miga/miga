@@ -111,7 +111,7 @@ class MiGA::Lair < MiGA::MiGA
 
         yield(project)
       elsif Dir.exist? f
-        each_project(f) { |project| yield(project) }
+        each_project(f) { |p| yield(p) }
       end
     end
   end
