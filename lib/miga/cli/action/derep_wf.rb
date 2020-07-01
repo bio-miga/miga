@@ -20,6 +20,10 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
         'By default: Use Average Nucleotide Identity (ANI)'
       ) { cli[:metric] = :aai }
       opt.on(
+        '--ani',
+        'Use Average Nucleotide Identity (ANI) as similarity metric (default)'
+      ) { cli[:metric] = :ani }
+      opt.on(
         '--threshold FLOAT', Float,
         "Metric threshold (%) to dereplicate. By default: #{cli[:threshold]}"
       ) { |v| cli[:threshold] = v }
