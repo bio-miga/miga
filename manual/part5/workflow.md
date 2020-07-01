@@ -63,6 +63,8 @@ Statistics:
   * `length_standard_deviation`: Standard deviation of read length (in bp)
   * `g_c_content`: G+C content of all reads (in %)
   * `x_content`: Undetermined bases content of all reads (in %)
+  * `a_t_skew`: A-T sequence skew across all reads (in %)
+  * `g_c_skew`: G-C sequence skew across all reads (in %)
 * **For paired-end reads only**
   * `read_pairs`: Total number of read pairs
   * `forward_length_average`: Average forward read length (in bp)
@@ -70,9 +72,13 @@ Statistics:
     length (in bp)
   * `forward_g_c_content`: G+C content of forward reads (in %)
   * `forward_x_content`: Undetermined bases content of forward reads (in %)
+  * `forward_a_t_skew`: A-T sequence skew across forward reads (in %)
+  * `forward_g_c_skew`: G-C sequence skew across forward reads (in %)
   * `reverse_length_average`, `reverse_length_standard_deviation`,
   * `reverse_g_c_content`: Same as above, for reverse reads
   * `reverse_x_content`: Undetermined bases content of reverse reads (in %)
+  * `reverse_a_t_skew`: A-T sequence skew across reverse reads (in %)
+  * `reverse_g_c_skew`: G-C sequence skew across reverse reads (in %)
 
 MiGA symbol: `raw_reads`.
 
@@ -138,6 +144,8 @@ Statistics:
 * `length_standard_deviation`: Standard deviation of read length (in bp)
 * `g_c_content`: G+C content of all reads (in %)
 * `x_content`: Undetermined bases content of all reads (in %)
+* `a_t_skew`: A-T sequence skew across all reads (in %)
+* `g_c_skew`: G-C sequence skew across all reads (in %)
 
 MiGA symbol: `trimmed_fasta`.
 
@@ -164,6 +172,8 @@ Statistics:
 * `n_content`: Undetermined bases content of large contigs (in %)
 * `g_c_content`: G+C content of large contigs (in %)
 * `x_content`: Undetermined bases content of large contigs (in %)
+* `a_t_skew`: A-T sequence skew across large contigs (in %)
+* `g_c_skew`: G-C sequence skew across large contigs (in %)
 
 MiGA symbol: `assembly`.
 

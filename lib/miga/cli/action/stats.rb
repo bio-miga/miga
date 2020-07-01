@@ -38,7 +38,7 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
     end
     if cli[:key].nil?
       r[:stats].each do |k, v|
-        k_n = k == :g_c_content ? 'G+C content' : k.to_s.unmiga_name.capitalize
+        k_n = k.to_s.unmiga_name.sub(/^./, &:upcase)
         cli.puts "#{k_n}: #{v.is_a?(Array) ? v.join(' ') : v}"
       end
     else

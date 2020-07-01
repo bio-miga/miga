@@ -9,7 +9,7 @@ All metadata objects support the following fields:
 | created*     | [Date](../glossary.md#miga-dates) | Date of creation
 | updated*     | [Date](../glossary.md#miga-dates) | Date of last update
 
-**\*** Mandatory
+> **\*** Mandatory
 
 ## Projects
 
@@ -26,7 +26,7 @@ Metadata with additional information and features about the project:
 | description  | String           | Free-form description
 | name*        | [Name](../glossary.md#miga-names) | Name‡
 
-**\*** Mandatory
+> **\*** Mandatory
 
 
 ### Project System Metadata
@@ -38,9 +38,9 @@ Metadata entries automatically set by MiGA:
 | datasets*    | Array of String  | List of datasets in the project
 | type*        | String           | [Type](../part2/types.md#project-types)
 
-**\*** Mandatory
-
-**‡** By default the base name of the project path
+> **\*** Mandatory
+> 
+> **‡** By default the base name of the project path
 
 
 ### Project Flags
@@ -64,13 +64,17 @@ Metadata entries that trigger specific behaviors in MiGA:
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 95)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
 | ess_coll     | String           | Collection of essential genes to use+
+| min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 50)
 
-**°** By default: `blast+`. Other supported values: `blast`, `blat`,
-`diamond` (except for ANI), and `fastani` (only for ANI), `no` (only for hAAI).
-If using `diamond` and/or `fastani`, the corresponding software must be
-installed
-
-**+** One of: `dupont_2012` (default), or `lee_2019`
+> **°** By default: `blast+`. Other supported values: `blast`, `blat`,
+> `diamond` (except for ANI), and `fastani` (only for ANI),
+> `no` (only for hAAI).
+> If using `diamond` and/or `fastani`, the corresponding software must be
+> installed.
+> **Important**: These defaults will change in v1.0 to: `blast+` for hAAI,
+> `diamond` for AAI, and `fastani` for ANI.
+>
+> **+** One of: `dupont_2012` (default), or `lee_2019`
 
 
 ### Project Hooks
@@ -135,11 +139,11 @@ Metadata with additional information and features about the dataset:
 | type_rel     | String           | Relationship to type material
 | suspect      | Array(String)    | Flags indicating a suspect dataset
 
-**‡** Multiple values can be provided separated by commas or colons
-
-**°** This is not a valid type, but it represents the closest available dataset
-to material that is unavailable and unlikely to ever become available.
-See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
+> **‡** Multiple values can be provided separated by commas or colons
+> 
+> **°** This is not a valid type, but it represents the closest available
+> dataset to material that is unavailable and unlikely to ever become available.
+> See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
 
 
 ### Dataset System Metadata
@@ -157,7 +161,7 @@ Metadata entries automatically set by MiGA:
 | \_try_`step` | Integer          | For internal control of processing
 | ~~user~~     | String           | Deprecated
 
-**\*** Mandatory
+> **\*** Mandatory
 
 
 ### Dataset Flags
@@ -170,8 +174,8 @@ Metadata entries that trigger specific behaviors in MiGA:
 | db_project   | Path             | Project to use as database
 | dist_req     | Array of String  | Run distances against these datasets*
 
-\* When searching best-matching datasets, include these datasets even if
-they are not visited using the medoid tree
+> **\*** When searching best-matching datasets, include these datasets even if
+> they are not visited using the medoid tree
 
 
 ### Dataset Hooks

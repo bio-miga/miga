@@ -68,15 +68,20 @@ module MiGA::Common::Format
   # a FastA or FastQ file (supports gzipped files). The +format+ must be a
   # Symbol, one of +:fasta+ or +:fastq+. Additional estimations can be
   # controlled via the +opts+ Hash. Supported options include:
-  # - +:n50+: If true, it also returns the N50 and the median (in bp)
-  # - +:gc+: If true, it also returns the G+C content (in %)
-  # - +:x+: If true, it also returns the undetermined bases content (in %)
+  # - +:n50+: Include the N50 and the median (in bp)
+  # - +:gc+: Include the G+C content (in %)
+  # - +:x+: Include the undetermined bases content (in %)
+  # - +:skew+: Include G-C and A-T sequence skew (in %; forces gc: true).
+  #   See definition used here in DOI:10.1177/117693430700300006
   def seqs_length(file, format, opts = {})
+    opts[:gc] = true if opts[:skew]
     fh = file =~ /\.gz/ ? Zlib::GzipReader.open(file) : File.open(file, 'r')
     l = []
     gc = 0
     xn = 0
-    i = 0 # <- Zlib::GzipReader doesn't set `$.`
+    t  = 0
+    c  = 0
+    i  = 0 # <- Zlib::GzipReader doesn't set `$.`
     fh.each_line do |ln|
       i += 1
       if (format == :fasta and ln =~ /^>/) or
@@ -86,6 +91,10 @@ module MiGA::Common::Format
         l[l.size - 1] += ln.chomp.size
         gc += ln.scan(/[GCgc]/).count if opts[:gc]
         xn += ln.scan(/[XNxn]/).count if opts[:x]
+        if opts[:skew]
+          t += ln.scan(/[Tt]/).count
+          c += ln.scan(/[Cc]/).count
+        end
       end
     end
     fh.close
@@ -97,6 +106,12 @@ module MiGA::Common::Format
     o[:sd]  = Math.sqrt o[:var]
     o[:gc]  = 100.0 * gc / o[:tot] if opts[:gc]
     o[:x]   = 100.0 * xn / o[:tot] if opts[:x]
+    if opts[:skew]
+      at = o[:tot] - gc
+      o[:at_skew] = 100.0 * (2 * t - at) / at
+      o[:gc_skew] = 100.0 * (2 * c - gc) / gc
+    end
+
     if opts[:n50]
       l.sort!
       thr = o[:tot] / 2
@@ -132,9 +147,14 @@ class String
   end
 
   ##
-  # Replace underscores by spaces or dots (depending on context).
+  # Replace underscores by spaces or other symbols depending on context
   def unmiga_name
-    gsub(/_(str|sp|subsp|pv)__/, '_\\1._').tr('_', ' ')
+    gsub(/_(str|sp|subsp|pv)__/, '_\\1._')
+      .gsub(/g_c_(content)/, 'G+C \\1')
+      .gsub(/g_c_(skew)/, 'G-C \\1')
+      .gsub(/a_t_(skew)/, 'A-T \\1')
+      .gsub(/x_content/, &:capitalize)
+      .tr('_', ' ')
   end
 
   ##

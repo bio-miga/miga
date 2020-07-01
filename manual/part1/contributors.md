@@ -18,7 +18,7 @@
 ## Documentation
 
 - [Luis M Rodriguez-R](https://rodriguez-r.com/)
-- MaryFrances Johnson
+- [MaryFrances Johnson](mailto:mjohnson394@gatech.edu)
 - [John Quensen](https://john-quensen.com/)
 - William T Harvey
 - Tanya Kiryutina
