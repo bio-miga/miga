@@ -64,7 +64,7 @@ Metadata entries that trigger specific behaviors in MiGA:
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 95)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
 | ess_coll     | String           | Collection of essential genes to use+
-| min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 50)
+| min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 25)
 
 > **°** By default: `blast+`. Other supported values: `blast`, `blat`,
 > `diamond` (except for ANI), and `fastani` (only for ANI),
