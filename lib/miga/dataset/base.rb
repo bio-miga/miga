@@ -66,7 +66,7 @@ module MiGA::Dataset::Base
   @@PREPROCESSING_TASKS = [
     :raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta,
     :assembly, :cds, :essential_genes, :ssu, :mytaxa, :mytaxa_scan,
-    :distances, :taxonomy, :stats
+    :taxonomy, :distances, :stats
   ]
 
   ##
@@ -77,7 +77,7 @@ module MiGA::Dataset::Base
   ##
   # Tasks to be executed only in datasets that are not multi-organism. These
   # tasks are ignored for multi-organism datasets or for unknown types.
-  @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :distances, :taxonomy]
+  @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :taxonomy, :distances]
   @@_ONLY_NONMULTI_TASKS_H = Hash[@@ONLY_NONMULTI_TASKS.map { |i| [i, true] }]
 
   ##
