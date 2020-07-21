@@ -71,10 +71,14 @@ class MiGA::DistanceRunner
     # Initialize databases
     initialize_dbs! true
 
-    # first-come-first-serve traverse
-    ref_project.each_dataset do |ds|
-      next if !ds.is_ref? or ds.is_multi? or ds.result(:essential_genes).nil?
+    # Find relevant datasets
+    relevant = ref_project.each_dataset.map.select do |ds|
+      ds.is_ref? && !is_multi && !ds.result(:essential_genes).nil?
+    end
 
+    # first-come-first-serve traverse
+    batch_kaai(relevant)
+    relevant.each do |ds|
       puts "[ #{Time.now} ] #{ds.name}"
       ani_after_aai(ds)
     end

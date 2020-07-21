@@ -43,6 +43,16 @@ if exists "$DATASET".ess/*.faa ; then
       && rm *.faa )
 fi
 
+# Index for kAAI
+TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
+trap "rm -rf '$TMPDIR'; exit" SIGHUP SIGINT SIGTERM
+gzip -cd "$FAA" > "${TMPDIR}/$DATASET"
+echo "${TMPDIR}/$DATASET" > "${TMPDIR}/${DATASET}.kaai"
+kAAI_v1.0.py -i \
+  --qp "${TMPDIR}/${DATASET}.kaai" --rp "${TMPDIR}/${DATASET}.kaai"
+mv "${TMPDIR}/${DATASET}.kaai.db.gz" "${DATASET}.ess/"
+rm -rf "$TMPDIR"
+
 # Finalize
 miga date > "${DATASET}.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f

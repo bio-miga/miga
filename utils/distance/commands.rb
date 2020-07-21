@@ -42,6 +42,46 @@ module MiGA::DistanceRunner::Commands
   end
 
   ##
+  # Estimates AAI against +targets+ in batch using kAAI
+  def batch_kaai(targets)
+    # Lists of databases
+    list1 = tmp_file('kaai_list_1.txt')
+    File.open(list1, 'w') do |fh|
+      fh.puts dataset.result(:essential_genes).file_path(:kaai_db)
+    end
+    list2 = tmp_file('kaai_list_2.txt')
+    File.open(list2, 'w') do |fh|
+      targets
+        .map { |d| d.result(:essential_genes).file_path(:kaai_db) }
+        .compact.each { |i| fh.puts i }
+    end
+
+    # Run kAAI
+    out = tmp_file('kaai_out.txt')
+    `kAAI_v1.0.py --qd "#{list1}" --rd "#{list2}" \
+      -t "#{opts[:thr]}" -o "#{out}"`
+
+    # Save results in the database
+    File.open(out, 'r') do |fh|
+      kaai_conn = SQLite3::Database.new(tmp_dbs[:haai])
+      aai_conn  = SQLite3::Database.new(tmp_dbs[:aai])
+      fh.each do |ln|
+        row = ln.chomp.split("\t")
+        row[2] = row[2].to_f * 100
+        kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
+        # TODO
+        # row[2] = TRANSFORMATION OVER row[2]
+        # next if row[2] > 80
+        aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
+      end
+      kaai_conn.close
+      aai_conn.close
+      checkpoint :haai
+      checkpoint :aai
+    end
+  end
+
+  ##
   # Calculates ANI against +target+
   def ani(target)
     # Check if the request makes sense
