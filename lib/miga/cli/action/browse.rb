@@ -34,7 +34,9 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     %w[favicon-32.png style.css].each do |i|
       FileUtils.cp(template_file(i), browse_file(p, i))
     end
-    write_file(p, 'about.html') { build_from_template('about.html') }
+    write_file(p, 'about.html') do
+      build_from_template('about.html', citation: MiGA::MiGA.CITATION)
+    end
   end
 
   ##
@@ -118,11 +120,9 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   def format_results(obj)
     o = '<div class="row">'
     obj.each_result do |key, res|
-      links = ''
-      res.each_file do |key, _|
-        name = key.to_s.unmiga_name.sub(/^./, &:upcase)
-        links += "<a href='file://#{res.file_path(key)}'>#{name}</a><br/>"
-      end
+      links = format_result_links(res)
+      stats = format_result_stats(res)
+      next unless links || stats
       name = key.to_s.unmiga_name.sub(/^./, &:upcase)
       name.sub!(/(Aai|Ani|Ogs|Cds|Ssu)/, &:upcase)
       name.sub!(/Haai/, 'hAAI')
@@ -132,13 +132,36 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
       o += <<~CARD
         <div class="col-md-6 mb-4">
           <h3>#{name}</h3>
-          #{links}
-          <a target=_blank href="#{url_doc}" class="border-top">Learn more</a>
+          <div class='border-left p-3'>
+            #{stats}
+            #{links}
+          </div>
+          <div class='border-top p-2 bg-light'>
+            <a target=_blank href="#{url_doc}" class='p-2'>Learn more</a>
+          </div>
         </div>
       CARD
     end
     o += '</div>'
     o
+  end
+
+  def format_result_links(res)
+    links = []
+    res.each_file do |key, _|
+      name = key.to_s.unmiga_name.sub(/^./, &:upcase)
+      links << "<a href='file://#{res.file_path(key)}'>#{name}</a><br/>"
+    end
+    links.empty? ? nil : links.join('')
+  end
+
+  def format_result_stats(res)
+    return if res.stats.nil? || res.stats.empty?
+    res.stats.map do |k, v|
+      v = [v, ''] unless v.is_a? Array
+      v[0] = ('%.3g' % v[0]) if v[0].is_a? Float
+      "<b>#{k.to_s.unmiga_name}:</b> #{v[0]}#{v[1]}<br/>"
+    end.join('') + '<br/>'
   end
 
   ##
