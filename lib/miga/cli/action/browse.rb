@@ -1,8 +1,8 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 require 'miga/cli/action'
 
+# Action: miga browse
 class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   def parse_cli
     cli.parse do |opt|
@@ -13,14 +13,12 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
 
   def perform
     p = cli.load_project
-    say 'Creating project page'
     create_empty_page(p)
     generate_project_page(p)
     say 'Creating dataset pages'
     cli.load_project.each_dataset do |d|
       generate_dataset_page(p, d)
     end
-    say 'Creating index pages'
     generate_datasets_index(p)
     say "Open in your browser: #{File.join(p.path, 'index.html')}"
   end
@@ -30,6 +28,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   ##
   # Create an empty page with necessary assets for project +p+
   def create_empty_page(p)
+    say 'Creating project page'
     FileUtils.mkdir_p(browse_file(p, '.'))
     %w[favicon-32.png style.css].each do |i|
       FileUtils.cp(template_file(i), browse_file(p, i))
@@ -66,7 +65,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     data = {
       unmiga_name: d.name.unmiga_name,
       information: format_metadata(d),
-      results: format_results(d),
+      results: format_results(d)
     }
     write_file(p, "d_#{d.name}.html") do
       build_from_template('dataset.html', data)
@@ -76,14 +75,8 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   ##
   # Create pages for reference and query dataset indexes
   def generate_datasets_index(p)
-    data = {
-      ref: { type_name: 'Reference', list: '' },
-      qry: { type_name: 'Query', list: '' }
-    }
-    p.each_dataset do |d|
-      data[d.ref? ? :ref : :qry][:list] +=
-        "<li><a href='d_#{d.name}.html'>#{d.name.unmiga_name}</a></li>"
-    end
+    say 'Creating index pages'
+    data = format_dataset_index(p)
     data.each do |k, v|
       write_file(p, "#{k}_datasets.html") do
         v[:list] = 'None' if v[:list] == ''
@@ -95,24 +88,36 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     end
   end
 
+  def format_dataset_index(p)
+    data = {
+      ref: { type_name: 'Reference', list: '' },
+      qry: { type_name: 'Query', list: '' }
+    }
+    p.each_dataset do |d|
+      data[d.ref? ? :ref : :qry][:list] +=
+        "<li><a href='d_#{d.name}.html'>#{d.name.unmiga_name}</a></li>"
+    end
+    data
+  end
+
   ##
   # Format +obj+ metadata as a table
   def format_metadata(obj)
-    o = '<table class="table table-sm table-responsive">'
-    obj.metadata.data.each do |k, v|
-      next if k.to_s =~ /^run_/
-      case k
-      when :plugins, :user
-        next
-      when :web_assembly_gz
-        v = "<a href='#{v}'>#{v[0..50]}...</a>"
-      end
-      v = v.size if k == :datasets
-      o += "<tr><td class='text-right pr-4'><b>#{k.to_s.unmiga_name}</b></td>"
-      o += "<td>#{v}</td></tr>"
-    end
-    o += '</table>'
-    o
+    '<table class="table table-sm table-responsive">' +
+      obj.metadata.data.map do |k, v|
+        next if k.to_s =~ /^run_/
+        case k
+        when :plugins, :user
+          next
+        when :web_assembly_gz
+          v = "<a href='#{v}'>#{v[0..50]}...</a>"
+        when :datasets
+          v = v.size
+        end
+        "<tr><td class='text-right pr-4'><b>#{k.to_s.unmiga_name}</b></td>" \
+             "<td>#{v}</td></tr>"
+      end.compact.join('') +
+      '</table>'
   end
 
   ##
@@ -123,12 +128,15 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
       links = format_result_links(res)
       stats = format_result_stats(res)
       next unless links || stats
-      name = key.to_s.unmiga_name.sub(/^./, &:upcase)
-      name.sub!(/(Aai|Ani|Ogs|Cds|Ssu)/, &:upcase)
-      name.sub!(/Haai/, 'hAAI')
-      name.sub!(/Mytaxa/, 'MyTaxa')
-      url_doc = "http://manual.microbial-genomes.org/part5/workflow#"
-      url_doc += key.to_s.gsub('_', '-')
+      name =
+        key.to_s.unmiga_name
+          .sub(/^./, &:upcase)
+          .sub(/(Aai|Ani|Ogs|Cds|Ssu)/, &:upcase)
+          .sub(/Haai/, 'hAAI')
+          .sub(/Mytaxa/, 'MyTaxa')
+      url_doc =
+        'http://manual.microbial-genomes.org/part5/workflow#' +
+          key.to_s.tr('_', '-')
       o += <<~CARD
         <div class="col-md-6 mb-4">
           <h3>#{name}</h3>
@@ -142,8 +150,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
         </div>
       CARD
     end
-    o += '</div>'
-    o
+    o + '</div>'
   end
 
   def format_result_links(res)
@@ -156,7 +163,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   end
 
   def format_result_stats(res)
-    return if res.stats.nil? || res.stats.empty?
+    return if res.stats.empty?
     res.stats.map do |k, v|
       v = [v, ''] unless v.is_a? Array
       v[0] = ('%.3g' % v[0]) if v[0].is_a? Float
@@ -180,7 +187,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
 
     build_from_template(
       'layout.html',
-      data.merge({ content: cont, project_name: cli.load_project.name }),
+      data.merge(content: cont, project_name: cli.load_project.name),
       false
     )
   end
@@ -199,5 +206,4 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   def browse_file(p, file)
     File.join(p.path, 'browse', file)
   end
-
 end
