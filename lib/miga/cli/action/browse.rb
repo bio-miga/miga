@@ -105,16 +105,15 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   def format_metadata(obj)
     '<table class="table table-sm table-responsive">' +
       obj.metadata.data.map do |k, v|
-        next if k.to_s =~ /^run_/
         case k
-        when :plugins, :user
+        when /^run_/, :plugins, :user
           next
         when :web_assembly_gz
           v = "<a href='#{v}'>#{v[0..50]}...</a>"
         when :datasets
           v = v.size
         end
-        "<tr><td class='text-right pr-4'><b>#{k.to_s.unmiga_name}</b></td>" \
+        "<tr><td class='text-right pr-4'><b>#{format_name(k)}</b></td>" \
              "<td>#{v}</td></tr>"
       end.compact.join('') +
       '</table>'
@@ -123,20 +122,15 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   ##
   # Format +obj+ results as cards
   def format_results(obj)
-    o = '<div class="row">'
+    o = ''
     obj.each_result do |key, res|
       links = format_result_links(res)
       stats = format_result_stats(res)
       next unless links || stats
-      name =
-        key.to_s.unmiga_name
-          .sub(/^./, &:upcase)
-          .sub(/(Aai|Ani|Ogs|Cds|Ssu)/, &:upcase)
-          .sub(/Haai/, 'hAAI')
-          .sub(/Mytaxa/, 'MyTaxa')
+      name = format_name(key)
       url_doc =
         'http://manual.microbial-genomes.org/part5/workflow#' +
-          key.to_s.tr('_', '-')
+        key.to_s.tr('_', '-')
       o += <<~CARD
         <div class="col-md-6 mb-4">
           <h3>#{name}</h3>
@@ -150,25 +144,35 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
         </div>
       CARD
     end
-    o + '</div>'
+    "<div class='row'>#{o}</div>"
+  end
+
+  def format_name(str)
+    str
+      .to_s.unmiga_name
+      .sub(/^./, &:upcase)
+      .gsub(/(Aai|Ani|Ogs|Cds|Ssu| db$| ssu )/, &:upcase)
+      .sub(/Haai/, 'hAAI')
+      .sub(/Mytaxa/, 'MyTaxa')
+      .sub(/ pvalue$/, ' p-value')
+      .sub(/contigs$/, 'Contigs')
   end
 
   def format_result_links(res)
     links = []
     res.each_file do |key, _|
-      name = key.to_s.unmiga_name.sub(/^./, &:upcase)
+      name = format_name(key)
       links << "<a href='file://#{res.file_path(key)}'>#{name}</a><br/>"
     end
     links.empty? ? nil : links.join('')
   end
 
   def format_result_stats(res)
-    return if res.stats.empty?
     res.stats.map do |k, v|
       v = [v, ''] unless v.is_a? Array
       v[0] = ('%.3g' % v[0]) if v[0].is_a? Float
-      "<b>#{k.to_s.unmiga_name}:</b> #{v[0]}#{v[1]}<br/>"
-    end.join('') + '<br/>'
+      "<b>#{format_name(k)}:</b> #{v[0]}#{v[1]}<br/>"
+    end.join('') + '<br/>' unless res.stats.empty?
   end
 
   ##
