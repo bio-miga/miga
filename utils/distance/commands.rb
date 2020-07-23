@@ -69,9 +69,9 @@ module MiGA::DistanceRunner::Commands
         row = ln.chomp.split("\t")
         row[2] = row[2].to_f * 100
         kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
-        # TODO
-        # row[2] = TRANSFORMATION OVER row[2]
-        # next if row[2] > 80
+        next if row[2] > 90 # Maximum kAAI value with valid transformation
+        p = [-0.3087057, 1.810741, -0.2607023, 3.435] # kAAI -> AAI parameters
+        row[2] = p[0] + p[1] * (Math.exp(-(p[3] * Math.log(row[2]))**(1.0/p[4])))
         aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
       end
       kaai_conn.close
