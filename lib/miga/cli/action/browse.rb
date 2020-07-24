@@ -46,7 +46,8 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
 
     # Summaries
     summaries = Dir["#{p.path}/*.tsv"].map do |i|
-      "<li><a href='file://#{i}'>#{File.basename(i)}</a></li>"
+      b = File.basename(i)
+      "<li><a href='../#{b}'>#{b}</a></li>"
     end.join('')
 
     # Project index page
@@ -162,7 +163,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     links = []
     res.each_file do |key, _|
       name = format_name(key)
-      links << "<a href='file://#{res.file_path(key)}'>#{name}</a><br/>"
+      links << "<a href='../#{res.file_path(key, true)}'>#{name}</a><br/>"
     end
     links.empty? ? nil : links.join('')
   end

@@ -81,20 +81,22 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Directory containing the result
-  def dir
-    File.dirname(path)
+  # Directory containing the result; by default an absolute path, if
+  # +relative+ is true returns the path relative to the parent project
+  def dir(relative = false)
+    relative ? relative_dir : File.dirname(path)
   end
 
   ##
-  # Absolute path to the file(s) defined by symbol +k+
-  def file_path(k)
+  # Absolute path to the file(s) defined by symbol +k+, or relative
+  # path if +relative+ is true
+  def file_path(k, relative = false)
     k = k.to_sym
     f = self[:files].nil? ? nil : self[:files][k]
     return nil if f.nil?
-    return File.expand_path(f, dir) unless f.is_a? Array
+    return File.join(dir(relative), f) unless f.is_a? Array
 
-    f.map { |fi| File.expand_path(fi, dir) }
+    f.map { |fi| File.join(dir(relative), fi) }
   end
 
   ##
