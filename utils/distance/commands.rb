@@ -1,4 +1,5 @@
 module MiGA::DistanceRunner::Commands
+  ##
   # Estimates or calculates AAI against +target+
   def aai(target)
     # Check if the request makes sense
@@ -8,11 +9,10 @@ module MiGA::DistanceRunner::Commands
     y = stored_value(target, :aai)
     return y unless y.nil? || y.zero?
 
-    # Try hAAI (except in clade projects)
-    unless @ref_project.is_clade?
-      y = haai(target)
-      return y unless y.nil? || y.zero?
-    end
+    # Try kAAI
+    y = kaai(target)
+    return y unless y.nil? || y.zero?
+
     # Full AAI
     aai_cmd(
       tmp_file('proteins.fa'), target.result(:cds).file_path(:proteins),
@@ -21,29 +21,19 @@ module MiGA::DistanceRunner::Commands
   end
 
   ##
-  # Estimates AAI against +target+ using hAAI
-  def haai(target)
-    return nil if opts[:haai_p] == 'no'
+  # Estimates AAI against +target+ using kAAI
+  def kaai(target)
+    return nil if opts[:haai_p] == 'no' || @ref_project.is_clade?
 
-    haai = aai_cmd(tmp_file('ess_genes.fa'),
-                   target.result(:essential_genes).file_path(:ess_genes),
-                   dataset.name, target.name, tmp_dbs[:haai],
-                   aai_save_rbm: 'no-save-rbm', aai_p: opts[:haai_p])
-    checkpoint :haai
-    return nil if haai.nil? || haai.zero? || haai > 90.0
-
-    aai = 100.0 - Math.exp(2.435076 + 0.4275193 * Math.log(100.0 - haai))
-    SQLite3::Database.new(tmp_dbs[:aai]) do |conn|
-      conn.execute 'insert into aai values(?, ?, ?, 0, 0, 0)',
-                   [dataset.name, target.name, aai]
-    end
-    checkpoint :aai
-    aai
+    batch_kaai([target])
+    stored_value(target, :aai)
   end
 
   ##
   # Estimates AAI against +targets+ in batch using kAAI
   def batch_kaai(targets)
+    return nil if opts[:haai_p] == 'no' || @ref_project.is_clade?
+
     # Lists of databases
     list1 = tmp_file('kaai_list_1.txt')
     File.open(list1, 'w') do |fh|
@@ -66,13 +56,14 @@ module MiGA::DistanceRunner::Commands
       kaai_conn = SQLite3::Database.new(tmp_dbs[:haai])
       aai_conn  = SQLite3::Database.new(tmp_dbs[:aai])
       fh.each do |ln|
-        row = ln.chomp.split("\t")
-        row[2] = row[2].to_f * 100
-        kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
-        next if row[2] > 90 # Maximum kAAI value with valid transformation
+        r = ln.chomp.split("\t")
+        r[2] = r[2].to_f * 100
+        kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
+        next if r[2] > 90 || r[2].zero? # kAAI valid range
+
         p = [-0.3087057, 1.810741, -0.2607023, 3.435] # kAAI -> AAI parameters
-        row[2] = p[0] + p[1] * (Math.exp(-(p[3] * Math.log(row[2]))**(1.0/p[4])))
-        aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', row)
+        r[2] = p[0] + p[1] * (Math.exp(-(p[3] * Math.log(r[2]))**(1.0/p[4])))
+        aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
       end
       kaai_conn.close
       aai_conn.close

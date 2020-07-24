@@ -3,27 +3,34 @@ module MiGA::DistanceRunner::Pipeline
   # Recursively classify the dataset, returning an Array with two entries:
   # classification and cluster number
   def classify(clades, classif, metric, result_fh, val_cls = nil)
+    # Check if the project is ready
     dir = File.expand_path(classif, clades)
     med = File.expand_path('miga-project.medoids', dir)
     return [classif, val_cls] unless File.size? med
 
+    # Identify all medoids in the level and run batch kAAI
+    File.open(med, 'r') do |med_fh|
+      medoids = med_fh.each.map { |med_ln| ref_project.dataset(med_ln.chomp) }
+    end
+    puts "[ #{Time.now} ] Batch kAAI against #{medoids.size} datasets"
+    batch_kaai(medoids)
+
+    # Traverse level to find best matching medoid
     max_val = 0
     val_med = ''
     val_cls = nil
-    i_n = 0
-    File.open(med, 'r') do |med_fh|
-      med_fh.each_line do |med_ln|
-        i_n += 1
-        med_ln.chomp!
-        val = send(metric, ref_project.dataset(med_ln))
-        if !val.nil? and val >= max_val
-          max_val = val
-          val_med = med_ln
-          val_cls = i_n
-          puts "[#{classif}] New max: #{val_med} (#{val_cls}): #{max_val}"
-        end
+    medoids.each_with_index do |med, idx|
+      med_ln.chomp!
+      val = send(metric, med)
+      if !val.nil? and val >= max_val
+        max_val = val
+        val_med = med.name
+        val_cls = idx + 1
+        puts "[#{classif}] New max: #{val_med} (#{val_cls}): #{max_val}"
       end
     end
+
+    # Continue classification one level down
     classif = "#{classif}/miga-project.sc-#{val_cls}"
     result_fh.puts [val_cls, val_med, max_val, classif].join("\t")
     classify(clades, classif, metric, result_fh, val_cls)

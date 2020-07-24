@@ -73,10 +73,11 @@ class MiGA::DistanceRunner
 
     # Find relevant datasets
     relevant = ref_project.each_dataset.map.select do |ds|
-      ds.is_ref? && !is_multi && !ds.result(:essential_genes).nil?
+      ds.ref? && !ds.multi? && !ds.result(:essential_genes).nil?
     end
 
     # first-come-first-serve traverse
+    puts "[ #{Time.now} ] Batch kAAI against #{relevant.size} datasets"
     batch_kaai(relevant)
     relevant.each do |ds|
       puts "[ #{Time.now} ] #{ds.name}"
