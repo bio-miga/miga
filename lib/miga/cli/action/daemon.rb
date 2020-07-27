@@ -6,7 +6,7 @@ require 'miga/daemon'
 
 class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
   def parse_cli
-    cli.defaults = { daemon_opts: [] }
+    cli.defaults = { daemon_opts: [], show_log: false }
     cli.expect_operation = true
     cli.parse do |opt|
       opt.separator 'Available operations:'
@@ -45,6 +45,10 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
         '--json PATH',
         'Path to a custom daemon definition in json format'
       ) { |v| cli[:json] = v }
+      opt.on(
+        '--show-log',
+        'Display log on advance instead of the progress summary'
+      ) { |v| cli[:show_log] = v }
       cli.opt_common(opt)
 
       opt.separator 'Daemon options:'
@@ -73,6 +77,7 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
     d = MiGA::Daemon.new(p, cli[:json])
     dopts = %i[latency maxjobs nodelist ppn shutdown_when_done]
     dopts.each { |k| d.runopts(k, cli[k]) }
+    d.show_log! if cli[:show_log]
     d.daemon(cli.operation, cli[:daemon_opts])
   end
 end

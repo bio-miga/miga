@@ -73,4 +73,28 @@ module MiGA::Daemon::Base
   def verbosity
     runopts(:verbosity) || 1
   end
+
+  ##
+  # Writing file handler (IO) to the log file
+  def logfh
+    @logfh ||= show_log? ? $stderr : File.open(output_file, 'w')
+  end
+
+  ##
+  # Display log instead of the progress summary
+  def show_log!
+    @show_log = true
+  end
+
+  ##
+  # Display progress summary instead of the log
+  def show_summary!
+    @show_log = false
+  end
+
+  ##
+  # Display log instead of the progress summary?
+  def show_log?
+    @show_log ||= false
+  end
 end

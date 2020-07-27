@@ -4,6 +4,7 @@
 require 'miga/project'
 require 'miga/common/with_daemon'
 require 'miga/daemon/base'
+require 'miga/cli'
 
 ##
 # MiGA Daemons handling job submissions.
@@ -113,7 +114,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Same as +l_say+ with +level = 1+
   def say(*msg)
-    super(*msg) if verbosity >= 1
+    super(logfh, *msg) if verbosity >= 1
   end
 
   ##
@@ -172,6 +173,7 @@ class MiGA::Daemon < MiGA::MiGA
       o = true if ds.ref?
       queue_job(:d, ds)
     end
+    # TODO ADD ADVANCE HERE
     o
   end
 
