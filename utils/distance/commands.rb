@@ -57,12 +57,14 @@ module MiGA::DistanceRunner::Commands
       aai_conn  = SQLite3::Database.new(tmp_dbs[:aai])
       fh.each do |ln|
         r = ln.chomp.split("\t")
-        r[2] = r[2].to_f * 100
+        kaai = r[2].to_f
+        r[2] = kaai * 100
         kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
-        next if r[2] > 90 || r[2].zero? # kAAI valid range
+        next if kaai > 0.9 || kaai.zero? # kAAI valid range
 
-        p = [-0.3087057, 1.810741, -0.2607023, 3.435] # kAAI -> AAI parameters
-        r[2] = p[0] + p[1] * (Math.exp(-(p[3] * Math.log(r[2]))**(1.0/p[4])))
+        p = [-0.3087057, 1.810741, -0.2607023, 1/3.435] # kAAI -> AAI parameters
+        r[2] = p[0] + p[1] * (Math.exp(-(p[2] * Math.log(kaai))**p[3]))
+        r[2] *= 100.0
         aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
       end
       kaai_conn.close

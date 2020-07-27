@@ -282,7 +282,8 @@ module MiGA::Dataset::Result
       ess_genes: '.ess.faa',
       collection: '.ess',
       report: '.ess/log',
-      alignments: '.ess/proteins.aln'
+      alignments: '.ess/proteins.aln',
+      kaai_db: '.ess/kaai.db'
     )
   end
 

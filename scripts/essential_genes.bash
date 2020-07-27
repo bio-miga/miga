@@ -50,7 +50,7 @@ gzip -cd "$FAA" > "${TMPDIR}/$DATASET"
 echo "${TMPDIR}/$DATASET" > "${TMPDIR}/${DATASET}.kaai"
 kAAI_v1.0.py -i \
   --qp "${TMPDIR}/${DATASET}.kaai" --rp "${TMPDIR}/${DATASET}.kaai"
-mv "${TMPDIR}/${DATASET}.kaai.db.gz" "${DATASET}.ess/"
+mv "${TMPDIR}/${DATASET}.kaai.db.gz" "${DATASET}.ess/kaai.db.gz"
 rm -rf "$TMPDIR"
 
 # Finalize
