@@ -59,14 +59,19 @@ module MiGA::DistanceRunner::Commands
         r = ln.chomp.split("\t")
         kaai = r[2].to_f
         r[2] = kaai * 100
-        kaai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
-        next if kaai > 0.9 || kaai.zero? # kAAI valid range
+        r[3] = r[3].to_f * 100
+        kaai_conn.execute('insert into aai values(?, ?, ?, ?, ?, ?)', r)
+        next if kaai > 0.9 || kaai.zero? || r[2] > 20.0 # kAAI valid range
 
         p = [-0.3087057, 1.810741, -0.2607023, 1/3.435] # kAAI -> AAI parameters
         r[2] = p[0] + p[1] * (Math.exp(-(p[2] * Math.log(kaai))**p[3]))
+        next if r[2] / r[3] > 0.3 # Discard CV > 30%
+
         r[2] *= 100.0
-        aai_conn.execute('insert into aai values(?, ?, ?, 0, ?, ?)', r)
+        r[3] = nil # <- No closed form to estimate SD from kAAI SD yet
+        aai_conn.execute('insert into aai values(?, ?, ?, ?, ?, ?)', r)
       end
+      # Save self-match
       kaai_conn.close
       aai_conn.close
       checkpoint :haai

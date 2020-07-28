@@ -27,6 +27,13 @@ module MiGA::DistanceRunner::Database
                      "seq1 varchar(256), seq2 varchar(256), " +
                      "#{t} float, sd float, n int, omega int" +
                      ")"
+        # Save trivial self match when it isn't necessary
+        if @project.path == @ref_project.path && !@ref_project.is_clade?
+          conn.execute(
+            "insert into #{t} values(?,?,?,?,?,?)",
+            [dataset.name, dataset.name, 100, 0, nil, nil]
+          )
+        end
       end unless File.size? dbs[m]
       # Copy over to (local) temporals
       @tmp_dbs[m] = tmp_file("#{m}.db")
