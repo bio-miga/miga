@@ -32,7 +32,8 @@ module MiGA::DistanceRunner::Commands
   ##
   # Estimates AAI against +targets+ in batch using kAAI
   def batch_kaai(targets)
-    return nil if opts[:haai_p] == 'no' || @ref_project.is_clade?
+    return nil if opts[:haai_p] == 'no' || @ref_project.is_clade? ||
+                  dataset.result(:essential_genes).file_path(:kaai_db).nil?
 
     # Lists of databases
     list1 = tmp_file('kaai_list_1.txt')

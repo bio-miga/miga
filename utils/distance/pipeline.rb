@@ -9,6 +9,7 @@ module MiGA::DistanceRunner::Pipeline
     return [classif, val_cls] unless File.size? med
 
     # Identify all medoids in the level and run batch kAAI
+    medoids = []
     File.open(med, 'r') do |med_fh|
       medoids = med_fh.each.map { |med_ln| ref_project.dataset(med_ln.chomp) }
     end
@@ -20,7 +21,6 @@ module MiGA::DistanceRunner::Pipeline
     val_med = ''
     val_cls = nil
     medoids.each_with_index do |med, idx|
-      med_ln.chomp!
       val = send(metric, med)
       if !val.nil? and val >= max_val
         max_val = val
