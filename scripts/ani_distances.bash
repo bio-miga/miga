@@ -13,16 +13,19 @@ echo -n "" > miga-project.log
 DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 
 # Extract values
-echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
-for i in $DS ; do
-  echo "SELECT 'ANI', seq1, seq2, ani, sd, n, omega from ani ;" \
-    | sqlite3 "$i.db" | tr "\\|" "\\t" >>miga-project.txt
-  echo "$i" >> miga-project.log
-done
+rm -f miga-project.txt
+(
+  echo "metric a b value sd n omega" | tr " " "\\t"
+  for i in $DS ; do
+    echo "SELECT 'ANI', seq1, seq2, ani, sd, n, omega from ani ;" \
+      | sqlite3 "$i.db" | tr "\\|" "\\t"
+    echo "$i" >> miga-project.log
+  done
+) | gzip -9c > miga-project.txt.gz
 
 # R-ify
 echo "
-ani <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
+ani <- read.table(gzfile('miga-project.txt.gz'), sep='\\t', h=T, as.is=TRUE);
 save(ani, file='miga-project.Rdata');
 if(sum(ani[,'a'] != ani[,'b']) > 0){
   h <- hist(ani[ani[,'a'] != ani[,'b'], 'value'], breaks=100, plot=FALSE);
@@ -33,9 +36,6 @@ if(sum(ani[,'a'] != ani[,'b']) > 0){
     col.names=FALSE, row.names=FALSE);
 }
 " | R --vanilla
-
-# Gzip
-gzip -9 -f miga-project.txt
 
 # Finalize
 miga date > "miga-project.done"
