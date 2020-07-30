@@ -11,6 +11,16 @@ If you prefer to see code in action, the full installation process
 with conda is available as a
 [Notebook in Google Collab](https://colab.research.google.com/drive/1ybCCPbbZtJ41HC_1yNYed8Yf-q9CDY5a).
 
+## Note for MacOS users
+
+> The bioconda fastani recipe currently depends on packages that force
+> downgrading other important packages (including R). This can cause some
+> issues, and we're currently recommending the use of [Homebrew](brew.md)
+> whenever possible. If this is not an option for you, a good alternative might
+> be to install FastANI from source instead of using conda. Finally, you could
+> use the instructions below, if the risk of employing old libraries outweights
+> the burden of installation.
+
 ## Essentials
 
 Now that you have Conda, activate it. If you want to create a separate clean
