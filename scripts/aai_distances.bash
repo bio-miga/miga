@@ -13,17 +13,20 @@ echo -n "" > miga-project.log
 DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 
 # Extract values
-echo "metric a b value sd n omega" | tr " " "\\t" >miga-project.txt
-for i in $DS ; do
-  echo "SELECT CASE WHEN omega!=0 THEN 'AAI' ELSE 'hAAI_AAI' END," \
-    " seq1, seq2, aai, sd, n, omega from aai;" \
-    | sqlite3 "$i.db" | tr "\\|" "\\t" >>miga-project.txt
-  echo "$i" >> miga-project.log
-done
+rm -f miga-project.txt
+(
+  echo "metric a b value sd n omega" | tr " " "\\t"
+  for i in $DS ; do
+    echo "SELECT CASE WHEN omega!=0 THEN 'AAI' ELSE 'hAAI_AAI' END," \
+      " seq1, seq2, aai, sd, n, omega from aai;" \
+      | sqlite3 "$i.db" | tr "\\|" "\\t"
+    echo "$i" >> miga-project.log
+  done
+) | gzip -9c > miga-project.txt.gz
 
 # R-ify
 echo "
-aai <- read.table('miga-project.txt', sep='\\t', h=T, as.is=TRUE);
+aai <- read.table(gzfile('miga-project.txt.gz'), sep='\\t', h=T, as.is=TRUE);
 save(aai, file='miga-project.Rdata');
 if(sum(aai[,'a'] != aai[,'b']) > 0){
   h <- hist(aai[aai[,'a'] != aai[,'b'], 'value'], breaks=100, plot=FALSE);
@@ -34,9 +37,6 @@ if(sum(aai[,'a'] != aai[,'b']) > 0){
     col.names=FALSE, row.names=FALSE);
 }
 " | R --vanilla
-
-# Gzip
-gzip -9 -f miga-project.txt
 
 # Finalize
 miga date > "miga-project.done"

@@ -17,6 +17,12 @@ module MiGA::Result::Stats
     self[:stats]
   end
 
+  ##
+  # Access the stats entry of results
+  def stats
+    self[:stats]
+  end
+
   private
 
   def compute_stats_raw_reads

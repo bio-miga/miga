@@ -169,6 +169,7 @@ module MiGA::Cli::Action::Wf
                  '--tab', '--ref', '--active'
                ])
     end
+    call_cli(['browse', '-P', cli[:outdir]])
   end
 
   def cleanup

@@ -91,7 +91,8 @@ class MiGA::Daemon < MiGA::MiGA
     flush!
     if (loop_i % 12).zero?
       purge!
-      recalculate_status!
+      # TEMPORARILY DISABLED:
+      # recalculate_status!
     end
     save_status
     sleep(latency)
