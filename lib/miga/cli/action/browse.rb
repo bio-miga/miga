@@ -46,8 +46,9 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
 
     # Summaries
     summaries = Dir["#{p.path}/*.tsv"].map do |i|
-      b = File.basename(i)
-      "<li><a href='../#{b}'>#{b}</a></li>"
+      b = File.basename(i, '.tsv')
+      generate_summary_page(i, p)
+      "<li><a href='s-#{b}.html'>#{format_name(b)}</a></li>"
     end.join('')
 
     # Project index page
@@ -58,6 +59,32 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
       results: format_results(p)
     }
     write_file(p, 'index.html') { build_from_template('index.html', data) }
+  end
+
+  ##
+  # Create page for the summary +path+ in project +p+
+  def generate_summary_page(path, p)
+    b = File.basename(path, '.tsv')
+    table = '<table class="table table-hover table-responsive">'
+    File.open(path, 'r') do |fh|
+      fh.each do |ln|
+        r = ln.chomp.split("\t")
+        if $. == 1
+          table += '<thead><tr>' +
+            r.map { |i| "<th scope=col>#{format_name(i)}</th>" }.join(' ') +
+            '</tr></thead><tbody>'
+        else
+          table += "<tr><th scope=row>#{r.shift}</th>" +
+            r.map { |i| "<td>#{i}</td>" }.join(' ') + "</tr>"
+        end
+      end
+    end
+    table += '</tbody></table>'
+    write_file(p, "s-#{b}.html") do
+      build_from_template(
+        'summary.html', file: "#{b}.tsv", name: format_name(b), table: table
+      )
+    end
   end
 
   ##
