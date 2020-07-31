@@ -17,7 +17,7 @@ rm -f miga-project.txt
 (
   echo "metric a b value sd n omega" | tr " " "\\t"
   for i in $DS ; do
-    echo "SELECT CASE WHEN omega!=0 THEN 'AAI' ELSE 'hAAI_AAI' END," \
+    echo "SELECT CASE WHEN omega IS NOT NULL THEN 'AAI' ELSE 'kAAI' END," \
       " seq1, seq2, aai, sd, n, omega from aai;" \
       | sqlite3 "$i.db" | tr "\\|" "\\t"
     echo "$i" >> miga-project.log

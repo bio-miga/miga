@@ -70,6 +70,8 @@ module MiGA::DistanceRunner::Commands
 
         r[2] *= 100.0
         r[3] = nil # <- No closed form to estimate SD from kAAI SD yet
+        r[4] = nil
+        r[5] = nil
         aai_conn.execute('insert into aai values(?, ?, ?, ?, ?, ?)', r)
       end
       # Save self-match
