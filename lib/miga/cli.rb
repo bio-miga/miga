@@ -189,8 +189,9 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Perform the task requested (see #task)
-  def launch
+  # Perform the task requested (see #task); if +abort_on_error+, abort on
+  # error
+  def launch(abort_on_error = false)
     begin
       raise "See `miga -h`" if action.nil?
 
@@ -199,6 +200,7 @@ class MiGA::Cli < MiGA::MiGA
       $stderr.puts "Exception: #{err}"
       $stderr.puts ''
       err.backtrace.each { |l| $stderr.puts "DEBUG: #{l}" }
+      abort if abort_on_error
       err
     end
   end
