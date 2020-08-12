@@ -11,11 +11,12 @@
 
 For additional information on MiGA, visit:
 
-* [MiGA Online][miga-online]: The Microbial Genomes Atlas Online.
+* [MiGA Online][miga-online]: The Microbial Genomes Atlas Online
+* [MiGA@XSEDE][miga-at-xsede]: The MiGA@XSEDE Gateway
 * [MiGA users list][mailing-list]:
-  Forum to discuss with other users and developers.
-* [MiGA manual][manual]: The definitive guide to MiGA.
-* [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem.
+  Forum to discuss with other users and developers
+* [MiGA manual][manual]: The definitive guide to MiGA
+* [MiGA API docs][rubydoc]: Inner-workings of the `miga-base` gem
 * [MiGA Web][miga-web]: MiGA on Rails!
 
 # For the impatient
@@ -39,7 +40,8 @@ You have two options:
 
 Developed and maintained by [Luis M. Rodriguez-R][lrr]. MiGA is the result of a
 collaboration between [Kostas Lab][kostas] at the Georgia Institute of
-Technology and [RDP][rdp] at Michigan State University.
+Technology, [Rodriguez-R Lab][lrr] at the University of Innsbruck,
+and [RDP][rdp] at Michigan State University.
 
 See also the [complete list of contributors](manual/part1/contributors.md).
 
@@ -47,7 +49,7 @@ See also the [complete list of contributors](manual/part1/contributors.md).
 
 See [LICENSE](LICENSE).
 
-[lrr]: http://lmrodriguezr.github.io/
+[lrr]: https://rodriguez-r.com/
 [mailing-list]: http://support.microbial-genomes.org/
 [manual]: https://manual.microbial-genomes.org/
 [rubydoc]: http://www.rubydoc.info/github/bio-miga/miga
@@ -55,5 +57,6 @@ See [LICENSE](LICENSE).
 [miga-web]: https://github.com/bio-miga/miga-web
 [miga-gui]: https://github.com/bio-miga/miga-gui
 [miga-online]: http://microbial-genomes.org/
+[miga-at-xsede]: https://xsede.microbial-genomes.org/
 [kostas]: http://enve-omics.gatech.edu/
 [rdp]: http://rdp.cme.msu.edu/
