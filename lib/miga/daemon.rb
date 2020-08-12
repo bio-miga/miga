@@ -4,7 +4,6 @@
 require 'miga/project'
 require 'miga/common/with_daemon'
 require 'miga/daemon/base'
-require 'miga/cli'
 
 ##
 # MiGA Daemons handling job submissions.
@@ -73,6 +72,7 @@ class MiGA::Daemon < MiGA::MiGA
     say '-----------------------------------'
     say 'MiGA:%s launched' % project.name
     say '-----------------------------------'
+    miga_say "Saving log to: #{output_file}" unless show_log?
     recalculate_status!
     load_status
     say 'Configuration options:'
@@ -111,6 +111,8 @@ class MiGA::Daemon < MiGA::MiGA
   def l_say(level, *msg)
     say(*msg) if verbosity >= level
   end
+
+  alias miga_say say
 
   ##
   # Same as +l_say+ with +level = 1+
@@ -174,7 +176,12 @@ class MiGA::Daemon < MiGA::MiGA
       o = true if ds.ref?
       queue_job(:d, ds)
     end
-    # TODO ADD ADVANCE HERE
+    unless show_log?
+      n = project.dataset_names.count
+      k = jobs_to_run.size + jobs_running.size
+      advance('Datasets:', n - k, n, false)
+      miga_say if k == 0
+    end
     o
   end
 
@@ -334,8 +341,9 @@ class MiGA::Daemon < MiGA::MiGA
       kill: %w[pid]
     }.each do |k, v|
       if !runopts(k).nil? && runopts(k) =~ /%(\d+\$)?[ds]/
-        runopts(k,
-                runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map { |i| "{{#{i}}}" })
+        runopts(
+          k, runopts(k).gsub(/%(\d+\$)?d/, '%\\1s') % v.map { |i| "{{#{i}}}" }
+        )
       end
     end
     runopts(:format_version, 1)
