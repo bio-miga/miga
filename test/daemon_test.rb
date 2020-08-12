@@ -9,7 +9,7 @@ class DaemonTest < Test::Unit::TestCase
   def setup
     initialize_miga_home(
       <<~DAEMON
-        { "maxjobs": 1, "ppn": 1, "latency": 2, "varsep": " ",
+        { "maxjobs": 1, "ppn": 1, "latency": 2, "varsep": " ", "show_log": true,
           "var": "{{key}}={{value}}", "cmd": "echo {{task_name}} >/dev/null",
           "alive": "echo 1 # {{pid}}", "type": "bash", "format_version": 1 }
       DAEMON
