@@ -9,7 +9,7 @@ module MiGA::Cli::Action::Wf
     cli.defaults = {
       clean: false, regexp: MiGA::Cli.FILE_REGEXP,
       project_type: :genomes, dataset_type: :popgenome,
-      ncbi_draft: true
+      ncbi_draft: true, min_qual: 25.0
     }
   end
 
@@ -42,10 +42,10 @@ module MiGA::Cli::Action::Wf
     end
     if params[:qual]
       opt.on(
-        '--min-qual FLOAT', Float,
+        '--min-qual FLOAT',
         'Minimum genome quality to include in analysis',
-        'By default: 50.0'
-      ) { |v| cli[:min_qual] = v }
+        "By default: #{cli[:min_qual]}"
+      ) { |v| cli[:min_qual] = v == 'no' ? v : v.to_f }
     end
     if params[:cleanup]
       opt.on(
