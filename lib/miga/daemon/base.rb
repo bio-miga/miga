@@ -17,7 +17,7 @@ module MiGA::Daemon::Base
         if !force && v == 0 && k != :verbosity
           raise "Daemon's #{k} cannot be set to zero"
         end
-      when :shutdown_when_done
+      when :shutdown_when_done, :show_log
         v = !!v
       when :nodelist
         if v =~ /^\$/
@@ -72,5 +72,29 @@ module MiGA::Daemon::Base
   # 3: Same, and indicate when each loop begins and ends
   def verbosity
     runopts(:verbosity) || 1
+  end
+
+  ##
+  # Writing file handler (IO) to the log file
+  def logfh
+    show_log? ? $stderr : (@logfh ||= File.open(output_file, 'w'))
+  end
+
+  ##
+  # Display log instead of the progress summary
+  def show_log!
+    @show_log = true
+  end
+
+  ##
+  # Display progress summary instead of the log
+  def show_summary!
+    @runopts[:show_log] = false
+  end
+
+  ##
+  # Display log instead of the progress summary?
+  def show_log?
+    @runopts[:show_log] ||= false
   end
 end

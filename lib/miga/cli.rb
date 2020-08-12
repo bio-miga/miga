@@ -110,30 +110,9 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Reports the advance of a task at +step+ (String), the +n+ out of +total+.
-  # The advance is reported in powers of 1,024 if +bin+ is true, or powers of
-  # 1,000 otherwise.
-  # The report goes to $stderr iff --verborse
-  def advance(step, n = 0, total = nil, bin = true)
-    return unless self[:verbose]
-
-    adv = total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
-      ('%.1f%% (%s/%s)' % [100.0 * n / total,
-                           num_suffix(n, bin), num_suffix(total, bin)])
-    $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
-  end
-
-  def num_suffix(n, bin = false)
-    p = ''
-    { T: 4, G: 3, M: 2, K: 1 }.each do |k, x|
-      v = (bin ? 1024 : 1e3)**x
-      if n > v
-        n = '%.1f' % (n / v)
-        p = k
-        break
-      end
-    end
-    "#{n}#{p}"
+  # Same as MiGA::MiGA#advance, but checks if the CLI is verbose
+  def advance(*par)
+    super(*par) if self[:verbose]
   end
 
   ##
@@ -189,8 +168,9 @@ class MiGA::Cli < MiGA::MiGA
   end
 
   ##
-  # Perform the task requested (see #task)
-  def launch
+  # Perform the task requested (see #task); if +abort_on_error+, abort on
+  # error
+  def launch(abort_on_error = false)
     begin
       raise "See `miga -h`" if action.nil?
 
@@ -199,6 +179,7 @@ class MiGA::Cli < MiGA::MiGA
       $stderr.puts "Exception: #{err}"
       $stderr.puts ''
       err.backtrace.each { |l| $stderr.puts "DEBUG: #{l}" }
+      abort if abort_on_error
       err
     end
   end

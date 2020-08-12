@@ -15,12 +15,12 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     p = cli.load_project
     create_empty_page(p)
     generate_project_page(p)
-    say 'Creating dataset pages'
+    cli.say 'Creating dataset pages'
     cli.load_project.each_dataset do |d|
       generate_dataset_page(p, d)
     end
     generate_datasets_index(p)
-    say "Open in your browser: #{File.join(p.path, 'index.html')}"
+    cli.say "Open in your browser: #{File.join(p.path, 'index.html')}"
   end
 
   private
@@ -28,7 +28,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   ##
   # Create an empty page with necessary assets for project +p+
   def create_empty_page(p)
-    say 'Creating project page'
+    cli.say 'Creating project page'
     FileUtils.mkdir_p(browse_file(p, '.'))
     %w[favicon-32.png style.css].each do |i|
       FileUtils.cp(template_file(i), browse_file(p, i))
@@ -46,8 +46,9 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
 
     # Summaries
     summaries = Dir["#{p.path}/*.tsv"].map do |i|
-      b = File.basename(i)
-      "<li><a href='../#{b}'>#{b}</a></li>"
+      b = File.basename(i, '.tsv')
+      generate_summary_page(i, p)
+      "<li><a href='s-#{b}.html'>#{format_name(b)}</a></li>"
     end.join('')
 
     # Project index page
@@ -58,6 +59,32 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
       results: format_results(p)
     }
     write_file(p, 'index.html') { build_from_template('index.html', data) }
+  end
+
+  ##
+  # Create page for the summary +path+ in project +p+
+  def generate_summary_page(path, p)
+    b = File.basename(path, '.tsv')
+    table = '<table class="table table-hover table-responsive">'
+    File.open(path, 'r') do |fh|
+      fh.each do |ln|
+        r = ln.chomp.split("\t")
+        if $. == 1
+          table += '<thead><tr>' +
+            r.map { |i| "<th scope=col>#{format_name(i)}</th>" }.join(' ') +
+            '</tr></thead><tbody>'
+        else
+          table += "<tr><th scope=row>#{r.shift}</th>" +
+            r.map { |i| "<td>#{i}</td>" }.join(' ') + "</tr>"
+        end
+      end
+    end
+    table += '</tbody></table>'
+    write_file(p, "s-#{b}.html") do
+      build_from_template(
+        'summary.html', file: "#{b}.tsv", name: format_name(b), table: table
+      )
+    end
   end
 
   ##
@@ -76,7 +103,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
   ##
   # Create pages for reference and query dataset indexes
   def generate_datasets_index(p)
-    say 'Creating index pages'
+    cli.say 'Creating index pages'
     data = format_dataset_index(p)
     data.each do |k, v|
       write_file(p, "#{k}_datasets.html") do

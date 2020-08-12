@@ -28,9 +28,12 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
         "Metric threshold (%) to dereplicate. By default: #{cli[:threshold]}"
       ) { |v| cli[:threshold] = v }
       opt.on(
+        '--quality',
+        'Use genome with highest quality as clade representatives (default)'
+      ) { |v| cli[:criterion] = :quality }
+      opt.on(
         '--medoids',
-        'Use medoids as clade representatives',
-        'By default: Use genome with the highest quality'
+        'Use medoids as clade representatives'
       ) { |v| cli[:criterion] = :medoids }
       opt.on(
         '--no-collection',
@@ -47,12 +50,18 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
 
   def perform
     # Input data
-    p = create_project(:assembly,
-                       { run_project_stats: false, run_clades: false,
-                         gsp_metric: cli[:metric], :"gsp_#{cli[:metric]}" => cli[:threshold] },
-                       { run_mytaxa_scan: false, run_ssu: false })
+    p = create_project(
+      :assembly,
+      {
+        run_project_stats: false,
+        run_clades: false,
+        gsp_metric: cli[:metric],
+        :"gsp_#{cli[:metric]}" => cli[:threshold]
+      },
+      { run_mytaxa_scan: false, run_ssu: false }
+    )
     unless cli[:threshold] >= 0.0 && cli[:threshold] <= 100.0
-      raise "The threshold of identity must be in the range [0,100]"
+      raise 'The threshold of identity must be in the range [0,100]'
     end
 
     # Run
@@ -65,8 +74,8 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
   private
 
   def dereplicate(p)
-    cli.say "Extracting genomospecies clades"
-    r = p.result(:clade_finding) or raise "Result unavailable: run failed"
+    cli.say 'Extracting genomospecies clades'
+    r = p.result(:clade_finding) or raise 'Result unavailable: run failed'
     c_f = r.file_path(:clades_gsp) or raise 'Result incomplete: run failed'
     clades = File.readlines(c_f).map { |i| i.chomp.split("\t") }
     rep = representatives(p)
@@ -87,7 +96,7 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
   end
 
   def representatives(p)
-    cli.say "Identifying representatives"
+    cli.say 'Identifying representatives'
     f = File.expand_path('representatives.txt', cli[:outdir])
     if cli[:criterion] == :medoids
       FileUtils.cp(p.result(:clade_finding).file_path(:medoids_gsp), f)
