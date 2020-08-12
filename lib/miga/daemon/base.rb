@@ -77,7 +77,9 @@ module MiGA::Daemon::Base
   ##
   # Writing file handler (IO) to the log file
   def logfh
-    show_log? ? $stderr : (@logfh ||= File.open(output_file, 'w'))
+    return $stderr if show_log?
+
+    @logfh ||= File.open(output_file, 'w')
   end
 
   ##
