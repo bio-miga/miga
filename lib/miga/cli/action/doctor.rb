@@ -37,6 +37,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   @@OPERATIONS = {
     status: ['status', 'Update metadata status of all datasets'],
     db: ['databases', 'Check integrity of database files'],
+    bidir: ['bidirectional', 'Check distances are bidirectional'],
     dist: ['distances', 'Check distance summary tables'],
     files: ['files', 'Check for outdated files'],
     cds: ['cds', 'Check for gzipped genes and proteins'],
@@ -81,6 +82,24 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }
         end
       end
+    end
+    cli.say
+  end
+
+  ##
+  # Perform bidirectional operation with MiGA::Cli +cli+
+  def check_bidir(cli)
+    cli.say 'Checking that reference distances are bidirectional'
+    ref_ds = cli.load_project.each_dataset.select(&:ref?)
+    ref_names = ref_ds.map(&:name)
+    n, k = ref_ds.size, 0
+    ref_ds.each do |d|
+      cli.advance('Datasets:', k += 1, n, false)
+      saved = saved_targets(d)
+      next if saved.nil?
+
+      to_save = ref_names - saved
+      to_save.each { |k| save_bidirectional(cli.load_project.dataset(k), d) }
     end
     cli.say
   end
