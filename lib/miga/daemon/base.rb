@@ -77,6 +77,7 @@ module MiGA::Daemon::Base
   ##
   # Writing file handler (IO) to the log file
   def logfh
+    @logfh ||= nil
     return $stderr if show_log?
     return @logfh if @logfh && !@logfh.closed?
 

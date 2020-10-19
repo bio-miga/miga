@@ -34,17 +34,29 @@ class MiGA::Json < MiGA::MiGA
     # +opts+.
     def parse(path, opts = {})
       opts = default_opts(opts)
-      cont = opts[:contents] ? path : File.read(path)
-      raise "Empty descriptor: #{opts[:contents] ? "''" : path}." if cont.empty?
 
-      y = JSON.parse(cont,
-                     symbolize_names: opts[:symbolize],
-                     create_additions: opts[:additions])
+      # Read JSON
+      cont = path
+      12.times do
+        cont = File.read(path)
+        break unless cont.empty?
+        sleep 1 # Wait up to 12 seconds for racing processes (iff empty file)
+      end unless opts[:contents]
+      raise "Empty descriptor: #{opts[:contents] ? "''" : path}" if cont.empty?
+
+      # Parse JSON
+      params = { symbolize_names: opts[:symbolize],
+                 create_additions: opts[:additions] }
+      y = JSON.parse(cont, params)
+
+      # Add defaults
       unless opts[:default].nil?
         opts[:default] = parse(opts[:default]) if opts[:default].is_a? String
         y.each { |k, v| opts[:default][k] = v }
         y = opts[:default]
       end
+
+      # Return
       y
     end
 
