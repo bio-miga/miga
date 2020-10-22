@@ -7,6 +7,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   include MiGA::Cli::Action::Doctor::Base
 
   def parse_cli
+    cli.defaults = { threads: 1 }
     cli.defaults = Hash[@@OPERATIONS.keys.map { |i| [i, true] }]
     cli.parse do |opt|
       operation_n = Hash[@@OPERATIONS.map { |k, v| [v[0], k] }]
@@ -24,6 +25,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         @@OPERATIONS.each_key { |i| cli[i] = false }
         cli[op_k] = true
       end
+      opt.on(
+        '-t', '--threads INT', Integer,
+        "Concurrent threads to use. By default: #{cli[:threads]}"
+      ) { |v| cli[:threads] = v }
     end
   end
 
@@ -93,14 +98,23 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n, k = ref_ds.size, 0
-    ref_ds.each do |d|
-      cli.advance('Datasets:', k += 1, n, false)
-      saved = saved_targets(d)
-      next if saved.nil?
+    thrs = (0 .. cli[:threads] - 1).map do |i|
+      Thread.new do
+        ref_ds.each do |d|
+          k += 1
+          cli.advance('Datasets:', k, n, false) if i == 0
+          next if k % cli[:threads] == i
 
-      to_save = ref_names - saved
-      to_save.each { |k| save_bidirectional(cli.load_project.dataset(k), d) }
+          saved = saved_targets(d)
+          next if saved.nil?
+
+          (ref_names - saved).each do |k|
+            save_bidirectional(cli.load_project.dataset(k), d)
+          end
+        end
+      end
     end
+    thrs.each(&:join)
     cli.say
   end
 
