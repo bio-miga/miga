@@ -98,8 +98,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n, k = ref_ds.size, 0
-    thrs = (0 .. cli[:threads] - 1).map do |i|
-      Thread.new do
+    thrs = []
+    (0 .. cli[:threads] - 1).map do |i|
+      thrs << Thread.new do
         ref_ds.each do |d|
           k += 1
           cli.advance('Datasets:', k, n, false) if i == 0
