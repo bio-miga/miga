@@ -97,10 +97,11 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     cli.say 'Checking that reference distances are bidirectional'
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
-    n, k = ref_ds.size, 0
+    n = ref_ds.size
     thrs = []
     (0 .. cli[:threads] - 1).map do |i|
       thrs << Thread.new do
+        k = 0
         ref_ds.each do |d|
           k += 1
           cli.advance('Datasets:', k, n, false) if i == 0
