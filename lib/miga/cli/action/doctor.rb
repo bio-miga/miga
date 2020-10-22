@@ -104,7 +104,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         ref_ds.each do |d|
           k += 1
           cli.advance('Datasets:', k, n, false) if i == 0
-          next if k % cli[:threads] == i
+          next unless k % cli[:threads] == i
 
           saved = saved_targets(d)
           next if saved.nil?
