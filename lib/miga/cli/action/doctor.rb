@@ -98,9 +98,8 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
-    thrs = []
     (0 .. cli[:threads] - 1).map do |i|
-      thrs << Thread.new do
+      Process.fork do
         k = 0
         ref_ds.each do |d|
           k += 1
@@ -116,7 +115,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         end
       end
     end
-    thrs.each(&:join)
+    Process.waitall
     cli.say
   end
 
