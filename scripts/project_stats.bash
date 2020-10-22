@@ -12,7 +12,7 @@ cd "$DIR"
 miga date > "miga-project.start"
 
 # Execute doctor
-miga doctor -P "$PROJECT" -v
+miga doctor -P "$PROJECT" -t "$CORES" -v
 
 # Index taxonomy
 miga tax_index -P "$PROJECT" -i "miga-project.taxonomy.json" --ref --active
