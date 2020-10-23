@@ -76,15 +76,23 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform databases operation with MiGA::Cli +cli+
   def check_db(cli)
     cli.say 'Checking integrity of databases'
-    n, k = cli.load_project.dataset_names.size, 0
-    cli.load_project.each_dataset do |d|
-      cli.advance('Datasets:', k += 1, n, false)
-      each_database_file(d) do |db_file, metric, result|
-        check_sqlite3_database(db_file, metric) do
-          cli.say("  > Removing malformed database from #{d.name}:#{result}   ")
-          File.unlink(db_file)
-          r = d.result(result) or next
-          [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }
+    n = cli.load_project.dataset_names.size
+    p = cli.load_project
+    (0 .. cli[:threads] - 1).map do |i|
+      Process.fork do
+        k = 0
+        p.each_dataset do |d|
+          k += 1
+          cli.advance('Datasets:', k, n, false) if i == 0
+          next unless k % cli[:threads] == i
+          each_database_file(d) do |db_file, metric, result|
+            check_sqlite3_database(db_file, metric) do
+              cli.say("  > Removing malformed database from #{d.name}:#{result}   ")
+              File.unlink(db_file)
+              r = d.result(result) or next
+              [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }
+            end
+          end
         end
       end
     end
