@@ -96,6 +96,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         end
       end
     end
+    Process.waitall
     cli.say
   end
 
