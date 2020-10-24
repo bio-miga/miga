@@ -134,10 +134,14 @@ module MiGA::Cli::Action::Doctor::Base
 
       data[0], data[1] = data[1], data[0]
       SQLite3::Database.new(db_file_b) do |conn|
-        conn.execute(
-          "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
-          "values(?, ?, ?, ?, ?, ?)", data
-        )
+        begin
+          conn.execute(
+            "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
+            "values(?, ?, ?, ?, ?, ?)", data
+          )
+        rescue SQLite3::BusyException => e
+          raise "Cannot populate #{db_file_b}: #{e.message}"
+        end
       end
     end
   end
