@@ -64,7 +64,7 @@ class MiGA::MiGA
     unless total.nil? || @_advance_time[:last].nil? || @_advance_time[:n] == n
       this_time = Time.now - @_advance_time[:last]
       @_advance_time[:avg] ||= this_time / (n - @_advance_time[:n])
-      @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_time
+      @_advance_time[:avg] = 0.99 * @_advance_time[:avg] + 0.01 * this_time
     end
     @_advance_time[:last] = Time.now
     @_advance_time[:n] = n
@@ -79,7 +79,9 @@ class MiGA::MiGA
         ''
       else
         left_time = @_advance_time[:avg] * (total - n) / 60
-        left_time < 0.1 ? '            ' : ('%.1f min left' % left_time)
+        left_time < 0.01 ? '            '
+          left_time < 1 ? ('%.0f sec left' % left_time * 60) :
+          ('%.1f min left' % left_time)
       end
     $stderr.print("[%s] %s %s %s    \r" % [Time.now, step, adv, left])
   end
