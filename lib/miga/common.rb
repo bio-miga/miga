@@ -79,8 +79,8 @@ class MiGA::MiGA
         ''
       else
         left_time = @_advance_time[:avg] * (total - n) / 60
-        left_time < 0.01 ? '            '
-          left_time < 1 ? ('%.0f sec left' % left_time * 60) :
+        left_time < 0.01 ? '            ' :
+          left_time < 1 ? ('%.0f sec left' % (left_time * 60)) :
           ('%.1f min left' % left_time)
       end
     $stderr.print("[%s] %s %s %s    \r" % [Time.now, step, adv, left])
