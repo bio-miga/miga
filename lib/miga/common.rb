@@ -52,10 +52,36 @@ class MiGA::MiGA
   # 1,000 otherwise.
   # The report goes to $stderr iff --verborse
   def advance(step, n = 0, total = nil, bin = true)
-    adv = total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
-      ('%.1f%% (%s/%s)' % [100.0 * n / total,
-                           num_suffix(n, bin), num_suffix(total, bin)])
-    $stderr.print("[%s] %s %s    \r" % [Time.now, step, adv])
+    # Initialize advance timing
+    @_advance_time ||= { last: nil, n: 0, avg: nil }
+    if n <= 1 || @_advance_time[:n] > n
+      @_advance_time[:last] = nil
+      @_advance_time[:n] = 0
+      @_advance_time[:avg]  = nil
+    end
+
+    # Estimate timing
+    unless total.nil? || @_advance_time[:last].nil? || @_advance_time[:n] == n
+      this_time = Time.now - @_advance_time[:last]
+      @_advance_time[:avg] ||= this_time / (n - @_advance_time[:n])
+      @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_time
+    end
+    @_advance_time[:last] = Time.now
+    @_advance_time[:n] = n
+
+    # Report
+    adv_vals = [100.0 * n / total, num_suffix(n, bin), num_suffix(total, bin)]
+    adv =
+      total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
+        ('%.1f%% (%s/%s)' % adv_vals)
+    left =
+      if @_advance_time[:avg].nil?
+        ''
+      else
+        left_time = @_advance_time[:avg] * (total - n) / 60
+        left_time < 0.1 ? '            ' : ('%.1f min left' % left_time)
+      end
+    $stderr.print("[%s] %s %s %s    \r" % [Time.now, step, adv, left])
   end
 
   ##
