@@ -70,7 +70,7 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
     glob = get_sub_cli
     p = cli.load_project
     glob.each do |sub_cli|
-      rd = create_remote_dataset(sub_cli)
+      rd = create_remote_dataset(sub_cli, p)
       next if rd.nil?
 
       if sub_cli[:get_md]
@@ -115,7 +115,7 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
     glob
   end
 
-  def create_remote_dataset(sub_cli)
+  def create_remote_dataset(sub_cli, p)
     sub_cli.ensure_par(dataset: '-D', ids: '-I')
     unless sub_cli[:api_key].nil?
       ENV["#{sub_cli[:universe].to_s.upcase}_API_KEY"] = sub_cli[:api_key]
