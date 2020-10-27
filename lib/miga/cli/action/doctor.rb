@@ -115,7 +115,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   ##
   # Perform bidirectional operation with MiGA::Cli +cli+
   def check_bidir(cli)
-    cli.say 'Checking that reference distances are bidirectional'
+    cli.say 'Checking if reference distances are bidirectional'
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
