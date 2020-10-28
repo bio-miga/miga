@@ -61,10 +61,14 @@ class MiGA::MiGA
     end
 
     # Estimate timing
-    unless total.nil? || @_advance_time[:last].nil? || @_advance_time[:n] == n
-      this_time = Time.now - @_advance_time[:last]
-      @_advance_time[:avg] ||= this_time / (n - @_advance_time[:n])
-      @_advance_time[:avg] = 0.99 * @_advance_time[:avg] + 0.01 * this_time
+    adv_n = n - @_advance_time[:n]
+    unless total.nil? || @_advance_time[:last].nil? || adv_n <= 0
+      if adv_n.to_f/n > 0.001
+        this_time = Time.now - @_advance_time[:last]
+        this_avg = this_time / adv_n
+        @_advance_time[:avg] ||= this_avg
+        @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_avg
+      end
     end
     @_advance_time[:last] = Time.now
     @_advance_time[:n] = n
@@ -78,9 +82,10 @@ class MiGA::MiGA
       if @_advance_time[:avg].nil?
         ''
       else
-        left_time = @_advance_time[:avg] * (total - n) / 60
+        left_time = @_advance_time[:avg] * (total - n) / 60 # <- in minutes
         left_time < 0.01 ? '         ' :
           left_time < 1 ? ('%.0fs left' % (left_time * 60)) :
+          left_time > 1440 ? ('%.1fd left' % (left_time / 1440)) :
           left_time > 60 ? ('%.1fh left' % (left_time / 60)) :
           ('%.1fm left' % left_time)
       end
