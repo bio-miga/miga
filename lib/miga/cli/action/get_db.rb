@@ -165,7 +165,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   def check_target
     return false if cli[:overwrite]
 
-    file = File.expand_path(cli[:database], cli[:local])
+    file = File.expand_path(cli[:database].to_s, cli[:local])
     if Dir.exist? file
       warn "The target directory already exists: #{file}"
       true
