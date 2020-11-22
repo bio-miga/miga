@@ -8,7 +8,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
   def parse_cli
     cli.defaults = { try_load: false, thr: 1, env: false }
     cli.parse do |opt|
-      cli.opt_object(opt, [:project, :dataset_opt, :result])
+      cli.opt_object(opt, [:project, :dataset_opt, :result_opt])
       opt.on(
         '-t', '--threads INT', Integer,
         "Threads to use in the local run (by default: #{cli[:thr]})"
@@ -42,6 +42,9 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     if (MiGA::Project.RESULT_DIRS.keys + [:p]).include? cli[:result]
       cli[:dataset] = nil
     end
+
+    # Use virtual result if not explicitly passed
+    cli[:result] ||= cli[:dataset] ? :d : :p
 
     # Load project
     p = cli.load_project
