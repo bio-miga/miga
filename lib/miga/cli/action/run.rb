@@ -37,9 +37,9 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
       cli[:thr] ||= ENV['CORES'].to_i unless ENV['CORES'].nil?
       cli[:result] = File.basename(cli[:result].to_s, '.bash').to_sym
     end
-    cli[:project] = nil if cli[:project].empty?
-    cli[:dataset] = nil if cli[:dataset].empty?
-    cli[:result] = nil if cli[:result].empty?
+    %i[project dataset result].each do |i|
+      cli[i] = nil if cli[i].nil? || cli[i].empty?
+    end
 
     # Unset dataset if the requested result is for projects
     if (MiGA::Project.RESULT_DIRS.keys + [:p]).include? cli[:result]
