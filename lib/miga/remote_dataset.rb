@@ -156,10 +156,12 @@ class MiGA::RemoteDataset < MiGA::MiGA
     return nil unless metadata[:ncbi_asm]
 
     ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]
-    doc = MiGA::Json.parse(
-      self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json),
-      symbolize: false, contents: true
-    )
+    txt = nil
+    3.times do
+      txt = self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json)
+      txt.empty? ? sleep(1) : break
+    end
+    doc = MiGA::Json.parse(txt, symbolize: false, contents: true)
     @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
   end
 
