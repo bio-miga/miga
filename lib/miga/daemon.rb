@@ -309,11 +309,13 @@ class MiGA::Daemon < MiGA::MiGA
       job[:hostk] = hostk
       job[:cmd] = job[:cmd].miga_variables(host: nodelist[hostk])
       job[:pid] = spawn job[:cmd]
-      Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
+      MiGA::MiGA.DEBUG "Detaching PID: #{job[:pid]}"
+      Process.detach(job[:pid]) unless [nil, '', 0].include?(job[:pid])
     when 'bash'
       # Local job
       job[:pid] = spawn job[:cmd]
-      Process.detach job[:pid] unless [nil, '', 0].include?(job[:pid])
+      MiGA::MiGA.DEBUG "Detaching PID: #{job[:pid]}"
+      Process.detach(job[:pid]) unless [nil, '', 0].include?(job[:pid])
     else
       # Schedule cluster job (qsub, msub, slurm)
       job[:pid] = `#{job[:cmd]}`.chomp

@@ -184,7 +184,7 @@ module MiGA::Cli::Action::Wf
   def call_cli(cmd)
     cmd << '-v' if cli[:verbose]
     MiGA::MiGA.DEBUG "Cli::Action::Wf.call_cli #{cmd}"
-    MiGA::Cli.new(cmd.map(&:to_s)).launch
+    MiGA::Cli.new(cmd.map(&:to_s)).launch(true)
   end
 
   def run_daemon
