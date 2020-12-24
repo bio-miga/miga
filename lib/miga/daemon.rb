@@ -73,7 +73,7 @@ class MiGA::Daemon < MiGA::MiGA
     say 'MiGA:%s launched' % project.name
     say '-----------------------------------'
     miga_say "Saving log to: #{output_file}" unless show_log?
-    recalculate_status!
+    queue_maintenance
     load_status
     say 'Configuration options:'
     say @runopts.to_s
@@ -92,7 +92,7 @@ class MiGA::Daemon < MiGA::MiGA
     flush!
     if (loop_i % 12).zero?
       purge!
-      recalculate_status!
+      queue_maintenance
     end
     save_status
     sleep(latency)
@@ -100,11 +100,13 @@ class MiGA::Daemon < MiGA::MiGA
     true
   end
 
-  def recalculate_status!
-    say 'Recalculating status for all complete datasets'
-    project.each_dataset do |ds|
-      ds.recalculate_status if ds.status == :complete
-    end
+  ##
+  # Queue maintenance tasks as an analysis job
+  def queue_maintenance
+    return if bypass_maintenance?
+
+    say 'Queueing maintenance tasks'
+    queue_job(:maintenance)
   end
 
   ##
@@ -271,6 +273,11 @@ class MiGA::Daemon < MiGA::MiGA
 
     # Avoid single datasets hogging resources
     @jobs_to_run.rotate! rand(jobs_to_run.size)
+
+    # Prioritize project-wide jobs
+    project_jobs = @jobs_to_run.select { |i| i[:ds].nil? }
+    @jobs_to_run.delete_if { |i| i[:ds].nil? }
+    @jobs_to_run.prepend(*project_jobs)
 
     # Launch as many +jobs_to_run+ as possible
     while (hostk = next_host)

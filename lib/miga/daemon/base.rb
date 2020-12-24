@@ -17,7 +17,7 @@ module MiGA::Daemon::Base
         if !force && v == 0 && k != :verbosity
           raise "Daemon's #{k} cannot be set to zero"
         end
-      when :shutdown_when_done, :show_log
+      when :shutdown_when_done, :show_log, :bypass_maintenance
         v = !!v
       when :nodelist
         if v =~ /^\$/
@@ -61,6 +61,12 @@ module MiGA::Daemon::Base
   # complete
   def shutdown_when_done?
     !!runopts(:shutdown_when_done)
+  end
+
+  ##
+  # Should the daemon ignore regular maintenance steps?
+  def bypass_maintenance?
+    !!runopts(:bypass_maintenance)
   end
 
   ##

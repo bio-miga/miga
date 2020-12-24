@@ -93,7 +93,7 @@ class DaemonTest < Test::Unit::TestCase
       0 => /-{20}\n/,
       1 => /MiGA:#{p.name} launched/,
       2 => /-{20}\n/,
-      6 => /Probing running jobs\n/
+      8 => /Probing running jobs\n/
     }.each { |k, v| assert_match(v, l[k], "unexpected line: #{k}") }
   ensure
     begin
@@ -160,8 +160,9 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(0, d1.jobs_running.size)
     assert_equal(0, d1.jobs_to_run.size)
     capture_stderr { d1.in_loop }
+    # 3 dataset jobs + 1 maintenance job:
     assert_equal(1, d1.jobs_running.size)
-    assert_equal(2, d1.jobs_to_run.size)
+    assert_equal(3, d1.jobs_to_run.size)
   end
 
   def test_maxjobs_runopts
@@ -172,7 +173,7 @@ class DaemonTest < Test::Unit::TestCase
     assert_equal(0, d1.jobs_to_run.size)
     capture_stderr { d1.in_loop }
     assert_equal(2, d1.jobs_running.size)
-    assert_equal(1, d1.jobs_to_run.size)
+    assert_equal(2, d1.jobs_to_run.size)
   end
 
   def test_load_status
@@ -232,6 +233,7 @@ class DaemonTest < Test::Unit::TestCase
   end
 
   def test_shutdown_when_done
+    daemon.runopts(:bypass_maintenance, true)
     daemon.runopts(:shutdown_when_done, true)
     out = capture_stderr { assert { !daemon.in_loop } }.string
     assert_match(/Nothing else to do/, out)
@@ -316,5 +318,21 @@ class DaemonTest < Test::Unit::TestCase
     d1.runopts(:verbosity, 3)
     out = capture_stderr { d1.in_loop }.string
     assert_match(/Daemon loop start/, out)
+  end
+
+  def test_bypass_maintenance
+    # Default (run maintenance)
+    d = daemon(0)
+    d.runopts(:latency, 0, true)
+    capture_stderr { d.in_loop }
+    assert_equal(1, d.jobs_running.size)
+    assert_equal(:maintenance, d.jobs_running.first[:job])
+
+    # Bypassing maintenance
+    d = daemon(1)
+    d.runopts(:latency, 0, true)
+    d.runopts(:bypass_maintenance, true)
+    capture_stderr { d.in_loop }
+    assert_equal([], d.jobs_running)
   end
 end
