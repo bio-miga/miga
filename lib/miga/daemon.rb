@@ -92,8 +92,7 @@ class MiGA::Daemon < MiGA::MiGA
     flush!
     if (loop_i % 12).zero?
       purge!
-      # TEMPORARILY DISABLED:
-      # recalculate_status!
+      recalculate_status!
     end
     save_status
     sleep(latency)
@@ -102,8 +101,10 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   def recalculate_status!
-    say 'Recalculating status for all datasets'
-    project.each_dataset(&:recalculate_status)
+    say 'Recalculating status for all complete datasets'
+    project.each_dataset do |ds|
+      ds.recalculate_status if ds.status == :complete
+    end
   end
 
   ##
