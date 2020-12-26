@@ -1,5 +1,5 @@
 require 'miga/cli/action'
-require 'sqlite3'
+require 'miga/sqlite'
 
 class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
 end
@@ -10,9 +10,7 @@ module MiGA::Cli::Action::Doctor::Base
   # tables saving +metric+ (:ani or :aai) and call +blk+ if the
   # file is corrupt or doesn't contain the expected structure
   def check_sqlite3_database(db_file, metric, &blk)
-    SQLite3::Database.new(db_file) do |conn|
-      conn.execute("select count(*) from #{metric}").first
-    end
+    MiGA::SQLite.new(db_file).run("select count(*) from #{metric}")
   rescue SQLite3::SQLException, SQLite3::CorruptException
     blk.call
   end
@@ -107,11 +105,7 @@ module MiGA::Cli::Action::Doctor::Base
     dist = dataset.result(:distances) or return
     path = dist.file_path(:aai_db) or return
 
-    o = []
-    SQLite3::Database.new(path) do |conn|
-      o = conn.execute('select seq2 from aai').map(&:first)
-    end
-    o
+    MiGA::SQLite.new(path).run('select seq2 from aai').map(&:first)
   end
 
   ##
@@ -120,34 +114,20 @@ module MiGA::Cli::Action::Doctor::Base
   def save_bidirectional(a, b)
     each_database_file(a) do |db_file, metric, result|
       data = nil
-      SQLite3::Database.new(db_file) do |conn|
-        data =
-          conn.execute(
-            "select seq1, seq2, #{metric}, sd, n, omega " +
-            "from #{metric} where seq2 = ? limit 1", b.name
-          ).first
-      end
+      data = MiGA::SQLite.new(db_file).run(
+        "select seq1, seq2, #{metric}, sd, n, omega " +
+        "from #{metric} where seq2 = ? limit 1", b.name
+      ).first
       next if data.nil? || data.empty?
 
       db_file_b = File.join(File.dirname(db_file), "#{b.name}.db")
       next unless File.exist?(db_file_b)
 
       data[0], data[1] = data[1], data[0]
-      SQLite3::Database.new(db_file_b) do |conn|
-        attempts = 0
-        begin
-          attempts += 1
-          conn.execute(
-            "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
-            "values(?, ?, ?, ?, ?, ?)", data
-          )
-        rescue SQLite3::BusyException => e
-          raise "Cannot populate #{db_file_b}: #{e.message}" if attempts > 3
-
-          sleep(1)
-          retry
-        end
-      end
+      MiGA::SQLite.new(db_file_b).run(
+        "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
+        "values(?, ?, ?, ?, ?, ?)", data
+      )
     end
   end
 end

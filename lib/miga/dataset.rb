@@ -7,7 +7,7 @@ require 'miga/metadata'
 require 'miga/dataset/result'
 require 'miga/dataset/status'
 require 'miga/dataset/hooks'
-require 'sqlite3'
+require 'miga/sqlite'
 
 ##
 # Dataset representation in MiGA
@@ -190,8 +190,7 @@ class MiGA::Dataset < MiGA::MiGA
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
 
-    db = SQLite3::Database.new(r.file_path(:aai_db))
-    db.execute(
+    MiGA::SQLite.new(r.file_path(:aai_db)).run(
       'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
       'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many]
     )
