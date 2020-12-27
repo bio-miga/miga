@@ -7,7 +7,11 @@ require 'miga/metadata'
 require 'miga/dataset/result'
 require 'miga/dataset/status'
 require 'miga/dataset/hooks'
-require 'miga/sqlite'
+
+# This library is only required by +#closest_relatives+, so it is now
+# being loaded on call instead to allow most of miga-base to work without
+# issue in systems with problematic SQLite3 installations.
+# require 'miga/sqlite'
 
 ##
 # Dataset representation in MiGA
@@ -190,6 +194,7 @@ class MiGA::Dataset < MiGA::MiGA
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
 
+    require 'miga/sqlite'
     MiGA::SQLite.new(r.file_path(:aai_db)).run(
       'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
       'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many]
