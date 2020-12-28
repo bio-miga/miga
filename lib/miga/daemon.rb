@@ -182,6 +182,7 @@ class MiGA::Daemon < MiGA::MiGA
     unless show_log?
       n = project.dataset_names.count
       k = jobs_to_run.size + jobs_running.size
+      k -= 1 unless get_job(:maintenance).nil?
       advance('Datasets:', n - k, n, false)
       miga_say if k == 0
     end
