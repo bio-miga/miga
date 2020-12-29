@@ -11,9 +11,10 @@ function exists { [[ -e "$1" ]] ; }
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 
 if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
+  echo ""
   echo "######[ $SCRIPT ]######"
   echo "# Date: $(miga date)"
-  echo "# Hostname: $(hostname)"
+  echo "# Host: $(hostname)"
   echo "# MiGA: $MIGA"
   echo "# Project: $PROJECT"
   if [[ -n $DATASET ]] ; then
