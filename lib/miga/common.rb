@@ -74,10 +74,13 @@ class MiGA::MiGA
     @_advance_time[:n] = n
 
     # Report
-    adv_vals = [100.0 * n / total, num_suffix(n, bin), num_suffix(total, bin)]
     adv =
-      total.nil? ? (n == 0 ? '' : num_suffix(n, bin)) :
-        ('%.1f%% (%s/%s)' % adv_vals)
+      if total.nil?
+        (n == 0 ? '' : num_suffix(n, bin))
+      else
+        vals = [100.0 * n / total, num_suffix(n, bin), num_suffix(total, bin)]
+        ('%.1f%% (%s/%s)' % vals)
+      end
     left =
       if @_advance_time[:avg].nil?
         ''
