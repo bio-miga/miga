@@ -275,10 +275,10 @@ class MiGA::Daemon < MiGA::MiGA
     # Avoid single datasets hogging resources
     @jobs_to_run.rotate! rand(jobs_to_run.size)
 
-    # Prioritize project-wide jobs
-    project_jobs = @jobs_to_run.select { |i| i[:ds].nil? }
-    @jobs_to_run.delete_if { |i| i[:ds].nil? }
-    @jobs_to_run.prepend(*project_jobs)
+    # Prioritize: Project-wide > MiGA Online queries > Other datasets
+    @jobs_to_run.sort_by! do |job|
+      job[:ds].nil? ? 1 : job[:ds_name] =~ /^qG_/ ? 2 : 3
+    end
 
     # Launch as many +jobs_to_run+ as possible
     while (hostk = next_host)
