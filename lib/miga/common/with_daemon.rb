@@ -158,7 +158,7 @@ module MiGA::Common::WithDaemon
   # Returns the status of the daemon with +opts+
   def status(opts = [], wait = true)
     if active?
-      say "Running with pid #{File.read(pid_file)}"
+      say "Running with pid #{File.size?(pid_file) ? File.read(pid_file) : '?'}"
     else
       say 'Not running'
     end
