@@ -4,10 +4,10 @@ set -e
 SCRIPT="ani_distances"
 # shellcheck source=scripts/miga.bash
 . "$MIGA/scripts/miga.bash" || exit 1
-cd "$PROJECT/data/09.distances/03.ani"
+DIR="$PROJECT/data/09.distances/03.ani"
 
 # Initialize
-miga date > "miga-project.start"
+miga_start_project_step "$DIR"
 
 echo -n "" > miga-project.log
 DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
@@ -38,5 +38,4 @@ if(sum(ani[,'a'] != ani[,'b']) > 0){
 " | R --vanilla
 
 # Finalize
-miga date > "miga-project.done"
-miga add_result -P "$PROJECT" -r "$SCRIPT" -f
+miga_end_project_step "$DIR"

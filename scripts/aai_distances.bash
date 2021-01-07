@@ -4,10 +4,10 @@ set -e
 SCRIPT="aai_distances"
 # shellcheck source=scripts/miga.bash
 . "$MIGA/scripts/miga.bash" || exit 1
-cd "$PROJECT/data/09.distances/02.aai"
+DIR="$PROJECT/data/09.distances/02.aai"
 
 # Initialize
-miga date > "miga-project.start"
+miga_start_project_step "$DIR"
 
 echo -n "" > miga-project.log
 DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
@@ -39,5 +39,4 @@ if(sum(aai[,'a'] != aai[,'b']) > 0){
 " | R --vanilla
 
 # Finalize
-miga date > "miga-project.done"
-miga add_result -P "$PROJECT" -r "$SCRIPT" -f
+miga_end_project_step "$DIR"

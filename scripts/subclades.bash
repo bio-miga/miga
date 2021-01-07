@@ -4,14 +4,13 @@ set -e
 SCRIPT="subclades"
 # shellcheck source=scripts/miga.bash
 . "$MIGA/scripts/miga.bash" || exit 1
-cd "$PROJECT/data/10.clades/02.ani"
+DIR="$PROJECT/data/10.clades/02.ani"
 
 # Initialize
-miga date > "miga-project.start"
+miga_start_project_step "$DIR"
 
-# Run R code
+# Run
 ruby -I "$MIGA/lib" "$MIGA/utils/subclades.rb" "$PROJECT" "$SCRIPT"
 
 # Finalize
-miga date > "miga-project.done"
-miga add_result -P "$PROJECT" -r "$SCRIPT" -f
+miga_end_project_step "$DIR"

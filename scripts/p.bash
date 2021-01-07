@@ -13,7 +13,7 @@ while true ; do
     let k=$k+1
     if [[ $k -gt 10 ]] ; then
       miga new --update -P "$PROJECT" \
-        -m "run_$res=false,warn=Too many failed attempts to run $res."
+        -m "run_$res=false,warn=Too many failed attempts to run $res"
     fi
   else
     k=0
