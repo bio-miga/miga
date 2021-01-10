@@ -214,29 +214,38 @@ class MiGA::Daemon < MiGA::MiGA
     return nil unless get_job(job, ds).nil?
 
     ds_name = (ds.nil? ? 'miga-project' : ds.name)
-    say 'Queueing %s:%s' % [ds_name, job]
+    task_name = "#{project.metadata[:name][0..9]}:#{job}:#{ds_name}"
+    to_run = { ds: ds, ds_name: ds_name, job: job, task_name: task_name }
+    say 'Queueing %s:%s' % [to_run[:ds_name], to_run[:job]]
+    @jobs_to_run << to_run
+  end
+
+  ##
+  # Construct the command for the given job definition with current
+  # daemon settings
+  def job_cmd(to_run)
     vars = {
       'PROJECT' => project.path,
       'RUNTYPE' => runopts(:type),
       'CORES' => ppn,
       'MIGA' => MiGA::MiGA.root_path
     }
-    vars['DATASET'] = ds.name unless ds.nil?
-    log_dir = File.expand_path("daemon/#{job}", project.path)
-    Dir.mkdir(log_dir) unless Dir.exist? log_dir
-    task_name = "#{project.metadata[:name][0..9]}:#{job}:#{ds_name}"
-    to_run = { ds: ds, ds_name: ds_name, job: job, task_name: task_name }
-    to_run[:cmd] = runopts(:cmd).miga_variables(
-      script: MiGA::MiGA.script_path(job, miga: vars['MIGA'], project: project),
+    vars['DATASET'] = to_run[:ds].name unless to_run[:ds].nil?
+    log_dir = File.expand_path("daemon/#{to_run[:job]}", project.path)
+    FileUtils.mkdir_p(log_dir)
+    var_hsh = {
+      script: MiGA::MiGA.script_path(
+                to_run[:job], miga: vars['MIGA'], project: project
+              ),
       vars: vars.map do |k, v|
               runopts(:var).miga_variables(key: k, value: v)
             end.join(runopts(:varsep)),
       cpus: ppn,
-      log: File.expand_path("#{ds_name}.log", log_dir),
-      task_name: task_name,
-      miga: File.expand_path('bin/miga', MiGA::MiGA.root_path).shellescape
-    )
-    @jobs_to_run << to_run
+      log: File.join(log_dir, "#{to_run[:ds_name]}.log"),
+      task_name: to_run[:task_name],
+      miga: File.join(MiGA::MiGA.root_path, 'bin/miga').shellescape
+    }
+    runopts(:cmd).miga_variables(var_hsh)
   end
 
   ##
@@ -312,6 +321,7 @@ class MiGA::Daemon < MiGA::MiGA
   # Launch the job described by Hash +job+ to +hostk+-th host
   def launch_job(job, hostk = nil)
     # Execute job
+    job[:cmd] = job_cmd(job)
     case runopts(:type)
     when 'ssh'
       # Remote job

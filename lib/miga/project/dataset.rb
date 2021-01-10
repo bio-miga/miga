@@ -48,10 +48,11 @@ module MiGA::Project::Dataset
   # Add dataset identified by +name+ and return MiGA::Dataset.
   def add_dataset(name)
     unless metadata[:datasets].include? name
-      MiGA::Dataset.new(self, name)
+      ds = MiGA::Dataset.new(self, name)
       @metadata[:datasets] << name
       @dataset_names_hash = nil # Ensure loading even if +do_not_save+ is true
       save
+      # TODO redo_project_steps if ds.ref?
       pull_hook(:on_add_dataset, name)
     end
     dataset(name)

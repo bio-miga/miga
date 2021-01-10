@@ -93,7 +93,7 @@ module MiGA::Daemon::Base
   ##
   # Display log instead of the progress summary
   def show_log!
-    @show_log = true
+    @runopts[:show_log] = true
   end
 
   ##

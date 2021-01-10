@@ -48,7 +48,10 @@ class DaemonTest < Test::Unit::TestCase
     end
     assert_match(/Queueing #{ds.name}:d/, out.string)
     assert_equal(1, d.jobs_to_run.size)
-    assert_equal('echo project0:d:ds1 >/dev/null', d.jobs_to_run.first[:cmd])
+    assert_equal(
+      'echo project0:d:ds1 >/dev/null',
+      d.job_cmd(d.jobs_to_run.first)
+    )
     assert_equal(d.jobs_to_run.first, d.get_job(:d, ds))
   end
 
@@ -334,5 +337,18 @@ class DaemonTest < Test::Unit::TestCase
     d.runopts(:bypass_maintenance, true)
     capture_stderr { d.in_loop }
     assert_equal([], d.jobs_running)
+  end
+
+  def test_show_log
+    d = daemon
+    assert(d.show_log?)
+    d.runopts(:show_log, false)
+    assert(!d.show_log?)
+    d.show_log!
+    assert(d.show_log?)
+    assert_equal($stderr, d.logfh)
+    d.show_summary!
+    assert(!d.show_log?)
+    assert_not_equal($stderr, d.logfh)
   end
 end
