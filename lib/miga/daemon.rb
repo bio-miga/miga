@@ -103,7 +103,7 @@ class MiGA::Daemon < MiGA::MiGA
   ##
   # Queue maintenance tasks as an analysis job
   def queue_maintenance
-    return if bypass_maintenance?
+    return if bypass_maintenance? || shutdown_when_done?
 
     say 'Queueing maintenance tasks'
     queue_job(:maintenance)
