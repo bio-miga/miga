@@ -72,4 +72,34 @@ class CommonTest < Test::Unit::TestCase
     assert_not_predicate('C3-PO', :miga_name?)
     assert_equal("123\n1\n", '1231'.wrap_width(3))
   end
+
+  def test_advance
+    m = MiGA::MiGA.new
+
+    # Check advance when missing total
+    o = capture_stderr { m.advance('x', 0) }.string
+    assert_match(/\] x *\r/, o)
+
+    # Initialize advance
+    o = capture_stderr { m.advance('x', 0, 10) }.string
+    assert_match(/\] x 0\.0% \(0\/10\) *\r/, o)
+
+    # Insufficient data for prediction
+    sleep(1)
+    o = capture_stderr { m.advance('x', 1, 10) }.string
+    assert_match(/\] x 10\.0% \(1\/10\) *\r/, o)
+
+    # Predict time
+    sleep(1)
+    o = capture_stderr { m.advance('x', 2, 10) }.string
+    assert_match(/\] x 20\.0% \(2\/10\) [7-9]s left *\r/, o)
+  end
+
+  def test_num_suffix
+    m = MiGA::MiGA.new
+    assert_equal('12', m.num_suffix(12))
+    assert_equal('1.5K', m.num_suffix(1.5e3))
+    assert_equal('1.0M', m.num_suffix(1024**2 + 1, true))
+    assert_equal('1.1G', m.num_suffix(1024**3))
+  end
 end

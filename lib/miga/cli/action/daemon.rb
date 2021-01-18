@@ -73,6 +73,7 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
   end
 
   def perform
+    cli.operation or raise 'Please specify a daemon operation'
     p = cli.load_project
     d = MiGA::Daemon.new(p, cli[:json])
     dopts = %i[latency maxjobs nodelist ppn shutdown_when_done]

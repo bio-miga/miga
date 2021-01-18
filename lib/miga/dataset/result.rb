@@ -1,7 +1,11 @@
-require 'sqlite3'
 require 'miga/result'
 require 'miga/dataset/base'
 require 'miga/common/with_result'
+
+# This library is only required by +#cleanup_distances!+, so it is now
+# being loaded on call instead to allow most of miga-base to work without
+# issue in systems with problematic SQLite3 installations.
+# require 'miga/sqlite'
 
 ##
 # Helper module including specific functions to add dataset results
@@ -144,20 +148,21 @@ module MiGA::Dataset::Result
   # the project as reference datasets.
   def cleanup_distances!
     r = get_result(:distances)
-    ref = project.datasets.select(&:ref?).select(&:active?).map(&:name)
     return if r.nil?
 
+    require 'miga/sqlite'
+    ref = project.datasets.select(&:ref?).select(&:active?).map(&:name)
     %i[haai_db aai_db ani_db].each do |db_type|
       db = r.file_path(db_type)
       next if db.nil? || !File.size?(db)
 
-      sqlite_db = SQLite3::Database.new db
+      sqlite_db = MiGA::SQLite.new(db)
       table = db_type[-6..-4]
-      val = sqlite_db.execute "select seq2 from #{table}"
+      val = sqlite_db.run("select seq2 from #{table}")
       next if val.empty?
 
       (val.map(&:first) - ref).each do |extra|
-        sqlite_db.execute "delete from #{table} where seq2=?", extra
+        sqlite_db.run("delete from #{table} where seq2=?", extra)
       end
     end
   end

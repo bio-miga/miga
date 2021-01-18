@@ -7,6 +7,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   include MiGA::Cli::Action::Doctor::Base
 
   def parse_cli
+    cli.defaults = { threads: 1 }
     cli.defaults = Hash[@@OPERATIONS.keys.map { |i| [i, true] }]
     cli.parse do |opt|
       operation_n = Hash[@@OPERATIONS.map { |k, v| [v[0], k] }]
@@ -24,6 +25,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         @@OPERATIONS.each_key { |i| cli[i] = false }
         cli[op_k] = true
       end
+      opt.on(
+        '-t', '--threads INT', Integer,
+        "Concurrent threads to use. By default: #{cli[:threads]}"
+      ) { |v| cli[:threads] = v }
     end
   end
 
@@ -37,6 +42,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   @@OPERATIONS = {
     status: ['status', 'Update metadata status of all datasets'],
     db: ['databases', 'Check integrity of database files'],
+    bidir: ['bidirectional', 'Check distances are bidirectional'],
     dist: ['distances', 'Check distance summary tables'],
     files: ['files', 'Check for outdated files'],
     cds: ['cds', 'Check for gzipped genes and proteins'],
@@ -58,11 +64,19 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform status operation with MiGA::Cli +cli+
   def check_status(cli)
     cli.say 'Updating metadata status'
-    n, k = cli.load_project.dataset_names.size, 0
-    cli.load_project.each_dataset do |d|
-      cli.advance('Datasets:', k += 1, n, false)
-      d.recalculate_status
+    p = cli.load_project
+    n = p.dataset_names.size
+    (0 .. cli[:threads] - 1).map do |i|
+      Process.fork do
+        k = 0
+        cli.load_project.each_dataset do |d|
+          k += 1
+          cli.advance('Datasets:', k, n, false) if i == 0
+          d.recalculate_status if k % cli[:threads] == i
+        end
+      end
     end
+    Process.waitall
     cli.say
   end
 
@@ -70,18 +84,59 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform databases operation with MiGA::Cli +cli+
   def check_db(cli)
     cli.say 'Checking integrity of databases'
-    n, k = cli.load_project.dataset_names.size, 0
-    cli.load_project.each_dataset do |d|
-      cli.advance('Datasets:', k += 1, n, false)
-      each_database_file(d) do |db_file, metric, result|
-        check_sqlite3_database(db_file, metric) do
-          cli.say("  > Removing malformed database from #{d.name}:#{result}   ")
-          File.unlink(db_file)
-          r = d.result(result) or next
-          [r.path(:done), r.path].each { |f| File.unlink(f) if File.exist?(f) }
+    p = cli.load_project
+    n = p.dataset_names.size
+    (0 .. cli[:threads] - 1).map do |i|
+      Process.fork do
+        k = 0
+        p.each_dataset do |d|
+          k += 1
+          cli.advance('Datasets:', k, n, false) if i == 0
+          next unless k % cli[:threads] == i
+          each_database_file(d) do |db_file, metric, result|
+            check_sqlite3_database(db_file, metric) do
+              cli.say(
+                "  > Removing malformed database from #{d.name}:#{result}   "
+              )
+              File.unlink(db_file)
+              r = d.result(result) or next
+              [r.path(:done), r.path].each do |f|
+                File.unlink(f) if File.exist?(f)
+              end
+            end
+          end
         end
       end
     end
+    Process.waitall
+    cli.say
+  end
+
+  ##
+  # Perform bidirectional operation with MiGA::Cli +cli+
+  def check_bidir(cli)
+    cli.say 'Checking if reference distances are bidirectional'
+    ref_ds = cli.load_project.each_dataset.select(&:ref?)
+    ref_names = ref_ds.map(&:name)
+    n = ref_ds.size
+    (0 .. cli[:threads] - 1).map do |i|
+      Process.fork do
+        k = 0
+        ref_ds.each do |d|
+          k += 1
+          cli.advance('Datasets:', k, n, false) if i == 0
+          next unless k % cli[:threads] == i
+
+          saved = saved_targets(d)
+          next if saved.nil?
+
+          (ref_names - saved).each do |k|
+            save_bidirectional(cli.load_project.dataset(k), d)
+          end
+        end
+      end
+    end
+    Process.waitall
     cli.say
   end
 

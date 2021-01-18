@@ -52,6 +52,13 @@ rbenv install 2.7.1
 rbenv global 2.7.1
 ```
 
+We also recommend installing the `sqlite3` gem beforehand using the brew
+libraries, to avoid headaches down the road:
+
+```bash
+gem install sqlite3 -- --with-sqlite3-dir="$(brew --prefix sqlite3)"
+```
+
 ## R packages
 
 The full list of R packages is automatically installed by MiGA. However, we

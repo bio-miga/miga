@@ -56,10 +56,11 @@ module MiGA::Cli::OptHelper
   # - :project_type To allow (optionally) a type of project
   # - :project_type_req To require a type of project
   # - :result To require a type of project or dataset result
+  # - :result_opt To allow (optionally) a type of result
   # - :result_dataset To require a type of dataset result
   # - :result_project To require a type of project result
-  # The options :result, :result_dataset, and :result_project are mutually
-  # exclusive
+  # The options :result, :result_opt, :result_dataset, and :result_project
+  # are mutually exclusive
   def opt_object(opt, what = [:project, :dataset])
     what.each do |w|
       case w
@@ -82,10 +83,10 @@ module MiGA::Cli::OptHelper
           "#{req}Type of #{obj}. Recognized types include:",
           *klass.KNOWN_TYPES.map { |k, v| "~ #{k}: #{v[:description]}" }
         ) { |v| self[:type] = v.downcase.to_sym }
-      when :result
+      when :result, :result_opt
         opt.on(
           '-r', '--result STRING',
-          '(Mandatory) Name of the result',
+          "#{"(Mandatory) " if w == :result}Name of the result",
           'Recognized names for dataset-specific results include:',
           *MiGA::Dataset.RESULT_DIRS.keys.map { |n| " ~ #{n}" },
           'Recognized names for project-wide results include:',

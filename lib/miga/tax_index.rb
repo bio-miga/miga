@@ -17,7 +17,7 @@ class MiGA::TaxIndex < MiGA::MiGA
   ##
   # Initialize an empty MiGA::TaxIndex
   def initialize
-    @root = MiGA::TaxIndexTaxon.new :root, 'biota'
+    @root = MiGA::TaxIndexTaxon.new(:root, 'biota')
     @datasets = []
   end
 
@@ -37,21 +37,22 @@ class MiGA::TaxIndex < MiGA::MiGA
   end
 
   ##
-  # Finds all the taxa in the collection at the +rank+ taxonomic rank.
+  # Finds all the taxa in the collection at the +rank+ taxonomic rank
   def taxa_by_rank(rank)
     rank = MiGA::Taxonomy.normalize_rank(rank)
     taxa = [@root]
     select = []
     loop do
       new_taxa = []
-      taxa.map { |tx| tx.children }.flatten.each do |ch|
+      taxa.map(&:children).flatten.each do |ch|
         if ch.rank == rank
           select << ch
-        elsif not ch.children.empty?
+        elsif !ch.children.empty?
           new_taxa << ch
         end
       end
-      break if new_taxa.empty?
+      taxa = new_taxa
+      break if taxa.empty?
     end
     select
   end
@@ -60,7 +61,8 @@ class MiGA::TaxIndex < MiGA::MiGA
   # Generate JSON String for the index.
   def to_json
     MiGA::Json.generate(
-      { root: root.to_hash, datasets: datasets.map { |d| d.name } }
+      root: root.to_hash,
+      datasets: datasets.map(&:name)
     )
   end
 
@@ -119,27 +121,33 @@ class MiGA::TaxIndexTaxon < MiGA::MiGA
   ##
   # Get the number of datasets in the taxon (including children).
   def datasets_count
-    children.map { |it| it.datasets_count }.reduce(datasets.size, :+)
+    children.map(&:datasets_count).reduce(datasets.size, :+)
   end
 
   ##
   # Get all the datasets in the taxon (including children).
   def all_datasets
-    children.map { |it| it.datasets }.reduce(datasets, :+)
+    children.map(&:datasets).reduce(datasets, :+)
   end
 
   ##
   # JSON String of the taxon.
   def to_json(*a)
-    { str: tax_str, datasets: datasets.map { |d| d.name },
-      children: children }.to_json(a)
+    {
+      str: tax_str,
+      datasets: datasets.map(&:name),
+      children: children
+    }.to_json(a)
   end
 
   ##
   # Hash representation of the taxon.
   def to_hash
-    { str: tax_str, datasets: datasets.map { |d| d.name },
-      children: children.map { |it| it.to_hash } }
+    {
+      str: tax_str,
+      datasets: datasets.map(&:name),
+      children: children.map(&:to_hash)
+    }
   end
 
   ##

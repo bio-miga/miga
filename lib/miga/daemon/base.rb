@@ -17,7 +17,7 @@ module MiGA::Daemon::Base
         if !force && v == 0 && k != :verbosity
           raise "Daemon's #{k} cannot be set to zero"
         end
-      when :shutdown_when_done, :show_log
+      when :shutdown_when_done, :show_log, :bypass_maintenance
         v = !!v
       when :nodelist
         if v =~ /^\$/
@@ -64,6 +64,12 @@ module MiGA::Daemon::Base
   end
 
   ##
+  # Should the daemon ignore regular maintenance steps?
+  def bypass_maintenance?
+    !!runopts(:bypass_maintenance)
+  end
+
+  ##
   # Returns the level of verbosity for the daemon as an Integer, or 1 if unset.
   # Verbosity levels are:
   # 0: No output
@@ -77,13 +83,17 @@ module MiGA::Daemon::Base
   ##
   # Writing file handler (IO) to the log file
   def logfh
-    show_log? ? $stderr : (@logfh ||= File.open(output_file, 'w'))
+    @logfh ||= nil
+    return $stderr if show_log?
+    return @logfh if @logfh && !@logfh.closed?
+
+    @logfh = File.open(output_file, 'w')
   end
 
   ##
   # Display log instead of the progress summary
   def show_log!
-    @show_log = true
+    @runopts[:show_log] = true
   end
 
   ##

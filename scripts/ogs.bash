@@ -4,10 +4,10 @@ set -e
 SCRIPT="ogs"
 # shellcheck source=scripts/miga.bash
 . "$MIGA/scripts/miga.bash" || exit 1
-cd "$PROJECT/data/10.clades/03.ogs"
+DIR="$PROJECT/data/10.clades/03.ogs"
 
 # Initialize
-miga date > "miga-project.start"
+miga_start_project_step "$DIR"
 
 DS=$(miga ls -P "$PROJECT" --ref --no-multi)
 
@@ -51,5 +51,4 @@ else
 fi
 
 # Finalize
-miga date > "miga-project.done"
-miga add_result -P "$PROJECT" -r "$SCRIPT" -f
+miga_end_project_step "$DIR"

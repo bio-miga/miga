@@ -26,6 +26,10 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         '(Mandatory) Path to the directory where the MiGA projects are located'
       ) { |v| cli[:path] = v }
       opt.on(
+        '--exclude NAME1,NAME2,NAME3', Array,
+        'Exclude these projects (identified by name) from the lair'
+      ) { |v| cli[:exclude] = v }
+      opt.on(
         '--json PATH',
         'Path to a custom daemon definition in json format'
       ) { |v| cli[:json] = v }
@@ -80,19 +84,22 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
 
   def perform
     cli.ensure_par(path: '-p')
+    k_opts = %i[
+      json latency wait_for keep_inactive trust_timestamp name dry exclude
+    ]
+    opts = Hash[k_opts.map { |k| [k, cli[k]] }]
+    lair = MiGA::Lair.new(cli[:path], opts)
+
     case cli.operation.to_sym
     when :terminate
-      MiGA::Lair.new(cli[:path]).terminate_daemons
+      lair.terminate_daemons
     when :list
       o = []
-      MiGA::Lair.new(cli[:path]).each_daemon do |d|
+      lair.each_daemon do |d|
         o << [d.daemon_name, d.class, d.daemon_home, d.active?, d.last_alive]
       end
       cli.table(%w[name class path active last_alive], o)
     else
-      k_opts = %i[json latency wait_for keep_inactive trust_timestamp name dry]
-      opts = Hash[k_opts.map { |k| [k, cli[k]] }]
-      lair = MiGA::Lair.new(cli[:path], opts)
       lair.daemon(cli.operation, cli[:daemon_opts])
     end
   end

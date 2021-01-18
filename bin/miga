@@ -4,7 +4,10 @@
 # @license Artistic-2.0
 
 $LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../../lib', File.realpath(__FILE__))
+
 require 'miga'
 require 'miga/cli'
 
-MiGA::Cli.new(ARGV).launch
+MiGA::Cli.new(ARGV).launch(true)
+
