@@ -107,6 +107,7 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:warn] = "Inactive: #{reason}" unless reason.nil?
     metadata[:inactive] = true
     metadata.save
+    project.recalculate_tasks('Reference dataset inactivated') if ref?
     pull_hook :on_inactivate
   end
 
@@ -116,6 +117,7 @@ class MiGA::Dataset < MiGA::MiGA
     metadata[:inactive] = nil
     metadata[:warn] = nil if metadata[:warn] && metadata[:warn] =~ /^Inactive: /
     metadata.save
+    project.recalculate_tasks('Reference dataset activated') if ref?
     pull_hook :on_activate
   end
 

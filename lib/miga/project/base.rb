@@ -50,14 +50,11 @@ module MiGA::Project::Base
     07.annotation/01.function/01.essential
     07.annotation/01.function/02.ssu
     07.annotation/02.taxonomy/01.mytaxa
-    07.annotation/03.qa 07.annotation/03.qa/01.checkm
-    07.annotation/03.qa/02.mytaxa_scan
+    07.annotation/03.qa 07.annotation/03.qa/02.mytaxa_scan
     08.mapping 08.mapping/01.read-ctg 08.mapping/02.read-gene
     09.distances 09.distances/01.haai 09.distances/02.aai
     09.distances/03.ani 09.distances/04.ssu 09.distances/05.taxonomy
     10.clades 10.clades/01.find 10.clades/02.ani 10.clades/03.ogs
-    10.clades/04.phylogeny 10.clades/04.phylogeny/01.essential
-    10.clades/04.phylogeny/02.core 10.clades/05.metadata
     90.stats
   ]
 
