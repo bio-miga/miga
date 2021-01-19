@@ -107,10 +107,10 @@ class HookTest < Test::Unit::TestCase
         File.join(project.path, 'data', '90.stats', "miga-project.#{ext}")
       )
     end
-    assert_equal(:project_stats, project.next_task(nil, false))
+    assert_equal(:project_stats, project.next_task)
     assert_equal(:test, $res)
     assert_equal(1, $counter)
-    assert_equal(:haai_distances, project.next_task)
+    assert_equal(:haai_distances, project.next_task(nil, true))
     assert_equal(:project_stats, $res)
     assert_equal(2, $counter)
   end

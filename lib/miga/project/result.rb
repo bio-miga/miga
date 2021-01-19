@@ -24,6 +24,11 @@ module MiGA::Project::Result
   end
 
   ##
+  # Do nothing, only to comply with MiGA::Common::WithResult
+  def inactivate!(reason = nil)
+  end
+
+  ##
   # Is this +task+ to be bypassed?
   def ignore_task?(task)
     metadata["run_#{task}"] == false ||
@@ -43,17 +48,6 @@ module MiGA::Project::Result
   # Symbol.
   def next_inclade(save = true)
     next_task(@@INCLADE_TASKS, save)
-  end
-
-  ##
-  # Get the next task from +tasks+, saving intermediate results if +save+.
-  # If +tasks+ is +nil+ (default), it uses the entire list of tasks.
-  # Returns a Symbol.
-  def next_task(tasks = nil, save = true)
-    tasks ||= @@DISTANCE_TASKS + @@INCLADE_TASKS
-    tasks.find do |t|
-      ignore_task?(t) ? false : add_result(t, save).nil?
-    end
   end
 
   private

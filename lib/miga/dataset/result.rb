@@ -77,19 +77,8 @@ module MiGA::Dataset::Result
   # Returns the key symbol of the next task that needs to be executed or nil.
   # Passes +save+ to #add_result.
   def next_preprocessing(save = false)
-    first = first_preprocessing(save) or return nil
-    @@PREPROCESSING_TASKS[@@PREPROCESSING_TASKS.index(first)..-1].find do |t|
-      if ignore_task? t
-        false
-      elsif add_result(t, save).nil?
-        if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
-          inactivate! "Too many errors in step #{t}"
-          false
-        else
-          true
-        end
-      end
-    end
+    first_preprocessing(save) if save
+    next_task(nil, save)
   end
 
   ##

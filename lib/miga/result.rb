@@ -59,9 +59,25 @@ class MiGA::Result < MiGA::MiGA
   end
 
   ##
-  # Register the result as cleaned
+  # Register the result as cleaned, returns self
   def clean!
     self[:clean] = true
+    self
+  end
+
+  ##
+  # Is the result marked to be recalculated? Returns Boolean
+  def recalculate?
+    !!self[:recalculate]
+  end
+
+  ##
+  # Mark the result to be recalculated, returns self
+  def recalculate!(reason = nil)
+    self[:recalculate] = true
+    self[:recalculate_why] = reason
+    self[:recalculate_when] = Time.now.to_s
+    self
   end
 
   ##

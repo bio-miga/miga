@@ -1,6 +1,8 @@
 ##
 # Helper module including specific functions to handle objects that
-# have results.
+# have results. The class including this module must implement methods
+# +.RESULT_DIRS+, +#ignore_task?+, +#metadata+, +#project+,
+# and +#inactivate!+.
 module MiGA::Common::WithResult
   ##
   # Result directories as a Hash
@@ -68,4 +70,40 @@ module MiGA::Common::WithResult
   def get_result(task)
     add_result(task, false)
   end
+
+  ##
+  # Get the next task from +tasks+, saving intermediate results if +save+.
+  # If +tasks+ is +nil+ (default), it uses the entire list of tasks.
+  # Returns a Symbol.
+  def next_task(tasks = nil, save = false)
+    tasks ||= result_dirs.keys
+    tasks.find do |t|
+      if ignore_task?(t)
+        # Do not run if this step is to be ignored
+        false
+      else
+        res = add_result(t, save)
+        if res.nil?
+          # Run if the step has not been calculated,
+          # unless too many attempts were already made
+          if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
+            inactivate! "Too many errors in step #{t}"
+            false
+          else
+            true
+          end
+        else
+          # Run if the step is ready but has to be recalculated
+          res.recalculate? ? true : false
+        end
+      end
+    end
+  end
+
+  ##
+  # Mark all results for recalculation
+  def recalculate_tasks(reason = nil)
+    each_result { |res| res.recalculate!(reason).save }
+  end
+
 end

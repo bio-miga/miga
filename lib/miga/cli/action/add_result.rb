@@ -20,6 +20,6 @@ class MiGA::Cli::Action::AddResult < MiGA::Cli::Action
     obj = cli.load_project_or_dataset
     cli.say "Registering result: #{cli[:result]}"
     r = obj.add_result(cli[:result], true, force: cli[:force])
-    raise "Cannot add result, incomplete expected files." if r.nil?
+    raise 'Cannot add result, incomplete expected files' if r.nil?
   end
 end

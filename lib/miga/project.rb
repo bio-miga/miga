@@ -97,13 +97,28 @@ class MiGA::Project < MiGA::MiGA
 
   ##
   # Is this a clade project?
-  def is_clade?
+  def clade?
     type == :clade
   end
 
   ##
+  # Same as active? For backward compatibility
+  alias is_clade? clade?
+
+  ##
   # Is this a project for multi-organism datasets?
-  def is_multi?
+  def multi?
     @@KNOWN_TYPES[type][:multi]
+  end
+
+  ##
+  # Same as multi? For backward compatibility
+  alias is_multi? multi?
+
+  ##
+  # Is this project active? Currently a dummy function, returns
+  # always true.
+  def active?
+    true
   end
 end
