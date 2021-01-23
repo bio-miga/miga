@@ -15,7 +15,7 @@ m.say 'Cleaning Databases'
 (0..thr - 1).each do |t|
   fork do
     dsn.each_with_index do |i, idx|
-      m.advance('Dataset:', dsn.size, idx + 1) if t == 0
+      m.advance('Dataset:', idx + 1, dsn.size) if t == 0
       next unless (idx % thr) == t
 
       d = p.dataset(i)
