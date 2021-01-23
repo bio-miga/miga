@@ -18,7 +18,6 @@ If you don't have Homebrew, execute (and follow the instructions):
 Next, make sure you have the brewsci/science and brewsci/bio taps:
 
 ```bash
-brew tap brewsci/science
 brew tap brewsci/bio
 ```
 
