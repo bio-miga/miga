@@ -15,7 +15,7 @@ If you don't have Homebrew, execute (and follow the instructions):
   https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 ```
 
-Next, make sure you have the brewsci/science and brewsci/bio taps:
+Next, make sure you have the brewsci/bio tap:
 
 ```bash
 brew tap brewsci/bio
