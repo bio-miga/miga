@@ -29,6 +29,12 @@ if [[ -s $fa ]] ; then
   gzip -9 -f "$DATASET.ssu.all.fa"
 fi
 
+#RDP classifier
+file_path="$DATASET.ssu.all.fa"
+if [[ -s $DATASET.ssu.all.fa ]] ; then
+  java -jar $classifier_path classify -c 0.8 -f fixrank -g 16srrna -o class_table.txt $file_path
+fi
+
 # Finalize
 miga date > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
