@@ -301,7 +301,8 @@ module MiGA::Dataset::Result
       MiGA::Result.new("#{base}.json"), name,
       longest_ssu_gene: '.ssu.fa',
       gff: '.ssu.gff',
-      all_ssu_genes: '.ssu.all.fa'
+      all_ssu_genes: '.ssu.all.fa',
+      rdp_classification: '.rdp.tsv'
     )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]

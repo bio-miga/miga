@@ -2,9 +2,7 @@
 # @license Artistic-2.0
 
 require 'miga/cli/action'
-require 'net/ftp'
 require 'digest/md5'
-require 'open-uri'
 
 class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   def parse_cli
@@ -12,7 +10,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
       database: :recommended,
       version: :latest,
       local: File.expand_path('.miga_db', ENV['MIGA_HOME']),
-      host: 'ftp://microbial-genomes.org/db',
+      host: MiGA::MiGA.known_hosts(:miga_db),
       pb: true,
       overwrite: true
     }
@@ -50,6 +48,14 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   end
 
   def perform
+    # Quick check when the database is not an alias
+    dir = File.join(cli[:local], cli[:database].to_s)
+    if !cli[:overwrite] && Dir.exist?(dir)
+      cli.puts "Database exists: #{dir}"
+      return
+    end
+
+    # Remote manifest
     @ftp = remote_connection
     manif = remote_manifest(@ftp)
     cli.puts "# Host: #{manif[:host]}"
@@ -59,6 +65,8 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     list_versions(db) and return
     ver = version_requested(db)
     check_target and return
+
+    # Download and expand
     file = download_file(@ftp, ver[:path])
     check_digest(ver, file)
     unarchive(file)
@@ -78,27 +86,14 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def remote_connection
     cli.say "Connecting to '#{cli[:host]}'"
-    uri = URI.parse(cli[:host])
-    raise 'Only FTP hosts are supported' unless uri.scheme == 'ftp'
-
-    ftp = Net::FTP.new(uri.host)
-    ftp.passive = true
-    ftp.login
-    ftp.chdir(uri.path)
-    ftp
+    MiGA::MiGA.remote_connection(cli[:host])
   end
 
   def download_file(ftp, path)
     cli.say "Downloading '#{path}'"
-    Dir.mkdir(cli[:local]) unless Dir.exist? cli[:local]
     file = File.expand_path(path, cli[:local])
-    filesize = ftp.size(path)
-    transferred = 0
-    ftp.getbinaryfile(path, file, 1024) do |data|
-      if cli[:pb]
-        transferred += data.size
-        cli.advance("#{path}:", transferred, filesize)
-      end
+    MiGA::MiGA.download_file_ftp(ftp, path, file) do |n, size|
+      cli.advance("#{path}:", n, size) if cli[:pb]
     end
     cli.print "\n" if cli[:pb]
     file
@@ -165,7 +160,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   def check_target
     return false if cli[:overwrite]
 
-    file = File.expand_path(cli[:database].to_s, cli[:local])
+    file = File.join(cli[:local], cli[:database].to_s)
     if Dir.exist? file
       warn "The target directory already exists: #{file}"
       true
@@ -195,7 +190,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def unarchive(file)
     cli.say "Unarchiving #{file}"
-    `cd "#{cli[:local]}" && tar -zxf "#{file}"`
+    `cd "#{cli[:local]}" && tar -zxf "#{file}" && rm "#{file}"`
   end
 
   def register_database(manif, db, ver)

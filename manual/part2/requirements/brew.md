@@ -28,7 +28,7 @@ Now that you have Homebrew and the science tap, execute:
 
 ```bash
 # General-purpose software
-brew install r sqlite3 python
+brew install r sqlite3 python adoptopenjdk
 # Bioinformatics software
 brew install blast hmmer bedtools \
       prodigal idba mcl barrnap fastqc solexaqa \
