@@ -16,6 +16,7 @@ if [[ -s $fa ]] ; then
   # Run barrnap
   barrnap --quiet --threads "$CORES" "$fa" | grep "^##gff\\|;product=16S " \
     > "$DATASET.ssu.gff"
+
   # Extract
   bedtools getfasta -s "-fi" "$fa" -bed "$DATASET.ssu.gff" \
     -fo "$DATASET.ssu.all.fa"
@@ -24,15 +25,18 @@ if [[ -s $fa ]] ; then
   FastA.filter.pl "$DATASET.ssu.fa.id" "$DATASET.ssu.all.fa" > "$DATASET.ssu.fa"
   rm "$DATASET.ssu.fa.id"
   [[ -e "$fa.fai" ]] && rm "$fa.fai"
-  # Gzip
-  gzip -9 -f "$DATASET.ssu.gff"
-  gzip -9 -f "$DATASET.ssu.all.fa"
-fi
 
-#RDP classifier
-file_path="$DATASET.ssu.all.fa"
-if [[ -s $DATASET.ssu.all.fa ]] ; then
-  java -jar $classifier_path classify -c 0.8 -f fixrank -g 16srrna -o class_table.txt $file_path
+  # RDP classifier
+  if [[ "$MIGA_RDP" == "yes" && -s "$DATASET.ssu.all.fa" ]] ; then
+    java -jar $MIGA_HOME/.miga_db/classifier.jar classify \
+      -c 0.8 -f fixrank -g 16srrna -o "$DATASET.rdp.tsv" \
+      "$DATASET.ssu.all.fa"
+  fi
+
+  # Gzip
+  for x in ssu.gff ssu.all.fa rdp.tsv ; do
+    [[ -e "${DATASET}.${x}" ]] && gzip -9 -f "${DATASET}.${x}"
+  done
 fi
 
 # Finalize
