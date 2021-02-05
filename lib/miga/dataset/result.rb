@@ -302,7 +302,7 @@ module MiGA::Dataset::Result
       longest_ssu_gene: '.ssu.fa',
       gff: '.ssu.gff',
       all_ssu_genes: '.ssu.all.fa',
-      rdp_classification: '.rdp.tsv'
+      classification: '.rdp.tsv'
     )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]

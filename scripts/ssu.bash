@@ -31,6 +31,9 @@ if [[ -s $fa ]] ; then
     java -jar $MIGA_HOME/.miga_db/classifier.jar classify \
       -c 0.8 -f fixrank -g 16srrna -o "$DATASET.rdp.tsv" \
       "$DATASET.ssu.all.fa"
+    echo "# Version: $(cat $MIGA_HOME/.miga_db/classifier.version.txt \
+          | perl -pe 's/.*://' | grep . | paste - - | perl -pe 's/\t/; /')" \
+      >> "$DATASET.rdp.tsv"
   fi
 
   # Gzip
