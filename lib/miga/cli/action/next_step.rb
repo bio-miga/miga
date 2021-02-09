@@ -11,16 +11,8 @@ class MiGA::Cli::Action::NextStep < MiGA::Cli::Action
   end
 
   def perform
-    p = cli.load_project
-    n = nil
-    if cli[:dataset].nil?
-      n = p.next_distances(false)
-      n ||= p.next_inclade(false)
-    else
-      d = cli.load_dataset
-      n = d.next_preprocessing if d.is_active?
-    end
-    n ||= '?'
-    cli.puts n
+    obj = cli.load_project_or_dataset
+    n = obj.next_task
+    cli.puts(n || '?')
   end
 end

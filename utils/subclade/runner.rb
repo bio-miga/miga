@@ -15,7 +15,7 @@ class MiGA::SubcladeRunner
     @step = step.to_sym
     @home = File.join(
       File.join(project.path, 'data', '10.clades'),
-      @step == :clade_finding ? '01.find' : '02.ani'
+      @step == :clade_finding ? '01.find.running' : '02.ani.running'
     )
     @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
     @opts[:run_clades] = !!@project.metadata.data.fetch(:run_clades) { true }

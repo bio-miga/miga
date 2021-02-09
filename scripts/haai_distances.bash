@@ -22,7 +22,7 @@ rm -f miga-project.txt
   echo "metric a b value sd n omega" | tr " " "\\t"
   for i in $DS ; do
     echo "SELECT 'hAAI', seq1, seq2, aai, sd, n, omega from aai ;" \
-      | sqlite3 "$i.db" | tr "\\|" "\\t"
+      | sqlite3 "$DIR/$i.db" | tr "\\|" "\\t"
     echo "$i" >> miga-project.log
   done
 ) | gzip -9c > miga-project.txt.gz

@@ -162,6 +162,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
       txt.empty? ? sleep(1) : break
     end
     doc = MiGA::Json.parse(txt, symbolize: false, contents: true)
+    return if doc.nil? || doc['result'].nil? || doc['result'].empty?
+
     @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
   end
 
