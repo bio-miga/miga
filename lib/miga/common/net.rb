@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'net/ftp'
 require 'open-uri'
@@ -39,11 +40,11 @@ module MiGA::Common::Net
   ##
   # Download a file via FTP using the +connection+ (returned by
   # +.remote_connection+) with remote name +file+ into local +target+.
-  # 
+  #
   # Alternatively, +connection+ can simply be the host (String) or a recognized
   # Symbol (see +.remote_connection+), in which case the function opens the
   # connection automatically
-  # 
+  #
   # Reports progress to the function block with two arguments: the
   # currently transferred size and the total file size
   def download_file_ftp(connection, file, target)
