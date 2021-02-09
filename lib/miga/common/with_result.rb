@@ -61,7 +61,7 @@ module MiGA::Common::WithResult
   ##
   # For each result execute the 2-ary block: key symbol and MiGA::Result
   def each_result
-    results.each { |_k, res| yield(res.key, res) }
+    results.each { |res| yield(res.key, res) }
   end
 
   ##
@@ -103,7 +103,7 @@ module MiGA::Common::WithResult
   ##
   # Mark all results for recalculation
   def recalculate_tasks(reason = nil)
-    each_result { |res| res.recalculate!(reason).save }
+    each_result { |_k, res| res.recalculate!(reason).save }
   end
 
 end
