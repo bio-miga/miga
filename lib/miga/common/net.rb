@@ -62,12 +62,10 @@ module MiGA::Common::Net
 
     # Get in chunks of 1KiB
     connection.getbinaryfile(file, target, 1024) do |data|
-      transferred += data.size
-      yield(transferred, filesize) if block_given?
+      yield(transferred += data.size, filesize) if block_given?
     end
 
     # Close connection if automatically opened
     connection.close if close_conn
   end
 end
-

@@ -1,5 +1,4 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 ##
 # Helper module with daemon configuration functions for MiGA::Cli::Action::Init
