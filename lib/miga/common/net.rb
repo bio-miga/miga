@@ -10,9 +10,9 @@ module MiGA::Common::Net
   ##
   # Returns the URL of the host +name+ (Symbol)
   def known_hosts(name)
-    case name
+    case name.to_sym
     when :miga_online_ftp
-      'ftp://microbial-genomes.org/'
+      'ftp://microbial-genomes.org//' # <- // to simplify chdir in connection
     when :miga_db
       'ftp://microbial-genomes.org/db'
     when :miga_dist
