@@ -4,6 +4,9 @@ require 'net/ftp'
 require 'open-uri'
 require 'fileutils'
 
+Net::FTP.send(:remove_const, 'FTP_PORT') # just to avoid warnings
+Net::FTP.const_set('FTP_PORT', 21)
+
 ##
 # General web-access functions shared throughout MiGA.
 module MiGA::Common::Net
