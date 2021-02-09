@@ -61,7 +61,7 @@ module MiGA::Common::WithResult
   ##
   # For each result execute the 2-ary block: key symbol and MiGA::Result
   def each_result
-    results.each { |res| yield(res.key, res) }
+    results.each { |_k, res| yield(res.key, res) }
   end
 
   ##
