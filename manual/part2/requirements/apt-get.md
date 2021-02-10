@@ -14,7 +14,7 @@ If you have `apt-get`, execute:
 # General-purpose software
 sudo apt-get update
 sudo apt-get install ruby ruby-sqlite3 r-base sqlite3 python \
-  libcurl4-openssl-dev
+  libcurl4-openssl-dev openjdk-8-jdk
 # Bioinformatics software
 sudo apt-get install ncbi-blast+ hmmer bedtools idba \
   prodigal mcl barrnap scythe fastqc diamond-aligner

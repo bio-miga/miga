@@ -5,7 +5,6 @@ SCRIPT="mytaxa_scan"
 # shellcheck source=scripts/miga.bash
 . "$MIGA/scripts/miga.bash" || exit 1
 DIR="$PROJECT/data/07.annotation/03.qa/02.mytaxa_scan"
-[[ -d "$DIR" ]] || mkdir -p "$DIR"
 cd "$DIR"
 
 # Initialize
@@ -14,17 +13,16 @@ if [[ "$MIGA_MYTAXA" == "no" ]] ; then
   echo "This system doesn't currently support MyTaxa." \
     > "$DATASET.nomytaxa.txt"
 else
-  MT=$(dirname -- "$(which MyTaxa)")
-  TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
-  trap "rm -rf '$TMPDIR'; exit" SIGHUP SIGINT SIGTERM
-
   # Check type of dataset
   NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
     | wc -l | awk '{print $1}')
   if [[ "$NOMULTI" -eq "1" ]] ; then
     # Check requirements
+    MT=$(dirname -- "$(which MyTaxa)")
+    DB="$MIGA_HOME/.miga_db/AllGenomes.faa.dmnd"
+    [[ -e "$DB" ]] || DB="$MT/AllGenomes.faa.dmnd"
     if [[ ! -e "$MT/AllGenomes.faa.dmnd" ]] ; then
-      echo "Cannot locate the database: $MT/AllGenomes.faa.dmnd:" \
+      echo "Cannot locate the database: AllGenomes.faa.dmnd:" \
             "no such file or directory" >&2
       exit 1
     fi
@@ -39,13 +37,16 @@ else
       exit 1
     fi
      
+    TMPDIR=$(mktemp -d /tmp/MiGA.XXXXXXXXXXXX)
+    trap "rm -rf '$TMPDIR'; exit" SIGHUP SIGINT SIGTERM
+
     FAA="../../../06.cds/$DATASET.faa"
     [[ -s "$FAA" ]] || FAA="${FAA}.gz"
     if [[ ! -s "$DATASET.mytaxa" ]] ; then
       # Execute search
       if [[ ! -s "$DATASET.blast" ]] ; then
         diamond blastp -q "$FAA" -a "$DATASET.daa" -t "$TMPDIR" \
-          -d "$MT/AllGenomes.faa" -k 5 -p "$CORES" --min-score 60
+          -d "$DB" -k 5 -p "$CORES" --min-score 60
         diamond view -a "$DATASET.daa" -o "$DATASET.blast" -t "$TMPDIR"
       fi
 

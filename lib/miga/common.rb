@@ -6,6 +6,7 @@ require 'miga/json'
 require 'miga/common/base'
 require 'miga/common/path'
 require 'miga/common/format'
+require 'miga/common/net'
 require 'stringio'
 
 ##
@@ -16,6 +17,7 @@ class MiGA::MiGA
 
   extend MiGA::Common::Path
   extend MiGA::Common::Format
+  extend MiGA::Common::Net
 
   ENV['MIGA_HOME'] ||= ENV['HOME']
 
@@ -64,7 +66,7 @@ class MiGA::MiGA
     adv_n = n - @_advance_time[:n]
     unless total.nil? || @_advance_time[:last].nil? || adv_n <= 0
       if adv_n.to_f/n > 0.001
-        this_time = Time.now - @_advance_time[:last]
+        this_time = (Time.now - @_advance_time[:last]).to_f
         this_avg = this_time / adv_n
         @_advance_time[:avg] ||= this_avg
         @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_avg

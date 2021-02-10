@@ -43,7 +43,7 @@ Next, install the requirements:
 ```bash
 conda install -y -c conda-forge r-base r
 conda install -y --strict-channel-priority -c conda-forge ruby
-conda install -y sqlite
+conda install -y sqlite openjdk
 conda install -y -c conda-forge -c bioconda -c faircloth-lab \
   scythe blast hmmer bedtools prodigal idba mcl barrnap \
   fastqc diamond krona fastani

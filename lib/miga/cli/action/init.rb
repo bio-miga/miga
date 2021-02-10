@@ -1,18 +1,24 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 require 'miga/cli/action'
 require 'shellwords'
 
 class MiGA::Cli::Action::Init < MiGA::Cli::Action
   require 'miga/cli/action/init/daemon_helper'
+  require 'miga/cli/action/init/files_helper'
   include MiGA::Cli::Action::Init::DaemonHelper
+  include MiGA::Cli::Action::Init::FilesHelper
 
   def parse_cli
     cli.interactive = true
-    cli.defaults = { mytaxa: nil,
-                     config: File.expand_path('.miga_modules', ENV['HOME']),
-                     ask: false, auto: false, dtype: :bash }
+    cli.defaults = {
+      mytaxa: nil,
+      rdp: nil,
+      config: File.join(ENV['MIGA_HOME'], '.miga_modules'),
+      ask: false,
+      auto: false,
+      dtype: :bash
+    }
     cli.parse do |opt|
       opt.on(
         '-c', '--config PATH',
@@ -21,9 +27,14 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       ) { |v| cli[:config] = v }
       opt.on(
         '--[no-]mytaxa',
-        'Should I try setting up MyTaxa its dependencies?',
+        'Should I try setting up MyTaxa and its dependencies?',
         'By default: interactive (true if --auto)'
       ) { |v| cli[:mytaxa] = v }
+      opt.on(
+        '--[no-]rdp',
+        'Should I try setting up the RDP classifier?',
+        'By default: interactive (true if --auto)'
+      ) { |v| cli[:rdp] = v }
       opt.on(
         '--daemon-type STRING',
         'Type of daemon launcher, one of: bash, ssh, qsub, msub, slurm',
@@ -47,13 +58,13 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     BANNER
     list_requirements
     rc_fh = open_rc_file
-    check_configuration_script rc_fh
-    paths = check_software_requirements rc_fh
-    check_additional_files paths
-    check_r_packages paths
-    check_ruby_gems paths
+    check_configuration_script(rc_fh)
+    paths = check_software_requirements(rc_fh)
+    check_additional_files(paths)
+    check_r_packages(paths)
+    check_ruby_gems(paths)
     configure_daemon
-    close_rc_file rc_fh
+    close_rc_file(rc_fh)
     cli.puts 'Configuration complete. MiGA is ready to work!'
     cli.puts ''
   end
@@ -116,58 +127,18 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
 
   private
 
-  def open_rc_file
-    rc_path = File.expand_path('.miga_rc', ENV['HOME'])
-    if File.exist? rc_path
-      if cli.ask_user(
-        'I found a previous configuration. Do you want to continue?',
-        'yes', %w(yes no)
-      ) == 'no'
-        cli.puts 'OK, see you soon!'
-        exit(0)
-      end
-    end
-    rc_fh = File.open(rc_path, 'w')
-    rc_fh.puts <<~BASH
-      #!/bin/bash
-      # `miga init` made this on #{Time.now}
-
-    BASH
-    rc_fh
-  end
-
-  def check_configuration_script(rc_fh)
-    unless File.exist? cli[:config]
-      cli[:config] = cli.ask_user(
-        'Is there a script I need to load at startup?',
-        cli[:config]
-      )
-    end
-    if File.exist? cli[:config]
-      cli[:config] = File.expand_path(cli[:config])
-      cli.puts "Found bash configuration script: #{cli[:config]}"
-      rc_fh.puts "MIGA_STARTUP='#{cli[:config]}'"
-      rc_fh.puts '. "$MIGA_STARTUP"'
-    else
-      cli[:config] = '/dev/null'
-    end
-    cli.puts ''
-  end
-
   def check_software_requirements(rc_fh)
     cli.puts 'Looking for requirements:'
-    ask_for_mytaxa
-    rc_fh.puts 'export MIGA_MYTAXA="no"' unless cli[:mytaxa]
+    ask_for_optional(:mytaxa, 'MyTaxa')
+    rc_fh.puts "export MIGA_MYTAXA='#{cli[:mytaxa] ? 'yes' : 'no'}'"
+    ask_for_optional(:rdp, 'RDP classifier')
+    rc_fh.puts "export MIGA_RDP='#{cli[:rdp] ? 'yes' : 'no'}'"
     paths = {}
     rc_fh.puts 'MIGA_PATH=""'
     req_path = File.expand_path('utils/requirements.txt', MiGA.root_path)
     File.open(req_path, 'r') do |fh|
       fh.each_line do |ln|
-        next if $. < 3
-
-        r = ln.chomp.split(/\t+/)
-        next if r[0] =~ /\(opt\)$/ && !cli[:mytaxa]
-
+        r = define_software(ln) or next
         cli.print "Testing #{r[0]}#{" (#{r[3]})" if r[3]}... "
         path = find_software(r[1])
         paths[r[1]] = File.expand_path(r[1], path).shellescape
@@ -178,11 +149,20 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     paths
   end
 
-  def ask_for_mytaxa
-    if cli[:mytaxa].nil?
-      cli[:mytaxa] =
+  def define_software(ln)
+    r = ln.chomp.split(/\t+/)
+    return if %w[Software --------].include?(r[0])
+    return if r[0] =~ /\(mytaxa\)$/ && !cli[:mytaxa]
+    return if r[0] =~ /\(rdp\)$/ && !cli[:rdp]
+
+    r
+  end
+
+  def ask_for_optional(symbol, name)
+    if cli[symbol].nil?
+      cli[symbol] =
         cli.ask_user(
-          'Should I include MyTaxa modules?',
+          "Should I include #{name} modules?",
           'yes', %w(yes no)
         ) == 'yes'
     end
@@ -207,27 +187,6 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       cli.print "I cannot find #{exec} "
     end
     path
-  end
-
-  def check_additional_files(paths)
-    if cli[:mytaxa]
-      cli.puts 'Looking for MyTaxa databases:'
-      mt = File.dirname paths['MyTaxa']
-      cli.print 'Looking for scores... '
-      unless Dir.exist?(File.expand_path('db', mt))
-        cli.puts "no\nExecute 'python2 #{mt}/utils/download_db.py'"
-        exit(1)
-      end
-      cli.puts 'yes'
-      cli.print 'Looking for diamond db... '
-      unless File.exist?(File.expand_path('AllGenomes.faa.dmnd', mt))
-        cli.puts "no\nDownload " \
-          "'http://enve-omics.ce.gatech.edu/data/public_mytaxa/" \
-          "AllGenomes.faa.dmnd' into #{mt}"
-        exit(1)
-      end
-      cli.puts ''
-    end
   end
 
   def check_r_packages(paths)
@@ -265,16 +224,5 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       end
     end
     cli.puts ''
-  end
-
-  def close_rc_file(rc_fh)
-    rc_fh.puts <<~FOOT
-
-      MIGA_CONFIG_VERSION='#{MiGA::MiGA.VERSION}'
-      MIGA_CONFIG_LONGVERSION='#{MiGA::MiGA.LONG_VERSION}'
-      MIGA_CONFIG_DATE='#{Time.now}'
-
-    FOOT
-    rc_fh.close
   end
 end

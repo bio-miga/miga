@@ -14,15 +14,16 @@ if [[ "$MIGA_MYTAXA" == "no" ]] ; then
   echo "This system doesn't currently support MyTaxa." \
     > "$DATASET.nomytaxa.txt"
 else
-  MT=$(dirname -- "$(which MyTaxa)")
-
   # Check type of dataset
   MULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --multi \
     | wc -l | awk '{print $1}')
   if [[ "$MULTI" -eq "1" ]] ; then
     # Check requirements
-    if [[ ! -e "$MT/AllGenomes.faa.dmnd" ]] ; then
-      echo "Cannot locate the database: $MT/AllGenomes.faa.dmnd:" \
+    MT=$(dirname -- "$(which MyTaxa)")
+    DB="$MIGA_HOME/.miga_db/AllGenomes.faa.dmnd"
+    [[ -e "$DB" ]] || DB="$MT/AllGenomes.faa.dmnd"
+    if [[ ! -e "$DB" ]] ; then
+      echo "Cannot locate the database: AllGenomes.faa.dmnd:" \
             "no such file or directory" >&2
       exit 1
     fi
@@ -40,7 +41,7 @@ else
     # Execute search
     FAA="../../../06.cds/$DATASET.faa"
     [[ -s "$FAA" ]] || FAA="${FAA}.gz"
-    diamond blastp -q "$FAA" -d "$MT/AllGenomes.faa" \
+    diamond blastp -q "$FAA" -d "$DB" \
       -a "$DATASET.daa" -k 5 -p "$CORES" --min-score 60
     diamond view -a "$DATASET.daa" -o "$DATASET.blast"
 
