@@ -1,4 +1,4 @@
-name: test-miga-base
+name: build
 on: [push, pull_request]
 jobs:
   test:

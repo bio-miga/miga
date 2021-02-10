@@ -1,6 +1,6 @@
 [![Code Climate](https://codeclimate.com/github/bio-miga/miga/badges/gpa.svg)](https://codeclimate.com/github/bio-miga/miga)
 [![Test Coverage](https://codeclimate.com/github/bio-miga/miga/badges/coverage.svg)](https://codeclimate.com/github/bio-miga/miga/coverage)
-[![Build Status](https://travis-ci.org/bio-miga/miga.svg?branch=master)](https://travis-ci.org/bio-miga/miga)
+[![Build Status](https://github.com/bio-miga/miga/workflows/build/badge.svg)](https://github.com/bio-miga/miga/actions?query=workflow:build)
 [![Gem Version](https://badge.fury.io/rb/miga-base.svg)](https://badge.fury.io/rb/miga-base)
 [![Inch docs](http://inch-ci.org/github/bio-miga/miga.svg)](http://inch-ci.org/github/bio-miga/miga)
 
