@@ -6,7 +6,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos]
-        ruby: [2.3, 2.5, 2.6, head]
+        ruby: [2.3, 2.5, 2.7, head]
     runs-on: ${{ matrix.os }}-latest
     name: Ruby ${{ matrix.ruby }} on ${{ matrix.os }}
     steps:
@@ -33,4 +33,14 @@ jobs:
           CC_TEST_REPORTER_ID: "${{ secrets.CC_MIGA_REPORTER_ID }}"
         with:
           coverageCommand: bundle exec codeclimate-test-reporter
+  ruby-gem:
+    runs-on: ubuntu-latest
+    name: Publish to RubyGems
+    needs: [test, remote-test]
+    if: contains(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cadwallion/publish-rubygems-action@master
+        env:
+          RUBYGEMS_API_KEY: "${{ secrets.RUBYGEMS_API_KEY }}"
 

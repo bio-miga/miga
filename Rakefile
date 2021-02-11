@@ -1,3 +1,4 @@
+require 'bundler/gem_tasks'
 require 'rake/testtask'
 
 SOURCES = FileList['lib/**/*.rb']
