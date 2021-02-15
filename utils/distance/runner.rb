@@ -48,12 +48,12 @@ class MiGA::DistanceRunner
   # Launch the appropriate analysis
   def go!
     $stderr.puts "Launching analysis"
-    return if dataset.is_multi?
+    return if dataset.multi?
 
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
       create_temporals
-      opts[:run_taxonomy] ? go_taxonomy! : dataset.is_ref? ? go_ref! : go_query!
+      opts[:run_taxonomy] ? go_taxonomy! : dataset.ref? ? go_ref! : go_query!
     end
   end
 
@@ -65,7 +65,7 @@ class MiGA::DistanceRunner
 
     # first-come-first-serve traverse
     ref_project.each_dataset do |ds|
-      next if !ds.is_ref? or ds.is_multi? or ds.result(:essential_genes).nil?
+      next if !ds.ref? or ds.multi? or ds.result(:essential_genes).nil?
 
       puts "[ #{Time.now} ] #{ds.name}"
       ani_after_aai(ds)
@@ -80,7 +80,7 @@ class MiGA::DistanceRunner
   def go_query!
     $stderr.puts 'Launching analysis for query dataset'
     # Check if project is ready
-    tsk = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
+    tsk = ref_project.clade? ? [:subclades, :ani] : [:clade_finding, :aai]
     res = ref_project.result(tsk[0])
     return if res.nil?
 

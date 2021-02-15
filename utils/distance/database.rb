@@ -66,7 +66,7 @@ module MiGA::DistanceRunner::Database
     return y unless y.nil? || y.zero?
 
     # Check if self.dataset <- target is done (another thread)
-    if dataset.is_ref? && project.path == ref_project.path
+    if dataset.ref? && project.path == ref_project.path
       y = data_from_db(
         target.name, dataset.name, ref_db(metric, target.name), metric
       )

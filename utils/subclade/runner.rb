@@ -28,7 +28,7 @@ class MiGA::SubcladeRunner
   def go!
     return if project.type == :metagenomes
 
-    unless @project.dataset_names.any? { |i| @project.dataset(i).is_ref? }
+    unless @project.dataset_names.any? { |i| @project.dataset(i).ref? }
       FileUtils.touch(File.join(@home, 'miga-project.empty'))
       return
     end
@@ -43,15 +43,15 @@ class MiGA::SubcladeRunner
   # Launch analysis for clade_finding
   def go_clade_finding!
     cluster_species
-    unless project.is_clade?
-      subclades :aai
+    unless project.clade?
+      subclades(:aai)
       compile
     end
   end
 
   # Launch analysis for subclades
   def go_subclades!
-    subclades :ani
+    subclades(:ani)
     compile
   end
 end

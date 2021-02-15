@@ -19,7 +19,7 @@ m.say 'Cleaning Databases'
       next unless (idx % thr) == t
 
       d = p.dataset(i)
-      next unless d.is_ref? and d.is_active?
+      next unless d.ref? && d.active?
 
       d.cleanup_distances!
     end
@@ -28,4 +28,3 @@ end
 Process.waitall
 m.advance('Dataset:', dsn.size, dsn.size)
 m.say
-
