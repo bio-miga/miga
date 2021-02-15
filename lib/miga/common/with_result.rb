@@ -86,7 +86,8 @@ module MiGA::Common::WithResult
         if res.nil?
           # Run if the step has not been calculated,
           # unless too many attempts were already made
-          if (metadata["_try_#{t}"] || 0) > (project.metadata[:max_try] || 10)
+          cur_try = metadata["_try_#{t}"] || 0
+          if cur_try > project.option(:max_try)
             inactivate! "Too many errors in step #{t}"
             false
           else

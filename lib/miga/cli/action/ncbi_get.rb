@@ -269,7 +269,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     else
       cli.say '  Creating dataset'
       rd.save_to(p, name, !cli[:query], body[:md])
-      cli.add_metadata(p.add_dataset(name)).save
+      cli.add_metadata(p.add_dataset(name))
     end
   end
 end

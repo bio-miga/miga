@@ -65,8 +65,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       next if d.nil?
 
       copy_file_to_project(file, file_type, d, p)
-      d = cli.add_metadata(d)
-      d.save
+      cli.add_metadata(d)
       p.add_dataset(d.name)
       res = d.first_preprocessing(true)
       cli.say "  result: #{res}"

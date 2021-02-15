@@ -34,6 +34,7 @@ module MiGA::Cli::Base
     next_step: 'Return the next task to run in a dataset or project',
     # Objects (Datasets or Projects)
     edit: 'Edit the metadata of a dataset or project',
+    option: 'Get or set options of a dataset or project',
     # System
     init: 'Initialize MiGA to process new projects',
     daemon: 'Control the daemon of a MiGA project',

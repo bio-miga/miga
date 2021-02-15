@@ -1,7 +1,10 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
+
+require 'miga/common/with_option'
 
 class MiGA::Project < MiGA::MiGA
+  include MiGA::Common::WithOption
+
   class << self
     ##
     # Does the project at +path+ exist?
@@ -32,6 +35,10 @@ class MiGA::Project < MiGA::MiGA
 
     def RESULT_DIRS
       @@RESULT_DIRS
+    end
+
+    def OPTIONS
+      @@OPTIONS
     end
   end
 end
@@ -108,4 +115,77 @@ module MiGA::Project::Base
   ##
   # Project-wide tasks for :clade projects
   @@INCLADE_TASKS = [:subclades, :ogs]
+
+  ##
+  # Options supported by projects
+  @@OPTIONS = {
+    ref_project: {
+      desc: 'Project with reference taxonomy', type: String
+    },
+    db_proj_dir: {
+      desc: 'Directory containing database projects', type: String
+    },
+    tax_pvalue: {
+      desc: 'Maximum p-value to transfer taxonomy', default: 0.05, type: Float,
+      in: 0.0..1.0
+    },
+    haai_p: {
+      desc: 'Value of aai.rb -p on hAAI', type: String,
+      default: Proc.new { |project| project.clade? ? 'no' : 'blast+' },
+      in: %w[blast+ blast blat diamond no]
+    },
+    aai_p: {
+      desc: 'Value of aai.rb -p on AAI', default: 'blast+', type: String,
+      in: %w[blast+ blast blat diamond]
+    },
+    ani_p: {
+      desc: 'Value of ani.rb -p on ANI', default: 'blast+', type: String,
+      in: %w[blast+ blast blat fastani]
+    },
+    max_try: {
+      desc: 'Maximum number of task attempts', default: 10, type: Integer,
+      in: (0..1000)
+    },
+    aai_save_rbm: {
+      desc: 'Should RBMs be saved for OGS analysis?',
+      default: Proc.new { |project| project.clade? },
+      in: [true, false]
+    },
+    ogs_identity: {
+      desc: 'Min RBM identity for OGS', default: 80.0, type: Float,
+      in: (0.0..100.0)
+    },
+    clean_ogs: {
+      desc: 'If false, keeps ABC files (clades only)', default: true,
+      in: [true, false]
+    },
+    run_clades: {
+      desc: 'Should clades be estimated from distances?', default: true,
+      in: [true, false]
+    },
+    gsp_ani: {
+      desc: 'ANI limit to propose gsp clades', default: 95.0, type: Float,
+      in: (0.0..100.0)
+    },
+    gsp_aai: {
+      desc: 'AAI limit to propose gsp clades', default: 90.0, type: Float,
+      in: (0.0..100.0)
+    },
+    gsp_metric: {
+      desc: 'Metric to propose clades', default: 'ani', type: String,
+      in: %w[ani aai]
+    },
+    ess_coll: {
+      desc: 'Collection of essential genes to use', default: 'dupont_2012',
+      type: String, in: %w[dupont_2012 lee_2019]
+    },
+    min_qual: {
+      desc: 'Minimum genome quality', default: 25.0, type: Float,
+      in: -Float::INFINITY..100.0, tokens: %w[no]
+    },
+    distances_checkpoint: {
+      desc: 'Number of comparisons before storing data', default: 10,
+      type: Integer, in: 1...Float::INFINITY
+    }
+  }
 end

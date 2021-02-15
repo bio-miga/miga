@@ -31,10 +31,8 @@ module MiGA::DistanceRunner::Pipeline
 
   # Run distances against datasets listed in metadata's +:dist_req+
   def distances_by_request(metric)
-    return unless dataset.metadata[:dist_req]
-
     $stderr.puts 'Running distances by request'
-    dataset.metadata[:dist_req].each do |target|
+    dataset.option(:dist_req).each do |target|
       ds = ref_project.dataset(target) and send(metric, ds)
     end
   end
@@ -112,7 +110,7 @@ module MiGA::DistanceRunner::Pipeline
     $stderr.puts 'Transferring taxonomy'
     return if tax.nil?
 
-    pval = (project.metadata[:tax_pvalue] || 0.05).to_f
+    pval = project.option(:tax_pvalue)
     tax_a = tax
             .select { |i| i[1] != '?' && i[2] <= pval }
             .map { |i| i[0, 2].join(':') }

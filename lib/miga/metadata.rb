@@ -56,6 +56,8 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Save the metadata into #path
   def save
+    return if self[:never_save]
+
     MiGA.DEBUG "Metadata.save #{path}"
     self[:updated] = Time.now.to_s
     json = to_json

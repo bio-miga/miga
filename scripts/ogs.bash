@@ -12,8 +12,7 @@ miga_start_project_step "$DIR"
 DS=$(miga ls -P "$PROJECT" --ref --no-multi)
 
 if [[ -n $DS ]] ; then
-  MIN_ID=$(miga about -P "$PROJECT" -m ogs_identity)
-  [[ $MIN_ID == "?" ]] && MIN_ID=80
+  MIN_ID=$(miga option -P "$PROJECT" --key ogs_identity)
   if [[ ! -s miga-project.ogs ]] ; then
     # Extract RBMs
     if [[ ! -s miga-project.abc ]] ; then
@@ -34,7 +33,7 @@ if [[ -n $DS ]] ; then
 
     # Estimate OGs and Clean RBMs
     ogs.mcl.rb -o miga-project.ogs --abc miga-project.abc -t "$CORES"
-    if [[ $(miga about -P "$PROJECT" -m clean_ogs) == "false" ]] ; then
+    if [[ $(miga option -P "$PROJECT" --key clean_ogs) == "false" ]] ; then
       gzip -9 miga-project.abc
     else
       rm miga-project.abc

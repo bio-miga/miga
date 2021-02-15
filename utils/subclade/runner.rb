@@ -18,11 +18,10 @@ class MiGA::SubcladeRunner
       @step == :clade_finding ? '01.find.running' : '02.ani.running'
     )
     @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
-    @opts[:run_clades] = !!@project.metadata.data.fetch(:run_clades) { true }
-    @opts[:gsp_ani] = @project.metadata.data.fetch(:gsp_ani) { 95.0 }.to_f
-    @opts[:gsp_aai] = @project.metadata.data.fetch(:gsp_aai) { 90.0 }.to_f
-    @opts[:gsp_metric] =
-      @project.metadata.data.fetch(:gsp_metric) { 'ani' }.to_s
+    @opts[:run_clades] = @project.option(:run_clades)
+    @opts[:gsp_ani] = @project.option(:gsp_ani)
+    @opts[:gsp_aai] = @project.option(:gsp_aai)
+    @opts[:gsp_metric] = @project.option(:gsp_metric)
   end
 
   # Launch the appropriate analysis
@@ -30,7 +29,7 @@ class MiGA::SubcladeRunner
     return if project.type == :metagenomes
 
     unless @project.dataset_names.any? { |i| @project.dataset(i).is_ref? }
-      FileUtils.touch(File.expand_path('miga-project.empty', @home))
+      FileUtils.touch(File.join(@home, 'miga-project.empty'))
       return
     end
     Dir.chdir home

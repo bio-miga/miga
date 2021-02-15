@@ -34,6 +34,5 @@ class MiGA::Cli::Action::Edit < MiGA::Cli::Action
       cli[:activate] ? obj.activate! : obj.inactivate!(cli[:reason])
     end
     cli.add_metadata(obj)
-    obj.save
   end
 end

@@ -90,22 +90,27 @@ module MiGA::Cli::ObjectsHelper
   def add_metadata(obj, cli = self)
     raise "Unsupported object: #{obj.class}" unless obj.respond_to? :metadata
 
-    cli[:metadata].split(',').each do |pair|
+    (cli[:metadata] || '').split(',').each do |pair|
       (k, v) = pair.split('=')
-      case v
-      when 'true';  v = true
-      when 'false'; v = false
-      when 'nil';   v = nil
+      if obj.has_option?(k)
+        obj.set_option(k, v, true)
+      else
+        case v
+        when 'true';  v = true
+        when 'false'; v = false
+        when 'nil';   v = nil
+        end
+        if k == '_step'
+          obj.metadata["_try_#{v}"] ||= 0
+          obj.metadata["_try_#{v}"]  += 1
+        end
+        obj.metadata[k] = v
       end
-      if k == '_step'
-        obj.metadata["_try_#{v}"] ||= 0
-        obj.metadata["_try_#{v}"]  += 1
-      end
-      obj.metadata[k] = v
-    end unless cli[:metadata].nil?
-    [:type, :name, :user, :description, :comments].each do |k|
+    end
+    %i[type name user description comments].each do |k|
       obj.metadata[k] = cli[k] unless cli[k].nil?
     end
+    obj.save
     obj
   end
 end

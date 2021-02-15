@@ -24,8 +24,7 @@ fi
 mkdir "${DATASET}.ess"
 TYPE=$(miga ls -P "$PROJECT" -D "$DATASET" \
   --metadata "type" | awk '{print $2}')
-COLL=$(miga about -P "$PROJECT" -m ess_coll)
-[[ "$COLL" == "?" ]] && COLL=dupont_2012
+COLL=$(miga option -P "$PROJECT" --key ess_coll)
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
   FLAGS="--metagenome"
 else

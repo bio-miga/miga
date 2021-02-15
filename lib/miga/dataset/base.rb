@@ -1,7 +1,10 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
+
+require 'miga/common/with_option'
 
 class MiGA::Dataset < MiGA::MiGA
+  include MiGA::Common::WithOption
+
   # Class-level
   class << self
     def RESULT_DIRS
@@ -14,6 +17,10 @@ class MiGA::Dataset < MiGA::MiGA
 
     def PREPROCESSING_TASKS
       @@PREPROCESSING_TASKS
+    end
+
+    def OPTIONS
+      @@OPTIONS
     end
   end
 end
@@ -85,4 +92,15 @@ module MiGA::Dataset::Base
   # tasks are ignored for single-organism datasets or for unknwon types.
   @@ONLY_MULTI_TASKS = [:mytaxa]
   @@_ONLY_MULTI_TASKS_H = Hash[@@ONLY_MULTI_TASKS.map { |i| [i, true] }]
+
+  ##
+  # Options supported by datasets
+  @@OPTIONS = {
+    db_project: {
+      desc: 'Project to use as database', type: String
+    },
+    dist_req: {
+      desc: 'Run distances against these datasets', type: Array, default: []
+    }
+  }
 end

@@ -25,6 +25,11 @@ class MiGA::Cli::Action::New < MiGA::Cli::Action
         'Equivalent to: -m aai_p=diamond,ani_p=fastani'
       ) { |v| cli[:fast] = v }
       opt.on(
+        '--sensitive',
+        'Use more sensitive identity engines (BLAST+)',
+        'Equivalent to: -m aai_p=blast+,ani_p=blast+'
+      ) { |v| cli[:sensitive] = v }
+      opt.on(
         '-m', '--metadata STRING',
         'Metadata as key-value pairs separated by = and delimited by comma',
         'Values are saved as strings except for booleans (true / false) or nil'
@@ -35,20 +40,23 @@ class MiGA::Cli::Action::New < MiGA::Cli::Action
   def perform
     cli.ensure_type(MiGA::Project)
     cli.ensure_par(project: '-P')
-    unless File.exist?(File.join(ENV['HOME'], '.miga_rc')) &&
-           File.exist?(File.join(ENV['HOME'], '.miga_daemon.json'))
-      raise "You must initialize MiGA before creating the first project.\n" +
-            'Please use "miga init".'
+    unless File.exist?(File.join(ENV['MIGA_HOME'], '.miga_rc')) &&
+           File.exist?(File.join(ENV['MIGA_HOME'], '.miga_daemon.json'))
+      raise "You must initialize MiGA before creating the first project\n" +
+            'Please use "miga init"'
     end
     cli.say "Creating project: #{cli[:project]}"
-    raise 'Project already exists, aborting.' if Project.exist? cli[:project]
+    raise 'Project already exists, aborting' if Project.exist? cli[:project]
 
     p = Project.new(cli[:project], false)
     p = cli.add_metadata(p)
-    if cli[:fast]
-      p.metadata[:aai_p] = 'diamond'
-      p.metadata[:ani_p] = 'fastani'
+
+    if cli[:sensitive]
+      p.set_option(:aai_p, 'blast+')
+      p.set_option(:ani_p, 'blast+')
+    elsif cli[:fast]
+      p.set_option(:aai_p, 'diamond')
+      p.set_option(:ani_p, 'fastani')
     end
-    p.save
   end
 end
