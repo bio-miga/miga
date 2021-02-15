@@ -6,8 +6,9 @@ require 'miga/remote_dataset'
 
 class MiGA::Cli::Action::Get < MiGA::Cli::Action
   def parse_cli
-    cli.defaults = { query: false, universe: :ncbi, db: :nuccore,
-                     get_md: false, only_md: false }
+    cli.defaults = {
+      query: false, universe: :ncbi, db: :nuccore, get_md: false, only_md: false
+    }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset, :dataset_type])
       opt.on(
@@ -141,6 +142,10 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
 
   def create_dataset(sub_cli, p, rd)
     sub_cli.say 'Creating dataset'
+    if Dataset.exist?(p, sub_cli[:dataset])
+      raise "Dataset already exists: #{sub_cli[:dataset]}"
+    end
+
     dummy_d = Dataset.new(p, sub_cli[:dataset])
     md = sub_cli.add_metadata(dummy_d).metadata.data
     md[:metadata_only] = true if cli[:only_md]
