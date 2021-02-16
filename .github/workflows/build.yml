@@ -35,12 +35,17 @@ jobs:
           coverageCommand: bundle exec codeclimate-test-reporter
   ruby-gem:
     runs-on: ubuntu-latest
-    name: Publish to RubyGems
+    name: Release new version
     needs: [test, remote-test]
-    if: contains(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v2
-      - uses: cadwallion/publish-rubygems-action@master
+      - uses: marceloprado/has-changed-path@v1
+        id: changed-version
+        with:
+          paths: lib/miga/version.rb
+      - name: Tag and deploy
+        if: steps.changed-version.outputs.changed == 'true'
+        uses: cadwallion/publish-rubygems-action@master
         env:
           RUBYGEMS_API_KEY: "${{ secrets.RUBYGEMS_API_KEY }}"
 
