@@ -58,26 +58,8 @@ module MiGA::Cli::Action::Wf
       'Regular expression indicating how to extract the name from the path',
       "By default: '#{cli[:regexp]}'"
     ) { |v| cli[:regexp] = v }
-    opt.on(
-      '--type STRING',
-      "Type of datasets. By default: #{cli[:dataset_type]}",
-      'Recognized types:',
-      *MiGA::Dataset.KNOWN_TYPES
-        .map do |k, v|
-          "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
-        end.compact
-    ) { |v| cli[:dataset_type] = v.downcase.to_sym }
-    if params[:project_type]
-      opt.on(
-        '--project-type STRING',
-        "Type of project. By default: #{cli[:project_type]}",
-        'Recognized types:',
-        *MiGA::Project.KNOWN_TYPES
-          .map do |k, v|
-            "~ #{k}: #{v[:description]}" unless !params[:multi] && v[:multi]
-          end.compact
-      ) { |v| cli[:project_type] = v.downcase.to_sym }
-    end
+    opt_object_type(opt, :dataset, params[:multi])
+    opt_object_type(opt, :project, params[:multi]) if params[:project_type]
     opt.on(
       '--daemon PATH',
       'Use custom daemon configuration in JSON format',
@@ -207,5 +189,33 @@ module MiGA::Cli::Action::Wf
     # Transfer and save
     md.each { |k, v| obj.metadata[k] = v }
     obj.save
+  end
+
+  private
+
+  ##
+  # Add option --type or --project-type to +opt+
+  def opt_object_type(opt, obj, multi)
+    conf =
+      case obj
+      when :dataset
+        ['type', 'datasets', :dataset_type, MiGA::Dataset]
+      when :project
+        ['project-type', 'project', :project_type, MiGA::Project]
+      else
+        raise "Unrecognized object type: #{obj}"
+      end
+
+    options =
+      conf[3].KNOWN_TYPES.map do |k, v|
+        "~ #{k}: #{v[:description]}" unless !multi && v[:multi]
+      end.compact
+
+    opt.on(
+      "--#{conf[0]} STRING",
+      "Type of #{conf[1]}. By default: #{cli[conf[2]]}",
+      'Recognized types:',
+      *options
+    ) { |v| cli[conf[2]] = v.downcase.to_sym }
   end
 end

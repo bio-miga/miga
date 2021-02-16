@@ -16,8 +16,10 @@ class MiGA::Cli::Action::IndexWf < MiGA::Cli::Action
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
       opts_for_wf_distances(opt)
-      opts_for_wf(opt, 'Input genome assemblies (nucleotides, FastA)',
-                  cleanup: false, project_type: true)
+      opts_for_wf(
+        opt, 'Input genome assemblies (nucleotides, FastA)',
+        cleanup: false, project_type: true
+      )
     end
   end
 

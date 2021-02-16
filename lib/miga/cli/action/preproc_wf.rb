@@ -21,18 +21,20 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
         '-m', '--mytaxa_scan',
         'Perform MyTaxa scan analysis'
       ) { |v| cli[:mytaxa] = v }
-      opts_for_wf(opt, 'Input files as defined by --input-type',
-                  multi: true, cleanup: false, ncbi: false)
+      opts_for_wf(
+        opt, 'Input files as defined by --input-type',
+        multi: true, cleanup: false, ncbi: false, project_type: true
+      )
     end
   end
 
   def perform
     # Input data
     cli.ensure_par(input_type: '-i')
-    p_metadata = Hash[
-      %w[project_stats haai_distances aai_distances ani_distances clade_finding]
-                 .map { |i| ["run_#{i}", false] }
+    norun = %w[
+      project_stats haai_distances aai_distances ani_distances clade_finding
     ]
+    p_metadata = Hash[norun.map { |i| ["run_#{i}", false] }]
     d_metadata = { run_distances: false }
     unless cli[:mytaxa]
       d_metadata[:run_mytaxa_scan] = false
