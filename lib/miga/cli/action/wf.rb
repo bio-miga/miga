@@ -136,10 +136,12 @@ module MiGA::Cli::Action::Wf
       p.set_option(i, cli[i])
     end
     # Download datasets
-    what = cli[:ncbi_draft] ? '--all' : '--complete'
-    call_cli(
-      ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
-    ) unless cli[:ncbi_taxon].nil?
+    unless cli[:ncbi_taxon].nil?
+      what = cli[:ncbi_draft] ? '--all' : '--complete'
+      call_cli(
+        ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
+      )
+    end
     # Add datasets
     call_cli(
       [
@@ -200,7 +202,7 @@ module MiGA::Cli::Action::Wf
   def transfer_metadata(obj, md)
     # Clear old metadata
     obj.metadata.each do |k, v|
-      obj.metadata[k] = nil if k.to_s =~ /^run_/ || obj.has_option?(k)
+      obj.metadata[k] = nil if k.to_s =~ /^run_/ || obj.option?(k)
     end
     # Transfer and save
     md.each { |k, v| obj.metadata[k] = v }

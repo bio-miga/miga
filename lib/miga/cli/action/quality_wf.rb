@@ -21,7 +21,9 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
 
   def perform
     # Input data
-    norun = %w[project_stats haai_distances aai_distances ani_distances clade_finding]
+    norun = %w[
+      project_stats haai_distances aai_distances ani_distances clade_finding
+    ]
     p_metadata = Hash[norun.map { |i| ["run_#{i}", false] }]
     d_metadata = { run_distances: false }
     d_metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]

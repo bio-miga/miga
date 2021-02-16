@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 require 'miga/common/with_option'
 
@@ -7,7 +9,7 @@ class WithDaemonTest < Test::Unit::TestCase
   class TestWithOption < MiGA::MiGA
     include MiGA::Common::WithOption
 
-    attr :metadata, :saved
+    attr_reader :metadata, :saved
 
     def initialize
       @metadata = { range: 0.9 }
@@ -21,7 +23,7 @@ class WithDaemonTest < Test::Unit::TestCase
         range: { default: 1.0, in: -5.5..5.5, type: Float },
         default: { default: 9, type: Integer },
         token: { type: Integer, tokens: %w[yes no 0] },
-        proc: { default: Proc.new { Date.today } },
+        proc: { default: proc { Date.today } },
         bool: { in: [true, false] }
       }
     end
@@ -45,7 +47,7 @@ class WithDaemonTest < Test::Unit::TestCase
     assert_nil(o.option(:empty))
   end
 
-  def test_set_option
+  def test_set_bool
     o = TestWithOption.new
     assert_nil(o.option(:bool))
     assert(!o.saved)
@@ -57,6 +59,10 @@ class WithDaemonTest < Test::Unit::TestCase
     assert_equal(false, o.set_option(:bool, false))
     assert_equal(false, o.set_option(:bool, 'false', true))
     assert_nil(o.set_option(:bool, nil))
+  end
+
+  def test_set_empty
+    o = TestWithOption.new
     assert_nil(o.option(:empty))
     assert_equal('a', o.set_option(:empty, 'a'))
     assert_equal('1', o.set_option(:empty, '1', true))
@@ -64,15 +70,15 @@ class WithDaemonTest < Test::Unit::TestCase
 
   def test_all_options
     o = TestWithOption.new
-    assert(o.all_options.is_a? Hash)
+    assert(o.all_options.is_a?(Hash))
     assert_include(o.all_options.keys, :bool)
     assert_nil(o.all_options[:bool])
   end
 
-  def test_has_option
+  def test_option?
     o = TestWithOption.new
-    assert(o.has_option?(:range))
-    assert(!o.has_option?(:not_an_option))
+    assert(o.option?(:range))
+    assert(!o.option?(:not_an_option))
   end
 
   def test_option_metadata
@@ -81,6 +87,10 @@ class WithDaemonTest < Test::Unit::TestCase
     assert_equal(1.0, o.set_option(:range, nil))
     assert_equal(2.0, o.set_option(:range, 2.0))
     assert_equal(3.0, o.set_option(:range, '3', true))
+  end
+
+  def test_option_range
+    o = TestWithOption.new
     assert_raise { o.set_option(:range, 9.0) }
     assert_raise { o.set_option(:range, 3) }
     assert_raise { o.set_option(:range, true) }
@@ -88,9 +98,9 @@ class WithDaemonTest < Test::Unit::TestCase
 
   def test_option_proc
     o = TestWithOption.new
-    assert(o.option(:proc).is_a? Date)
-    assert(o.set_option(:proc, 1).is_a? Integer)
-    assert(o.set_option(:proc, nil).is_a? Date)
+    assert(o.option(:proc).is_a?(Date))
+    assert(o.set_option(:proc, 1).is_a?(Integer))
+    assert(o.set_option(:proc, nil).is_a?(Date))
   end
 
   def test_token

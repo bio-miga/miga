@@ -131,7 +131,7 @@ module MiGA::Project::Base
     },
     haai_p: {
       desc: 'Value of aai.rb -p on hAAI', type: String,
-      default: Proc.new { |project| project.clade? ? 'no' : 'blast+' },
+      default: proc { |project| project.clade? ? 'no' : 'blast+' },
       in: %w[blast+ blast blat diamond no]
     },
     aai_p: {
@@ -148,7 +148,7 @@ module MiGA::Project::Base
     },
     aai_save_rbm: {
       desc: 'Should RBMs be saved for OGS analysis?',
-      default: Proc.new { |project| project.clade? },
+      default: proc { |project| project.clade? },
       in: [true, false]
     },
     ogs_identity: {

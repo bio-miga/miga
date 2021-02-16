@@ -1,12 +1,13 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 require 'miga/cli/action'
 
+##
+# CLI: `miga option`
 class MiGA::Cli::Action::Option < MiGA::Cli::Action
   def parse_cli
     cli.parse do |opt|
-      cli.opt_object(opt, [:project, :dataset_opt])
+      cli.opt_object(opt, %i[project dataset_opt])
       opt.on(
         '-k', '--key STRING',
         'Option name to get or set (by default, all options are printed)'

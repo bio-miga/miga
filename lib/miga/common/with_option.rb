@@ -23,7 +23,7 @@ module MiGA::Common::WithOption
     Hash[self.class.OPTIONS.each_key.map { |key| [key, option(key)] }]
   end
 
-  def has_option?(key)
+  def option?(key)
     !self.class.OPTIONS[key.to_sym].nil?
   end
 
@@ -44,9 +44,9 @@ module MiGA::Common::WithOption
   def assert_valid_option_value(key, value, from_string = false)
     opt = assert_has_option(key)
     value = option_from_string(key, value) if from_string
-    return nil if value.nil? # <- nil is always a valid value
 
-    return value if opt[:tokens] && opt[:tokens].include?(value)
+    # nil is always valid, and so are supported tokens
+    return value if value.nil? || opt[:tokens]&.include?(value)
 
     if opt[:type] && !value.is_a?(opt[:type])
       raise "Invalid value type for #{key}: #{value.class}, not #{opt[:type]}"
@@ -62,19 +62,19 @@ module MiGA::Common::WithOption
   def option_from_string(key, value)
     opt = assert_has_option(key)
 
-    if value == 'nil' || value == ''
+    if ['', 'nil'].include?(value)
       nil
-    elsif opt[:tokens] && opt[:tokens].include?(value)
+    elsif opt[:tokens]&.include?(value)
       value
-    elsif opt[:type] && opt[:type] == Float
+    elsif opt[:type]&.equal?(Float)
       raise "Not a float: #{value}" unless value =~ /^-?\.?\d/
       value.to_f
-    elsif opt[:type] && opt[:type] == Integer
+    elsif opt[:type]&.equal?(Integer)
       raise "Not an integer: #{value}" unless value =~ /^-?\d/
       value.to_i
-    elsif opt[:in] && opt[:in].include?(true) && value == 'true'
+    elsif opt[:in]&.include?(true) && value == 'true'
       true
-    elsif opt[:in] && opt[:in].include?(false) && value == 'false'
+    elsif opt[:in]&.include?(false) && value == 'false'
       false
     else
       value

@@ -61,7 +61,7 @@ module MiGA::Cli::ObjectsHelper
       o &&= (d.active? == self[:active]) unless self[:active].nil?
       o &&= (self[:multi] ? d.multi? : d.nonmulti?) unless self[:multi].nil?
       unless self[:taxonomy].nil?
-        o &&= (!d.metadata[:tax].nil?) && d.metadata[:tax].in?(self[:taxonomy]) 
+        o &&= !d.metadata[:tax].nil? && d.metadata[:tax].in?(self[:taxonomy])
       end
       o
     end
@@ -92,7 +92,7 @@ module MiGA::Cli::ObjectsHelper
 
     (cli[:metadata] || '').split(',').each do |pair|
       (k, v) = pair.split('=')
-      if obj.has_option?(k)
+      if obj.option?(k)
         obj.set_option(k, v, true)
       else
         case v

@@ -40,13 +40,11 @@ class MiGA::Cli::Action::New < MiGA::Cli::Action
   def perform
     cli.ensure_type(MiGA::Project)
     cli.ensure_par(project: '-P')
-    unless File.exist?(File.join(ENV['MIGA_HOME'], '.miga_rc')) &&
-           File.exist?(File.join(ENV['MIGA_HOME'], '.miga_daemon.json'))
-      raise "You must initialize MiGA before creating the first project\n" +
-            'Please use "miga init"'
+    unless MiGA::MiGA.initialized?
+      raise 'MiGA has not been initialized, please use "miga init" first'
     end
     cli.say "Creating project: #{cli[:project]}"
-    raise 'Project already exists, aborting' if Project.exist? cli[:project]
+    raise 'Project already exists, aborting' if Project.exist?(cli[:project])
 
     p = Project.new(cli[:project], false)
     p = cli.add_metadata(p)
