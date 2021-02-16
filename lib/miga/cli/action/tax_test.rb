@@ -59,7 +59,7 @@ class MiGA::Cli::Action::TaxTest < MiGA::Cli::Action
     cli.puts "Closest relative: #{cr[0]} with AAI: #{cr[1]}."
     p = cli.load_project
     if cli[:ref_project]
-      if (ref = p.metadata[:ref_project]).nil?
+      if (ref = p.option(:ref_project)).nil?
         raise '--ref-project requested but no reference project has been set'
       end
       if (q = MiGA::Project.load(ref)).nil?

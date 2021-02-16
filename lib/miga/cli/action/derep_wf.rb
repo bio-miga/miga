@@ -52,17 +52,11 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
     # Input data
     p = create_project(
       :assembly,
-      {
-        run_project_stats: false,
-        run_clades: false,
-        gsp_metric: cli[:metric],
-        :"gsp_#{cli[:metric]}" => cli[:threshold]
-      },
+      { run_project_stats: false, run_clades: false },
       { run_mytaxa_scan: false, run_ssu: false }
     )
-    unless cli[:threshold] >= 0.0 && cli[:threshold] <= 100.0
-      raise 'The threshold of identity must be in the range [0,100]'
-    end
+    p.set_option(:gsp_metric, cli[:metric])
+    p.set_option(:"gsp_#{cli[:metric]}", cli[:threshold])
 
     # Run
     run_daemon

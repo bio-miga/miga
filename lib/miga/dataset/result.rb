@@ -50,7 +50,7 @@ module MiGA::Dataset::Result
       :upstream
     elsif !metadata["run_#{task}"].nil?
       metadata["run_#{task}"] ? :execute : :force
-    elsif task == :taxonomy && project.metadata[:ref_project].nil?
+    elsif task == :taxonomy && project.option(:ref_project).nil?
       :project
     elsif @@_EXCLUDE_NOREF_TASKS_H[task] && !ref?
       :noref

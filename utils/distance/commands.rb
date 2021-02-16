@@ -9,7 +9,7 @@ module MiGA::DistanceRunner::Commands
     return y unless y.nil? || y.zero?
 
     # Try hAAI (except in clade projects)
-    unless @ref_project.is_clade?
+    unless @ref_project.clade?
       y = haai(target)
       return y unless y.nil? || y.zero?
     end
@@ -75,7 +75,7 @@ module MiGA::DistanceRunner::Commands
     v = `aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
           --name1 "#{n1}" --name2 "#{n2}" \
           -t "#{o[:thr]}" -a --lookup-first "--#{o[:aai_save_rbm]}" \
-          -p "#{o[:aai_p] || 'blast+'}"`.chomp
+          -p "#{o[:aai_p]}"`.chomp
     (v.nil? || v.empty?) ? 0 : v.to_f
   end
 

@@ -9,7 +9,7 @@ module MiGA::Cli::Action::Wf
     cli.defaults = {
       clean: false, regexp: MiGA::Cli.FILE_REGEXP,
       project_type: :genomes, dataset_type: :popgenome,
-      ncbi_draft: true, min_qual: 25.0
+      ncbi_draft: true, min_qual: MiGA::Project.OPTIONS[:min_qual][:default]
     }
   end
 
@@ -125,32 +125,34 @@ module MiGA::Cli::Action::Wf
       dataset_type: '--dataset-type'
     )
     # Create empty project
-    call_cli([
-               'new',
-               '-P', cli[:outdir],
-               '-t', cli[:project_type]
-             ]) unless MiGA::Project.exist? cli[:outdir]
+    call_cli(
+      ['new', '-P', cli[:outdir], '-t', cli[:project_type]]
+    ) unless MiGA::Project.exist? cli[:outdir]
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
-    %i[haai_p aai_p ani_p ess_coll min_qual].each { |i| p_metadata[i] = cli[i] }
     p_metadata[:type] = cli[:project_type]
     transfer_metadata(p, p_metadata)
+    %i[haai_p aai_p ani_p ess_coll min_qual].each do |i|
+      p.set_option(i, cli[i])
+    end
     # Download datasets
-    call_cli([
-               'ncbi_get',
-               '-P', cli[:outdir],
-               '-T', cli[:ncbi_taxon],
-               (cli[:ncbi_draft] ? '--all' : '--complete')
-             ]) unless cli[:ncbi_taxon].nil?
+    unless cli[:ncbi_taxon].nil?
+      what = cli[:ncbi_draft] ? '--all' : '--complete'
+      call_cli(
+        ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
+      )
+    end
     # Add datasets
-    call_cli([
-      'add',
-      '--ignore-dups',
-      '-P', cli[:outdir],
-      '-t', cli[:dataset_type],
-      '-i', stage,
-      '-R', cli[:regexp]
-    ] + cli.files) unless cli.files.empty?
+    call_cli(
+      [
+        'add',
+        '--ignore-dups',
+        '-P', cli[:outdir],
+        '-t', cli[:dataset_type],
+        '-i', stage,
+        '-R', cli[:regexp]
+      ] + cli.files
+    ) unless cli.files.empty?
     # Define datasets metadata
     p.load
     d_metadata[:type] = cli[:dataset_type]
@@ -161,13 +163,13 @@ module MiGA::Cli::Action::Wf
   def summarize(which = %w[cds assembly essential_genes ssu])
     which.each do |r|
       cli.say "Summary: #{r}"
-      call_cli([
-                 'summary',
-                 '-P', cli[:outdir],
-                 '-r', r,
-                 '-o', File.expand_path("#{r}.tsv", cli[:outdir]),
-                 '--tab', '--ref', '--active'
-               ])
+      call_cli(
+        [
+          'summary',
+          '-P', cli[:outdir], '-r', r, '--tab', '--ref', '--active',
+          '-o', File.join(cli[:outdir], "#{r}.tsv")
+        ]
+      )
     end
     call_cli(['browse', '-P', cli[:outdir]])
   end
@@ -193,14 +195,14 @@ module MiGA::Cli::Action::Wf
     cmd += ['--max-jobs', cli[:jobs]] unless cli[:jobs].nil?
     cmd += ['--ppn', cli[:threads]] unless cli[:threads].nil?
     cwd = Dir.pwd
-    call_cli cmd
+    call_cli(cmd)
     Dir.chdir(cwd)
   end
 
   def transfer_metadata(obj, md)
     # Clear old metadata
     obj.metadata.each do |k, v|
-      obj.metadata[k] = nil if k.to_s =~ /^run_/ || k == :ref_project
+      obj.metadata[k] = nil if k.to_s =~ /^run_/ || obj.option?(k)
     end
     # Transfer and save
     md.each { |k, v| obj.metadata[k] = v }

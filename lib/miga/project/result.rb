@@ -31,9 +31,9 @@ module MiGA::Project::Result
   ##
   # Is this +task+ to be bypassed?
   def ignore_task?(task)
-    metadata["run_#{task}"] == false ||
-      (!is_clade? && @@INCLADE_TASKS.include?(task) &&
-        metadata["run_#{task}"] != true)
+    return true if metadata["run_#{task}"] == false
+
+    !clade? && @@INCLADE_TASKS.include?(task) && metadata["run_#{task}"] != true
   end
 
   ##
@@ -74,7 +74,7 @@ module MiGA::Project::Result
       return r
     end
     return nil unless result_files_exist?(base, %w[.proposed-clades])
-    unless is_clade? ||
+    unless clade? ||
            result_files_exist?(
              base, %w[.pdf .classif .medoids .class.tsv .class.nwk]
            )

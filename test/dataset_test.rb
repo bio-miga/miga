@@ -29,7 +29,7 @@ class DatasetTest < Test::Unit::TestCase
     assert_raise { MiGA::Dataset.new(project, 'dataset-1') }
     assert_equal(project, dataset.project)
     assert_equal('dataset0', dataset.name)
-    assert_predicate(dataset, :is_ref?)
+    assert_predicate(dataset, :ref?)
     assert_equal(MiGA::Metadata, dataset.metadata.class)
     assert_equal(:incomplete, dataset.status)
   end
@@ -38,14 +38,14 @@ class DatasetTest < Test::Unit::TestCase
     d2 = project.add_dataset('ds_save')
     assert_respond_to(d2, :save)
     d2.save
-    assert_not_predicate(d2, :is_multi?)
-    assert_not_predicate(d2, :is_nonmulti?)
+    assert_not_predicate(d2, :multi?)
+    assert_not_predicate(d2, :nonmulti?)
     assert_nil(d2.metadata[:type])
     d2.metadata[:type] = :metagenome
     d2.save
     assert_equal(:metagenome, d2.metadata[:type])
-    assert_predicate(d2, :is_multi?)
-    assert_not_predicate(d2, :is_nonmulti?)
+    assert_predicate(d2, :multi?)
+    assert_not_predicate(d2, :nonmulti?)
   end
 
   def test_remove

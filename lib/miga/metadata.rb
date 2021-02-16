@@ -56,24 +56,20 @@ class MiGA::Metadata < MiGA::MiGA
   ##
   # Save the metadata into #path
   def save
-    MiGA.DEBUG "Metadata.save #{path}"
+    return if self[:never_save]
+
+    MiGA::MiGA.DEBUG "Metadata.save #{path}"
     self[:updated] = Time.now.to_s
     json = to_json
-    sleeper = 0.0
-    slept = 0
-    while File.exist?(lock_file)
-      MiGA::MiGA.DEBUG "Waiting for lock: #{lock_file}"
-      sleeper += 0.1 if sleeper <= 10.0
-      sleep(sleeper.to_i)
-      slept += sleeper.to_i
-      raise "Lock detected for over 10 minutes: #{lock_file}" if slept > 600
-    end
-    FileUtils.touch lock_file
+    wait_for_lock
+    FileUtils.touch(lock_file)
     ofh = File.open("#{path}.tmp", 'w')
     ofh.puts json
     ofh.close
-    raise "Lock-racing detected for #{path}" unless
-      File.exist?("#{path}.tmp") and File.exist?(lock_file)
+
+    unless File.exist?("#{path}.tmp") && File.exist?(lock_file)
+      raise "Lock-racing detected for #{path}"
+    end
 
     File.rename("#{path}.tmp", path)
     File.unlink(lock_file)
@@ -153,5 +149,21 @@ class MiGA::Metadata < MiGA::MiGA
   # Show contents in JSON format as a String
   def to_json
     MiGA::Json.generate(data)
+  end
+
+  private
+
+  ##
+  # Wait for the lock to go away
+  def wait_for_lock
+    sleeper = 0.0
+    slept = 0.0
+    while File.exist?(lock_file)
+      MiGA::MiGA.DEBUG "Waiting for lock: #{lock_file}"
+      sleeper += 0.1 if sleeper <= 10.0
+      sleep(sleeper)
+      slept += sleeper
+      raise "Lock detected for over 10 minutes: #{lock_file}" if slept > 600
+    end
   end
 end

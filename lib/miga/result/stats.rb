@@ -118,7 +118,7 @@ module MiGA::Result::Stats
 
   def compute_stats_essential_genes
     stats = {}
-    if source.is_multi?
+    if source.multi?
       stats = { median_copies: 0, mean_copies: 0 }
       File.open(file_path(:report), 'r') do |fh|
         fh.each_line do |ln|
@@ -151,7 +151,7 @@ module MiGA::Result::Stats
       source.save
 
       # Inactivate low-quality datasets
-      min_qual = (project.metadata[:min_qual] || 25)
+      min_qual = project.option(:min_qual)
       if min_qual != 'no' && stats[:quality] < min_qual
         source.inactivate! 'Low quality genome'
       end

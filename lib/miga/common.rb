@@ -24,7 +24,7 @@ class MiGA::MiGA
   ##
   # Has MiGA been initialized?
   def self.initialized?
-    File.exist?(File.expand_path('.miga_rc', ENV['MIGA_HOME'])) and
+    File.exist?(File.expand_path('.miga_rc', ENV['MIGA_HOME'])) &&
       File.exist?(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
   end
 

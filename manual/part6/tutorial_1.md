@@ -4,7 +4,7 @@ This tutoral guides you through comparing your genomes,
 Metagenome-Assembled Genomes (MAGs), or Single-Cell Amplified
 Genomes (SAGs) against a reference project for taxonomy.
 A reference project has to be a separate MiGA project with
-a database of your choice. 
+a database of your choice.
 
 ## 1. Create an empty MiGA project
 
@@ -20,7 +20,7 @@ cd MAGs
 Next, let MiGA know where the reference database is located.
 
 ```bash
-miga edit -P . -m "ref_project=/path/to/reference_project"
+miga option -P . --key ref_project --value "/path/to/reference_project"
 ```
 
 ## 3. Create a dataset for the MiGA project for each genome

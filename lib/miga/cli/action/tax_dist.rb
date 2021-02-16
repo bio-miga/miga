@@ -47,7 +47,7 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
 
   def read_distances
     p = cli.load_project
-    cli[:metric] ||= p.is_clade? ? 'ani' : 'aai'
+    cli[:metric] ||= p.clade? ? 'ani' : 'aai'
     res_n = "#{cli[:metric]}_distances"
     cli.say "Reading distances: 1-#{cli[:metric].upcase}"
     res = p.result(res_n)

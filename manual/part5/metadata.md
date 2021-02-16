@@ -60,11 +60,12 @@ Metadata entries that trigger specific behaviors in MiGA:
 | ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
 | clean_ogs    | Boolean          | If false, keeps ABC (clades only)
 | run_clades   | Boolean          | Should clades be estimated from distances?
-| gsp_ani      | Float [0,100]    | ANI limit to propose gsp clades (def: 90)
-| gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 95)
+| gsp_ani      | Float [0,100]    | ANI limit to propose gsp clades (def: 95)
+| gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 90)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
 | ess_coll     | String           | Collection of essential genes to use+
 | min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 25)
+| distances_checkpoint | Integer  | Comparisons before storing data (def: 10)
 
 > **°** By default: `blast+`. Other supported values: `blast`, `blat`,
 > `diamond` (except for ANI), and `fastani` (only for ANI),

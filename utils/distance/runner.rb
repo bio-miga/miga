@@ -21,47 +21,39 @@ class MiGA::DistanceRunner
     @home = File.expand_path('data/09.distances', project.path)
 
     # Default opts
-    if project.metadata[:aai_save_rbm] == false
-      @opts[:aai_save_rbm] ||= 'no-save-rbm'
-    end
-    @opts[:aai_save_rbm] ||= ENV.fetch('MIGA_AAI_SAVE_RBM') do
-      project.is_clade? ? 'save-rbm' : 'no-save-rbm'
-    end
+    @opts[:aai_save_rbm] =
+      project.option(:aai_save_rbm) ? 'save-rbm' : 'no-save-rbm'
     @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
-    if opts[:run_taxonomy] and project.metadata[:ref_project]
-      ref_path = project.metadata[:ref_project]
+    if opts[:run_taxonomy] && project.option(:ref_project)
+      ref_path = project.option(:ref_project)
       @home = File.expand_path('05.taxonomy', @home)
       @ref_project = MiGA::Project.load(ref_path)
       raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
-    elsif !opts[:run_taxonomy] and dataset.metadata[:db_project]
-      ref_path = dataset.metadata[:db_project]
-      if project.metadata[:db_proj_dir]
-        ref_path = File.expand_path(ref_path, project.metadata[:db_proj_dir])
+    elsif !opts[:run_taxonomy] && dataset.option(:db_project)
+      ref_path = dataset.option(:db_project)
+      if project.option(:db_proj_dir)
+        ref_path = File.expand_path(ref_path, project.option(:db_proj_dir))
       end
       @ref_project = MiGA::Project.load(ref_path)
       raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
     else
       @ref_project = project
     end
-    [:haai_p, :aai_p, :ani_p, :distances_checkpoint].each do |m|
-      @opts[m] ||= ref_project.metadata[m]
+    %i[haai_p aai_p ani_p distances_checkpoint].each do |m|
+      @opts[m] ||= ref_project.option(m)
     end
-    @opts[:aai_p] ||= 'blast+'
-    @opts[:ani_p] ||= 'blast+'
-    @opts[:distances_checkpoint] ||= 10
-    @opts[:distances_checkpoint] = @opts[:distances_checkpoint].to_i
     $stderr.puts "Options: #{opts}"
   end
 
   # Launch the appropriate analysis
   def go!
     $stderr.puts "Launching analysis"
-    return if dataset.is_multi?
+    return if dataset.multi?
 
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir
       create_temporals
-      opts[:run_taxonomy] ? go_taxonomy! : dataset.is_ref? ? go_ref! : go_query!
+      opts[:run_taxonomy] ? go_taxonomy! : dataset.ref? ? go_ref! : go_query!
     end
   end
 
@@ -73,7 +65,7 @@ class MiGA::DistanceRunner
 
     # first-come-first-serve traverse
     ref_project.each_dataset do |ds|
-      next if !ds.is_ref? or ds.is_multi? or ds.result(:essential_genes).nil?
+      next if !ds.ref? or ds.multi? or ds.result(:essential_genes).nil?
 
       puts "[ #{Time.now} ] #{ds.name}"
       ani_after_aai(ds)
@@ -88,7 +80,7 @@ class MiGA::DistanceRunner
   def go_query!
     $stderr.puts 'Launching analysis for query dataset'
     # Check if project is ready
-    tsk = ref_project.is_clade? ? [:subclades, :ani] : [:clade_finding, :aai]
+    tsk = ref_project.clade? ? [:subclades, :ani] : [:clade_finding, :aai]
     res = ref_project.result(tsk[0])
     return if res.nil?
 
@@ -137,7 +129,7 @@ class MiGA::DistanceRunner
   # Launch analysis for taxonomy jobs
   def go_taxonomy!
     $stderr.puts 'Launching taxonomy analysis'
-    return unless project.metadata[:ref_project]
+    return unless project.option(:ref_project)
 
     go_query! # <- yeah, it's actually the same, just different ref_project
   end

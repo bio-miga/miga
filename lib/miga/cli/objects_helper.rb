@@ -57,12 +57,12 @@ module MiGA::Cli::ObjectsHelper
     ds.select! do |d|
       advance('Datasets:', k += 1, n, false)
       o = true
-      o &&= (d.is_ref? == self[:ref]) unless self[:ref].nil?
-      o &&= (d.is_active? == self[:active]) unless self[:active].nil?
-      o &&= (self[:multi] ? d.is_multi? :
-            d.is_nonmulti?) unless self[:multi].nil?
-      o &&= (not d.metadata[:tax].nil?) &&
-            d.metadata[:tax].in?(self[:taxonomy]) unless self[:taxonomy].nil?
+      o &&= (d.ref? == self[:ref]) unless self[:ref].nil?
+      o &&= (d.active? == self[:active]) unless self[:active].nil?
+      o &&= (self[:multi] ? d.multi? : d.nonmulti?) unless self[:multi].nil?
+      unless self[:taxonomy].nil?
+        o &&= !d.metadata[:tax].nil? && d.metadata[:tax].in?(self[:taxonomy])
+      end
       o
     end
     say ''
@@ -90,22 +90,27 @@ module MiGA::Cli::ObjectsHelper
   def add_metadata(obj, cli = self)
     raise "Unsupported object: #{obj.class}" unless obj.respond_to? :metadata
 
-    cli[:metadata].split(',').each do |pair|
+    (cli[:metadata] || '').split(',').each do |pair|
       (k, v) = pair.split('=')
-      case v
-      when 'true';  v = true
-      when 'false'; v = false
-      when 'nil';   v = nil
+      if obj.option?(k)
+        obj.set_option(k, v, true)
+      else
+        case v
+        when 'true';  v = true
+        when 'false'; v = false
+        when 'nil';   v = nil
+        end
+        if k == '_step'
+          obj.metadata["_try_#{v}"] ||= 0
+          obj.metadata["_try_#{v}"]  += 1
+        end
+        obj.metadata[k] = v
       end
-      if k == '_step'
-        obj.metadata["_try_#{v}"] ||= 0
-        obj.metadata["_try_#{v}"]  += 1
-      end
-      obj.metadata[k] = v
-    end unless cli[:metadata].nil?
-    [:type, :name, :user, :description, :comments].each do |k|
+    end
+    %i[type name user description comments].each do |k|
       obj.metadata[k] = cli[k] unless cli[k].nil?
     end
+    obj.save
     obj
   end
 end

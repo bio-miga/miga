@@ -17,8 +17,7 @@ def searchable(db, d, k, v)
 end
 
 p.each_dataset do |d|
-  next unless d.is_ref?
-  next unless d.is_active?
+  next unless d.ref? && d.active?
 
   searchable(db, d, :name, d.name)
   d.metadata.each do |k, v|

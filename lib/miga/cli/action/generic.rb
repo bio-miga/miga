@@ -20,7 +20,7 @@ class MiGA::Cli::Action::Generic < MiGA::Cli::Action
       opt.on(
         '-v', '--version',
         'Show MiGA version'
-      ) { puts MiGA::MiGA.VERSION; exit }
+      ) { puts MiGA::MiGA.FULL_VERSION; exit }
       opt.on(
         '-V', '--long-version',
         'Show complete MiGA version'

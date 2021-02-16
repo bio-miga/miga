@@ -49,23 +49,24 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
   def perform
     # Input data
     ref_db = reference_db
-    p_metadata = Hash[
-      %w[project_stats haai_distances aai_distances ani_distances clade_finding]
-                 .map { |i| ["run_#{i}", false] }
+    norun = %w[
+      project_stats haai_distances aai_distances ani_distances clade_finding
     ]
-    p_metadata[:ref_project] = ref_db.path
-    p_metadata[:tax_pvalue] = cli[:pvalue]
-    p = create_project(:assembly, p_metadata,
-                       run_ssu: false, run_mytaxa_scan: false, run_distances: false)
+    p_metadata = Hash[norun.map { |i| ["run_#{i}", false] }]
+    p = create_project(
+      :assembly,
+      p_metadata,
+      run_ssu: false, run_mytaxa_scan: false, run_distances: false
+    )
+    p.set_option(:ref_project, ref_db.path)
+    p.set_option(:tax_pvalue, cli[:pvalue], true)
     # Run
     run_daemon
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
     summarize(['taxonomy'])
     cli.say "Summary: classification"
-    call_cli([
-               'ls', '-P', cli[:outdir], '-m', 'tax', '--tab',
-               '-o', File.expand_path('classification.tsv', cli[:outdir])
-             ])
+    ofile = File.expand_path('classification.tsv', cli[:outdir])
+    call_cli(['ls', '-P', cli[:outdir], '-m', 'tax', '--tab', '-o', ofile])
     cleanup
   end
 
