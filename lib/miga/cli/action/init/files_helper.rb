@@ -26,7 +26,7 @@ module MiGA::Cli::Action::Init::FilesHelper
   def close_rc_file(rc_fh)
     rc_fh.puts <<~FOOT
 
-      MIGA_CONFIG_VERSION='#{MiGA::MiGA.VERSION}'
+      MIGA_CONFIG_VERSION='#{MiGA::MiGA.FULL_VERSION}'
       MIGA_CONFIG_LONGVERSION='#{MiGA::MiGA.LONG_VERSION}'
       MIGA_CONFIG_DATE='#{Time.now}'
 
