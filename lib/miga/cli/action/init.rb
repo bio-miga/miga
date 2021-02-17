@@ -63,6 +63,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     check_additional_files(paths)
     check_r_packages(paths)
     check_ruby_gems(paths)
+    check_python_libraries(paths)
     configure_daemon
     close_rc_file(rc_fh)
     cli.puts 'Configuration complete. MiGA is ready to work!'
@@ -102,12 +103,29 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   end
 
   def install_ruby_gem(cli, paths, pkg)
+    # This hackey mess is meant to ensure the test and installation are done
+    # on the configuration Ruby, not on the Ruby currently executing the
+    # init action
     gem_cmd = "Gem::GemRunner.new.run %w(install --user #{pkg})"
     run_cmd(
       cli,
       "#{paths['ruby'].shellescape} \
         -r rubygems -r rubygems/gem_runner \
         -e #{gem_cmd.shellescape} 2>&1"
+    )
+  end
+
+  def test_python_library(cli, paths, pkg)
+    run_cmd(
+      cli, "#{paths['python3'].shellescape} -c 'import #{pkg}' 2>/dev/null"
+    )
+    $?.success?
+  end
+
+  def install_python_library(cli, paths, pkg)
+    run_cmd(
+      cli,
+      "#{paths['python3'].shellescape} -m pip install #{pkg.shellescape} 2>&1"
     )
   end
 
@@ -208,18 +226,32 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
 
   def check_ruby_gems(paths)
     cli.puts 'Looking for Ruby gems:'
-    %w(sqlite3 daemons json).each do |pkg|
+    %w[sqlite3 daemons json].each do |pkg|
       cli.print "Testing #{pkg}... "
       if test_ruby_gem(cli, paths, pkg)
         cli.puts 'yes'
       else
         cli.puts 'no, installing'
-        # This hackey mess is meant to ensure the test and installation are done
-        # on the configuration Ruby, not on the Ruby currently executing the
-        # init action
         cli.print install_ruby_gem(cli, paths, pkg)
         unless test_ruby_gem(cli, paths, pkg)
           raise "Unable to auto-install Ruby gem: #{pkg}"
+        end
+      end
+    end
+    cli.puts ''
+  end
+
+  def check_python_libraries(paths)
+    cli.puts 'Looking for Python libraries:'
+    %w[numpy].each do |pkg|
+      cli.print "Testing #{pkg}... "
+      if test_python_library(cli, paths, pkg)
+        cli.puts 'yes'
+      else
+        cli.puts 'no, installing'
+        cli.print install_python_library(cli, paths, pkg)
+        unless test_python_library(cli, paths, pkg)
+          raise "Unable to auto-install Python library: #{pkg}"
         end
       end
     end

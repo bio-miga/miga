@@ -1,12 +1,17 @@
 #!/bin/bash
+
+# Setup environment
 set -e
-#MIGA=${MIGA:-$(cd "$(dirname "$0")/.."; pwd)}
 MIGA_HOME=${MIGA_HOME:-"$HOME"}
+SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 # shellcheck source=/dev/null
 . "$MIGA_HOME/.miga_rc"
-export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
-SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 
+# Ensure submodules are first in PATH
+export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
+export PATH="$MIGA/utils/FastAAI/FastAAI:$PATH"
+
+# Ancillary functions
 function exists { [[ -e "$1" ]] ; }
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 function miga_start_project_step {
@@ -28,6 +33,7 @@ function miga_end_project_step {
   miga add_result -P "$PROJECT" -r "$SCRIPT" -f
 }
 
+# Environment header
 if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
   echo ""
   echo "######[ $SCRIPT ]######"
