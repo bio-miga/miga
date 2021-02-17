@@ -1,105 +1,206 @@
 module MiGA::DistanceRunner::Commands
-  # Estimates or calculates AAI against +target+
-  def aai(target)
-    # Check if the request makes sense
-    return nil if target.nil? || target.result(:essential_genes).nil?
+  ##
+  # Estimates AAI against +targets+ using hAAI
+  def haai(targets)
+    puts "[#{Time.now}] hAAI: #{dataset.name} vs #{targets.size} targets"
+    empty_vals = targets.map { |_i| nil }
+    return empty_vals if opts[:haai_p] == 'no'
 
-    # Check if it's been calculated
-    y = stored_value(target, :aai)
-    return y unless y.nil? || y.zero?
-
-    # Try hAAI (except in clade projects)
-    unless @ref_project.clade?
-      y = haai(target)
-      return y unless y.nil? || y.zero?
+    # Launch comparisons
+    sbj = pending_targets(targets, :haai)
+    unless sbj.empty?
+      opts[:haai_p] == 'fastaai' ? fastaai_cmd(sbj) : haai_cmd(sbj)
     end
-    # Full AAI
-    aai_cmd(
-      tmp_file('proteins.fa'), target.result(:cds).file_path(:proteins),
-      dataset.name, target.name, tmp_dbs[:aai]
-    ).tap { checkpoint :aai }
+
+    # Return AAI estimates from the database
+    batch_values_from_db(:aai, targets.map { |i| i&.name })
   end
 
   ##
-  # Estimates AAI against +target+ using hAAI
-  def haai(target)
-    return nil if opts[:haai_p] == 'no'
+  # Estimates or calculates AAI against +targets+
+  def aai(targets)
+    puts "[#{Time.now}] AAI: #{dataset.name} vs #{targets.size} targets"
 
-    haai = aai_cmd(tmp_file('ess_genes.fa'),
-                   target.result(:essential_genes).file_path(:ess_genes),
-                   dataset.name, target.name, tmp_dbs[:haai],
-                   aai_save_rbm: 'no-save-rbm', aai_p: opts[:haai_p])
-    checkpoint :haai
-    return nil if haai.nil? || haai.zero? || haai > 90.0
+    # Try hAAI first
+    haai(targets)
 
-    aai = 100.0 - Math.exp(2.435076 + 0.4275193 * Math.log(100.0 - haai))
-    SQLite3::Database.new(tmp_dbs[:aai]) do |conn|
-      conn.execute 'insert into aai values(?, ?, ?, 0, 0, 0)',
-                   [dataset.name, target.name, aai]
+    # Launch comparisons
+    pending_targets(targets, :aai).each do |target|
+      # Full AAI
+      target_cds = target.result(:cds).file_path(:proteins) or next
+      aairb_cmd(
+        tmp_file('proteins.fa'), target_cds,
+        dataset.name, target.name, tmp_dbs[:aai], checkpoint: :aai
+      )
     end
-    checkpoint :aai
-    aai
+
+    # Return AAI from the database
+    batch_values_from_db(:aai, targets.map { |i| i&.name })
   end
 
   ##
-  # Calculates ANI against +target+
-  def ani(target)
-    # Check if the request makes sense
-    t = tmp_file('largecontigs.fa')
-    r = target.result(:assembly)
-    return nil if r.nil? || !File.size?(t)
+  # Calculates ANI against +targets+
+  def ani(targets)
+    puts "[#{Time.now}] ANI: #{dataset.name} vs #{targets.size} targets"
+    empty_vals = targets.map { |_i| nil }
+    return empty_vals unless File.size?(tmp_file('largecontigs.fa'))
 
-    # Check if it's been calculated
-    y = stored_value(target, :ani)
-    return y unless y.nil? || y.zero?
+    # Launch comparisons
+    sbj = pending_targets(targets, :ani)
+    unless sbj.empty?
+      opt[:ani_p] == 'fastani' ? fastani_cmd(sbj) : anirb_cmd(sbj)
+    end
 
-    # Run it
-    ani_cmd(
-      t, r.file_path(:largecontigs),
-      dataset.name, target.name, tmp_dbs[:ani]
-    ).tap { checkpoint :ani }
+    # Return ANI from the database
+    batch_values_from_db(:ani, targets.map { |i| i&.name })
   end
 
   ##
-  # Calculates and returns ANI against +target+ if AAI >= +aai_limit+.
-  # Returns +nil+ otherwise
-  def ani_after_aai(target, aai_limit = 85.0)
-    aai = aai(target)
-    (aai.nil? || aai < aai_limit) ? nil : ani(target)
+  # Calculates and returns ANI against +targets+ if AAI >= +aai_limit+.
+  # Note that ANI values may be returned for lower (or failing) AAIs if the
+  # value is already stored in the database
+  def ani_after_aai(targets, aai_limit = 85.0)
+    # Run AAI and select targets with AAI ≥ aai_limit
+    aai = aai(targets)
+    sbj = aai.each_with_index.map { |i, k| targets[i] if i&.> aai_limit }
+    sbj.compact!
+
+    # Run ANI
+    ani(sbj) unless sbj.empty?
+
+    # Return ANI from the database
+    batch_values_from_db(:ani, targets.map { |i| i&.name })
   end
 
   ##
   # Execute an AAI command
-  def aai_cmd(f1, f2, n1, n2, db, o = {})
+  def aairb_cmd(f1, f2, n1, n2, db, o = {})
     o = opts.merge(o)
-    v = `aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
-          --name1 "#{n1}" --name2 "#{n2}" \
-          -t "#{o[:thr]}" -a --lookup-first "--#{o[:aai_save_rbm]}" \
-          -p "#{o[:aai_p]}"`.chomp
-    (v.nil? || v.empty?) ? 0 : v.to_f
+    run_cmd <<~CMD
+              aai.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
+              --name1 "#{n1}" --name2 "#{n2}" \
+              -t "#{o[:thr]}" -a --#{'no-' unless o[:aai_save_rbm]}save-rbm \
+              -p "#{o[:aai_p]}"
+            CMD
+    checkpoint(o[:checkpoint]) if o[:checkpoint]
   end
 
   ##
-  # Execute an ANI command
-  def ani_cmd(f1, f2, n1, n2, db, o = {})
-    o = opts.merge(o)
-    v = nil
-    if o[:ani_p] == 'fastani'
-      out = `fastANI -r "#{f1}" -q "#{f2}" \
-            -o /dev/stdout 2>/dev/null`.chomp.split(/\s+/)
-      unless out.empty?
-        SQLite3::Database.new(db) do |conn|
-          conn.execute 'insert into ani values(?, ?, ?, 0, ?, ?)',
-                       [n1, n2, out[2], out[3], out[4]]
-        end
-      end
-      v = out[2]
-    else
-      v = `ani.rb -1 "#{f1}" -2 "#{f2}" -S "#{db}" \
-            --name1 "#{n1}" --name2 "#{n2}" \
-            -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm \
-            --lookup-first -p "#{o[:ani_p] || 'blast+'}"`.chomp
+  # Execute an ani.rb command
+  def anirb_cmd(targets)
+    f1 = tmp_file('largecontigs.fa')
+    return unless File.size?(f1)
+
+    targets.each do |target|
+      target_asm = target&.result(:assembly)&.file_path(:largecontigs) or next
+      run_cmd <<~CMD
+                ani.rb -1 "#{f1}" -2 "#{target_asm}" -S "#{tmp_dbs[:ani]}" \
+                --name1 "#{dataset.name}" --name2 "#{target.name}" \
+                -t "#{opts[:thr]}" -a --no-save-regions --no-save-rbm \
+                -p "#{opts[:ani_p]}"
+              CMD
+      checkpoint(:ani)
     end
-    v.nil? || v.empty? ? 0 : v.to_f
+  end
+
+  ##
+  # Execute a FastANI command
+  def fastani_cmd(targets)
+    f1 = tmp_file('largecontigs.fa')
+    return unless File.size?(f1)
+
+    # Run FastANI
+    File.open(f2 = tmp_file, 'w') do |fh|
+      targets.each do |target|
+        target_asm = target&.result(:assembly)&.file_path(:largecontigs)
+        fh.puts target_asm if target_asm
+      end
+    end
+    run_cmd <<~CMD
+              fastANI -q "#{f1}" --rl "#{f2}" -t #{opts[:thr]} \
+              -o "#{f3 = tmp_file}"
+            CMD
+
+    # Retrieve resulting data and save to DB
+    data = {}
+    File.open(f3, 'r') do |fh|
+      fh.each do |ln|
+        row = ln.chomp.split("\t")
+        n2 = File.basename(out[1], '.gz')
+        n2 = File.basename(n2, '.LargeContigs.fna')
+        data[n2] = [out[2].to_f, 0.0, out[3].to_i, out[4].to_i]
+      end
+    end
+    batch_data_to_db(:ani, data)
+
+    # Cleanup
+    [f2, f3].each { |i| File.unlink(i) }
+  end
+
+  ##
+  # Execute a FastAAI command
+  def fastaai_cmd(targets)
+    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index)
+    return nil unless qry_idx
+
+    # Run FastAAI
+    File.open(f1 = tmp_file, 'w') { |fh| fh.puts qry_idx }
+    File.open(f2 = tmp_file, 'w') do |fh|
+      targets.each do |target|
+        target_idx = target&.result(:essential_genes)&.file_path(:fastaai_index)
+        fh.puts target_idx if target_idx
+      end
+    end
+    run_cmd <<~CMD
+              FastAAI.py --qd "#{f1}" --rd "#{f2}" --output "#{f3 = tmp_file}" \
+              --threads #{opts[:thr]}
+            CMD
+
+    # Save values in the databases
+    haai_data = {}
+    aai_data = {}
+    File.open(f3, 'r') do |fh|
+      fh.each do |ln|
+        out = ln.chomp.split("\t")
+        haai_data[out[1]] = [
+          out[2].to_f * 100, out[3].to_f * 100, out[4].to_i, out[5].to_i
+        ]
+        aai_data[out[1]] = [out[6].to_f, 0, 0, 0] if out[6] !~ /^>/
+      end
+    end
+    batch_data_to_db(:haai, haai_data)
+    batch_data_to_db(:aai, aai_data)
+
+    # Cleanup
+    [f1, f2, f3].each { |i| File.unlink(i) }
+  end
+
+  ##
+  # Execute an hAAI command
+  def haai_cmd(targets)
+    aai_data = {}
+    targets.each do |target|
+      target_ess = target&.result(:essential_genes)&.file_path(:ess_genes)
+      next unless target_ess
+
+      # hAAI
+      h = aairb_cmd(
+            tmp_file('ess_genes.fa'), target_ess,
+            dataset.name, target.name, tmp_dbs[:haai],
+            aai_save_rbm: false, aai_p: opts[:haai_p], checkpoint: :haai
+          )
+      next if h.nil? || h.zero? || h > 90.0
+
+      # Estimated AAI
+      aai_data[target.name] = [
+        100.0 - Math.exp(2.435076 + 0.4275193 * Math.log(100.0 - h)), 0, 0, 0
+      ] unless h&.zero? || h > 90.0
+    end
+    batch_data_to_db(:aai, aai_data)
+  end
+
+  def run_cmd(cmd)
+    puts "CMD: #{cmd}"
+    `#{cmd}`
   end
 end

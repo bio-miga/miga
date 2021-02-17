@@ -24,8 +24,10 @@ module MiGA::DistanceRunner::Temporal
     end
   end
 
-  # Temporal file with extension +ext+
-  def tmp_file(ext)
+  # Temporal file with extension +ext+, or a unique ID if +ext+ is +nil+
+  def tmp_file(ext = nil)
+    @_tmp_count ||= 0
+    ext ||= "#{@_tmp_count += 1}.tmp"
     File.expand_path("#{dataset.name}.#{ext}", tmp)
   end
 

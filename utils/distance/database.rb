@@ -22,12 +22,16 @@ module MiGA::DistanceRunner::Database
         end
       end
       # Initialize if it doesn't exist
-      SQLite3::Database.new(dbs[m]) do |conn|
-        conn.execute "create table if not exists #{t}(" +
-                     "seq1 varchar(256), seq2 varchar(256), " +
-                     "#{t} float, sd float, n int, omega int" +
-                     ")"
-      end unless File.size? dbs[m]
+      unless File.size? dbs[m]
+        SQLite3::Database.new(dbs[m]) do |conn|
+          conn.execute <<~SQL
+            create table if not exists #{t}(
+              seq1 varchar(256), seq2 varchar(256),
+              #{t} float, sd float, n int, omega int
+            )
+          SQL
+        end
+      end
       # Copy over to (local) temporals
       @tmp_dbs[m] = tmp_file("#{m}.db")
       FileUtils.cp(dbs[m], tmp_dbs[m])
@@ -92,12 +96,13 @@ module MiGA::DistanceRunner::Database
   # possible number of matches
   def data_from_db(n1, n2, db, metric)
     y = nil
+    table = metric == :haai ? :aai : metric
     SQLite3::Database.new(db) do |conn|
       y = conn.execute(
-        "select #{metric}, sd, n, omega from #{metric} where seq1=? and seq2=?",
+        "select #{table}, sd, n, omega from #{table} where seq1=? and seq2=?",
         [n1, n2]
       ).first
-    end if File.size? db
+    end if File.size?(db)
     y
   end
 
@@ -114,10 +119,63 @@ module MiGA::DistanceRunner::Database
   end
 
   ##
+  # Saves +data+ of +metric+ in batch to the temporary database,
+  # and assumes query is +#dataset+. +data+ must be a hash with target names
+  # as key and arrays as values with: [val, sd, n, omega]
+  def batch_data_to_db(metric, data)
+    db = tmp_dbs[metric]
+    table = metric == :haai ? :aai : metric
+    `cp #{db} ~/here.db`
+    SQLite3::Database.new(db) do |conn|
+      data.each do |k, v|
+        sql = <<~SQL
+                insert into #{table} (
+                  seq1, seq2, #{table}, sd, n, omega
+                ) values (?, ?, ?, ?, ?, ?)
+              SQL
+        conn.execute(sql, [dataset.name, k] + v)
+      end
+    end
+    checkpoint(metric)
+  end
+
+  ##
+  # Retrieves data of +metric+ in batch from the temporary database,
+  # and assumes query is +#dataset+. The output data is a hash with the same
+  # structure described for +#batch_data_to_db+
+  def batch_data_from_db(metric)
+    db = tmp_dbs[metric]
+    table = metric == :haai ? :aai : metric
+    data = {}
+    SQLite3::Database.new(db) do |conn|
+      sql = "select seq2, #{table}, sd, n, omega from #{table}"
+      conn.execute(sql).each { |row| data[row.shift] = row }
+    end
+    data
+  end
+
+  ##
+  # Retrieve only +metric+ values against +names+
+  def batch_values_from_db(metric, names)
+    data = batch_data_from_db(metric)
+    names.map { |i| data[i]&.first }
+  end
+
+  ##
   # Iterates for each entry in +db+
   def foreach_in_db(db, metric, &blk)
     SQLite3::Database.new(db) do |conn|
       conn.execute("select * from #{metric}").each { |r| blk[r] }
     end
+  end
+
+  ##
+  # Select only those targets that are not yet stored in either direction
+  def pending_targets(targets, metric)
+    saved = batch_data_from_db(metric).keys
+    targets
+      .compact
+      .select { |i| !saved.include?(i.name) }
+      .select { |i| !stored_value(i, metric)&.> 0.0 }
   end
 end

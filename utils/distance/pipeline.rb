@@ -11,19 +11,14 @@ module MiGA::DistanceRunner::Pipeline
     val_med = ''
     val_cls = nil
     i_n = 0
-    File.open(med, 'r') do |med_fh|
-      med_fh.each_line do |med_ln|
-        i_n += 1
-        med_ln.chomp!
-        val = send(metric, ref_project.dataset(med_ln))
-        if !val.nil? and val >= max_val
-          max_val = val
-          val_med = med_ln
-          val_cls = i_n
-          puts "[#{classif}] New max: #{val_med} (#{val_cls}): #{max_val}"
-        end
-      end
-    end
+    sbj_datasets = File.foreach(med).map { |i| ref_project.dataset(i.chomp) }
+    values = send(metric, sbj_datasets)
+    max_idx = values.map(&:to_f).each_with_index.max[1]
+    max_val = values[max_idx]
+    val_med = sbj_dataset[max_idx].name
+    val_cls = max_idx + 1
+    puts "[#{classif}] New max: #{val_med} (#{val_cls}): #{max_val}"
+
     classif = "#{classif}/miga-project.sc-#{val_cls}"
     result_fh.puts [val_cls, val_med, max_val, classif].join("\t")
     classify(clades, classif, metric, result_fh, val_cls)
@@ -32,9 +27,8 @@ module MiGA::DistanceRunner::Pipeline
   # Run distances against datasets listed in metadata's +:dist_req+
   def distances_by_request(metric)
     $stderr.puts 'Running distances by request'
-    dataset.option(:dist_req).each do |target|
-      ds = ref_project.dataset(target) and send(metric, ds)
-    end
+    sbj_datasets = dataset.option(:dist_req).map { |i| ref_project.dataset(i) }
+    send(metric, sbj_datasets)
   end
 
   # Builds a tree with all visited medoids from any classification level
@@ -74,8 +68,10 @@ module MiGA::DistanceRunner::Pipeline
     $stderr.puts "Testing taxonomy | opts = #{opts}"
     # Get taxonomy of closest relative
     from_ref_project = (project != ref_project)
-    res_dir = from_ref_project ?
-      File.expand_path('data/09.distances/05.taxonomy', project.path) : home
+    res_dir =
+      from_ref_project ?
+        File.expand_path('data/09.distances/05.taxonomy', project.path) :
+        home
     Dir.mkdir res_dir unless Dir.exist? res_dir
     File.open(File.expand_path("#{dataset.name}.done", res_dir), 'w') do |fh|
       fh.puts Time.now.to_s

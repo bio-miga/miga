@@ -131,8 +131,8 @@ module MiGA::Project::Base
     },
     haai_p: {
       desc: 'Value of aai.rb -p on hAAI', type: String,
-      default: proc { |project| project.clade? ? 'no' : 'blast+' },
-      in: %w[blast+ blast blat diamond no]
+      default: proc { |project| project.clade? ? 'no' : 'fastaai' },
+      in: %w[fastaai blast+ blast blat diamond no]
     },
     aai_p: {
       desc: 'Value of aai.rb -p on AAI', default: 'blast+', type: String,
