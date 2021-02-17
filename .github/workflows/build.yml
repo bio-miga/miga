@@ -43,6 +43,7 @@ jobs:
           fetch-depth: 2
       - uses: marceloprado/has-changed-path@v1
         id: changed-version
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         with:
           paths: lib/miga/version.rb
       - name: Tag and deploy
