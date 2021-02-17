@@ -1,3 +1,6 @@
 [submodule "utils/enveomics"]
 	path = utils/enveomics
 	url = https://github.com/lmrodriguezr/enveomics.git
+[submodule "utils/FastAAI"]
+	path = utils/FastAAI
+	url = https://github.com/cruizperez/FastAAI.git
