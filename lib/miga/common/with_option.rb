@@ -53,7 +53,7 @@ module MiGA::Common::WithOption
     end
 
     if opt[:in] && !opt[:in].include?(value)
-      raise "Value out of range for #{key}: #{value}, not #{opt[:in]}"
+      raise "Value out of range for #{key}: #{value}, not in #{opt[:in]}"
     end
 
     value
