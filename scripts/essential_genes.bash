@@ -44,7 +44,7 @@ if [[ "$NOMULTI" -eq "1" ]] ; then
   else
     cp "$FAA" "${DATASET}.faix"
   fi
-  FastAAI.py --qp "${DATASET}.faix" --output "${DATASET}.faix" \
+  FastAAI --qp "${DATASET}.faix" --output "${DATASET}.faix" \
     --ext ".faix" --index --input-paths --all-vs-all --threads "$CORES"
   rm "${DATASET}.faix"
   rm "${DATASET}.faix.hmm"

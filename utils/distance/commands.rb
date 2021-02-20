@@ -152,7 +152,7 @@ module MiGA::DistanceRunner::Commands
       end
     end
     run_cmd <<~CMD
-              FastAAI.py --qd "#{f1}" --rd "#{f2}" --output "#{f3 = tmp_file}" \
+              FastAAI --qd "#{f1}" --rd "#{f2}" --output "#{f3 = tmp_file}" \
               --threads #{opts[:thr]}
             CMD
 
