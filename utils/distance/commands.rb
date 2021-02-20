@@ -82,6 +82,7 @@ module MiGA::DistanceRunner::Commands
               -t "#{o[:thr]}" -a --#{'no-' unless o[:aai_save_rbm]}save-rbm \
               -p "#{o[:aai_p]}"
             CMD
+  ensure
     checkpoint(o[:checkpoint]) if o[:checkpoint]
   end
 
@@ -188,7 +189,7 @@ module MiGA::DistanceRunner::Commands
             tmp_file('ess_genes.fa'), target_ess,
             dataset.name, target.name, tmp_dbs[:haai],
             aai_save_rbm: false, aai_p: opts[:haai_p], checkpoint: :haai
-          )
+          )&.chomp&.to_f
       next if h.nil? || h.zero? || h > 90.0
 
       # Estimated AAI
