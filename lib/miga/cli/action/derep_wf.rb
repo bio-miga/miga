@@ -55,7 +55,7 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
       { run_project_stats: false, run_clades: false },
       { run_mytaxa_scan: false, run_ssu: false }
     )
-    p.set_option(:gsp_metric, cli[:metric])
+    p.set_option(:gsp_metric, cli[:metric].to_s)
     p.set_option(:"gsp_#{cli[:metric]}", cli[:threshold])
 
     # Run

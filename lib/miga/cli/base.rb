@@ -88,7 +88,10 @@ module MiGA::Cli::Base
   @@EXECS = @@TASK_DESC.keys
 
   @@FILE_REGEXP =
-    %r{^(?:.*/)?(.+?)(\.[A-Z]*([12]|Reads|Contigs))?(\.f[nastq]+)?$}i
+    %r{^(?:.*/)?(.+?)(\.[A-Z]*(Reads|Contigs))?(\.f[nastq]+)?(\.gz)?$}i
+
+  @@PAIRED_FILE_REGEXP =
+    %r{^(?:.*/)?(.+?)(\.[A-Z]*([12]|Reads))?(\.f[nastq]+)?(\.gz)?$}i
 end
 
 class MiGA::Cli < MiGA::MiGA
@@ -102,5 +105,7 @@ class MiGA::Cli < MiGA::MiGA
     def EXECS; @@EXECS end
 
     def FILE_REGEXP; @@FILE_REGEXP end
+
+    def PAIRED_FILE_REGEXP; @@PAIRED_FILE_REGEXP end
   end
 end
