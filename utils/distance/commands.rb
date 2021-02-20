@@ -48,7 +48,7 @@ module MiGA::DistanceRunner::Commands
     # Launch comparisons
     sbj = pending_targets(targets, :ani)
     unless sbj.empty?
-      opt[:ani_p] == 'fastani' ? fastani_cmd(sbj) : anirb_cmd(sbj)
+      opts[:ani_p] == 'fastani' ? fastani_cmd(sbj) : anirb_cmd(sbj)
     end
 
     # Return ANI from the database
@@ -127,9 +127,9 @@ module MiGA::DistanceRunner::Commands
     File.open(f3, 'r') do |fh|
       fh.each do |ln|
         row = ln.chomp.split("\t")
-        n2 = File.basename(out[1], '.gz')
+        n2 = File.basename(row[1], '.gz')
         n2 = File.basename(n2, '.LargeContigs.fna')
-        data[n2] = [out[2].to_f, 0.0, out[3].to_i, out[4].to_i]
+        data[n2] = [row[2].to_f, 0.0, row[3].to_i, row[4].to_i]
       end
     end
     batch_data_to_db(:ani, data)
