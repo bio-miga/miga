@@ -62,7 +62,7 @@ module MiGA::DistanceRunner::Commands
   def ani_after_aai(targets, aai_limit = 85.0)
     # Run AAI and select targets with AAI ≥ aai_limit
     aai = aai(targets)
-    sbj = aai.each_with_index.map { |i, k| targets[i] if i&.> aai_limit }
+    sbj = aai.each_with_index.map { |i, k| targets[k] if i&.> aai_limit }
     sbj.compact!
 
     # Run ANI
