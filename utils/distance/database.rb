@@ -109,9 +109,10 @@ module MiGA::DistanceRunner::Database
   ##
   # Save +data+ of +metric+ between +n1+ and +n2+ in the +db+ database.
   def data_to_db(n1, n2, db, metric, data)
+    table = metric == :haai ? :aai : metric
     SQLite3::Database.new(db) do |conn|
       conn.execute(
-        "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
+        "insert into #{table} (seq1, seq2, #{table}, sd, n, omega) " +
         "values (?, ?, ?, ?, ?, ?)", [n1, n2] + data
       )
     end
