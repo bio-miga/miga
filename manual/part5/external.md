@@ -101,3 +101,7 @@ Jain C, Rodriguez-R LM, Phillippy AM, Konstantinidis KT, and Aluru S (2018).
 High throughput ANI analysis of 90K prokaryotic genomes reveals clear species
 boundaries. [Nature Comm 9:5114](https://doi.org/10.1038/s41467-018-07641-9).
 
+## FastAAI
+
+Ruiz-Perez et al. [FastAAI in GitHub](https://github.com/cruizperez/FastAAI).
+

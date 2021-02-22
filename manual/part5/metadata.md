@@ -68,11 +68,11 @@ Metadata entries that trigger specific behaviors in MiGA:
 | distances_checkpoint | Integer  | Comparisons before storing data (def: 10)
 
 > **°** By default: `blast+`. Other supported values: `blast`, `blat`,
-> `diamond` (except for ANI), and `fastani` (only for ANI),
-> `no` (only for hAAI).
+> `diamond` (except for ANI), `fastani` (only for ANI),
+> `no` (only for hAAI), and `fastaai` (only for hAAI).
 > If using `diamond` and/or `fastani`, the corresponding software must be
 > installed.
-> **Important**: These defaults will change in v1.0 to: `blast+` for hAAI,
+> **Important**: These defaults will change in v1.0 to: `fastaai` for hAAI,
 > `diamond` for AAI, and `fastani` for ANI.
 >
 > **+** One of: `dupont_2012` (default), or `lee_2019`

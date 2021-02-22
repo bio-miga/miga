@@ -87,7 +87,7 @@ module MiGA::Cli::Action::Wf
     end
     opt.on(
       '--haai-p STRING',
-      'hAAI search engine. One of: blast+ (default), blat, diamond, no'
+      'hAAI search engine. One of: blast+ (default), fastaai, blat, diamond, no'
     ) { |v| cli[:haai_p] = v }
     opt.on(
       '--aai-p STRING',
