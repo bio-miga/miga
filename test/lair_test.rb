@@ -75,10 +75,9 @@ class LairTest < Test::Unit::TestCase
       assert_predicate(d, :active?)
     end
 
-    out = capture_stderr { lair.terminate_daemons }.string
+    out = capture_stderr { lair.terminate_daemons ; sleep(2) }.string
     assert_match(/Probing MiGA::Daemon/, out)
     assert_match(/Sending termination message/, out)
-    sleep(2)
     assert_not_predicate(d, :active?)
 
     out = capture_stderr { assert { lair.daemon_loop } }.string
