@@ -28,12 +28,28 @@ COLL=$(miga option -P "$PROJECT" --key ess_coll)
 if [[ "$TYPE" == "metagenome" || "$TYPE" == "virome" ]] ; then
   FLAGS="--metagenome"
 else
-  FLAGS="--alignments ${DATASET}.ess/proteins.aln"
+  FLAGS=""
 fi
 HMM.essential.rb \
   -i "$FAA" -o "${DATASET}.ess.faa" -m "${DATASET}.ess/" \
   -t "$CORES" -r "$DATASET" --collection "$COLL" $FLAGS \
   > "${DATASET}.ess/log"
+
+# Index for FastAAI
+NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+            | wc -l | awk '{print $1}')
+if [[ "$NOMULTI" -eq "1" ]] ; then
+  if [[ "$FAA" == *.gz ]] ; then
+    gzip -cd "$FAA" > "${DATASET}.faix"
+  else
+    cp "$FAA" "${DATASET}.faix"
+  fi
+  FastAAI --qp "${DATASET}.faix" --output "${DATASET}.faix" \
+    --ext ".faix" --index --input-paths --all-vs-all --threads "$CORES"
+  rm "${DATASET}.faix"
+  rm "${DATASET}.faix.hmm"
+  rm "${DATASET}.faix.hmm.filt"
+fi
 
 # Reduce files
 if exists "$DATASET".ess/*.faa ; then

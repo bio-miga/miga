@@ -6,10 +6,7 @@ require 'miga/cli/action'
 class MiGA::Cli::Action::Add < MiGA::Cli::Action
   def parse_cli
     cli.expect_files = true
-    cli.defaults = {
-      ref: true, ignore_dups: false,
-      regexp: MiGA::Cli.FILE_REGEXP
-    }
+    cli.defaults = { ref: true, ignore_dups: false }
     cli.parse do |opt|
       opt.separator 'You can create multiple datasets with a single command; ' \
         'simply pass all the files at the end: {FILES...}'
@@ -37,7 +34,10 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       opt.on(
         '-R', '--name-regexp REGEXP', Regexp,
         'Regular expression indicating how to extract the name from the path',
-        "By default: '#{cli[:regexp]}'"
+        'By default for paired files:',
+        "'#{MiGA::Cli.FILE_REGEXP(true)}'",
+        'By default for other files:',
+        "'#{MiGA::Cli.FILE_REGEXP}'"
       ) { |v| cli[:regexp] = v }
       opt.on(
         '--prefix STRING',
@@ -58,6 +58,9 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
   def perform
     p = cli.load_project
     files, file_type = get_files_and_type
+
+    paired = cli[:input_type].to_s.include?('_paired')
+    cli[:regexp] ||= MiGA::Cli.FILE_REGEXP(paired)
 
     cli.say 'Creating datasets:'
     files.each do |file|
@@ -166,7 +169,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     file_type[2].each_with_index do |ext, i|
       gz = file[i] =~ /\.gz/ ? '.gz' : ''
       FileUtils.cp(file[i], "#{r_path}#{ext}#{gz}")
-      cli.say "  file: #{file[i]}"
+      cli.say "  file: #{File.basename(file[i])}"
     end
     File.open("#{r_path}.done", 'w') { |f| f.print Time.now.to_s }
   end

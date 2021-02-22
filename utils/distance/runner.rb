@@ -1,29 +1,17 @@
 require_relative 'base.rb'
-require_relative 'temporal.rb'
-require_relative 'database.rb'
-require_relative 'commands.rb'
-require_relative 'pipeline.rb'
 
 class MiGA::DistanceRunner
-  include MiGA::DistanceRunner::Temporal
-  include MiGA::DistanceRunner::Database
-  include MiGA::DistanceRunner::Commands
-  include MiGA::DistanceRunner::Pipeline
-
   attr_reader :project, :ref_project, :dataset, :opts, :home
   attr_reader :tmp, :tmp_dbs, :dbs, :db_counts
 
   def initialize(project_path, dataset_name, opts_hash = {})
     @opts = opts_hash
-    @project = MiGA::Project.load(project_path) or
-      raise "No project at #{project_path}"
+    @project = MiGA::Project.load(project_path)
+    @project or raise "No project at #{project_path}"
     @dataset = project.dataset(dataset_name)
     @home = File.expand_path('data/09.distances', project.path)
 
     # Default opts
-    @opts[:aai_save_rbm] =
-      project.option(:aai_save_rbm) ? 'save-rbm' : 'no-save-rbm'
-    @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
     if opts[:run_taxonomy] && project.option(:ref_project)
       ref_path = project.option(:ref_project)
       @home = File.expand_path('05.taxonomy', @home)
@@ -39,7 +27,8 @@ class MiGA::DistanceRunner
     else
       @ref_project = project
     end
-    %i[haai_p aai_p ani_p distances_checkpoint].each do |m|
+    @opts[:thr] ||= ENV.fetch('CORES') { 1 }.to_i
+    %i[haai_p aai_p ani_p distances_checkpoint aai_save_rbm].each do |m|
       @opts[m] ||= ref_project.option(m)
     end
     $stderr.puts "Options: #{opts}"
@@ -64,12 +53,11 @@ class MiGA::DistanceRunner
     initialize_dbs! true
 
     # first-come-first-serve traverse
+    sbj = []
     ref_project.each_dataset do |ds|
-      next if !ds.ref? or ds.multi? or ds.result(:essential_genes).nil?
-
-      puts "[ #{Time.now} ] #{ds.name}"
-      ani_after_aai(ds)
+      sbj << ds if ds.ref? && !ds.multi? && ds.result(:essential_genes)
     end
+    ani_after_aai(sbj)
 
     # Finalize
     %i[haai aai ani].each { |m| checkpoint! m if db_counts[m] > 0 }
@@ -97,27 +85,25 @@ class MiGA::DistanceRunner
     par_dir = File.dirname(File.expand_path(classif, res.dir))
     par = File.expand_path('miga-project.classif', par_dir)
     closest = { dataset: nil, ani: 0.0 }
+    sbj_datasets = []
     if File.size? par
       File.open(par, 'r') do |fh|
         fh.each_line do |ln|
           r = ln.chomp.split("\t")
-          next unless r[1].to_i == val_cls
-
-          ani = ani_after_aai(ref_project.dataset(r[0]), 80.0)
-          unless ani.nil? || ani < closest[:ani]
-            closest = { ds: r[0], ani: ani }
-          end
+          sbj_datasets << ref_project.dataset(r[0]) if r[1].to_i == val_cls
         end
       end
+      ani = ani_after_aai(sbj_datasets, 80.0)
+      ani_max = ani.map(&:to_f).each_with_index.max
+      closest = { ds: sbj_datasets[ani_max[1]].name, ani: ani_max[0] }
     end
 
     # Calculate all the AAIs/ANIs against the closest ANI95-clade (if AAI > 80%)
     cl_path = res.file_path :clades_ani95
-    if !cl_path.nil? and File.size? cl_path and tsk[0] == :clade_finding
-      File.foreach(cl_path)
-          .map { |i| i.chomp.split(',') }
-          .find(lambda { [] }) { |i| i.include? closest[:ds] }
-          .each { |i| ani_after_aai(ref_project.dataset(i), 80.0) }
+    if !cl_path.nil? && File.size?(cl_path) && tsk[0] == :clade_finding
+      clades = File.foreach(cl_path).map { |i| i.chomp.split(',') }
+      sbj_datasets = clades.find { |i| i.include?(closest[:ds]) }
+      ani_after_aai(sbj_datasets, 80.0) if sbj_datasets
     end
 
     # Finalize

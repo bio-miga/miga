@@ -7,8 +7,7 @@ module MiGA::Cli::Action::Wf
   def default_opts_for_wf
     cli.expect_files = true
     cli.defaults = {
-      clean: false, regexp: MiGA::Cli.FILE_REGEXP,
-      project_type: :genomes, dataset_type: :popgenome,
+      clean: false, project_type: :genomes, dataset_type: :popgenome,
       ncbi_draft: true, min_qual: MiGA::Project.OPTIONS[:min_qual][:default]
     }
   end
@@ -56,7 +55,7 @@ module MiGA::Cli::Action::Wf
     opt.on(
       '-R', '--name-regexp REGEXP', Regexp,
       'Regular expression indicating how to extract the name from the path',
-      "By default: '#{cli[:regexp]}'"
+      "By default: '#{MiGA::Cli.FILE_REGEXP}'"
     ) { |v| cli[:regexp] = v }
     opt_object_type(opt, :dataset, params[:multi])
     opt_object_type(opt, :project, params[:multi]) if params[:project_type]
@@ -106,10 +105,14 @@ module MiGA::Cli::Action::Wf
       project_type: '--project-type',
       dataset_type: '--dataset-type'
     )
+    paired = cli[:input_type].to_s.include?('_paired')
+    cli[:regexp] ||= MiGA::Cli.FILE_REGEXP(paired)
+
     # Create empty project
     call_cli(
       ['new', '-P', cli[:outdir], '-t', cli[:project_type]]
     ) unless MiGA::Project.exist? cli[:outdir]
+
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
     p_metadata[:type] = cli[:project_type]
@@ -117,6 +120,7 @@ module MiGA::Cli::Action::Wf
     %i[haai_p aai_p ani_p ess_coll min_qual].each do |i|
       p.set_option(i, cli[i])
     end
+
     # Download datasets
     unless cli[:ncbi_taxon].nil?
       what = cli[:ncbi_draft] ? '--all' : '--complete'
@@ -124,6 +128,7 @@ module MiGA::Cli::Action::Wf
         ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
       )
     end
+
     # Add datasets
     call_cli(
       [
@@ -135,6 +140,7 @@ module MiGA::Cli::Action::Wf
         '-R', cli[:regexp]
       ] + cli.files
     ) unless cli.files.empty?
+
     # Define datasets metadata
     p.load
     d_metadata[:type] = cli[:dataset_type]
