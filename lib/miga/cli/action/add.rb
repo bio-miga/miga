@@ -35,7 +35,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
         '-R', '--name-regexp REGEXP', Regexp,
         'Regular expression indicating how to extract the name from the path',
         'By default for paired files:',
-        "'#{MiGA::Cli.PAIRED_FILE_REGEXP}'",
+        "'#{MiGA::Cli.FILE_REGEXP(true)}'",
         'By default for other files:',
         "'#{MiGA::Cli.FILE_REGEXP}'"
       ) { |v| cli[:regexp] = v }
@@ -59,9 +59,8 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     p = cli.load_project
     files, file_type = get_files_and_type
 
-    cli[:regexp] ||=
-      cli[:input_type].include?('_paired') ?
-        MiGA::Cli.PAIRED_FILE_REGEXP : MiGA::Cli.FILE_REGEXP
+    paired = cli[:input_type].to_s.include?('_paired')
+    cli[:regexp] ||= MiGA::Cli.FILE_REGEXP(paired)
 
     cli.say 'Creating datasets:'
     files.each do |file|

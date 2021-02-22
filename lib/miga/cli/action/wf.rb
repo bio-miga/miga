@@ -105,9 +105,8 @@ module MiGA::Cli::Action::Wf
       project_type: '--project-type',
       dataset_type: '--dataset-type'
     )
-    cli[:regexp] ||=
-      cli[:input_type]&.include?('_paired') ?
-        MiGA::Cli.PAIRED_FILE_REGEXP : MiGA::Cli.FILE_REGEXP
+    paired = cli[:input_type].to_s.include?('_paired')
+    cli[:regexp] ||= MiGA::Cli.FILE_REGEXP(paired)
 
     # Create empty project
     call_cli(

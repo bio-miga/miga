@@ -59,6 +59,7 @@ module MiGA::Cli::Action::Init::FilesHelper
     end
     check_rdp_classifier if cli[:rdp]
     check_phyla_lite
+    cli.puts ''
   end
 
   def check_mytaxa_scores(paths)

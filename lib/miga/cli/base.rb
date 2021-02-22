@@ -98,14 +98,20 @@ class MiGA::Cli < MiGA::MiGA
   include MiGA::Cli::Base
 
   class << self
-    def TASK_DESC; @@TASK_DESC end
+    def TASK_DESC
+      @@TASK_DESC
+    end
 
-    def TASK_ALIAS; @@TASK_ALIAS end
+    def TASK_ALIAS
+      @@TASK_ALIAS
+    end
 
-    def EXECS; @@EXECS end
+    def EXECS
+      @@EXECS
+    end
 
-    def FILE_REGEXP; @@FILE_REGEXP end
-
-    def PAIRED_FILE_REGEXP; @@PAIRED_FILE_REGEXP end
+    def FILE_REGEXP(paired = false)
+      paired ? @@PAIRED_FILE_REGEXP : @@FILE_REGEXP
+    end
   end
 end

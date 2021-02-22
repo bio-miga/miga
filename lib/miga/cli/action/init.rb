@@ -61,9 +61,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     check_configuration_script(rc_fh)
     paths = check_software_requirements(rc_fh)
     check_additional_files(paths)
-    check_r_packages(paths)
-    check_ruby_gems(paths)
-    check_python_libraries(paths)
+    check_libraries(paths)
     configure_daemon
     close_rc_file(rc_fh)
     cli.puts 'Configuration complete. MiGA is ready to work!'
@@ -81,51 +79,6 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     run_cmd(
       cli,
       "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1"
-    )
-  end
-
-  def test_r_package(cli, paths, pkg)
-    run_r_cmd(cli, paths, "library('#{pkg}')")
-    $?.success?
-  end
-
-  def install_r_package(cli, paths, pkg)
-    r_cmd = "install.packages('#{pkg}', repos='http://cran.rstudio.com/')"
-    run_r_cmd(cli, paths, r_cmd)
-  end
-
-  def test_ruby_gem(cli, paths, pkg)
-    run_cmd(
-      cli,
-      "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null"
-    )
-    $?.success?
-  end
-
-  def install_ruby_gem(cli, paths, pkg)
-    # This hackey mess is meant to ensure the test and installation are done
-    # on the configuration Ruby, not on the Ruby currently executing the
-    # init action
-    gem_cmd = "Gem::GemRunner.new.run %w(install --user #{pkg})"
-    run_cmd(
-      cli,
-      "#{paths['ruby'].shellescape} \
-        -r rubygems -r rubygems/gem_runner \
-        -e #{gem_cmd.shellescape} 2>&1"
-    )
-  end
-
-  def test_python_library(cli, paths, pkg)
-    run_cmd(
-      cli, "#{paths['python3'].shellescape} -c 'import #{pkg}' 2>/dev/null"
-    )
-    $?.success?
-  end
-
-  def install_python_library(cli, paths, pkg)
-    run_cmd(
-      cli,
-      "#{paths['python3'].shellescape} -m pip install #{pkg.shellescape} 2>&1"
     )
   end
 
@@ -207,54 +160,70 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     path
   end
 
-  def check_r_packages(paths)
-    cli.puts 'Looking for R packages:'
-    %w(ape cluster vegan).each do |pkg|
-      cli.print "Testing #{pkg}... "
-      if test_r_package(cli, paths, pkg)
-        cli.puts 'yes'
-      else
-        cli.puts 'no, installing'
-        cli.print '' + install_r_package(cli, paths, pkg)
-        unless test_r_package(cli, paths, pkg)
-          raise "Unable to auto-install R package: #{pkg}"
-        end
+  def check_libraries(paths)
+    req_libraries = {
+      r: %w[ape cluster vegan],
+      ruby: %w[sqlite3 daemons json],
+      python: %w[numpy]
+    }
+
+    req_libraries.each do |language, libraries|
+      cli.puts "Looking for #{language.to_s.capitalize} libraries:"
+      libraries.each do |lib|
+        check_and_install_library(paths, language, lib)
       end
+      cli.puts ''
     end
-    cli.puts ''
   end
 
-  def check_ruby_gems(paths)
-    cli.puts 'Looking for Ruby gems:'
-    %w[sqlite3 daemons json].each do |pkg|
-      cli.print "Testing #{pkg}... "
-      if test_ruby_gem(cli, paths, pkg)
-        cli.puts 'yes'
-      else
-        cli.puts 'no, installing'
-        cli.print install_ruby_gem(cli, paths, pkg)
-        unless test_ruby_gem(cli, paths, pkg)
-          raise "Unable to auto-install Ruby gem: #{pkg}"
-        end
+  def check_and_install_library(paths, language, library)
+    cli.print "Testing #{library}... "
+    if test_library(cli, paths, language, library)
+      cli.puts 'yes'
+    else
+      cli.puts 'no, installing'
+      cli.print '' + install_library(cli, paths, language, library)
+      unless test_library(cli, paths, language, library)
+        raise "Cannot install #{language.to_s.capitalize} library: #{library}"
       end
     end
-    cli.puts ''
   end
 
-  def check_python_libraries(paths)
-    cli.puts 'Looking for Python libraries:'
-    %w[numpy].each do |pkg|
-      cli.print "Testing #{pkg}... "
-      if test_python_library(cli, paths, pkg)
-        cli.puts 'yes'
-      else
-        cli.puts 'no, installing'
-        cli.print install_python_library(cli, paths, pkg)
-        unless test_python_library(cli, paths, pkg)
-          raise "Unable to auto-install Python library: #{pkg}"
-        end
-      end
+  def test_library(cli, paths, language, pkg)
+    case language
+    when :r
+      run_r_cmd(cli, paths, "library('#{pkg}')")
+    when :ruby
+      x = "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null"
+      run_cmd(cli, x)
+    when :python
+      x = "#{paths['python3'].shellescape} -c 'import #{pkg}' 2>/dev/null"
+      run_cmd(cli, x)
+    else
+      raise "Unrecognized language: #{language}"
     end
-    cli.puts ''
+    $?.success?
+  end
+
+  def install_library(cli, paths, language, pkg)
+    case language
+    when :r
+      r_cmd = "install.packages('#{pkg}', repos='http://cran.rstudio.com/')"
+      run_r_cmd(cli, paths, r_cmd)
+    when :ruby
+      # This hackey mess is meant to ensure the test and installation are done
+      # on the configuration Ruby, not on the Ruby currently executing the
+      # init action
+      gem_cmd = "Gem::GemRunner.new.run %w(install --user #{pkg})"
+      x = "#{paths['ruby'].shellescape} -r rubygems -r rubygems/gem_runner \
+            -e #{gem_cmd.shellescape} 2>&1"
+      run_cmd(cli, x)
+    when :python
+      x = "#{paths['python3'].shellescape} \
+            -m pip install #{pkg.shellescape} 2>&1"
+      run_cmd(cli, x)
+    else
+      raise "Unrecognized language: #{language}"
+    end
   end
 end
