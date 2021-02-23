@@ -1,5 +1,4 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 require 'miga/result/dates'
 require 'miga/result/source'
@@ -29,13 +28,17 @@ class MiGA::Result < MiGA::MiGA
       MiGA::Result.new(path)
     end
 
-    def create(path, force = false, &blk)
+    ##
+    # Check if +path+ describes a result and otherwise create
+    # it using the passed block. If +force+, ignore existing
+    # JSON in +path+ if any.
+    def create(path, force = false)
       FileUtils.rm(path) if force && File.exist?(path)
-      r_pre = self.load(path)
+      r_pre = load(path)
       return r_pre unless r_pre.nil?
 
       yield
-      self.load(path)
+      load(path)
     end
   end
 
@@ -49,7 +52,7 @@ class MiGA::Result < MiGA::MiGA
   # Load or create the MiGA::Result described by the JSON file +path+
   def initialize(path)
     @path = File.absolute_path(path)
-    MiGA::Result.exist?(@path) ? self.load : create
+    MiGA::Result.exist?(@path) ? load : create
   end
 
   ##
@@ -162,7 +165,7 @@ class MiGA::Result < MiGA::MiGA
       File.unlink s
     end
     MiGA::Json.generate(data, path)
-    self.load
+    load
   end
 
   ##
@@ -182,10 +185,9 @@ class MiGA::Result < MiGA::MiGA
   # Unlink result by removing the .done and .start timestamps and the
   # .json descriptor, but don't remove any other associated files
   def unlink
-    %i(start done).each do |i|
-      f = path(i) and File.exists?(f) and File.unlink(f)
+    %i[start done json].each do |i|
+      f = path(i) and File.exist?(f) and File.unlink(f)
     end
-    File.unlink path
   end
 
   ##
@@ -201,13 +203,14 @@ class MiGA::Result < MiGA::MiGA
 
     @data[:files] ||= {}
     self[:files].each do |k, files|
-      files = [files] unless files.kind_of? Array
+      files = [files] unless files.is_a? Array
       files.each do |file|
         case blk.arity
-        when 1; blk.call(file)
-        when 2; blk.call(k, file)
-        when 3; blk.call(k, file, File.expand_path(file, dir))
-        else; raise "Wrong number of arguments: #{blk.arity} for 1..3"
+        when 1 then blk.call(file)
+        when 2 then blk.call(k, file)
+        when 3 then blk.call(k, file, File.expand_path(file, dir))
+        else
+          raise "Wrong number of arguments: #{blk.arity} for 1..3"
         end
       end
     end

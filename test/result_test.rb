@@ -38,6 +38,28 @@ class ResultTest < Test::Unit::TestCase
     assert_instance_of(MiGA::Result, r)
   end
 
+  def test_unlink
+    r = project.add_result(:clade_finding)
+    path = r.path
+    done = r.path(:done)
+    data = r.file_path(:empty)
+    assert(File.exist?(path))
+    assert(File.exist?(done))
+    assert(File.exist?(data))
+    r.unlink
+    assert(!File.exist?(path))
+    assert(!File.exist?(done))
+    assert(File.exist?(data))
+  end
+
+  def test_remove
+    r = project.add_result(:clade_finding)
+    data = r.file_path(:empty)
+    assert(File.exist?(data))
+    r.remove!
+    assert(!File.exist?(data))
+  end
+
   def test_result_source
     r = dataset.add_result(:trimmed_reads)
     assert_equal(dataset.name, r.source.name)
