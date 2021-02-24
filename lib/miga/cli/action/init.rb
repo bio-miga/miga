@@ -220,7 +220,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       run_cmd(cli, x)
     when :python
       x = "#{paths['python3'].shellescape} \
-            -m pip install #{pkg.shellescape} 2>&1"
+            -m pip install --user #{pkg.shellescape} 2>&1"
       run_cmd(cli, x)
     else
       raise "Unrecognized language: #{language}"
