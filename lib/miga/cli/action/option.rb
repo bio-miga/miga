@@ -22,6 +22,10 @@ class MiGA::Cli::Action::Option < MiGA::Cli::Action
         'Print additional information about the values supported by this option'
       ) { |v| cli[:about] = v }
       opt.on(
+        '--tab',
+        'Return a tab-delimited table'
+      ) { |v| cli[:tabular] = v }
+      opt.on(
         '-o', '--output PATH',
         'Create output file instead of returning to STDOUT'
       ) { |v| cli[:output] = v }
@@ -29,16 +33,18 @@ class MiGA::Cli::Action::Option < MiGA::Cli::Action
   end
 
   def perform
-    unless cli[:value].nil? && !cli[:about]
+    unless cli[:value].nil?
       cli.ensure_par(
         { key: '-k' },
-        '%<name>s is mandatory when --value / --about are set: provide %<flag>s'
+        '%<name>s is mandatory when --value is set: provide %<flag>s'
       )
     end
     obj = cli.load_project_or_dataset
     io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')
     if cli[:key].nil?
-      cli.table(%w[Key Value], obj.all_options, io)
+      opts = obj.all_options
+                .map { |k, v| [k, v, obj.assert_has_option(k)[:desc]] }
+      cli.table(%w[Key Value Definition], opts, io)
     elsif cli[:about]
       opt = obj.assert_has_option(cli[:key])
       title = "#{cli[:key]}: #{opt[:desc]}"
