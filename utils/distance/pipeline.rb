@@ -15,7 +15,7 @@ module MiGA::DistanceRunner::Pipeline
     values = send(metric, sbj_datasets)
     max_idx = values.map(&:to_f).each_with_index.max[1]
     max_val = values[max_idx]
-    val_med = sbj_dataset[max_idx].name
+    val_med = sbj_datasets[max_idx].name
     val_cls = max_idx + 1
     puts "[#{classif}] New max: #{val_med} (#{val_cls}): #{max_val}"
 
