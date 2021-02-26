@@ -39,6 +39,7 @@ jobs:
     needs: [test, remote-test]
     steps:
       - uses: actions/checkout@v2
+        if: false # Temporarily halt, see cadwallion/publish-rubygems-action#9
         with:
           fetch-depth: 2
       - uses: marceloprado/has-changed-path@v1
