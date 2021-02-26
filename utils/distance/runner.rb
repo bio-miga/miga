@@ -102,7 +102,8 @@ class MiGA::DistanceRunner
     cl_path = res.file_path :clades_ani95
     if !cl_path.nil? && File.size?(cl_path) && tsk[0] == :clade_finding
       clades = File.foreach(cl_path).map { |i| i.chomp.split(',') }
-      sbj_datasets = clades.find { |i| i.include?(closest[:ds]) }
+      sbj_dataset_names = clades.find { |i| i.include?(closest[:ds]) }
+      sbj_datasets = sbj_dataset_names&.map { |i| ref_project.dataset(i) }
       ani_after_aai(sbj_datasets, 80.0) if sbj_datasets
     end
 
