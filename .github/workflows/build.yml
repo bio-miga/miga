@@ -40,6 +40,8 @@ jobs:
     name: Release new version
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
       - name: Tag and deploy
         uses: discourse/publish-rubygems-action@v2-beta
         env:
