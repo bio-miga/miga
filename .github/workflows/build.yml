@@ -33,27 +33,17 @@ jobs:
           CC_TEST_REPORTER_ID: "${{ secrets.CC_MIGA_REPORTER_ID }}"
         with:
           coverageCommand: bundle exec codeclimate-test-reporter
-  ruby-gem:
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, remote-test]
     runs-on: ubuntu-latest
     name: Release new version
-    needs: [test, remote-test]
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-      - uses: marceloprado/has-changed-path@v1
-        id: changed-version
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        with:
-          paths: lib/miga/version.rb
       - name: Tag and deploy
-        if: steps.changed-version.outputs.changed == 'true'
-        uses: cadwallion/publish-rubygems-action@master
+        uses: discourse/publish-rubygems-action@v2-beta
         env:
-          RUBYGEMS_API_KEY: "${{ secrets.RUBYGEMS_API_KEY }}"
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          RELEASE_COMMAND: |
-            git config --global user.mail "bot@microbial-genomes.org"
-            git config --global user.name "Automated Release"
-            bundle exec rake release
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          GIT_EMAIL: bot@microbial-genomes.org
+          GIT_NAME: Automated Release
 
