@@ -14,6 +14,8 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     cli.defaults = {
       mytaxa: nil,
       rdp: nil,
+      reads: nil,
+      optional: nil,
       config: File.join(ENV['MIGA_HOME'], '.miga_modules'),
       ask: false,
       auto: false,
@@ -35,6 +37,16 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
         'Should I try setting up the RDP classifier?',
         'By default: interactive (true if --auto)'
       ) { |v| cli[:rdp] = v }
+      opt.on(
+        '--[no-]read-processing',
+        'Should I try setting up read processing software?',
+        'By default: interactive (true if --auto)'
+      ) { |v| cli[:reads] = v }
+      opt.on(
+        '--[no-]optional',
+        'Should I try setting up the optional software?',
+        'Automatically sets answers for mytaxa, rdp, and reads'
+      ) { |v| cli[:optional] = v }
       opt.on(
         '--daemon-type STRING',
         'Type of daemon launcher, one of: bash, ssh, qsub, msub, slurm',
@@ -104,6 +116,8 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     rc_fh.puts "export MIGA_MYTAXA='#{cli[:mytaxa] ? 'yes' : 'no'}'"
     ask_for_optional(:rdp, 'RDP classifier')
     rc_fh.puts "export MIGA_RDP='#{cli[:rdp] ? 'yes' : 'no'}'"
+    ask_for_optional(:reads, 'read processing')
+    rc_fh.puts "export MIGA_READS='#{cli[:reads] ? 'yes' : 'no'}'"
     paths = {}
     rc_fh.puts 'MIGA_PATH=""'
     req_path = File.expand_path('utils/requirements.txt', MiGA.root_path)
@@ -123,20 +137,20 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   def define_software(ln)
     r = ln.chomp.split(/\t+/)
     return if %w[Software --------].include?(r[0])
-    return if r[0] =~ /\(mytaxa\)$/ && !cli[:mytaxa]
-    return if r[0] =~ /\(rdp\)$/ && !cli[:rdp]
+    %i[mytaxa rdp reads].each { |i| return if r[0] =~ /\(#{i}\)$/ && !cli[i] }
 
     r
   end
 
   def ask_for_optional(symbol, name)
-    if cli[symbol].nil?
-      cli[symbol] =
-        cli.ask_user(
-          "Should I include #{name} modules?",
-          'yes', %w(yes no)
-        ) == 'yes'
-    end
+    cli[symbol] = cli[:optional] if !cli[:optional].nil? && cli[symbol].nil?
+    return cli[symbol] unless cli[symbol].nil?
+
+    cli[symbol] =
+      cli.ask_user(
+        "Should I include #{name} modules?",
+        'yes', %w(yes no)
+      ) == 'yes'
   end
 
   def find_software(exec)
