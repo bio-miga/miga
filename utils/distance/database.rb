@@ -126,7 +126,6 @@ module MiGA::DistanceRunner::Database
   def batch_data_to_db(metric, data)
     db = tmp_dbs[metric]
     table = metric == :haai ? :aai : metric
-    `cp #{db} ~/here.db`
     SQLite3::Database.new(db) do |conn|
       data.each do |k, v|
         sql = <<~SQL
