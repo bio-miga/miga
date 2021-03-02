@@ -4,95 +4,52 @@
 
 If you prefer to see code in action, the full installation process
 with apt-get is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1xP5l0p1osRwrzw39IyAplRhbVeCdgmsJ).
+[Notebook in Google Collab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
 
-## Essentials
+## Packages
 
 If you have `apt-get`, execute:
 
 ```bash
-# General-purpose software
 sudo apt-get update
-sudo apt-get install ruby ruby-sqlite3 r-base sqlite3 python \
-  libcurl4-openssl-dev openjdk-8-jdk
-# Bioinformatics software
-sudo apt-get install ncbi-blast+ hmmer bedtools idba \
-  prodigal mcl barrnap scythe fastqc diamond-aligner
-sudo ln -s $(which diamond-aligner) /usr/bin/diamond
+sudo apt-get install \
+  ruby ruby-sqlite3 r-base sqlite3 python \
+  libcurl4-openssl-dev zlib1g zlib1g-dev \
+  ncbi-blast+ hmmer bedtools idba prodigal \
+  mcl barrnap diamond-aligner
+sudo ln -s $(which diamond-aligner)
 ```
 
-## IDBA
+## Additional Software
 
-The index of some distros may still have an old version of IDBA that didn't
-build the IDBA-UD flavor (you'll need at least v1.1.3-2).
-Check first if you have it:
-
-```bash
-idba_ud
-```
-
-If you don't, you can get it by adding the Ubuntu Universe source to APT:
+Some of the software required by MiGA is not available in aptitude, but
+you can install it in your 64bit Linux machine using:
 
 ```bash
-echo 'deb http://us.archive.ubuntu.com/ubuntu/ cosmic universe' \
-  | sudo tee /etc/apt/sources.list.d/ubuntu-universe.list
-sudo apt-get update
-sudo apt-get install idba
-```
+## FaQCs
+curl -Lso FaQCs \
+  "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.10/FaQCs_linux_x86_64"
+sudo install FaQCs /usr/bin/ && rm FaQCs
 
-Or install it directly from the DEB package:
+## Falco
+curl -Lso falco.tar.gz \
+  "https://github.com/smithlabcode/falco/releases/download/v0.2.4/falco-0.2.4.tar.gz"
+tar zxf falco.tar.gz
+( cd falco-0.2.4 \
+    && ./configure CXXFLAGS="-O3 -Wall" \
+    && make && sudo make install
+) > /dev/null
+rm -rf falco-0.2.4
 
-```bash
-wget http://ftp.br.debian.org/debian/pool/main/i/idba/idba_1.1.3-3_amd64.deb
-sudo apt-get install ./idba_1.1.3-3_amd64.deb
-```
+## Fastp
+curl -Lso fastp "http://opengene.org/fastp/fastp"
+sudo install fastp /usr/bin/ && rm fastp
 
-## SolexaQA++
-
-Next, you'll need to install SolexaQA++. If you have a 64-bits Linux:
-
-```bash
-curl -L -o SolexaQA++_v3.1.7.1.zip \
-  "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
-unzip -p SolexaQA++_v3.1.7.1.zip Linux_x64/SolexaQA++ > SolexaQA++
-sudo install SolexaQA++ /usr/bin/
-```
-
-If you have 32-bits Linux, you can build SolexaQA++ from source:
-
-```bash
-sudo apt-get install libboost-dev libboost-filesystem-dev \
-      libboost-regex-dev libboost-iostreams-dev
-curl -L -o SolexaQA++_v3.1.7.1.zip \
-  "https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA%2B%2B_v3.1.7.1.zip"
-unzip SolexaQA++_v3.1.7.1.zip 'source/*'
-cd source && make
-sudo install source/SolexaQA++ /usr/bin/
-```
-
-## FastANI
-
-FastANI is optional, but it may be required to search certain databases.
-It can be used instead of BLAST ANI to speed up indexing.
-If you have a 64-bits Linux:
-
-```bash
-curl -L -o fastani-Linux64-v1.3.zip \
-  "https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastani-Linux64-v1.3.zip"
-unzip fastani-Linux64-v1.3.zip fastANI
-sudo install fastANI /usr/bin/
-```
-
-If you have a 32-bits Linux, you can build it from source following the
-[FastANI installation](https://github.com/ParBLiSS/FastANI/blob/master/INSTALL.txt).
-
-## R packages
-
-The full list of R packages is automatically installed by MiGA. However, we
-will install one package here to make sure everything is properly initialized.
-
-```bash
-Rscript -e "install.packages('ape', repos = 'http://cran.rstudio.com/')"
+# FastANI
+curl -Lso fastani-Linux64-v1.32.zip \
+  "https://github.com/ParBLiSS/FastANI/releases/download/v1.32/fastani-Linux64-v1.32.zip"
+unzip fastani-Linux64-v1.32.zip fastANI > /dev/null && rm fastani-Linux64-v1.32.zip
+sudo install fastANI /usr/bin/ && rm fastANI
 ```
 
 ## MyTaxa utils

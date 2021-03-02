@@ -1,0 +1,33 @@
+name: miga-test
+
+dependencies:
+  # General-purpose
+  - r-base
+  - r
+  - conda-forge::ruby
+  - sqlite
+  - openjdk
+
+  # Read processing
+  - faqcs
+  - falco
+  - seqtk
+  - fastp
+  - idba
+
+  # Assembly processing
+  - hmmer
+  - bedtools
+  - prodigal
+  - barrnap
+  - krona
+
+  # Distances
+  - blast
+  - mcl
+  - diamond
+  # - fastani
+
+channels:
+  - conda-forge
+  - bioconda
