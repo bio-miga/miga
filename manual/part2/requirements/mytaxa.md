@@ -23,8 +23,6 @@ curl -L \
 cd MyTaxa-master
 make
 python2 utils/download_db.py
-curl -O \
-  http://enve-omics.ce.gatech.edu/data/public_mytaxa/AllGenomes.faa.dmnd
 echo 'export PATH='$PWD':$PATH' >> ~/.miga_modules
 cd ..
 ```

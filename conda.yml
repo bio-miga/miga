@@ -1,9 +1,8 @@
-name: miga-test
+name: miga
 
 dependencies:
   # General-purpose
-  - r-base
-  - r
+  - r-base>=3.6
   - conda-forge::ruby
   - sqlite
   - openjdk
@@ -26,7 +25,7 @@ dependencies:
   - blast
   - mcl
   - diamond
-  # - fastani
+  - fastani
 
 channels:
   - conda-forge

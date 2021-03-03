@@ -13,12 +13,10 @@ with conda is available as a
 
 ## Note for macOS users
 
-> The bioconda `fastani` recipe currently depends on packages that force
-> downgrading other important packages (including R). This can cause some
-> issues, and we're currently recommending the use of [Homebrew](brew.md)
-> whenever possible.
-> 
-> See also: https://github.com/bioconda/bioconda-recipes/issues/27120
+> In general, it is recommended to use [Homebrew](brew.md) to install MiGA if
+> possible. The MiGA installation in macOS using conda is known to be fragile
+> and extremely time-consuming (it could take upwards of 20 minutes just solving
+> the environment).
 
 ## Packages
 

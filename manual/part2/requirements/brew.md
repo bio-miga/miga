@@ -15,17 +15,12 @@ If you don't have Homebrew, execute (and follow the instructions):
   https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Next, make sure you have the brewsci/bio tap:
+## Packages
+
+Now that you have Homebrew, execute:
 
 ```bash
 brew tap brewsci/bio
-```
-
-## Packages
-
-Now that you have Homebrew and the science tap, execute:
-
-```bash
 brew install \
     r sqlite3 python adoptopenjdk \
     blast hmmer bedtools prodigal idba mcl \
