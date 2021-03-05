@@ -120,31 +120,29 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
 
-    # Read data first (threaded)
+    # Read data first (linear)
+    k = 0
     @distances = { haai: {}, aai: {}, ani: {} }
-    (0 .. cli[:threads] - 1).map do |i|
-      Thread.fork do
-        k = 0
-        ref_ds.each do |d|
-          k += 1
-          cli.advance('Reading:', k, n, false) if i == 0
-          read_bidirectional(d) if k % cli[:threads] == i
-        end
-      end
-    end.map(&:join)
+    ref_ds.each do |d|
+      cli.advance('Reading:', k += 1, n, false)
+      read_bidirectional(d)
+    end
     cli.say
 
-    # Write missing values (threaded)
+    # Write (threaded)
     (0 .. cli[:threads] - 1).map do |i|
-      Thread.fork do
+      Process.fork do
         k = 0
         ref_ds.each do |d|
           k += 1
-          cli.advance('Writing:', k, n, false) if i == 0
-          save_bidirectional(d) if k % cli[:threads] == i
+          cli.advance('Datasets:', k, n, false) if i == 0
+          next unless k % cli[:threads] == i
+
+          save_bidirectional(d)
         end
       end
-    end.map(&:join)
+    end
+    Process.waitall
     cli.say
   end
 
