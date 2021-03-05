@@ -23,7 +23,7 @@ Now that you have Homebrew, execute:
 brew tap brewsci/bio
 brew install \
     r sqlite3 python adoptopenjdk \
-    blast hmmer bedtools prodigal idba mcl \
+    blast hmmer bedtools prodigal gmp idba mcl \
     barrnap diamond fastani faqcs falco seqtk fastp
 ```
 

@@ -202,7 +202,7 @@ module MiGA::Dataset::Result
     add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
       pre_qc_1: '.pre.1.html', pre_qc_2: '.pre.2.html',
-      post_qc_1: '.post.1.html', pre_qc_2: '.post.2.html',
+      post_qc_1: '.post.1.html', post_qc_2: '.post.2.html',
       adapter_detection: '.adapters.txt',
       # Legacy files
       solexaqa: '.solexaqa', fastqc: '.fastqc'
