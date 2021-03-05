@@ -93,7 +93,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           k += 1
           cli.advance('Datasets:', k, n, false) if i == 0
           next unless k % cli[:threads] == i
-          each_database_file(d) do |db_file, metric, result|
+          each_database_file(d) do |db_file, metric, result, _rank|
             check_sqlite3_database(db_file, metric) do
               cli.say(
                 "  > Removing malformed database from #{d.name}:#{result}   "
@@ -119,6 +119,17 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_ds = cli.load_project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
+
+    # Read data first (linear)
+    k = 0
+    @distances = { haai: {}, aai: {}, ani: {} }
+    ref_ds.each do |d|
+      cli.advance('Reading:', k += 1, n, false)
+      read_bidirectional(d)
+    end
+    cli.say
+
+    # Write (threaded)
     (0 .. cli[:threads] - 1).map do |i|
       Process.fork do
         k = 0
@@ -127,12 +138,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           cli.advance('Datasets:', k, n, false) if i == 0
           next unless k % cli[:threads] == i
 
-          saved = saved_targets(d)
-          next if saved.nil?
-
-          (ref_names - saved).each do |k|
-            save_bidirectional(cli.load_project.dataset(k), d)
-          end
+          save_bidirectional(d)
         end
       end
     end

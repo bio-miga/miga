@@ -16,22 +16,28 @@ module MiGA::Cli::Action::Doctor::Base
   end
 
   def each_database_file(dataset, &blk)
-    ref_db = { '01.haai' => :aai, '02.aai' => :aai, '03.ani' => :ani }
-    qry_db = { '.haai.db' => :aai, '.aai.db' => :aai, '.ani.db' => :ani }
+    ref_db = {
+      haai: ['01.haai', :aai], aai: ['02.aai', :aai], ani: ['03.ani', :ani]
+    }
+    qry_db = {
+      haai: ['.haai.db', :aai], aai: ['.aai.db', :aai], ani: ['.ani.db', :ani]
+    }
     base = File.join(dataset.project.path, 'data', '09.distances')
     result = :distances
     if dataset.ref?
       file_db = "#{dataset.name}.db"
-      ref_db.each do |dir, metric|
+      ref_db.each do |rank, v|
+        dir, metric = *v
         file = File.join(base, dir, file_db)
-        blk[file, metric, result] if File.exist? file
+        blk[file, metric, result, rank] if File.exist? file
       end
       base = File.join(base, '05.taxonomy')
       result = :taxonomy
     end
-    qry_db.each do |ext, metric|
+    qry_db.each do |rank, v|
+      ext, metric = *v
       file = File.join(base, "#{dataset.name}#{ext}")
-      blk[file, metric, result] if File.exist? file
+      blk[file, metric, result, rank] if File.exist? file
     end
   end
 
@@ -109,25 +115,34 @@ module MiGA::Cli::Action::Doctor::Base
   end
 
   ##
-  # Saves all the distance estimates in +a+ -> +b+ into the +b+ databases
-  # (as +b+ -> +a+), where both +a+ and +b+ are MiGA::Dataset objects
-  def save_bidirectional(a, b)
-    each_database_file(a) do |db_file, metric, result|
-      data = nil
-      data = MiGA::SQLite.new(db_file).run(
-        "select seq1, seq2, #{metric}, sd, n, omega " +
-        "from #{metric} where seq2 = ? limit 1", b.name
-      ).first
+  # Reads all the distance estimates in +a+ -> *, and saves them in memory
+  # in the +@distances+ variable.
+  def read_bidirectional(a)
+    each_database_file(a) do |db_file, metric, result, rank|
+      sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
+      data = MiGA::SQLite.new(db_file).run(sql)
       next if data.nil? || data.empty?
 
-      db_file_b = File.join(File.dirname(db_file), "#{b.name}.db")
-      next unless File.exist?(db_file_b)
+      @distances[rank][a.name] ||= {}
+      data.each { |row| @distances[rank][a.name][row.shift] = row }
+    end
+  end
 
-      data[0], data[1] = data[1], data[0]
-      MiGA::SQLite.new(db_file_b).run(
-        "insert into #{metric} (seq1, seq2, #{metric}, sd, n, omega) " +
-        "values(?, ?, ?, ?, ?, ?)", data
-      )
+  ##
+  # Saves all the distance estimates in * -> +a+ into the +a+ databases
+  # (as +a+ -> *), where +a+ is a MiGA::Dataset object
+  def save_bidirectional(a)
+    each_database_file(a) do |db_file, metric, result, rank|
+      b2a = @distances[rank].map { |b_name, v| b_name if v[a.name] }.compact
+      a2b = @distances[rank][a.name].keys
+      db  = MiGA::SQLite.new(db_file)
+      sql = <<~SQL
+        insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
+        values(?, ?, ?, ?, ?, ?)
+      SQL
+      (b2a - a2b).each do |b_name|
+        db.run(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
+      end
     end
   end
 end

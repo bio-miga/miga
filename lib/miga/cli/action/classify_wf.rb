@@ -50,7 +50,7 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
     # Input data
     ref_db = reference_db
     norun = %w[
-      project_stats haai_distances aai_distances ani_distances clade_finding
+      haai_distances aai_distances ani_distances clade_finding
     ]
     p_metadata = Hash[norun.map { |i| ["run_#{i}", false] }]
     p = create_project(
