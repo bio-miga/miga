@@ -181,26 +181,30 @@ module MiGA::Dataset::Result
     add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
       if result_files_exist?(base, '.2.clipped.fastq')
-        {
-          pair1: '.1.clipped.fastq',
-          pair2: '.2.clipped.fastq',
-          single: '.1.clipped.single.fastq'
-        }
+        { pair1: '.1.clipped.fastq', pair2: '.2.clipped.fastq' }
       else
         { single: '.1.clipped.fastq' }
       end
     ).tap do |r|
+      # Legacy files
       r.add_file(:trimming_sumary, "#{name}.1.fastq.trimmed.summary.txt")
+      r.add_file(:single, "#{name}.1.clipped.single.fastq")
     end
   end
 
   ##
   # Add result type +:read_quality+ at +base+ (no +_opts+ supported)
   def add_result_read_quality(base, _opts)
-    return nil unless result_files_exist?(base, %w[.solexaqa .fastqc])
+    return nil unless
+      result_files_exist?(base, %w[.post.1.html]) ||
+      result_files_exist?(base, %w[.solexaqa .fastqc])
 
     add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
+      pre_qc_1: '.pre.1.html', pre_qc_2: '.pre.2.html',
+      post_qc_1: '.post.1.html', pre_qc_2: '.post.2.html',
+      adapter_detection: '.adapters.txt',
+      # Legacy files
       solexaqa: '.solexaqa', fastqc: '.fastqc'
     )
   end
