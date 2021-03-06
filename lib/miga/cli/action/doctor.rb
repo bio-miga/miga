@@ -121,8 +121,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     n = ref_ds.size
 
     # Read data first (threaded)
-    @distances = { haai: {}, aai: {}, ani: {} }
-
+    @distances = { aai: {}, ani: {} }
     Dir.mktmpdir do |tmp|
       MiGA::Parallel.process(cli[:threads]) do |i|
         k = 0
@@ -135,27 +134,21 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
           fh.print JSON.fast_generate(@distances)
         end
       end
-      (0 .. cli[:threads] - 1).each do |i|
+      cli.say
+
+      cli[:threads].times do |i|
+        cli.advance('Merging:', i, cli[:threads], false)
         o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
         o.each { |k, v| @distances[k.to_sym].merge!(v) }
       end
+      cli.say
     end
-    cli.say
 
-    # Write (threaded)
-    (0 .. cli[:threads] - 1).map do |i|
-      Process.fork do
-        k = 0
-        ref_ds.each do |d|
-          k += 1
-          cli.advance('Datasets:', k, n, false) if i == 0
-          next unless k % cli[:threads] == i
-
-          save_bidirectional(d)
-        end
-      end
+    # Write missing values (threaded)
+    MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
+      cli.advance('Datasets:', idx + 1, n, false) if thr == 0
+      save_bidirectional(ds)
     end
-    Process.waitall
     cli.say
   end
 

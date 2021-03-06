@@ -119,6 +119,8 @@ module MiGA::Cli::Action::Doctor::Base
   # in the +@distances+ variable.
   def read_bidirectional(a)
     each_database_file(a) do |db_file, metric, result, rank|
+      next if rank == :haai # No need for hAAI to be bidirectional
+
       sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
       data = MiGA::SQLite.new(db_file).run(sql)
       next if data.nil? || data.empty?
@@ -133,16 +135,20 @@ module MiGA::Cli::Action::Doctor::Base
   # (as +a+ -> *), where +a+ is a MiGA::Dataset object
   def save_bidirectional(a)
     each_database_file(a) do |db_file, metric, result, rank|
+      next if rank == :haai # No need for hAAI to be bidirectional
+
       b2a = @distances[rank].map { |b_name, v| b_name if v[a.name] }.compact
       a2b = @distances[rank][a.name].keys
-      db  = MiGA::SQLite.new(db_file)
+      db  = SQLite3::Database.new(db_file)
       sql = <<~SQL
         insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
-        values(?, ?, ?, ?, ?, ?)
+        values(?, ?, ?, ?, ?, ?);
       SQL
+      db.execute('BEGIN TRANSACTION;')
       (b2a - a2b).each do |b_name|
-        db.run(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
+        db.execute(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
       end
+      db.execute('COMMIT;')
     end
   end
 end
