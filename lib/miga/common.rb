@@ -3,6 +3,7 @@
 
 require 'miga/version'
 require 'miga/json'
+require 'miga/parallel'
 require 'miga/common/base'
 require 'miga/common/path'
 require 'miga/common/format'

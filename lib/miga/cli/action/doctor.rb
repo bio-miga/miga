@@ -124,20 +124,17 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     @distances = { haai: {}, aai: {}, ani: {} }
 
     Dir.mktmpdir do |tmp|
-      (0 .. cli[:threads] - 1).each do |i|
-        Process.fork do
-          k = 0
-          ref_ds.each do |d|
-            k += 1
-            cli.advance('Reading:', k, n, false) if i == 0
-            read_bidirectional(d) if k % cli[:threads] == i
-          end
-          File.open("#{tmp}/#{i}.json") do |fh|
-            fh.print JSON.fast_generate(@distances)
-          end
+      MiGA::Parallel.process(cli[:threads]) do |i|
+        k = 0
+        ref_ds.each do |d|
+          k += 1
+          cli.advance('Reading:', k, n, false) if i == 0
+          read_bidirectional(d) if k % cli[:threads] == i
+        end
+        File.open("#{tmp}/#{i}.json", 'w') do |fh|
+          fh.print JSON.fast_generate(@distances)
         end
       end
-      Process.waitall
       (0 .. cli[:threads] - 1).each do |i|
         o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
         o.each { |k, v| @distances[k.to_sym].merge!(v) }
