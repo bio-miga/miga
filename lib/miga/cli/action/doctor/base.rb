@@ -139,16 +139,17 @@ module MiGA::Cli::Action::Doctor::Base
 
       b2a = @distances[rank].map { |b_name, v| b_name if v[a.name] }.compact
       a2b = @distances[rank][a.name].keys
-      db  = SQLite3::Database.new(db_file)
-      sql = <<~SQL
-        insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
-        values(?, ?, ?, ?, ?, ?);
-      SQL
-      db.execute('BEGIN TRANSACTION;')
-      (b2a - a2b).each do |b_name|
-        db.execute(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
+      SQLite3::Database.new(db_file) do |db|
+        sql = <<~SQL
+          insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
+          values(?, ?, ?, ?, ?, ?);
+        SQL
+        db.execute('BEGIN TRANSACTION;')
+        (b2a - a2b).each do |b_name|
+          db.execute(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
+        end
+        db.execute('COMMIT;')
       end
-      db.execute('COMMIT;')
     end
   end
 end

@@ -123,21 +123,21 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     # Read data first (threaded)
     @distances = { aai: {}, ani: {} }
     Dir.mktmpdir do |tmp|
-      MiGA::Parallel.process(cli[:threads]) do |i|
-        k = 0
-        ref_ds.each do |d|
-          k += 1
-          cli.advance('Reading:', k, n, false) if i == 0
-          read_bidirectional(d) if k % cli[:threads] == i
+      MiGA::Parallel.process(cli[:threads]) do |thr|
+        idx = 0
+        ref_ds.each do |ds|
+          cli.advance('Reading:', idx + 1, n, false) if thr == 0
+          read_bidirectional(ds) if idx % cli[:threads] == thr
+          idx += 1
         end
-        File.open("#{tmp}/#{i}.json", 'w') do |fh|
+        File.open("#{tmp}/#{thr}.json", 'w') do |fh|
           fh.print JSON.fast_generate(@distances)
         end
       end
       cli.say
 
       cli[:threads].times do |i|
-        cli.advance('Merging:', i, cli[:threads], false)
+        cli.advance('Merging:', i + 1, cli[:threads], false)
         o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
         o.each { |k, v| @distances[k.to_sym].merge!(v) }
       end
