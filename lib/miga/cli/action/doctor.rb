@@ -120,29 +120,35 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
 
-    # Read data first (linear)
-    k = 0
-    @distances = { haai: {}, aai: {}, ani: {} }
-    ref_ds.each do |d|
-      cli.advance('Reading:', k += 1, n, false)
-      read_bidirectional(d)
-    end
-    cli.say
-
-    # Write (threaded)
-    (0 .. cli[:threads] - 1).map do |i|
-      Process.fork do
-        k = 0
-        ref_ds.each do |d|
-          k += 1
-          cli.advance('Datasets:', k, n, false) if i == 0
-          next unless k % cli[:threads] == i
-
-          save_bidirectional(d)
+    # Read data first (threaded)
+    @distances = { aai: {}, ani: {} }
+    Dir.mktmpdir do |tmp|
+      MiGA::Parallel.process(cli[:threads]) do |thr|
+        idx = 0
+        ref_ds.each do |ds|
+          cli.advance('Reading:', idx + 1, n, false) if thr == 0
+          read_bidirectional(ds) if idx % cli[:threads] == thr
+          idx += 1
+        end
+        File.open("#{tmp}/#{thr}.json", 'w') do |fh|
+          fh.print JSON.fast_generate(@distances)
         end
       end
+      cli.say
+
+      cli[:threads].times do |i|
+        cli.advance('Merging:', i + 1, cli[:threads], false)
+        o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
+        o.each { |k, v| @distances[k.to_sym].merge!(v) }
+      end
+      cli.say
     end
-    Process.waitall
+
+    # Write missing values (threaded)
+    MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
+      cli.advance('Datasets:', idx + 1, n, false) if thr == 0
+      save_bidirectional(ds)
+    end
     cli.say
   end
 
