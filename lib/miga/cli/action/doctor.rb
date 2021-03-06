@@ -124,11 +124,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     @distances = { aai: {}, ani: {} }
     Dir.mktmpdir do |tmp|
       MiGA::Parallel.process(cli[:threads]) do |thr|
-        idx = 0
-        ref_ds.each do |ds|
+        ref_ds.each_with_index do |ds, idx|
           cli.advance('Reading:', idx + 1, n, false) if thr == 0
           read_bidirectional(ds) if idx % cli[:threads] == thr
-          idx += 1
         end
         File.open("#{tmp}/#{thr}.json", 'w') do |fh|
           fh.print JSON.fast_generate(@distances)
