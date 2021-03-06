@@ -137,8 +137,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       cli.say
 
       cli[:threads].times do |i|
-        cli.advance('Merging:', i + 1, cli[:threads], false)
+        cli.advance('Loading:', i + 1, cli[:threads], false)
         o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
+        cli.advance('Merging:', i + 1, cli[:threads], false)
         o.each { |k, v| @distances[k.to_sym].merge!(v) }
       end
       cli.say
