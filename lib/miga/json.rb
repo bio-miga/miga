@@ -45,8 +45,10 @@ class MiGA::Json < MiGA::MiGA
       raise "Empty descriptor: #{opts[:contents] ? "''" : path}" if cont.empty?
 
       # Parse JSON
-      params = { symbolize_names: opts[:symbolize],
-                 create_additions: opts[:additions] }
+      params = {
+        symbolize_names: opts[:symbolize],
+        create_additions: opts[:additions]
+      }
       y = JSON.parse(cont, params)
 
       # Add defaults

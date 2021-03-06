@@ -52,7 +52,7 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
     # Input data
     p = create_project(
       :assembly,
-      { run_project_stats: false, run_clades: false },
+      { run_clades: false },
       { run_mytaxa_scan: false, run_ssu: false }
     )
     p.set_option(:gsp_metric, cli[:metric].to_s)

@@ -37,8 +37,9 @@ class MiGA::SQLite < MiGA::MiGA
   # Executes +cmd+ and returns the result
   def run(*cmd)
     busy_attempts ||= 0
-    conn = SQLite3::Database.new(path)
-    conn.execute(*cmd)
+    y = nil
+    SQLite3::Database.new(path) { |conn| y = conn.execute(*cmd) }
+    y
   rescue SQLite3::BusyException => e
     busy_attempts += 1
     raise "Database busy #{path}: #{e.message}" if busy_attempts >= 3
