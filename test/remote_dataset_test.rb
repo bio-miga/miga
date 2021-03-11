@@ -47,7 +47,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
   end
 
   def test_net_ftp
-    cjac = 'ftp://ftp.ebi.ac.uk/pub/databases/ena/tsa/public/ga/GAPJ01.fasta.gz'
+    cjac = 'ftp://ftp.ebi.ac.uk/pub/databases/ena/tsa/public/gap/GAPJ01.fasta.gz'
     n = 'Cjac_L14'
     rd = MiGA::RemoteDataset.new(cjac, :assembly_gz, :web)
     assert_equal([cjac], rd.ids)
