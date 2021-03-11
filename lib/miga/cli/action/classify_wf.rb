@@ -59,7 +59,7 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
       run_ssu: false, run_mytaxa_scan: false, run_distances: false
     )
     p.set_option(:ref_project, ref_db.path)
-    p.set_option(:tax_pvalue, cli[:pvalue], true)
+    p.set_option(:tax_pvalue, cli[:pvalue])
     # Run
     run_daemon
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
