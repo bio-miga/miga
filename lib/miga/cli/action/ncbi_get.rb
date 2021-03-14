@@ -18,7 +18,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       cli.opt_object(opt, [:project])
       opt.on(
         '-T', '--taxon STRING',
-        '(Mandatory unless --reference) Taxon name (e.g., a species binomial)'
+        '(Mandatory) Taxon name (e.g., a species binomial)'
       ) { |v| cli[:taxon] = v }
       opt.on(
         '-m', '--metadata STRING',
@@ -137,7 +137,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
   end
 
   def sanitize_cli
-    cli.ensure_par(taxon: '-T') unless cli[:reference]
+    cli.ensure_par(taxon: '-T')
     tasks = %w[reference complete chromosome scaffold contig]
     unless tasks.any? { |i| cli[i.to_sym] }
       raise 'No action requested: pick at least one type of genome'
@@ -204,7 +204,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         'from(GenomeAssemblies).' \
         'usingschema(/schema/GenomeAssemblies).' \
         'matching(tab==["Prokaryotes"] and q=="' \
-          "#{cli[:taxon].tr('"', "'")}\"",
+          "#{cli[:taxon]&.tr('"', "'")}\"",
       fields: 'organism|organism,assembly|assembly,replicons|replicons,' \
         'level|level,ftp_path_genbank|ftp_path_genbank,' \
         'release_date|release_date,strain|strain',
