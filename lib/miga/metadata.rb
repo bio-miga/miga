@@ -106,7 +106,7 @@ class MiGA::Metadata < MiGA::MiGA
   # Return the value of +k+ in #data
   def [](k)
     if k.to_s =~ /(.+):(.+)/
-      data[$1.to_sym]&.alternative($2)
+      data[$1.to_sym]&.fetch($2)
     else
       data[k.to_sym]
     end
