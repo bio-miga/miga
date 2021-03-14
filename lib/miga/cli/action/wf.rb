@@ -81,21 +81,22 @@ module MiGA::Cli::Action::Wf
       cli[:aai_p] = 'blast+'
       cli[:ani_p] = 'blast+'
     end
-    opt.on('--fast', 'Alias to: --aai-p diamond --ani-p fastani') do
+    opt.on('--fast', 'Alias to: --aai-p diamond --ani-p fastani (default)') do
       cli[:aai_p] = 'diamond'
       cli[:ani_p] = 'fastani'
     end
     opt.on(
       '--haai-p STRING',
-      'hAAI search engine. One of: blast+ (default), fastaai, blat, diamond, no'
+      'hAAI search engine. One of: blast+, fastaai, blat, diamond, fastaai, no',
+      'The default is "no" for clade projects and "fastaai" otherwise'
     ) { |v| cli[:haai_p] = v }
     opt.on(
       '--aai-p STRING',
-      'AAI search engine. One of: blast+ (default), blat, diamond'
+      'AAI search engine. One of: blast+, blat, diamond (default)'
     ) { |v| cli[:aai_p] = v }
     opt.on(
       '--ani-p STRING',
-      'ANI search engine. One of: blast+ (default), blat, fastani'
+      'ANI search engine. One of: blast+, blat, fastani (default)'
     ) { |v| cli[:ani_p] = v }
   end
 

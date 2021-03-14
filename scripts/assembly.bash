@@ -28,14 +28,23 @@ if [[ -s "$TF/${b}.2.fasta" || -s "$TF/${b}.2.fasta.gz" ]] ; then
   fi
 fi
 
+# Gzip (if needed)
+for i in SingleReads CoupledReads ; do
+  base="$TF/${DATASET}.${i}.fa"
+  if [[ -e "$base" && ! -s "${base}.gz" ]] ; then
+    gzip -9f "$base"
+    miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_fasta -f
+  fi
+done
+
 # Assemble
-FA="$TF/$DATASET.CoupledReads.fa"
-[[ -e "$FA" ]] || FA="$FA.gz"
-[[ -e "$FA" ]] || FA="../04.trimmed_fasta/$DATASET.SingleReads.fa"
-[[ -e "$FA" ]] || FA="$FA.gz"
+FA="$TF/${DATASET}.CoupledReads.fa.gz"
+[[ -e "$FA" ]] || FA="$TF/${DATASET}.SingleReads.fa.gz"
 RD="r"
 [[ $FA == *.SingleReads.fa* ]] && RD="l"
-idba_ud --pre_correction -$RD "$FA" -o "$DATASET" --num_threads "$CORES" || true
+gzip -cd "$FA" \
+  | idba_ud --pre_correction -$RD /dev/stdin \
+    -o "$DATASET" --num_threads "$CORES" || true
 [[ -s "$DATASET/contig.fa" ]] || exit 1
 
 # Clean

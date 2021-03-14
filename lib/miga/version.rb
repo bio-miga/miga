@@ -10,11 +10,11 @@ module MiGA
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
   # - Integer representing minor changes that require new version number.
-  VERSION = [0.7, 26, 3].freeze
+  VERSION = [1.0, 0, 0].freeze
 
   ##
   # Nickname for the current major.minor version.
-  VERSION_NAME = 'lithograph'
+  VERSION_NAME = 'prima'
 
   ##
   # Date of the current gem release.

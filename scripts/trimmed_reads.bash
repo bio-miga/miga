@@ -30,21 +30,21 @@ FastQ.tag.rb -i "$in1" -p "$b-" -s "/1" -o "$b.1.fastq.gz"
 [[ -e "$in2" ]] && FastQ.tag.rb -i "$in2" -p "$b-" -s "/2" -o "$b.2.fastq.gz"
 
 # Multitrim
-CMD="multitrim.py --zip gzip --level 9 --threads '$CORES' -o '$b'"
+CMD="multitrim.py --zip gzip --level 9 --threads $CORES -o $b"
 if [[ -s "$b.2.fastq.gz" ]] ; then
   # Paired
   $CMD -1 "$b.1.fastq.gz" -2 "$b.2.fastq.gz"
   for s in 1 2 ; do
-    mv "$b/${s}.post_trim_${b}.fq.gz" "${b}.${s}.clipped.fastq.gz"
-    mv "$b/${s}.pre_trim_QC_${b}.html" "../03.read_quality/${b}.pre.${s}.html"
-    mv "$b/${s}.post_trim_QC_${b}.html" "../03.read_quality/${b}.post.${s}.html"
+    mv "$b/${s}.post_trim_${b}.${s}.fq.gz" "${b}.${s}.clipped.fastq.gz"
+    mv "$b/${s}.pre_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.pre.${s}.html"
+    mv "$b/${s}.post_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.post.${s}.html"
   done
 else
   # Unpaired
   $CMD -u "$b.1.fastq.gz"
-  mv "$b/unpaired.post_trim_${b}.fq.gz" "${b}.1.clipped.fastq.gz"
-  mv "$b/unpaired.pre_trim_QC_${b}.html" "../03.read_quality/${b}.pre.1.html"
-  mv "$b/unpaired.post_trim_QC_${b}.html" "../03.read_quality/${b}.post.1.html"
+  mv "$b/unpaired.post_trim_${b}.1.fq.gz" "${b}.1.clipped.fastq.gz"
+  mv "$b/unpaired.pre_trim_QC_${b}.1.html" "../03.read_quality/${b}.pre.1.html"
+  mv "$b/unpaired.post_trim_QC_${b}.1.html" "../03.read_quality/${b}.post.1.html"
 fi
 mv "$b/Subsample_Adapter_Detection.stats.txt" \
   "../03.read_quality/$b.adapters.txt"

@@ -42,18 +42,18 @@ class MiGA::Project < MiGA::MiGA
   # Create an empty project
   def create
     unless MiGA::MiGA.initialized?
-      raise 'Impossible to create project in uninitialized MiGA.'
+      warn 'Projects cannot be processed yet, first run: miga init'
     end
 
-    dirs = [path] + @@FOLDERS.map { |d| "#{path}/#{d}" } +
-           @@DATA_FOLDERS.map { |d| "#{path}/data/#{d}" }
-    dirs.each { |d| Dir.mkdir(d) unless Dir.exist? d }
+    dirs = @@FOLDERS.map { |d| File.join(path, d) }
+    dirs += @@DATA_FOLDERS.map { |d| File.join(path, 'data', d) }
+    dirs.each { |d| FileUtils.mkdir_p(d) }
     @metadata = MiGA::Metadata.new(
-      File.expand_path('miga.project.json', path),
-      { datasets: [], name: File.basename(path) }
+      File.join(path, 'miga.project.json'),
+      datasets: [], name: File.basename(path)
     )
-    d_path = File.expand_path('daemon/daemon.json', path)
-    File.open(d_path, 'w') { |fh| fh.puts '{}' } unless File.exist? d_path
+    d_path = File.join(path, 'daemon', 'daemon.json')
+    File.open(d_path, 'w') { |fh| fh.puts '{}' } unless File.exist?(d_path)
     pull_hook :on_create
     self.load
   end
