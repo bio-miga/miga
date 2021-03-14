@@ -27,10 +27,11 @@ class ProjectTest < Test::Unit::TestCase
   def test_create
     assert_equal(tmpfile('create'), project('create').path)
     assert_path_exist(tmpfile('create'))
-    assert_raise do
+    err = capture_stderr do
       ENV['MIGA_HOME'] = tmpfile('chez-moi')
       project('cuckoo')
     end
+    assert_match(/Projects cannot be processed yet/, err.string)
   end
 
   def test_load
