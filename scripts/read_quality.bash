@@ -11,7 +11,7 @@ miga date > "$DATASET.start"
 
 # Gzip (if necessary)
 for s in 1 2 ; do
-  in="../02.trimmed_reads/${b}.${s}.clipped.fastq"
+  in="../02.trimmed_reads/${DATASET}.${s}.clipped.fastq"
   if [[ -s "$in" ]] ; then
     gzip -9f "$in"
     miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
