@@ -9,8 +9,10 @@ module MiGA
   # Current version of MiGA. An Array with three values:
   # - Float representing the major.minor version.
   # - Integer representing gem releases of the current version.
-  # - Integer representing minor changes that require new version number.
-  VERSION = [1.0, 0, 0].freeze
+  # - String indicating release status:
+  #   - rc* release candidate, not released as gem
+  #   - sr* stable release, released as gem
+  VERSION = [1.0, 0, 'rc1'].freeze
 
   ##
   # Nickname for the current major.minor version.

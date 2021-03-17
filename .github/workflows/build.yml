@@ -42,8 +42,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
+      - name: Check release candidates
+        id: release
+        run: |
+          gem_version="$(ruby -r rubygems -e "puts Gem::Specification::load('$(ls *.gemspec)').version")"
+          unset STABLE
+          [[ "$gem_version" == *.sr* ]] && STABLE='true'
+          echo "::set-output name=STABLE::${STABLE}"
       - name: Tag and deploy
         uses: discourse/publish-rubygems-action@v2-beta
+        if: steps.release.outputs.STABLE
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
           GIT_EMAIL: bot@microbial-genomes.org
