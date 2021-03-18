@@ -99,13 +99,13 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
       ds_name = []
       File.open(tab, 'r') do |fh|
         fh.each_line do |ln|
-          if ln =~ /^ {#{(rank_i - 1) * 2}}\S+:\S+:/
+          if ln =~ /^ {0,#{(rank_i - 1) * 2}}\S+:\S+:/
             in_rank = nil
             ds_name = []
           elsif ln =~ /^ {#{rank_i * 2}}(#{rank}:(\S+)):/
             in_rank = $2 == '?' ? nil : $1
             ds_name = []
-          elsif ln =~ /^ *# (\S+)/ and not in_rank.nil?
+          elsif ln =~ /^ *# (\S+)/ && !in_rank.nil?
             ds_i = $1
             ds_name << ds_i
             ds_name.each do |ds_j|
