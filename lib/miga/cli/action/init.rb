@@ -112,12 +112,15 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
 
   def check_software_requirements(rc_fh)
     cli.puts 'Looking for requirements:'
-    ask_for_optional(:mytaxa, 'MyTaxa')
-    rc_fh.puts "export MIGA_MYTAXA='#{cli[:mytaxa] ? 'yes' : 'no'}'"
-    ask_for_optional(:rdp, 'RDP classifier')
-    rc_fh.puts "export MIGA_RDP='#{cli[:rdp] ? 'yes' : 'no'}'"
-    ask_for_optional(:reads, 'read processing')
-    rc_fh.puts "export MIGA_READS='#{cli[:reads] ? 'yes' : 'no'}'"
+    opt_groups = {
+      mytaxa: 'MyTaxa',
+      rdp: 'RDP classifier',
+      reads: 'read processing'
+    }
+    opt_groups.each do |k, v|
+      ask_for_optional(k, v)
+      rc_fh.puts "export MIGA_#{k.to_s.upcase}='#{cli[k] ? 'yes' : 'no'}'"
+    end
     paths = {}
     rc_fh.puts 'MIGA_PATH=""'
     req_path = File.expand_path('utils/requirements.txt', MiGA.root_path)
@@ -196,8 +199,9 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       cli.puts 'yes'
     else
       cli.puts 'no, installing'
-      cli.print '' + install_library(cli, paths, language, library)
+      out = install_library(cli, paths, language, library)
       unless test_library(cli, paths, language, library)
+        cli.puts out
         raise "Cannot install #{language.to_s.capitalize} library: #{library}"
       end
     end

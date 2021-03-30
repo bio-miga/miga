@@ -2,7 +2,7 @@
 
 If you prefer to see code in action, the full installation process
 with homebrew is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1Wv4uZwLGuzc5RiAT8NkgJ6B_IKAeM0KU).
+[Notebook in Google Collab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
 
 # Installing requirements using Homebrew
 
@@ -12,30 +12,19 @@ If you don't have Homebrew, execute (and follow the instructions):
 
 ```bash
 /bin/bash -c "$(curl -fsSL \
-  https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Next, make sure you have the brewsci/bio tap:
+## Packages
+
+Now that you have Homebrew, execute:
 
 ```bash
 brew tap brewsci/bio
-```
-
-## Essentials
-
-Now that you have Homebrew and the science tap, execute:
-
-```bash
-# General-purpose software
-brew install r sqlite3 python adoptopenjdk
-# Bioinformatics software
-brew install blast hmmer bedtools \
-      prodigal idba mcl barrnap fastqc solexaqa \
-      diamond fastani
-brew install jonchang/biology/scythe
-# Pending: Scythe in science (contacting authors)
-# See: https://github.com/brewsci/homebrew-bio/issues/23
-# See also: https://github.com/vsbuffalo/scythe/pull/20
+brew install \
+    r sqlite3 python adoptopenjdk \
+    blast hmmer bedtools prodigal gmp idba mcl \
+    barrnap diamond fastani faqcs falco seqtk fastp
 ```
 
 ## A recent Ruby
@@ -56,15 +45,6 @@ libraries, to avoid headaches down the road:
 
 ```bash
 gem install sqlite3 -- --with-sqlite3-dir="$(brew --prefix sqlite3)"
-```
-
-## R packages
-
-The full list of R packages is automatically installed by MiGA. However, we
-will install one package here to make sure everything is properly initialized.
-
-```bash
-Rscript -e "install.packages('ape', repos = 'http://cran.rstudio.com/')"
 ```
 
 ## MyTaxa utils

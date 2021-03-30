@@ -11,43 +11,27 @@ b=$DATASET
 # Initialize
 miga date > "$DATASET.start"
 
-# Gunzip (if necessary)
-for sis in 1 2 ; do
-  for ext in clipped clipped.single ; do
-    [[ -e "../02.trimmed_reads/$b.$sis.${ext}.fastq.gz" \
-      && ! -e "../02.trimmed_reads/$b.$sis.${ext}.fastq" ]] \
-        && gzip -d "../02.trimmed_reads/$b.$sis.${ext}.fastq.gz"
-  done
-done
-miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
-
 # FastQ -> FastA
-FQ2A="$MIGA/utils/enveomics/Scripts/FastQ.toFastA.awk"
-awk -f "$FQ2A" < "../02.trimmed_reads/$b.1.clipped.fastq" > "$b.1.fasta"
-if [[ -e "../02.trimmed_reads/$b.2.clipped.fastq" ]] ; then
-  awk -f "$FQ2A" < "../02.trimmed_reads/$b.2.clipped.fastq" > "$b.2.fasta"
-  FastA.interpose.pl "$b.CoupledReads.fa" "$b".[12].fasta
-  gzip -9 -f "$b.2.fasta"
-  gzip -9 -f "$b.1.fasta"
-  awk -f "$FQ2A" < "../02.trimmed_reads/$b".[12].clipped.single.fastq \
-    > "$b.SingleReads.fa"
-  gzip -9 -f "$b.SingleReads.fa"
+for s in 1 2 ; do
+  in="../02.trimmed_reads/${b}.${s}.clipped.fastq.gz"
+  [[ -s "$in" ]] \
+    && FastQ.maskQual.rb -i "$in" -o "${b}.1.fasta" --fasta --qual 18
+done
+
+# Interpose
+if [[ -e "${b}.2.fasta" ]] ; then
+  FastA.interpose.pl "${b}.CoupledReads.fa" "$b".[12].fasta
 else
-  mv "$b.1.fasta" "$b.SingleReads.fa"
+  mv "${b}.1.fasta" "${b}.SingleReads.fa"
 fi
 
-# Compress input at 01.raw_reads and 02.trimmed_reads
-for sis in 1 2 ; do
-  [[ -e "../01.raw_reads/$b.$sis.fastq" ]] \
-    && gzip -9 -f "../01.raw_reads/$b.$sis.fastq"
-  [[ -e "../02.trimmed_reads/$b.$sis.clipped.fastq" ]] \
-    && gzip -9 -f "../02.trimmed_reads/$b.$sis.clipped.fastq"
-  [[ -e "../02.trimmed_reads/$b.$sis.clipped.single.fastq" ]] \
-    && gzip -9 -f "../02.trimmed_reads/$b.$sis.clipped.single.fastq"
+# Gzip
+for x in 1.fasta 2.fasta SingleReads.fa CoupledReads.fa ; do
+  in="${b}.${x}"
+  [[ -e "$in" ]] && gzip -9f "$in"
 done
-miga add_result -P "$PROJECT" -D "$DATASET" -r raw_reads -f
-miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_reads -f
 
 # Finalize
 miga date > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+

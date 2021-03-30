@@ -83,6 +83,7 @@ module MiGA::Cli::Action::Init::FilesHelper
       cli.puts 'yes'
     elsif File.exist?(mt_db)
       cli.puts 'yes, sym-linking'
+      FileUtils.mkdir_p(miga_db)
       File.symlink(mt_db, home_db)
     else
       cli.puts 'no, downloading'

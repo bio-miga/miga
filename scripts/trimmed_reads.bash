@@ -11,49 +11,49 @@ b=$DATASET
 # Initialize
 miga date > "$DATASET.start"
 
-# Unzip (if necessary)
-[[ -e "../01.raw_reads/$b.1.fastq.gz" && ! -e "../01.raw_reads/$b.1.fastq" ]] \
-  && gunzip "../01.raw_reads/$b.1.fastq.gz"
-[[ -e "../01.raw_reads/$b.2.fastq.gz" && ! -e "../01.raw_reads/$b.2.fastq" ]] \
-  && gunzip "../01.raw_reads/$b.2.fastq.gz"
-miga add_result -P "$PROJECT" -D "$DATASET" -r raw_reads -f
-
 # Clean existing files
 exists "$b".[12].* && rm "$b".[12].*
 
+# Gzip (if necessary)
+for s in 1 2 ; do
+  in="../01.raw_reads/${b}.${s}.fastq"
+  if [[ -s "$in" ]] ; then
+    gzip -9f "$in"
+    miga add_result -P "$PROJECT" -D "$DATASET" -r raw_reads -f
+  fi
+done
+
 # Tag
-FastQ.tag.rb -i "../01.raw_reads/$b.1.fastq" -p "$b-" -s "/1" -o "$b.1.fastq"
-[[ -e "../01.raw_reads/$b.2.fastq" ]] \
-  && FastQ.tag.rb -i "../01.raw_reads/$b.2.fastq" -p "$b-" -s "/2" \
-      -o "$b.2.fastq"
+in1="../01.raw_reads/$b.1.fastq.gz"
+in2="../01.raw_reads/$b.2.fastq.gz"
+FastQ.tag.rb -i "$in1" -p "$b-" -s "/1" -o "$b.1.fastq.gz"
+[[ -e "$in2" ]] && FastQ.tag.rb -i "$in2" -p "$b-" -s "/2" -o "$b.2.fastq.gz"
 
-# Trim
-SolexaQA++ dynamictrim "$b".[12].fastq -h 20 -d .
-SolexaQA++ lengthsort  "$b".[12].fastq.trimmed -l 50 -d .
-
-# Clean adapters
-if [[ -e "$b.2.fastq.trimmed.paired" ]] ; then
-  scythe -a "$MIGA/utils/adapters.fa" "$b.1.fastq.trimmed.paired" \
-    > "$b.1.clipped.all.fastq"
-  scythe -a "$MIGA/utils/adapters.fa" "$b.2.fastq.trimmed.paired" \
-    > "$b.2.clipped.all.fastq"
-  SolexaQA++ lengthsort "$b".[12].clipped.all.fastq -l 50 -d .
-  rm "$b".[12].clipped.all.fastq
-  [[ -e "$b".1.clipped.all.fastq.single ]] \
-    && mv "$b.1.clipped.all.fastq.single" "$b.1.clipped.single.fastq"
-  [[ -e "$b".2.clipped.all.fastq.single ]] \
-    && mv "$b.2.clipped.all.fastq.single" "$b.2.clipped.single.fastq"
-  mv "$b.1.clipped.all.fastq.paired" "$b.1.clipped.fastq"
-  mv "$b.2.clipped.all.fastq.paired" "$b.2.clipped.fastq"
-  rm -f "$b.1.clipped.all.fastq.summary.txt"
+# Multitrim
+CMD="multitrim.py --zip gzip --level 9 --threads $CORES -o $b"
+if [[ -s "$b.2.fastq.gz" ]] ; then
+  # Paired
+  $CMD -1 "$b.1.fastq.gz" -2 "$b.2.fastq.gz"
+  for s in 1 2 ; do
+    mv "$b/${s}.post_trim_${b}.${s}.fq.gz" "${b}.${s}.clipped.fastq.gz"
+    mv "$b/${s}.pre_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.pre.${s}.html"
+    mv "$b/${s}.post_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.post.${s}.html"
+  done
 else
-  scythe -a "$MIGA/utils/adapters.fa" "$b.1.fastq.trimmed.single" \
-    > "$b.1.clipped.all.fastq"
-  SolexaQA++ lengthsort "$b.1.clipped.all.fastq" -l 50 -d .
-  mv "$b.1.clipped.all.fastq.single" "$b.1.clipped.fastq"
+  # Unpaired
+  $CMD -u "$b.1.fastq.gz"
+  mv "$b/unpaired.post_trim_${b}.1.fq.gz" "${b}.1.clipped.fastq.gz"
+  mv "$b/unpaired.pre_trim_QC_${b}.1.html" "../03.read_quality/${b}.pre.1.html"
+  mv "$b/unpaired.post_trim_QC_${b}.1.html" "../03.read_quality/${b}.post.1.html"
 fi
-rm -f "$b".[12].*.discard
+mv "$b/Subsample_Adapter_Detection.stats.txt" \
+  "../03.read_quality/$b.adapters.txt"
+
+# Cleanup
+rm -r "$b"
+rm -f "$b".[12].fastq.gz
 
 # Finalize
 miga date > "$DATASET.done"
 miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+

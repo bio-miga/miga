@@ -9,63 +9,31 @@ If you don't have Conda, you can follow the
 
 If you prefer to see code in action, the full installation process
 with conda is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1ybCCPbbZtJ41HC_1yNYed8Yf-q9CDY5a).
+[Notebook in Google Collab](https://colab.research.google.com/drive/1d8ClPe8dQOPp2eviQh6bX3inI84USzE4).
 
-## Note for MacOS users
+## Note for macOS users
 
-> The bioconda fastani recipe currently depends on packages that force
-> downgrading other important packages (including R). This can cause some
-> issues, and we're currently recommending the use of [Homebrew](brew.md)
-> whenever possible. If this is not an option for you, a good alternative might
-> be to install FastANI from source instead of using conda. Finally, you could
-> use the instructions below, if the risk of employing old libraries outweights
-> the burden of installation.
+> In general, it is recommended to use [Homebrew](brew.md) to install MiGA if
+> possible. The MiGA installation in macOS using conda is known to be fragile
+> and extremely time-consuming (it could take upwards of 20 minutes just solving
+> the environment).
 
-## Essentials
+## Packages
 
-Now that you have Conda, activate it. If you want to create a separate clean
-environment (optional) you can simply execute:
+Now, install all the required packages using conda:
 
 ```bash
-conda create -y -n miga python=3.7
-conda activate miga
-```
+# Install prerequisites
+curl -Lso miga.yml \
+  "https://raw.githubusercontent.com/bio-miga/miga/main/conda.yml"
+conda env create -f miga.yml
+rm miga.yml
 
-It's strongly recommended to activate conda in the `~/.miga_modules`:
-
-```bash
-# Tell MiGA to activate the proper conda environment:
+# Tell MiGA to activate the proper conda environment
 echo 'eval "$(conda shell.bash hook)" && conda activate miga' > ~/.miga_modules
-```
 
-Next, install the requirements:
-
-```bash
-conda install -y -c conda-forge r-base r
-conda install -y --strict-channel-priority -c conda-forge ruby
-conda install -y sqlite openjdk
-conda install -y -c conda-forge -c bioconda -c faircloth-lab \
-  scythe blast hmmer bedtools prodigal idba mcl barrnap \
-  fastqc diamond krona fastani
-```
-
-## SolexaQA
-
-There is a version of SolexaQA in conda, but the recipe forced downgrading R and
-is only available for Linux. Therefore, a safer option is to obtain the
-precompiled binaries directly from the developers
-[here](https://downloads.sourceforge.net/project/solexaqa/src/SolexaQA++_v3.1.7.1.zip).
-
-Unzip that file, and locate the appropriate binary in a folder listed in your
-`$PATH`.
-
-## R packages
-
-The full list of R packages is automatically installed by MiGA. However, we
-will install one package here to make sure everything is properly initialized.
-
-```bash
-Rscript -e "install.packages('ape', repos = 'http://cran.rstudio.com/')"
+# Activate the environment
+. ~/.miga_modules
 ```
 
 ## MyTaxa utils
@@ -73,3 +41,4 @@ Rscript -e "install.packages('ape', repos = 'http://cran.rstudio.com/')"
 If you want to activate the [MyTaxa](../part5/workflow.md#mytaxa) and
 [MyTaxa Scan](../part5/workflow.md#mytaxa-scan) steps, follow the instructions
 to install the [MyTaxa Utils](mytaxa.md).
+

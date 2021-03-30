@@ -131,15 +131,15 @@ module MiGA::Project::Base
     },
     haai_p: {
       desc: 'Value of aai.rb -p on hAAI', type: String,
-      default: proc { |project| project.clade? ? 'no' : 'blast+' },
-      in: %w[fastaai blast+ blast blat diamond no]
+      default: proc { |project| project.clade? ? 'no' : 'fastaai' },
+      in: %w[blast+ blast blat diamond fastaai no]
     },
     aai_p: {
-      desc: 'Value of aai.rb -p on AAI', default: 'blast+', type: String,
+      desc: 'Value of aai.rb -p on AAI', default: 'diamond', type: String,
       in: %w[blast+ blast blat diamond]
     },
     ani_p: {
-      desc: 'Value of ani.rb -p on ANI', default: 'blast+', type: String,
+      desc: 'Value of ani.rb -p on ANI', default: 'fastani', type: String,
       in: %w[blast+ blast blat fastani]
     },
     max_try: {

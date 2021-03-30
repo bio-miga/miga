@@ -4,3 +4,6 @@
 [submodule "utils/FastAAI"]
 	path = utils/FastAAI
 	url = https://github.com/cruizperez/FastAAI.git
+[submodule "utils/multitrim"]
+	path = utils/multitrim
+	url = https://github.com/KGerhardt/multitrim.git

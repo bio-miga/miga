@@ -1,0 +1,32 @@
+name: miga
+
+dependencies:
+  # General-purpose
+  - r-base>=3.6
+  - conda-forge::ruby
+  - sqlite
+  - openjdk
+
+  # Read processing
+  - faqcs
+  - falco
+  - seqtk
+  - fastp
+  - idba
+
+  # Assembly processing
+  - hmmer
+  - bedtools
+  - prodigal
+  - barrnap
+  - krona
+
+  # Distances
+  - blast
+  - mcl
+  - diamond
+  - fastani
+
+channels:
+  - conda-forge
+  - bioconda

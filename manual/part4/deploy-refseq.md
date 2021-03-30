@@ -19,8 +19,10 @@ example due to a network interruption, you can simply re-run it, and it will
 take it from where it failed.
 
 ```bash
-miga ncbi_get -P . --reference -v
+miga ncbi_get -P . --reference -v -T Archaea
 ```
+
+Of course, you can repeat for `-T Bacteria` to get all prokaryotic genomes.
 
 It is strongly recommended to use an
 [NCBI API Key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)
@@ -28,7 +30,7 @@ to increase the number of allowed requests. Once you obtain one, you can pass it
 as an argument:
 
 ```bash
-miga ncbi_get -P . --reference --api-key ABCD123 -v
+miga ncbi_get -P . --reference --api-key ABCD123 -v -T Archaea
 ```
 
 Or you can set it globally as an environmental variable before running `miga`:

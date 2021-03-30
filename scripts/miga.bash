@@ -7,9 +7,11 @@ SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
 # shellcheck source=/dev/null
 . "$MIGA_HOME/.miga_rc"
 
-# Ensure submodules are first in PATH
-export PATH="$MIGA/bin:$MIGA/utils/enveomics/Scripts:$PATH"
-export PATH="$MIGA/utils/FastAAI/FastAAI:$PATH"
+# Ensure MiGA & submodules are first in PATH
+export PATH="$MIGA/bin:$PATH"
+for util in enveomics/Scripts FastAAI/FastAAI multitrim ; do
+  export PATH="$MIGA/utils/$util:$PATH"
+done
 
 # Ancillary functions
 function exists { [[ -e "$1" ]] ; }
