@@ -12,7 +12,7 @@ module MiGA
   # - String indicating release status:
   #   - rc* release candidate, not released as gem
   #   - sr* stable release, released as gem
-  VERSION = [1.0, 0, 'rc1'].freeze
+  VERSION = [1.0, 0, 'rc2'].freeze
 
   ##
   # Nickname for the current major.minor version.
