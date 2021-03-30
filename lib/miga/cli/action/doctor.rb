@@ -116,31 +116,34 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   # Perform bidirectional operation with MiGA::Cli +cli+
   def check_bidir(cli)
     cli.say 'Checking if reference distances are bidirectional'
-    ref_ds = cli.load_project.each_dataset.select(&:ref?)
+    project = cli.load_project
+    ref_ds = project.each_dataset.select(&:ref?)
     ref_names = ref_ds.map(&:name)
     n = ref_ds.size
 
     # Read data first (threaded)
     @distances = { aai: {}, ani: {} }
-    Dir.mktmpdir do |tmp|
-      MiGA::Parallel.process(cli[:threads]) do |thr|
-        ref_ds.each_with_index do |ds, idx|
-          cli.advance('Reading:', idx + 1, n, false) if thr == 0
-          read_bidirectional(ds) if idx % cli[:threads] == thr
-        end
-        File.open("#{tmp}/#{thr}.json", 'w') do |fh|
-          fh.print JSON.fast_generate(@distances)
-        end
+    tmp = File.join(project.path, 'doctor-bidirectional.tmp')
+    FileUtils.mkdir_p(tmp)
+    MiGA::Parallel.process(cli[:threads]) do |thr|
+      ref_ds.each_with_index do |ds, idx|
+        cli.advance('Reading:', idx + 1, n, false) if thr == 0
+        read_bidirectional(ds) if idx % cli[:threads] == thr
       end
-      cli.say
-
-      cli[:threads].times do |i|
-        cli.advance('Merging:', i + 1, cli[:threads], false)
-        o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
-        o.each { |k, v| @distances[k.to_sym].merge!(v) }
+      File.open("#{tmp}/#{thr}.json", 'w') do |fh|
+        fh.print JSON.fast_generate(@distances)
       end
-      cli.say
     end
+    cli.say
+
+    # Merge pieces per thread
+    cli[:threads].times do |i|
+      cli.advance('Merging:', i + 1, cli[:threads], false)
+      o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
+      o.each { |k, v| @distances[k.to_sym].merge!(v) }
+    end
+    cli.say
+    FileUtils.rm_rf(tmp)
 
     # Write missing values (threaded)
     MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
