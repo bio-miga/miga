@@ -93,7 +93,6 @@ class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action
     Taxonomy.KNOWN_RANKS.each do |rank|
       next if rank == :ns
 
-      cli.say "o Rank: #{rank}"
       rank_n = 0
       rank_i += 1
       in_rank = nil
