@@ -29,8 +29,8 @@ cd ..
 
 ## Krona
 
-If you followed the instructions for [conda](conda.md), you already have Krona.
-If you still need to install Krona, simply execute:
+If you followed the instructions for [conda](conda.md) or [Homebrew](brew.md),
+you already have Krona. If you still need to install Krona, simply execute:
 
 ```bash
 curl -L \

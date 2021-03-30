@@ -9,7 +9,7 @@ If you don't have Conda, you can follow the
 
 If you prefer to see code in action, the full installation process
 with conda is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1d8ClPe8dQOPp2eviQh6bX3inI84USzE4).
+[Notebook in Google Colab](https://colab.research.google.com/drive/1d8ClPe8dQOPp2eviQh6bX3inI84USzE4).
 
 ## Note for macOS users
 

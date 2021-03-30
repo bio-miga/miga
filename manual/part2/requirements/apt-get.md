@@ -4,7 +4,7 @@
 
 If you prefer to see code in action, the full installation process
 with apt-get is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
+[Notebook in Google Colab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
 
 ## Packages
 

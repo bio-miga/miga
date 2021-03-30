@@ -2,7 +2,7 @@
 
 If you prefer to see code in action, the full installation process
 with homebrew is available as a
-[Notebook in Google Collab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
+[Notebook in Google Colab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
 
 # Installing requirements using Homebrew
 
@@ -23,7 +23,7 @@ Now that you have Homebrew, execute:
 brew tap brewsci/bio
 brew install \
     r sqlite3 python adoptopenjdk \
-    blast hmmer bedtools prodigal gmp idba mcl \
+    blast hmmer bedtools prodigal gmp idba mcl krona \
     barrnap diamond fastani faqcs falco seqtk fastp
 ```
 
