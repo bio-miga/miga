@@ -73,7 +73,7 @@ class MiGA::Daemon < MiGA::MiGA
     say 'MiGA:%s launched' % project.name
     say '-----------------------------------'
     miga_say "Saving log to: #{output_file}" unless show_log?
-    queue_maintenance
+    queue_maintenance(true)
     load_status
     say 'Configuration options:'
     say @runopts.to_s
@@ -102,8 +102,8 @@ class MiGA::Daemon < MiGA::MiGA
 
   ##
   # Queue maintenance tasks as an analysis job
-  def queue_maintenance
-    return if bypass_maintenance? || shutdown_when_done?
+  def queue_maintenance(force = false)
+    return if bypass_maintenance? || (!force && shutdown_when_done?)
 
     say 'Queueing maintenance tasks'
     queue_job(:maintenance)
