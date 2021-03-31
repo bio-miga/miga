@@ -87,6 +87,7 @@ class MiGA::Daemon < MiGA::MiGA
     check_datasets or check_project
     if shutdown_when_done? && (jobs_running.size + jobs_to_run.size).zero?
       say 'Nothing else to do, shutting down'
+      exit_cleanup
       return false
     end
     flush!
@@ -107,6 +108,12 @@ class MiGA::Daemon < MiGA::MiGA
 
     say 'Queueing maintenance tasks'
     queue_job(:maintenance)
+  end
+
+  ##
+  # Remove temporary files on completion
+  def exit_cleanup
+    FileUtils.rm_f(File.join(daemon_home, 'status.json'))
   end
 
   ##
