@@ -115,9 +115,9 @@ module MiGA::Cli::Action::Doctor::Base
   end
 
   ##
-  # Reads all the distance estimates in +a+ -> *, and saves them in memory
-  # in the +@distances+ variable.
-  def read_bidirectional(a)
+  # Reads all the distance estimates in +a+ -> *, and saves them in the
+  # in the hash +dist+ (also returned)
+  def read_bidirectional(a, dist)
     each_database_file(a) do |db_file, metric, result, rank|
       next if rank == :haai # No need for hAAI to be bidirectional
 
@@ -125,20 +125,22 @@ module MiGA::Cli::Action::Doctor::Base
       data = MiGA::SQLite.new(db_file).run(sql)
       next if data.nil? || data.empty?
 
-      @distances[rank][a.name] ||= {}
-      data.each { |row| @distances[rank][a.name][row.shift] = row }
+      dist[rank][a.name] ||= {}
+      data.each { |row| dist[rank][a.name][row.shift] = row }
     end
+    return dist
   end
 
   ##
   # Saves all the distance estimates in * -> +a+ into the +a+ databases
-  # (as +a+ -> *), where +a+ is a MiGA::Dataset object
-  def save_bidirectional(a)
+  # (as +a+ -> *), where +a+ is a MiGA::Dataset object, with currently
+  # saved values read from the hash +dist+
+  def save_bidirectional(a, dist)
     each_database_file(a) do |db_file, metric, result, rank|
       next if rank == :haai # No need for hAAI to be bidirectional
 
-      b2a = @distances[rank].map { |b_name, v| b_name if v[a.name] }.compact
-      a2b = @distances[rank][a.name].keys
+      b2a = dist[rank].map { |b_name, v| b_name if v[a.name] }.compact
+      a2b = dist[rank][a.name].keys
       SQLite3::Database.new(db_file) do |db|
         sql = <<~SQL
           insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
@@ -146,7 +148,7 @@ module MiGA::Cli::Action::Doctor::Base
         SQL
         db.execute('BEGIN TRANSACTION;')
         (b2a - a2b).each do |b_name|
-          db.execute(sql, [a.name, b_name] + @distances[rank][b_name][a.name])
+          db.execute(sql, [a.name, b_name] + dist[rank][b_name][a.name])
         end
         db.execute('COMMIT;')
       end
