@@ -12,7 +12,7 @@ while true ; do
   if [[ "$res" == "$last_res" ]] ; then
     let k=$k+1
     if [[ $k -gt 10 ]] ; then
-      miga new --update -P "$PROJECT" \
+      miga edit -P "$PROJECT" \
         -m "run_$res=false,warn=Too many failed attempts to run $res"
     fi
   else
