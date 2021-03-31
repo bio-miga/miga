@@ -140,7 +140,7 @@ module MiGA::Cli::Action::Doctor::Base
       next if rank == :haai # No need for hAAI to be bidirectional
 
       b2a = dist[rank].map { |b_name, v| b_name if v[a.name] }.compact
-      a2b = dist[rank][a.name].keys
+      a2b = dist[rank][a.name]&.keys || []
       SQLite3::Database.new(db_file) do |db|
         sql = <<~SQL
           insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
