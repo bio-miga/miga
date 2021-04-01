@@ -73,10 +73,10 @@ class MiGA::Daemon < MiGA::MiGA
     say 'MiGA:%s launched' % project.name
     say '-----------------------------------'
     miga_say "Saving log to: #{output_file}" unless show_log?
-    queue_maintenance(true)
-    load_status
     say 'Configuration options:'
     say @runopts.to_s
+    load_status
+    queue_maintenance(true)
   end
 
   ##
