@@ -137,7 +137,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         cli.say
       end
       File.open("#{tmp}/#{thr}.json", 'w') do |fh|
-        fh.puts JSON.fast_generate(dist)
+        js = JSON.fast_generate(dist)
+        fh.print js.slice!(0, 1024) until js.empty?
+        fh.puts
+        fh.flush # necessary for large threaded runs
       end
     end
 
