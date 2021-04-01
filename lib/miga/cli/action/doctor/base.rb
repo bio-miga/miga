@@ -121,7 +121,12 @@ module MiGA::Cli::Action::Doctor::Base
     db_file = a.result(:distances)&.file_path("#{metric}_db") or return {}
     sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
     data = MiGA::SQLite.new(db_file).run(sql) || []
-    Hash[data.map { |row| [row.shift, row] }]
+    Hash[
+      data.map do |row|
+        k, v = row.shift(2)
+        [k, row.all?(:zero?) ? v : [v] + row]
+      end
+    ]
   end
 
   ##
@@ -141,7 +146,9 @@ module MiGA::Cli::Action::Doctor::Base
         SQL
         db.execute('BEGIN TRANSACTION;')
         (b2a - a2b).each do |b_name|
-          db.execute(sql, [a.name, b_name] + dist[rank][b_name][a.name])
+          val = dist[rank][b_name][a.name]
+          val = [val, 0, 0, 0] unless val.is_a?(Array)
+          db.execute(sql, [a.name, b_name] + val)
         end
         db.execute('COMMIT;')
       end
