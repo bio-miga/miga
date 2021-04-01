@@ -124,7 +124,7 @@ module MiGA::Cli::Action::Doctor::Base
     Hash[
       data.map do |row|
         k, v = row.shift(2)
-        [k, row.all?(:zero?) ? v : [v] + row]
+        [k, row.all?(&:zero?) ? v : [v] + row]
       end
     ]
   end
