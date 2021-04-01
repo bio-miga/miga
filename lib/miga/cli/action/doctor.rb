@@ -125,22 +125,24 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     tmp = File.join(project.path, 'doctor-bidirectional.tmp')
     FileUtils.mkdir_p(tmp)
     MiGA::Parallel.process(cli[:threads]) do |thr|
-      dist = { aai: {}, ani: {} }
-      ref_ds.each_with_index do |ds, idx|
-        if idx % cli[:threads] == thr
-          cli.advance('Reading:', idx + 1, n, false) if thr == 0
-          dist = read_bidirectional(ds, dist)
+      file = File.join(tmp, "#{thr}.json")
+      fh = File.open(file, 'w')
+      [:aai, :ani].each do |metric|
+        fh.puts "# #{metric}"
+        ref_ds.each_with_index do |ds, idx|
+          if idx % cli[:threads] == thr
+            cli.advance('Reading:', idx + 1, n, false) if thr == 0
+            row = read_bidirectional(ds, metric)
+            fh.puts "#{ds.name} #{JSON.fast_generate(row)}" unless row.empty?
+          end
         end
       end
+      fh.puts '# end'
+      fh.flush # necessary for large threaded runs
+      fh.close
       if thr == 0
         cli.advance('Reading:', n, n, false)
         cli.say
-      end
-      File.open("#{tmp}/#{thr}.json", 'w') do |fh|
-        js = JSON.fast_generate(dist)
-        fh.print js.slice!(0, 1024) until js.empty?
-        fh.puts
-        fh.flush # necessary for large threaded runs
       end
     end
 
@@ -148,8 +150,20 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     dist = { aai: {}, ani: {} }
     cli[:threads].times do |i|
       cli.advance('Merging:', i + 1, cli[:threads], false)
-      o = MiGA::Json.parse("#{tmp}/#{i}.json", symbolize: false)
-      o.each { |k, v| dist[k.to_sym].merge!(v) }
+      file = File.join(tmp, "#{i}.json")
+      File.open(file, 'r') do |fh|
+        metric = nil
+        fh.each do |ln|
+          qry, row = ln.chomp.split(' ', 2)
+          if qry == '#'
+            metric = row.to_sym
+          else
+            raise "Unrecognized metric: #{metric}" unless dist[metric]
+            dist[metric][qry] = JSON.parse(row)
+          end
+        end
+        raise "Incomplete thread dump: #{file}" unless metric == :end
+      end
     end
     cli.say
     FileUtils.rm_rf(tmp)

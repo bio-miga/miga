@@ -115,20 +115,13 @@ module MiGA::Cli::Action::Doctor::Base
   end
 
   ##
-  # Reads all the distance estimates in +a+ -> *, and saves them in the
-  # in the hash +dist+ (also returned)
-  def read_bidirectional(a, dist)
-    each_database_file(a) do |db_file, metric, result, rank|
-      next if rank == :haai # No need for hAAI to be bidirectional
-
-      sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
-      data = MiGA::SQLite.new(db_file).run(sql)
-      next if data.nil? || data.empty?
-
-      dist[rank][a.name] ||= {}
-      data.each { |row| dist[rank][a.name][row.shift] = row }
-    end
-    return dist
+  # Reads all the distance estimates in +a+ -> * for +metric+ and
+  # returns them as a hash +{"b_name" => [val, sd, ...], ...}+
+  def read_bidirectional(a, metric)
+    db_file = a.result(:distances)&.file_path("#{metric}_db") or return {}
+    sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
+    data = MiGA::SQLite.new(db_file).run(sql) || []
+    Hash[data.map { |row| [row.shift, row] }]
   end
 
   ##
