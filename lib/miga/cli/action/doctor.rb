@@ -159,7 +159,14 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
             metric = row.to_sym
           else
             raise "Unrecognized metric: #{metric}" unless dist[metric]
-            dist[metric][qry] = JSON.parse(row)
+            JSON.parse(row).each do |sbj, val|
+              dist[metric][qry] ||= {}
+              if dist[metric][sbj]&.include?(qry)
+                dist[metric][sbj].delete(qry) # Already bidirectional
+              else
+                dist[metric][qry][sbj] = val
+              end
+            end
           end
         end
         raise "Incomplete thread dump: #{file}" unless metric == :end
