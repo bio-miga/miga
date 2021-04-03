@@ -9,33 +9,32 @@ DIR="$PROJECT/data/09.distances/03.ani"
 # Initialize
 miga_start_project_step "$DIR"
 
-echo -n "" > miga-project.log
-DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
-
 # Extract values
 rm -f miga-project.txt
+SQL="SELECT seq1, seq2, ani, sd, n, omega from ani;"
+DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 (
-  echo "metric a b value sd n omega" | tr " " "\\t"
+  echo "a b value sd n omega" | tr " " "\\t"
   for i in $DS ; do
-    echo "SELECT 'ANI', seq1, seq2, ani, sd, n, omega from ani ;" \
-      | sqlite3 "$DIR/$i.db" | tr "\\|" "\\t"
-    echo "$i" >> miga-project.log
+    echo "$SQL" | sqlite3 "$DIR/$i.db" | tr "\\|" "\\t"
   done
 ) | gzip -9c > miga-project.txt.gz
 
 # R-ify
-echo "
-ani <- read.table(gzfile('miga-project.txt.gz'), sep='\\t', h=T, as.is=TRUE);
-save(ani, file='miga-project.Rdata');
-if(sum(ani[,'a'] != ani[,'b']) > 0){
-  h <- hist(ani[ani[,'a'] != ani[,'b'], 'value'], breaks=100, plot=FALSE);
+cat <<R | R --vanilla
+file <- gzfile('miga-project.txt.gz')
+ani <- read.table(file, sep = '\t', header = TRUE, as.is = TRUE)
+save(ani, file = 'miga-project.Rdata')
+if(sum(ani[, 'a'] != ani[, 'b']) > 0) {
+  h <- hist(ani[ani[, 'a'] != ani[, 'b'], 'value'], breaks = 100, plot = FALSE)
+  len <- length(h[['breaks']])
   write.table(
-    cbind(h[['breaks']][-length(h[['breaks']])],
-      h[['breaks']][-1], h[['counts']]),
-    file='miga-project.hist', quote=FALSE, sep='\\t',
-    col.names=FALSE, row.names=FALSE);
+    cbind(h[['breaks']][-len], h[['breaks']][-1], h[['counts']]),
+    file = 'miga-project.hist', quote = FALSE, sep = '\t',
+    col.names = FALSE, row.names = FALSE
+  )
 }
-" | R --vanilla
+R
 
 # Finalize
 miga_end_project_step "$DIR"

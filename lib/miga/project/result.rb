@@ -55,12 +55,12 @@ module MiGA::Project::Result
   ##
   # Add result of any type +:*_distances+ at +base+ (no +_opts+ supported).
   def add_result_distances(base, _opts)
-    return nil unless result_files_exist?(base, %w[.Rdata .log .txt])
+    return nil unless result_files_exist?(base, %w[.Rdata .txt])
 
     r = MiGA::Result.new("#{base}.json")
     r.add_file(:rdata,  'miga-project.Rdata')
     r.add_file(:matrix, 'miga-project.txt')
-    r.add_file(:log,    'miga-project.log')
+    r.add_file(:log,    'miga-project.log') # Legacy file
     r.add_file(:hist,   'miga-project.hist')
     r
   end
