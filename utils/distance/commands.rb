@@ -169,6 +169,7 @@ module MiGA::DistanceRunner::Commands
         aai_data[out[1]] = [out[6].to_f, 0, 0, 0] if out[6] !~ /^>/
       end
     end
+    puts "Results: #{haai_data.size} | Inferences: #{aai_data.size}"
     batch_data_to_db(:haai, haai_data)
     batch_data_to_db(:aai, aai_data)
 

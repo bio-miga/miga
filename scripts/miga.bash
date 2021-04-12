@@ -40,7 +40,7 @@ if [[ "$SCRIPT" != "d" && "$SCRIPT" != "p" ]] ; then
   echo ""
   echo "######[ $SCRIPT ]######"
   echo "# Date: $(miga date)"
-  echo "# Host: $(hostname)"
+  echo "# Host: $(hostname) [$CORES]"
   echo "# MiGA: $MIGA"
   echo "# Project: $PROJECT"
   if [[ -n $DATASET ]] ; then
