@@ -47,7 +47,7 @@ jobs:
         run: |
           gem_version="$(ruby -r rubygems -e "puts Gem::Specification::load('$(ls *.gemspec)').version")"
           unset STABLE
-          [[ "$gem_version" == *.[0-9]* ]] && STABLE='true'
+          [[ "$gem_version" == *.rc* ]] || STABLE='true'
           echo "::set-output name=STABLE::${STABLE}"
       - name: Tag and deploy
         uses: discourse/publish-rubygems-action@v2-beta
