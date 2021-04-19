@@ -17,10 +17,10 @@ module MiGA::SubcladeRunner::Pipeline
       metric_res = project.result(par[0]) or raise "Incomplete step #{par[0]}"
       Zlib::GzipReader.open(metric_res.file_path(:matrix)) do |ifh|
         ifh.each_line do |ln|
-          next if ln =~ /^metric\t/
+          next if ln =~ /^a\tb\tvalue\t/
 
           r = ln.chomp.split("\t")
-          ofh.puts "G>#{r[1]}\tG>#{r[2]}\t#{r[3]}" if r[3].to_f >= par[1]
+          ofh.puts "G>#{r[0]}\tG>#{r[1]}\t#{r[2]}" if r[2].to_f >= par[1]
         end
       end
       ofh.close
