@@ -23,7 +23,7 @@ curl -L \
 cd MyTaxa-master
 make
 python2 utils/download_db.py
-echo 'export PATH='$PWD':$PATH' >> ~/.miga_modules
+echo 'export PATH="'$PWD':$PATH"' >> ~/.miga_modules
 cd ..
 ```
 
