@@ -41,6 +41,7 @@ module MiGA::Cli::Base
     lair: 'Control groups of daemons for several MiGA projects',
     date: 'Return the current date in standard MiGA format',
     console: 'Open an IRB console with MiGA',
+    env: 'Shell code to load MiGA environment',
     # Taxonomy
     tax_set: 'Register taxonomic information for datasets',
     tax_test: 'Return test of taxonomic distributions for query datasets',

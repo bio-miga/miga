@@ -1,21 +1,21 @@
 #!/bin/bash
 
+###
 # Setup environment
 set -e
-MIGA_HOME=${MIGA_HOME:-"$HOME"}
+eval "$("$MIGA/bin/miga" env)"
 SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
-# shellcheck source=/dev/null
-. "$MIGA_HOME/.miga_rc"
 
-# Ensure MiGA & submodules are first in PATH
-export PATH="$MIGA/bin:$PATH"
-for util in enveomics/Scripts FastAAI/FastAAI multitrim ; do
-  export PATH="$MIGA/utils/$util:$PATH"
-done
-
+###
 # Ancillary functions
+
+# Evaluates if the first passed argument is an existing file
 function exists { [[ -e "$1" ]] ; }
+
+# Evaluates if the first passed argument is a function
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
+
+# Initiate a project-wide run
 function miga_start_project_step {
   local dir="$1"
   local dir_r="${dir}.running"
@@ -24,6 +24,8 @@ function miga_start_project_step {
   cd "$dir_r"
   miga date > "miga-project.start"
 }
+
+# Finalize a project-wide run
 function miga_end_project_step {
   local dir="$1"
   local dir_r="${dir}.running"
