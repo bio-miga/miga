@@ -15,6 +15,19 @@ If you don't have Homebrew, execute (and follow the instructions):
   https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
+## A recent Ruby
+
+It's possible you already have a recent version of ruby (2.3+).
+To check which version you have, simply run: `ruby -v`.
+If your version of Ruby is older than 2.3, you can install a recent
+version using:
+
+```bash
+brew install libyaml rbenv
+rbenv install 3.0
+rbenv global 3.0
+```
+
 ## Packages
 
 Now that you have Homebrew, execute:
@@ -27,21 +40,8 @@ brew install \
     barrnap diamond fastani faqcs falco seqtk fastp
 ```
 
-## A recent Ruby
-
-It's possible you already have a recent version of ruby (2.3+).
-To check which version you have, simply run: `ruby -v`.
-If your version of Ruby is older than 2.3, you can install a recent
-version using:
-
-```bash
-brew install libyaml rbenv
-rbenv install 2.7.1
-rbenv global 2.7.1
-```
-
 We also recommend installing the `sqlite3` gem beforehand using the brew
-libraries, to avoid headaches down the road:
+libraries, to avoid headaches down the road (but this is optional):
 
 ```bash
 gem install sqlite3 -- --with-sqlite3-dir="$(brew --prefix sqlite3)"
