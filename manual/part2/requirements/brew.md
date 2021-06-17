@@ -24,8 +24,8 @@ version using:
 
 ```bash
 brew install libyaml rbenv
-rbenv install 3.0
-rbenv global 3.0
+rbenv install 3.0.1
+rbenv global 3.0.1
 ```
 
 ## Packages
