@@ -40,15 +40,16 @@ NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
             | wc -l | awk '{print $1}')
 if [[ "$NOMULTI" -eq "1" ]] ; then
   if [[ "$FAA" == *.gz ]] ; then
-    gzip -cd "$FAA" > "${DATASET}.faix"
+    gzip -cd "$FAA" > "$DATASET"
   else
-    cp "$FAA" "${DATASET}.faix"
+    cp "$FAA" "$DATASET"
   fi
-  FastAAI --qp "${DATASET}.faix" --output "${DATASET}.faix" \
-    --ext ".faix" --index --input-paths --all-vs-all --threads "$CORES"
-  rm "${DATASET}.faix"
-  rm "${DATASET}.faix.hmm"
-  rm "${DATASET}.faix.hmm.filt"
+  echo "$DATASET" \
+    | FastAAI build_db --protein_file /dev/stdin \
+      -o "${DATASET}.faix.d" --threads "$CORES"
+  rm "$DATASET"
+  mv "${DATASET}.faix.d/database/FastAAI_database.sqlite.db" "${DATASET}.faix"
+  rm -r "${DATASET}.faix.d"
 fi
 
 # Reduce files

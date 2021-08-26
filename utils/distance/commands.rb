@@ -141,26 +141,32 @@ module MiGA::DistanceRunner::Commands
   ##
   # Execute a FastAAI command
   def fastaai_cmd(targets)
-    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index)
+    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index_2)
     return nil unless qry_idx
 
-    # Run FastAAI
-    File.open(f1 = tmp_file, 'w') { |fh| fh.puts qry_idx }
-    File.open(f2 = tmp_file, 'w') do |fh|
-      targets.each do |target|
-        target_idx = target&.result(:essential_genes)&.file_path(:fastaai_index)
-        fh.puts target_idx if target_idx
-      end
+    # Merge databases
+    donors = []
+    targets.each do |target|
+      tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_index_2)
+      donnors << tgt_idx if tgt_idx
     end
+    return nil if donors.empty?
     run_cmd <<~CMD
-              FastAAI --qd "#{f1}" --rd "#{f2}" --output "#{f3 = tmp_file}" \
-              --threads #{opts[:thr]}
+              FastAAI merge_db --donors "#{donors.join(',')}" \
+                --recipient "#{f1 = tmp_file}" --threads #{opts[:thr]}
+            CMD
+
+    # Run FastAAI
+    run_cmd <<~CMD
+              FastAAI db_query --query "#{qry_idx}" --target "#{f1}" \
+                --output "#{f2 = tmp_file}" --threads #{opts[:thr]} \
+                --do_stdev
             CMD
 
     # Save values in the databases
     haai_data = {}
     aai_data = {}
-    File.open(f3, 'r') do |fh|
+    File.open(f2, 'r') do |fh|
       fh.each do |ln|
         out = ln.chomp.split("\t")
         haai_data[out[1]] = [
@@ -174,7 +180,7 @@ module MiGA::DistanceRunner::Commands
     batch_data_to_db(:aai, aai_data)
 
     # Cleanup
-    [f1, f2, f3].each { |i| File.unlink(i) }
+    [f1, f2].each { |i| File.unlink(i) }
   end
 
   ##

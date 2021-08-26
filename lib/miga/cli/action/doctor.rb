@@ -46,7 +46,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     dist: ['distances', 'Check distance summary tables'],
     files: ['files', 'Check for outdated files'],
     cds: ['cds', 'Check for gzipped genes and proteins'],
-    ess: ['essential-genes', 'Check for unarchived essential genes'],
+    ess: ['essential-genes', 'Check for outdated essential genes'],
     mts: ['mytaxa-scan', 'Check for unarchived MyTaxa scan'],
     start: ['start', 'Check for lingering .start files'],
     tax: ['taxonomy', 'Check for taxonomy consistency (not yet implemented)']
@@ -252,16 +252,18 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   ##
   # Perform essential-genes operation with MiGA::Cli +cli+
   def check_ess(cli)
-    cli.say 'Looking for unarchived essential genes'
+    cli.say 'Looking for outdated essential genes'
     cli.load_project.each_dataset do |d|
       res = d.result(:essential_genes)
       next if res.nil?
 
       dir = res.file_path(:collection)
-      if dir.nil?
+      idx1 = res.file_path(:fastaai_index)
+      idx2 = res.file_path(:fastaai_index_2)
+      if dir.nil? || (idx2.nil? && !idx1.nil?)
         cli.say "  > Removing #{d.name}:essential_genes"
         res.remove!
-        sr = d.result(:stats) and sr.remove!
+        d.result(:stats)&.remove!
         next
       end
       next if Dir["#{dir}/*.faa"].empty?
