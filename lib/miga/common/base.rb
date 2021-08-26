@@ -29,10 +29,18 @@ class MiGA::MiGA
     ##
     # Send debug message
     def DEBUG(*args)
-      $stderr.puts(*args) if @@DEBUG
+      $stderr.puts(*args) if debug?
       $stderr.puts(
         caller.map { |v| v.gsub(/^/, '     ') }.join("\n")
-      ) if @@DEBUG_TRACE
+      ) if debug_trace?
+    end
+
+    def debug?
+      @@DEBUG ||= false
+    end
+
+    def debug_trace?
+      @@DEBUG_TRACE ||= false
     end
   end
 end

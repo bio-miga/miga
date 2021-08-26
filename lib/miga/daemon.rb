@@ -329,6 +329,7 @@ class MiGA::Daemon < MiGA::MiGA
   def launch_job(job, hostk = nil)
     # Execute job
     job[:cmd] = job_cmd(job)
+    MiGA::MiGA.DEBUG "CMD: #{job[:cmd]}"
     case runopts(:type)
     when 'ssh'
       # Remote job

@@ -34,7 +34,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     if cli[:env]
       cli[:project] ||= ENV['PROJECT']
       cli[:dataset] ||= ENV['DATASET']
-      cli[:thr] ||= ENV['CORES'].to_i unless ENV['CORES'].nil?
+      cli[:thr] = ENV['CORES'].to_i unless ENV['CORES'].nil?
       cli[:result] = File.basename(cli[:result].to_s, '.bash').to_sym
     end
     %i[project dataset result].each do |i|
