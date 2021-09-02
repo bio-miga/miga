@@ -183,6 +183,7 @@ module MiGA::Cli::Action::Wf
     cmd += ['--json', cli[:daemon_json]] unless cli[:daemon_json].nil?
     cmd += ['--max-jobs', cli[:jobs]] unless cli[:jobs].nil?
     cmd += ['--ppn', cli[:threads]] unless cli[:threads].nil?
+    cmd += ['--debug', MiGA::MiGA.debug_trace? ? '2' : '1'] if MiGA::MiGA.debug?
     cwd = Dir.pwd
     call_cli(cmd)
     Dir.chdir(cwd)
