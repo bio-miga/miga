@@ -21,7 +21,7 @@ else
     MT=$(dirname -- "$(which MyTaxa)")
     DB="$MIGA_HOME/.miga_db/AllGenomes.faa.dmnd"
     [[ -e "$DB" ]] || DB="$MT/AllGenomes.faa.dmnd"
-    if [[ ! -e "$MT/AllGenomes.faa.dmnd" ]] ; then
+    if [[ ! -e "$DB" ]] ; then
       echo "Cannot locate the database: AllGenomes.faa.dmnd:" \
             "no such file or directory" >&2
       exit 1
