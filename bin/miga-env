@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+MIGA_MOD="${MIGA_HOME:-"$HOME"}/.miga_modules"
+[[ -s "$MIGA_MOD" ]] && . "$MIGA_MOD"
+"$(dirname "$0")/miga" env
+
