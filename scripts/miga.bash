@@ -3,8 +3,10 @@
 ###
 # Setup environment
 set -e
+MIGA_MOD="${MIGA_HOME:-"$HOME"}/.miga_modules"
+[[ -s "$MIGA_MOD" ]] && . "$MIGA_MOD"
 eval "$("$MIGA/bin/miga" env)"
-SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
+SCRIPT=${SCRIPT:-"$(basename "$0" .bash)"}
 
 ###
 # Ancillary functions
