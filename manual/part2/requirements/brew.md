@@ -34,6 +34,7 @@ Now that you have Homebrew, execute:
 
 ```bash
 brew tap brewsci/bio
+# In Linux, replace 'temurin' with 'openjdk'
 brew install \
     r sqlite3 python temurin \
     blast hmmer bedtools prodigal gmp idba mcl krona \
