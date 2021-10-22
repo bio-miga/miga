@@ -148,7 +148,7 @@ module MiGA::DistanceRunner::Commands
     donors = []
     targets.each do |target|
       tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_index_2)
-      donnors << tgt_idx if tgt_idx
+      donors << tgt_idx if tgt_idx
     end
     return nil if donors.empty?
     run_cmd <<~CMD

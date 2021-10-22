@@ -36,17 +36,12 @@ HMM.essential.rb \
   > "${DATASET}.ess/log"
 
 # Index for FastAAI
-NOMULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --no-multi \
+NOMULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --no-multi \
             | wc -l | awk '{print $1}')
 if [[ "$NOMULTI" -eq "1" ]] ; then
-  if [[ "$FAA" == *.gz ]] ; then
-    gzip -cd "$FAA" > "$DATASET"
-  else
-    cp "$FAA" "$DATASET"
-  fi
-  echo "$DATASET" \
-    | FastAAI build_db --protein_file /dev/stdin \
-      -o "${DATASET}.faix.d" --threads "$CORES"
+  echo "$FAA" > "$DATASET"
+  FastAAI build_db --protein_file "$DATASET" \
+    -o "${DATASET}.faix.d" --threads "$CORES"
   rm "$DATASET"
   mv "${DATASET}.faix.d/database/FastAAI_database.sqlite.db" "${DATASET}.faix"
   rm -r "${DATASET}.faix.d"
