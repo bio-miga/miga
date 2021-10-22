@@ -35,7 +35,7 @@ Now that you have Homebrew, execute:
 ```bash
 brew tap brewsci/bio
 brew install \
-    r sqlite3 python adoptopenjdk \
+    r sqlite3 python temurin \
     blast hmmer bedtools prodigal gmp idba mcl krona \
     barrnap diamond fastani faqcs falco seqtk fastp
 ```
