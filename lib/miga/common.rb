@@ -68,7 +68,7 @@ class MiGA::MiGA
     if total.nil? || @_advance_time[:last].nil? || adv_n < 0
       @_advance_time[:last] = Time.now
       @_advance_time[:n] = n
-    elsif adv_n > 0.001 * n
+    elsif adv_n > 0.001 * total
       this_time = (Time.now - @_advance_time[:last]).to_f
       this_avg = this_time / adv_n
       @_advance_time[:avg] ||= this_avg

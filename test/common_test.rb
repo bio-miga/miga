@@ -81,18 +81,18 @@ class CommonTest < Test::Unit::TestCase
     assert_match(/\] x *\r/, o)
 
     # Initialize advance
-    o = capture_stderr { m.advance('x', 0, 10) }.string
-    assert_match(/\] x 0\.0% \(0\/10\) *\r/, o)
+    o = capture_stderr { m.advance('x', 0, 1001) }.string
+    assert_match(/\] x 0\.0% \(0\/1001\) *\r/, o)
 
     # Insufficient data for prediction
     sleep(1)
-    o = capture_stderr { m.advance('x', 1, 10) }.string
-    assert_match(/\] x 10\.0% \(1\/10\) *\r/, o)
+    o = capture_stderr { m.advance('x', 1, 1000) }.string
+    assert_match(/\] x 0\.1% \(1\/1000\) *\r/, o)
 
     # Predict time
     sleep(1)
-    o = capture_stderr { m.advance('x', 2, 10) }.string
-    assert_match(/\] x 20\.0% \(2\/10\) [7-9]s left *\r/, o)
+    o = capture_stderr { m.advance('x', 2, 1000) }.string
+    assert_match(/\] x 0\.2% \(2\/1000\) 16\.\dm left *\r/, o)
   end
 
   def test_num_suffix
