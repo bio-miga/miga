@@ -65,7 +65,7 @@ class MiGA::MiGA
 
     # Estimate timing
     adv_n = n - @_advance_time[:n]
-    if total.nil? || @_advance_time[:last].nil? || adv_n < 0
+    if total.nil? || @_advance_time[:last].nil? || adv_n.negative?
       @_advance_time[:last] = Time.now
       @_advance_time[:n] = n
     elsif adv_n > 0.001 * total

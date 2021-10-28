@@ -258,9 +258,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       next if res.nil?
 
       dir = res.file_path(:collection)
-      idx1 = res.file_path(:fastaai_index)
-      idx2 = res.file_path(:fastaai_index_2)
-      if dir.nil? || (idx2.nil? && !idx1.nil?)
+      if dir.nil? || outdated_fastaai_ess(res)
         cli.say "  > Removing #{d.name}:essential_genes"
         res.remove!
         d.result(:stats)&.remove!
@@ -272,6 +270,14 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
       warn(cmdo) unless cmdo.empty?
     end
+  end
+
+  ##
+  # Check if the essential genes result +res+ has an outdated FastAAI index
+  def outdated_fastaai_ess(res)
+    idx1 = res.file_path(:fastaai_index)
+    idx2 = res.file_path(:fastaai_index_2)
+    idx2.nil? && !idx1.nil?
   end
 
   ##
