@@ -166,13 +166,18 @@ module MiGA::DistanceRunner::Commands
     # Save values in the databases
     haai_data = {}
     aai_data = {}
-    File.open(f2, 'r') do |fh|
+    # Ugly workaround to the insistence of FastAAI to not provide the files
+    # I ask for ;-)
+    qry_results = File.basename(qry_idx, '.faix') + '_results.txt'
+    out_file = File.join(f2, 'results', qry_results)
+    File.open(out_file, 'r') do |fh|
       fh.each do |ln|
         out = ln.chomp.split("\t")
         haai_data[out[1]] = [
           out[2].to_f * 100, out[3].to_f * 100, out[4].to_i, out[5].to_i
         ]
-        aai_data[out[1]] = [out[6].to_f, 0, 0, 0] if out[6] !~ /^>/
+        out[6] = (out[6] =~ /^>/) ? 95.0 : out[6].to_f
+        aai_data[out[1]] = [out[6], 0, 0, 0]
       end
     end
     puts "Results: #{haai_data.size} | Inferences: #{aai_data.size}"
@@ -180,7 +185,7 @@ module MiGA::DistanceRunner::Commands
     batch_data_to_db(:aai, aai_data)
 
     # Cleanup
-    [f1, f2].each { |i| File.unlink(i) }
+    [f1, f2].each { |i| FileUtils.rm_r(i) }
   end
 
   ##
