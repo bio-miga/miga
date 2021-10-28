@@ -21,6 +21,10 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '(Mandatory) Taxon name (e.g., a species binomial)'
       ) { |v| cli[:taxon] = v }
       opt.on(
+        '--max INT', Integer,
+        'Maximum number of datasets to download (by default: unlimited)'
+      ) { |v| cli[:max_datasets] = v }
+      opt.on(
         '-m', '--metadata STRING',
         'Metadata as key-value pairs separated by = and delimited by comma',
         'Values are saved as strings except for booleans (true / false) or nil'
@@ -41,6 +45,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     p = cli.load_project
     ds = remote_list
     ds = discard_blacklisted(ds)
+    ds = impose_limit(ds)
     d, downloaded = download_entries(ds, p)
 
     # Finalize
@@ -232,6 +237,16 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
           .select { |i| i !~ /^#/ }
           .map(&:chomp)
           .each { |i| ds.delete i }
+    end
+    ds
+  end
+
+  def impose_limit(ds)
+    max = cli[:max_datasets].to_i
+    if !max.zero? && max < ds.size
+      cli.say "Subsampling list from #{ds.size} to #{max} datasets"
+      sample = ds.keys.sample(max)
+      ds.select! { |k, _| sample.include? k }
     end
     ds
   end
