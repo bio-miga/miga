@@ -92,7 +92,7 @@ class CommonTest < Test::Unit::TestCase
     # Predict time
     sleep(1)
     o = capture_stderr { m.advance('x', 2, 1000) }.string
-    assert_match(/\] x 0\.2% \(2\/1000\) 16\.\dm left *\r/, o)
+    assert_match(/\] x 0\.2% \(2\/1000\) 1[5-7]\.\dm left *\r/, o)
   end
 
   def test_num_suffix
