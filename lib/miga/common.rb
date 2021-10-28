@@ -53,11 +53,11 @@ class MiGA::MiGA
   # Reports the advance of a task at +step+ (String), the +n+ out of +total+.
   # The advance is reported in powers of 1,024 if +bin+ is true, or powers of
   # 1,000 otherwise.
-  # The report goes to $stderr iff --verborse
+  # The report goes to $stderr iff --verbose
   def advance(step, n = 0, total = nil, bin = true)
     # Initialize advance timing
     @_advance_time ||= { last: nil, n: 0, avg: nil }
-    if n <= 1 || @_advance_time[:n] > n
+    if @_advance_time[:n] > n
       @_advance_time[:last] = nil
       @_advance_time[:n] = 0
       @_advance_time[:avg]  = nil
@@ -65,16 +65,17 @@ class MiGA::MiGA
 
     # Estimate timing
     adv_n = n - @_advance_time[:n]
-    unless total.nil? || @_advance_time[:last].nil? || adv_n <= 0
-      if adv_n.to_f/n > 0.001
-        this_time = (Time.now - @_advance_time[:last]).to_f
-        this_avg = this_time / adv_n
-        @_advance_time[:avg] ||= this_avg
-        @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_avg
-      end
+    if total.nil? || @_advance_time[:last].nil? || adv_n.negative?
+      @_advance_time[:last] = Time.now
+      @_advance_time[:n] = n
+    elsif adv_n > 0.001 * total
+      this_time = (Time.now - @_advance_time[:last]).to_f
+      this_avg = this_time / adv_n
+      @_advance_time[:avg] ||= this_avg
+      @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_avg
+      @_advance_time[:last] = Time.now
+      @_advance_time[:n] = n
     end
-    @_advance_time[:last] = Time.now
-    @_advance_time[:n] = n
 
     # Report
     adv =

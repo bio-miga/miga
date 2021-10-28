@@ -38,6 +38,10 @@ module MiGA::Cli::Action::Wf
         '--no-draft',
         'Only download complete genomes, not drafts'
       ) { |v| cli[:ncbi_draft] = v }
+      opt.on(
+        '--max-download INT', Integer,
+        'Maximum number of genomes to download (by default: unlimited)'
+      ) { |v| cli[:ncbi_max] = v }
     end
     if params[:qual]
       opt.on(
@@ -125,9 +129,9 @@ module MiGA::Cli::Action::Wf
     # Download datasets
     unless cli[:ncbi_taxon].nil?
       what = cli[:ncbi_draft] ? '--all' : '--complete'
-      call_cli(
-        ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
-      )
+      cmd = ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
+      cmd += ['--max', cli[:ncbi_max]] if cli[:ncbi_max]
+      call_cli(cmd)
     end
 
     # Add datasets
