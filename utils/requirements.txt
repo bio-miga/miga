@@ -1,12 +1,12 @@
-Software	Test exec	Website								Notes
---------	---------	-------								-----
-Ruby		ruby		https://www.ruby-lang.org/					Required version: 2.3+
-Python		python3		https://www.python.org/						Required version: 3+
+Software	Test exec	Website						Notes
+--------	---------	-------						-----
+Ruby		ruby		https://www.ruby-lang.org/			Required version: 2.3+
+Python		python3		https://www.python.org/				Required version: 3+
 R		R		http://www.r-project.org/
 SQLite3		sqlite3		https://www.sqlite.org/
 NCBI BLAST+	blastp		ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST
-DIAMOND		diamond		http://ab.inf.uni-tuebingen.de/software/diamond			Required version: v0.9.20+
-FastANI		fastANI		https://github.com/ParBLiSS/FastANI				Required version: 1.1+
+DIAMOND		diamond		http://ab.inf.uni-tuebingen.de/software/diamond	Required version: v0.9.20+
+FastANI		fastANI		https://github.com/ParBLiSS/FastANI		Required version: 1.1+
 HMMer 3.0+	hmmsearch	http://hmmer.janelia.org/software
 Bedtools	bedtools	http://bedtools.readthedocs.org/en/latest/
 Prodigal	prodigal	http://prodigal.ornl.gov
@@ -17,6 +17,6 @@ FaQCs (reads)	FaQCs		https://github.com/LANL-Bioinformatics/FaQCs
 Falco (reads)	falco		https://github.com/smithlabcode/falco
 Seqtk (reads)	seqtk		https://github.com/lh3/seqtk
 Fastp (reads)	fastp		https://github.com/OpenGene/fastp
-OpenJDK (rdp)	java		https://adoptopenjdk.net/					Any Java VM would work
+Temurin (rdp)	java		https://adoptium.net/				Any Java VM would work
 MyTaxa (mytaxa)	MyTaxa		http://enve-omics.ce.gatech.edu/mytaxa
 Krona (mytaxa)	ktImportText	https://github.com/marbl/Krona/wiki

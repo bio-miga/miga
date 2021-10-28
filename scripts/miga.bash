@@ -3,8 +3,8 @@
 ###
 # Setup environment
 set -e
-eval "$("$MIGA/bin/miga" env)"
-SCRIPT=${SCRIPT:-$(basename "$0" .bash)}
+eval "$("$MIGA/bin/miga-env")"
+SCRIPT=${SCRIPT:-"$(basename "$0" .bash)"}
 
 ###
 # Ancillary functions
