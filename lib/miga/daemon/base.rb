@@ -12,7 +12,7 @@ module MiGA::Daemon::Base
     k = k.to_sym
     unless v.nil?
       case k
-      when :latency, :maxjobs, :ppn, :format_version, :verbosity
+      when :latency, :maxjobs, :ppn, :ppn_project, :format_version, :verbosity
         v = v.to_i
         if !force && v == 0 && k != :verbosity
           raise "Daemon's #{k} cannot be set to zero"
@@ -51,9 +51,17 @@ module MiGA::Daemon::Base
   end
 
   ##
-  # Returns Integer indicating the number of CPUs per job
-  def ppn
-    runopts(:ppn)
+  # Returns the running option +opt+ in jobs for +what+. +what+ can be
+  # +:dataset+ or +:projects+
+  def runopts_for(opt, what)
+    runopts(:"#{opt}_#{what}") || runopts(opt)
+  end
+
+  ##
+  # Returns Integer indicating the number of CPUs per job, in jobs for +what+.
+  # See also #runopts_for
+  def ppn(what = :dataset)
+    runopts_for(:ppn, what)
   end
 
   ##

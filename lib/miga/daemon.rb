@@ -231,10 +231,11 @@ class MiGA::Daemon < MiGA::MiGA
   # Construct the command for the given job definition with current
   # daemon settings
   def job_cmd(to_run)
+    what = to_run[:ds].nil? ? :project : :dataset
     vars = {
       'PROJECT' => project.path,
-      'RUNTYPE' => runopts(:type),
-      'CORES' => ppn,
+      'RUNTYPE' => runopts_for(:type, what),
+      'CORES' => ppn(what),
       'MIGA' => MiGA::MiGA.root_path
     }
     vars['DATASET'] = to_run[:ds].name unless to_run[:ds].nil?
@@ -246,13 +247,13 @@ class MiGA::Daemon < MiGA::MiGA
               ),
       vars: vars.map do |k, v|
               runopts(:var).miga_variables(key: k, value: v)
-            end.join(runopts(:varsep)),
-      cpus: ppn,
+            end.join(runopts_for(:varsep, what)),
+      cpus: ppn(what),
       log: File.join(log_dir, "#{to_run[:ds_name]}.log"),
       task_name: to_run[:task_name],
       miga: File.join(MiGA::MiGA.root_path, 'bin/miga').shellescape
     }
-    runopts(:cmd).miga_variables(var_hsh)
+    runopts_for(:cmd, what).miga_variables(var_hsh)
   end
 
   ##
