@@ -12,9 +12,10 @@ module MiGA::Daemon::Base
     k = k.to_sym
     unless v.nil?
       case k
-      when :latency, :maxjobs, :ppn, :ppn_project, :format_version, :verbosity
+      when :latency, :maxjobs, :ppn, :ppn_project, :format_version, :verbosity,
+           :skip_maintenance
         v = v.to_i
-        if !force && v == 0 && k != :verbosity
+        if !force && v == 0 && !%i[verbosity skip_maintenance].include?(k)
           raise "Daemon's #{k} cannot be set to zero"
         end
       when :shutdown_when_done, :show_log, :bypass_maintenance
@@ -48,6 +49,12 @@ module MiGA::Daemon::Base
   # Returns the path to the list of execution hostnames
   def nodelist
     runopts(:nodelist)
+  end
+
+  ##
+  # Returns the number of times maintenance should be skipped before running
+  def skip_maintenance
+    runopts(:skip_maintenance) || 0
   end
 
   ##

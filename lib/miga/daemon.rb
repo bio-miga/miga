@@ -93,7 +93,7 @@ class MiGA::Daemon < MiGA::MiGA
     flush!
     if (loop_i % 12).zero?
       purge!
-      queue_maintenance
+      queue_maintenance if (loop_i % 12 * (skip_maintenance + 1)).zero?
     end
     save_status
     sleep(latency)
