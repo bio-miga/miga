@@ -52,7 +52,9 @@ module MiGA::Project::Dataset
       @metadata[:datasets] << name
       @dataset_names_hash = nil # Ensure loading even if +do_not_save+ is true
       save
-      recalculate_tasks('New reference dataset added') if d.ref? && d.active?
+      if d.ref? && d.active?
+        recalculate_tasks("Reference dataset added: #{d.name}")
+      end
       pull_hook(:on_add_dataset, name)
     end
     dataset(name)
@@ -66,7 +68,9 @@ module MiGA::Project::Dataset
 
     self.metadata[:datasets].delete(name)
     save
-    recalculate_tasks('Reference dataset unlinked') if d.ref? && d.active?
+    if d.ref? && d.active?
+      recalculate_tasks("Reference dataset unlinked: #{d.name}")
+    end
     pull_hook(:on_unlink_dataset, name)
     d
   end
