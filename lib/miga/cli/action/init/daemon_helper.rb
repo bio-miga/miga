@@ -5,7 +5,7 @@
 module MiGA::Cli::Action::Init::DaemonHelper
   def configure_daemon
     cli.puts 'Default daemon configuration:'
-    daemon_f = File.expand_path('.miga_daemon.json', ENV['HOME'])
+    daemon_f = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     unless File.exist?(daemon_f) and cli.ask_user(
       'A template daemon already exists, do you want to preserve it?',
       'yes', %w(yes no)
