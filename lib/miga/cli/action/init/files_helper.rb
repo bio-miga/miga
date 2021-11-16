@@ -4,7 +4,7 @@
 # Helper module with files configuration functions for MiGA::Cli::Action::Init
 module MiGA::Cli::Action::Init::FilesHelper
   def open_rc_file
-    rc_path = File.expand_path('.miga_rc', ENV['HOME'])
+    rc_path = File.expand_path('.miga_rc', ENV['MIGA_HOME'])
     if File.exist? rc_path
       if cli.ask_user(
         'I found a previous configuration. Do you want to continue?',
