@@ -82,7 +82,7 @@ class ProjectTest < Test::Unit::TestCase
   def test_add_result
     p1 = project
     assert_nil(p1.add_result(:doom))
-    %w[.Rdata .log .txt .done].each do |x|
+    %w[.rds .log .txt .done].each do |x|
       assert_nil(p1.add_result(:haai_distances))
       FileUtils.touch(
         File.join(
@@ -117,11 +117,12 @@ class ProjectTest < Test::Unit::TestCase
     # Project tasks
     expected_files = {
       project_stats: %w[.taxonomy.json .metadata.db],
-      haai_distances: %w[.Rdata .log .txt],
-      aai_distances: %w[.Rdata .log .txt],
-      ani_distances: %w[.Rdata .log .txt],
-      clade_finding: %w[.pdf .classif .medoids
-                        .class.tsv .class.nwk .proposed-clades],
+      haai_distances: %w[.rds .log .txt],
+      aai_distances: %w[.rds .log .txt],
+      ani_distances: %w[.rds .log .txt],
+      clade_finding: %w[
+        .pdf .classif .medoids .class.tsv .class.nwk .proposed-clades
+      ],
       subclades: %w[.pdf .classif .medoids .class.tsv .class.nwk],
       ogs: %w[.ogs .stats]
     }

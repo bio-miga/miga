@@ -22,15 +22,15 @@ DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
 
 # R-ify
 cat <<R | R --vanilla
-file <- gzfile('miga-project.txt.gz')
-ani <- read.table(file, sep = '\t', header = TRUE, as.is = TRUE)
-save(ani, file = 'miga-project.Rdata')
-if(sum(ani[, 'a'] != ani[, 'b']) > 0) {
-  h <- hist(ani[ani[, 'a'] != ani[, 'b'], 'value'], breaks = 100, plot = FALSE)
-  len <- length(h[['breaks']])
+file <- gzfile("miga-project.txt.gz")
+ani <- read.table(file, sep = "\t", header = TRUE, as.is = TRUE)
+saveRDS(ani, file = "miga-project.rds")
+if(sum(ani[, "a"] != ani[, "b"]) > 0) {
+  h <- hist(ani[ani[, "a"] != ani[, "b"], "value"], breaks = 100, plot = FALSE)
+  len <- length(h[["breaks"]])
   write.table(
-    cbind(h[['breaks']][-len], h[['breaks']][-1], h[['counts']]),
-    file = 'miga-project.hist', quote = FALSE, sep = '\t',
+    cbind(h[["breaks"]][-len], h[["breaks"]][-1], h[["counts"]]),
+    file = "miga-project.hist", quote = FALSE, sep = "\t",
     col.names = FALSE, row.names = FALSE
   )
 }

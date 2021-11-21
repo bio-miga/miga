@@ -419,7 +419,7 @@ Consolidation of hAAI distances.
 
 Supported file keys:
 
-* `rdata` (*req*): Pairwise values in a `data.frame` for `R`
+* `rds` (*req*): Pairwise values in a `data.frame` for `R`
 * `matrix` (*req*): Pairwise values in a raw tab-delimited file
 * `log` (*req*): List of datasets included in the matrix
 * `hist`: Histogram of hAAI values as raw tab-delimited file
@@ -432,7 +432,7 @@ Consolidation of AAI distances.
 
 Supported file keys:
 
-* `rdata` (*req*): Pairwise values in a `data.frame` for `R`
+* `rds` (*req*): Pairwise values in a `data.frame` for `R`
 * `matrix` (*req*): Pairwise values in a raw tab-delimited file
 * `log` (*req*): List of datasets included in the matrix
 * `hist`: Histogram of AAI values as raw tab-delimited file
@@ -445,7 +445,7 @@ Consolidation of ANI distances.
 
 Supported file keys:
 
-* `rdata` (*req*): Pairwise values in a `data.frame` for `R`
+* `rds` (*req*): Pairwise values in a `data.frame` for `R`
 * `matrix` (*req*): Pairwise values in a raw tab-delimited file
 * `log` (*req*): List of datasets included in the matrix
 * `hist`: Histogram of ANI values as raw tab-delimited file
@@ -479,6 +479,7 @@ Supported file keys:
   the AAI against the corresponding medoid
 * `medoids` (*req* for `genomes`): List of medoids per cluster
 * `aai_tree`: Bio-NJ tree based on AAI distances in Newick format
+* `aai_dist_rds`: AAI-based distances in R data serialized format
 * `proposal` (*req*): Proposed species-level clades in the project, based on
   `clades_ani95`. One line per proposed clade, with tab-delimited dataset names.
   Only clades with 5 or more members are included
@@ -512,6 +513,7 @@ Supported file keys:
   the ANI against the corresponding medoid
 * `medoids` (*req*): List of medoids per cluster
 * `ani_tree`: Bio-NJ tree based on AAI distances in Newick format
+* `ani_dist_rds`: ANI-based distances in R data serialized format
 
 MiGA symbol: `subclades`.
 

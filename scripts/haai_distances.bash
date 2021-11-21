@@ -15,7 +15,7 @@ ruby -I "$MIGA/lib" "$MIGA/utils/cleanup-databases.rb" "$PROJECT" "$CORES"
 # No real need for hAAI distributions at all
 echo -n "" > miga-project.log
 echo -n "" > miga-project.txt
-echo "aai <- NULL; save(aai, file = 'miga-project.Rdata')" | R --vanilla
+echo 'aai <- NULL; saveRDS(aai, file = "miga-project.rds")' | R --vanilla
 
 # Finalize
 miga_end_project_step "$DIR"

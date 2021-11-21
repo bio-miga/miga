@@ -44,7 +44,7 @@ module MiGA::SubcladeRunner::Pipeline
     # Find genomospecies medoids
     src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
     dir = opts[:gsp_metric] == 'aai' ? '02.aai' : '03.ani'
-    `Rscript '#{src}' ../../09.distances/#{dir}/miga-project.Rdata \
+    `Rscript '#{src}' '../../09.distances/#{dir}/miga-project.rds' \
       miga-project.gsp-medoids miga-project.gsp-clades`
     if File.exist? 'miga-project.gsp-clades.sorted'
       File.rename 'miga-project.gsp-clades.sorted', 'miga-project.gsp-clades'
@@ -54,8 +54,6 @@ module MiGA::SubcladeRunner::Pipeline
     ofh = File.open('miga-project.proposed-clades', 'w')
     File.open('miga-project.gsp-clades', 'r') do |ifh|
       ifh.each_line do |ln|
-        next if $. == 1
-
         r = ln.chomp.split(',')
         ofh.puts r.join("\t") if r.size >= 5
       end
