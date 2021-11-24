@@ -127,6 +127,7 @@ module MiGA::DistanceRunner::Database
     db = tmp_dbs[metric]
     table = metric == :haai ? :aai : metric
     SQLite3::Database.new(db) do |conn|
+      conn.execute('BEGIN TRANSACTION')
       data.each do |k, v|
         sql = <<~SQL
                 insert into #{table} (
@@ -135,6 +136,7 @@ module MiGA::DistanceRunner::Database
               SQL
         conn.execute(sql, [dataset.name, k] + v)
       end
+      conn.execute('COMMIT')
     end
     checkpoint(metric)
   end
