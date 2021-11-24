@@ -151,8 +151,11 @@ module MiGA::DistanceRunner::Commands
       donors << tgt_idx if tgt_idx
     end
     return nil if donors.empty?
+
+    # Build target database
+    File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
     run_cmd <<~CMD
-              FastAAI merge_db --donors "#{donors.join(',')}" \
+              FastAAI merge_db --donor_file "#{f0}" \
                 --recipient "#{f1 = tmp_file}" --threads #{opts[:thr]}
             CMD
 
@@ -166,7 +169,7 @@ module MiGA::DistanceRunner::Commands
     # Save values in the databases
     haai_data = {}
     aai_data = {}
-    # Ugly workaround to the insistence of FastAAI to not provide the files
+    # Ugly workaround to the insistence of FastAAI not to provide the files
     # I ask for ;-)
     qry_results = File.basename(qry_idx, '.faix') + '_results.txt'
     out_file = File.join(f2, 'results', qry_results)
