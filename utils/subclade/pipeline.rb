@@ -68,7 +68,7 @@ module MiGA::SubcladeRunner::Pipeline
     metric_res = project.result(step) or raise "Incomplete step #{step}"
     matrix = metric_res.file_path(:matrix)
     `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}' \
-      miga-project.ani95-medoids '#{opts[:run_clades] ? 'cluster' : 'empty'}'`
+      miga-project.gsp-medoids '#{opts[:run_clades] ? 'cluster' : 'empty'}'`
     if File.exist? 'miga-project.nwk'
       File.rename('miga-project.nwk', "miga-project.#{metric}.nwk")
     end

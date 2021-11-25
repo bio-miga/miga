@@ -26,14 +26,18 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
   # Normalize input matrix
   dist_rds <- paste(out_base, "dist.rds", sep = ".")
   if (!missing(ani_file)) {
-    if(length(ani.d) == 0 && !file.exists(dist_rds)){
-      # Read from ani_file
-      ani.d <- ani_distance(ani_file, sel)
-      if (is.null(ani.d)) {
-        generate_empty_files(out_base)
-        return(NULL)
+    if (length(ani.d) == 0) {
+      if (file.exists(dist_rds)) {
+        ani.d <- readRDS(dist_rds)
       } else {
-        saveRDS(ani.d, dist_rds)
+        # Read from ani_file
+        ani.d <- ani_distance(ani_file, sel)
+        if (is.null(ani.d)) {
+          generate_empty_files(out_base)
+          return(NULL)
+        } else {
+          saveRDS(ani.d, dist_rds)
+        }
       }
     }
   }
