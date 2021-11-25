@@ -7,9 +7,12 @@ module MiGA::SubcladeRunner::Pipeline
       aai90: [:aai_distances, opts[:gsp_aai], :aai]
     }
     tasks.each do |k, par|
+      # Run only the requested metric
+      next unless par[2].to_s == opts[:gsp_metric]
+
       # Final output
       ogs_file = "miga-project.#{k}-clades"
-      next if File.size? ogs_file
+      next if File.size?(ogs_file)
 
       # Build ABC files
       abc_path = tmp_file("#{k}.abc")
@@ -20,7 +23,7 @@ module MiGA::SubcladeRunner::Pipeline
           next if ln =~ /^a\tb\tvalue\t/
 
           r = ln.chomp.split("\t")
-          ofh.puts "G>#{r[0]}\tG>#{r[1]}\t#{r[2]}" if r[2].to_f >= par[1]
+          ofh.puts("G>#{r[0]}\tG>#{r[1]}\t#{r[2]}") if r[2].to_f >= par[1]
         end
       end
       ofh.close
@@ -29,16 +32,14 @@ module MiGA::SubcladeRunner::Pipeline
         `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
         File.open(ogs_file, 'w') do |fh|
           File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
-            fh.puts ln if lno > 0
+            fh.puts(ln) if lno > 0
           end
         end
         File.unlink "#{ogs_file}.tmp"
       else
-        FileUtils.touch ogs_file
+        FileUtils.touch(ogs_file)
       end
-      if par[2].to_s == opts[:gsp_metric]
-        FileUtils.cp(ogs_file, "miga-project.gsp-clades")
-      end
+      FileUtils.cp(ogs_file, 'miga-project.gsp-clades')
     end
 
     # Find genomospecies medoids
