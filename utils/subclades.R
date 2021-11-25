@@ -104,17 +104,6 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   }
   if (length(labels(ani.d)) <= 8L) return(list())
   
-  # Build tree
-  say("Tree")
-  ani.ph <- bionj(ani.d)
-  say("- Write")
-  express.ori <- options("expressions")$expressions
-  if(express.ori < ani.ph$Nnode * 4){
-    options(expressions=min(c(5e7, ani.ph$Nnode * 4)))
-  }
-  write.tree(ani.ph, paste(out_base, ".nwk", sep = ""))
-  options(expressions=express.ori)
-
   # Silhouette
   say("Silhouette")
   nn <- length(labels(ani.d))
@@ -145,6 +134,17 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   ani.cl <- pam(ani.d, top.n)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
+
+  # Build tree
+  say("Tree")
+  ani.ph <- bionj(ani.d)
+  say("- Write")
+  express.ori <- options("expressions")$expressions
+  if(express.ori < ani.ph$Nnode * 4){
+    options(expressions=min(c(5e7, ani.ph$Nnode * 4)))
+  }
+  write.tree(ani.ph, paste(out_base, ".nwk", sep = ""))
+  options(expressions=express.ori)
 
   # Generate graphic report
   say("Graphic report")
