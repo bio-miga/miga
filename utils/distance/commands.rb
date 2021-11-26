@@ -162,6 +162,7 @@ module MiGA::DistanceRunner::Commands
             --donor_file "#{f0}" --recipient "#{f1 = tmp_file}"
         CMD
       )
+      raise "Cannot merge databases into: #{f1}" unless File.size?(f1)
     end
 
     # Run FastAAI
