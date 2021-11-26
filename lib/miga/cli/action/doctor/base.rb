@@ -59,13 +59,14 @@ module MiGA::Cli::Action::Doctor::Base
         next if (lineno += 1) == 1
 
         r = ln.split("\t")
-        next unless [1, 2].map { |i| p.dataset(r[i]).nil? }.any?
+        names = [r[0], r[1]]
+        next unless names.any? { |i| p.dataset(i).nil? }
 
-        [1, 2].each do |i|
-          if p.dataset(r[i]).nil? || !p.dataset(r[i]).active?
-            notok[r[i]] = true
+        names.each do |i|
+          if p.dataset(i).nil? || !p.dataset(i).active?
+            notok[i] = true
           else
-            fix[r[i]] = true
+            fix[i] = true
           end
         end
       end
