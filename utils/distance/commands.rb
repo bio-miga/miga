@@ -153,18 +153,26 @@ module MiGA::DistanceRunner::Commands
     return nil if donors.empty?
 
     # Build target database
-    File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
-    run_cmd <<~CMD
-              FastAAI merge_db --donor_file "#{f0}" \
-                --recipient "#{f1 = tmp_file}" --threads #{opts[:thr]}
-            CMD
+    f1 = donors.first
+    if donors.size > 1
+      File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
+      run_cmd(
+        <<~CMD
+          FastAAI merge_db --threads #{opts[:thr]} \
+            --donor_file "#{f0}" --recipient "#{f1 = tmp_file}"
+        CMD
+      )
+    end
 
     # Run FastAAI
-    run_cmd <<~CMD
-              FastAAI db_query --query "#{qry_idx}" --target "#{f1}" \
-                --output "#{f2 = tmp_file}" --threads #{opts[:thr]} \
-                --do_stdev
-            CMD
+    run_cmd(
+      <<~CMD
+        FastAAI db_query --query "#{qry_idx}" --target "#{f1}" \
+          --output "#{f2 = tmp_file}" --threads #{opts[:thr]} \
+          --do_stdev
+      CMD
+    )
+    raise "Cannot find FastAAI output directory: #{f2}" unless Dir.exist?(f2)
 
     # Save values in the databases
     haai_data = {}
