@@ -226,6 +226,6 @@ module MiGA::DistanceRunner::Commands
 
   def run_cmd(cmd)
     puts "CMD: #{cmd}"
-    `#{cmd}`
+    puts `#{cmd} 2>&1`
   end
 end
