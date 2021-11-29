@@ -153,13 +153,15 @@ module MiGA::DistanceRunner::Commands
     return nil if donors.empty?
 
     # Build target database
-    f1 = donors.first
-    if donors.size > 1
+    f1 = tmp_file
+    if donors.size == 1
+      File.copy(donors.first, f1)
+    else
       File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
       run_cmd(
         <<~CMD
           FastAAI merge_db --threads #{opts[:thr]} \
-            --donor_file "#{f0}" --recipient "#{f1 = tmp_file}"
+            --donor_file "#{f0}" --recipient "#{f1}"
         CMD
       )
       raise "Cannot merge databases into: #{f1}" unless File.size?(f1)
