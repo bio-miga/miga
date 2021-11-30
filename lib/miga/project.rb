@@ -121,4 +121,11 @@ class MiGA::Project < MiGA::MiGA
   def active?
     true
   end
+
+  ##
+  # Load or recover the project's daemon
+  def daemon
+    require 'miga/daemon'
+    @daemon ||= MiGA::Daemon.new(self)
+  end
 end
