@@ -155,7 +155,7 @@ module MiGA::DistanceRunner::Commands
     # Build target database
     f1 = tmp_file
     if donors.size == 1
-      File.copy(donors.first, f1)
+      FileUtils.cp(donors.first, f1)
     else
       File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
       run_cmd(
