@@ -38,9 +38,13 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
         'Path to the list of execution hostnames'
       ) { |v| cli[:nodelist] = v }
       opt.on(
-        '--ppn INT',
+        '--ppn INT', Integer,
         'Maximum number of cores to use in a single job'
-      ) { |v| cli[:ppn] = v.to_i }
+      ) { |v| cli[:ppn] = v }
+      opt.on(
+        '--ppn-project INT', Integer,
+        'Maximum number of cores to use in project-wide tasks'
+      ) { |v| cli[:ppn_project] = v }
       opt.on(
         '--json PATH',
         'Path to a custom daemon definition in json format'
@@ -81,7 +85,7 @@ class MiGA::Cli::Action::Daemon < MiGA::Cli::Action
     # Configure and run daemon
     p = cli.load_project
     d = MiGA::Daemon.new(p, cli[:json])
-    dopts = %i[latency maxjobs nodelist ppn shutdown_when_done]
+    dopts = %i[latency maxjobs nodelist ppn ppn_project shutdown_when_done]
     dopts.each { |k| d.runopts(k, cli[k]) }
     d.show_log! if cli[:show_log]
     d.daemon(cli.operation, cli[:daemon_opts])
