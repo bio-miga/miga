@@ -1,6 +1,7 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
+##
+# Helper module including functions for CLI options
 module MiGA::Cli::OptHelper
   ##
   # Send MiGA's banner to OptionParser +opt+
@@ -65,7 +66,7 @@ module MiGA::Cli::OptHelper
   # - :result_project To require a type of project result
   # The options :result, :result_opt, :result_dataset, and :result_project
   # are mutually exclusive
-  def opt_object(opt, what = [:project, :dataset])
+  def opt_object(opt, what = %i[project dataset])
     what.each do |w|
       case w
       when :project
@@ -90,7 +91,7 @@ module MiGA::Cli::OptHelper
       when :result, :result_opt
         opt.on(
           '-r', '--result STRING',
-          "#{"(Mandatory) " if w == :result}Name of the result",
+          "#{'(Mandatory) ' if w == :result}Name of the result",
           'Recognized names for dataset-specific results include:',
           *MiGA::Dataset.RESULT_DIRS.keys.map { |n| " ~ #{n}" },
           'Recognized names for project-wide results include:',
@@ -122,7 +123,7 @@ module MiGA::Cli::OptHelper
   # - :active To filter by active (--active) or inactive (--no-active)
   # - :taxonomy To filter by taxonomy (--taxonomy)
   # The "k-th" filter (--dataset-k) is always included
-  def opt_filter_datasets(opt, what = [:ref, :multi, :active, :taxonomy])
+  def opt_filter_datasets(opt, what = %i[ref multi active taxonomy])
     what.each do |w|
       case w
       when :ref
@@ -165,6 +166,6 @@ module MiGA::Cli::OptHelper
   # If +sym+ is nil, +flag+ is used as Symbol
   def opt_flag(opt, flag, description, sym = nil)
     sym = flag.to_sym if sym.nil?
-    opt.on("--#{flag.to_s.gsub('_', '-')}", description) { |v| self[sym] = v }
+    opt.on("--#{flag.to_s.tr('_', '-')}", description) { |v| self[sym] = v }
   end
 end
