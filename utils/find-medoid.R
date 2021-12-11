@@ -44,7 +44,7 @@ find_medoids <- function (ani.df, out, clades) {
 }
 
 #= Main
-cat("Finding Medoids")
+cat("Finding Medoids\n")
 ani <- readRDS(argv[1])
 find_medoids(ani.df = ani, out = argv[2], clades = argv[3])
 
