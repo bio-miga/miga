@@ -2,7 +2,6 @@
 # @license Artistic-2.0
 
 require 'miga/cli/action'
-require 'shellwords'
 
 class MiGA::Cli::Action::Run < MiGA::Cli::Action
   def parse_cli
@@ -54,9 +53,13 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
 
     # Prepare command
     miga = MiGA.root_path
-    cmd = ["PROJECT=#{p.path.shellescape}",
-           "RUNTYPE=#{cli[:remote] ? 'ssh' : 'bash'}",
-           "MIGA=#{miga.shellescape}", "CORES=#{cli[:thr]}"]
+    opts = {}
+    cmd = [
+      "PROJECT=#{p.path.shellescape}",
+      "RUNTYPE=#{cli[:remote] ? 'ssh' : 'bash'}",
+      "MIGA=#{miga.shellescape}",
+      "CORES=#{cli[:thr]}"
+    ]
     obj = cli.load_project_or_dataset
     klass = obj.class
     virtual_task = %i[p d maintenance].include?(cli[:result])
@@ -67,13 +70,22 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
 
     cmd << MiGA.script_path(cli[:result], miga: miga, project: p).shellescape
     if cli[:remote]
-      cmd = ['ssh', '-t', '-t', cli[:remote].shellescape,
-             cmd.join(' ').shellescape]
+      cmd = [
+        'ssh', '-t', '-t',
+        cli[:remote].shellescape,
+        cmd.join(' ').shellescape
+      ]
     end
-    cmd << ['>', cli[:log].shellescape, '2>&1'] if cli[:log]
+
+    if cli[:log]
+      opts[:stdout] = cli[:log]
+      opts[:err2out] = true
+    end
 
     # Launch
-    pid = spawn cmd.join(' ')
-    Process.wait pid
+    # note that all elements were carefully escaped in advace, so this has to be
+    # passed as String to avoid double-escaping or unintentionally escaping
+    # characters such as `=` and `>`
+    MiGA::MiGA.run_cmd(cmd.join(' '), opts)
   end
 end

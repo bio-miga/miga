@@ -3,7 +3,6 @@
 
 require 'miga/cli/action'
 require 'miga/tax_index'
-require 'zlib'
 require 'tmpdir'
 
 class MiGA::Cli::Action::TaxDist < MiGA::Cli::Action

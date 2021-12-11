@@ -27,6 +27,10 @@ module MiGA::Cli::OptHelper
       ) { |v| self[:auto] = v }
     end
     opt.on(
+      '--rand-seed INT', Integer,
+      'Set this seed to initialize pseudo-randomness'
+    ) { |v| srand(v) }
+    opt.on(
       '-v', '--verbose',
       'Print additional information to STDERR'
     ) { |v| self[:verbose] = v }

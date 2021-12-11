@@ -58,9 +58,9 @@ module MiGA::DistanceRunner::Pipeline
       end
     end
     ds_matrix_fh.close
-    ref_tree = File.expand_path('utils/ref-tree.R', MiGA::MiGA.root_path)
-    `"#{ref_tree}" "#{ds_matrix}" "#{out_base}" "#{dataset.name}"`
-    File.unlink ds_matrix
+    ref_tree = File.join(MiGA::MiGA.root_path, 'utils', 'ref-tree.R')
+    MiGA::MiGA.run_cmd([ref_tree, ds_matrix, out_base, dataset.name])
+    File.unlink(ds_matrix)
   end
 
   # Tests taxonomy

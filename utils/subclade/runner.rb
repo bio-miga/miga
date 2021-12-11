@@ -1,12 +1,8 @@
+
 require_relative 'base.rb'
-require_relative 'temporal.rb'
-require_relative 'pipeline.rb'
 
 class MiGA::SubcladeRunner
-  include MiGA::SubcladeRunner::Temporal
-  include MiGA::SubcladeRunner::Pipeline
-
-  attr_reader :project, :step, :opts, :home, :tmp
+  attr_reader(:project, :step, :opts, :home, :tmp)
 
   def initialize(project_path, step, opts_hash = {})
     @opts = opts_hash

@@ -3,7 +3,6 @@
 
 require 'miga/common'
 require 'miga/taxonomy'
-require 'zlib'
 
 ##
 # Methods for taxonomy identification based on AAI/ANI values.

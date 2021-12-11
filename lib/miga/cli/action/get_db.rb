@@ -190,7 +190,11 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def unarchive(file)
     cli.say "Unarchiving #{file}"
-    `cd "#{cli[:local]}" && tar -zxf "#{file}" && rm "#{file}"`
+    MiGA::MiGA.run_cmd <<~CMD
+      cd #{cli[:local].shellescape} \
+        && tar -zxf #{file.shellescape} \
+        && rm #{file.shellescape}
+    CMD
   end
 
   def register_database(manif, db, ver)

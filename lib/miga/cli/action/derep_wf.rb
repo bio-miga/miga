@@ -73,14 +73,14 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
     c_f = r.file_path(:clades_gsp) or raise 'Result incomplete: run failed'
     clades = File.readlines(c_f).map { |i| i.chomp.split("\t") }
     rep = representatives(p)
-    File.open(File.expand_path('genomospecies.tsv', cli[:outdir]), 'w') do |fh|
+    File.open(File.join(cli[:outdir], 'genomospecies.tsv'), 'w') do |fh|
       fh.puts "Clade\tRepresentative\tMembers"
       clades.each_with_index do |i, k|
         fh.puts ["gsp_#{k + 1}", rep[k], i.join(',')].join("\t")
       end
     end
     if cli[:collection]
-      dir = File.expand_path('representatives', cli[:outdir])
+      dir = File.join(cli[:outdir], 'representatives')
       FileUtils.mkdir_p(dir)
       rep.each do |i|
         f = p.dataset(i).result(:assembly).file_path(:largecontigs)
@@ -91,12 +91,12 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
 
   def representatives(p)
     cli.say 'Identifying representatives'
-    f = File.expand_path('representatives.txt', cli[:outdir])
+    f = File.join(cli[:outdir], 'representatives.txt')
     if cli[:criterion] == :medoids
       FileUtils.cp(p.result(:clade_finding).file_path(:medoids_gsp), f)
     else
-      src = File.expand_path('utils/representatives.rb', MiGA::MiGA.root_path)
-      `ruby '#{src}' '#{p.path}' | cut -f 2 > '#{f}'`
+      src = File.join(MiGA::MiGA.root_path, 'utils/representatives.rb')
+      MiGA::MiGA.run_cmd("ruby '#{src}' '#{p.path}' | cut -f 2", stdout: f)
     end
     File.readlines(f).map(&:chomp)
   end

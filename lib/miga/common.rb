@@ -1,14 +1,17 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require 'zlib'
+require 'stringio'
 require 'miga/version'
 require 'miga/json'
 require 'miga/parallel'
 require 'miga/common/base'
+require 'miga/common/errors'
 require 'miga/common/path'
 require 'miga/common/format'
 require 'miga/common/net'
-require 'stringio'
+require 'miga/common/system_call'
 
 ##
 # Generic class used to handle system-wide information and methods, and parent
@@ -19,14 +22,21 @@ class MiGA::MiGA
   extend MiGA::Common::Path
   extend MiGA::Common::Format
   extend MiGA::Common::Net
+  extend MiGA::Common::SystemCall
 
   ENV['MIGA_HOME'] ||= ENV['HOME']
 
   ##
+  # Path to the +.miga_rc+ file
+  def self.rc_path
+    File.join(ENV['MIGA_HOME'], '.miga_rc')
+  end
+
+  ##
   # Has MiGA been initialized?
   def self.initialized?
-    File.exist?(File.expand_path('.miga_rc', ENV['MIGA_HOME'])) &&
-      File.exist?(File.expand_path('.miga_daemon.json', ENV['MIGA_HOME']))
+    File.exist?(rc_path) &&
+      File.exist?(File.join(ENV['MIGA_HOME'], '.miga_daemon.json'))
   end
 
   ##

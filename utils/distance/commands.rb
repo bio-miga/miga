@@ -227,7 +227,6 @@ module MiGA::DistanceRunner::Commands
   end
 
   def run_cmd(cmd)
-    puts "CMD: #{cmd}"
-    puts `#{cmd} 2>&1`
+    MiGA::MiGA.run_cmd(cmd, show_cmd: true, err2out: true)
   end
 end

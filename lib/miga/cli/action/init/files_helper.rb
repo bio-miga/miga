@@ -107,7 +107,12 @@ module MiGA::Cli::Action::Init::FilesHelper
       MiGA::MiGA.download_file_ftp(
         :miga_dist, arch, File.join(miga_db, arch)
       ) { |n, size| cli.advance("#{arch}:", n, size) }
-      `cd '#{miga_db}' && tar zxf '#{arch}' && rm '#{arch}'`
+      cmd = <<~CMD
+        cd #{miga_db.shellescape} \
+          && tar zxf #{arch.shellescape} \
+          && rm #{arch.shellescape}
+      CMD
+      run_cmd(cmd, source: nil)
       cli.puts
     end
   end

@@ -1,7 +1,7 @@
 require 'miga'
 require 'miga/tax_dist'
 
-class MiGA::DistanceRunner
+class MiGA::DistanceRunner < MiGA::MiGA
   require_relative 'temporal.rb'
   require_relative 'database.rb'
   require_relative 'commands.rb'

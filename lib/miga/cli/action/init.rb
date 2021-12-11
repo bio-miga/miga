@@ -83,14 +83,16 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   def empty_action
   end
 
-  def run_cmd(cli, cmd)
-    `. "#{cli[:config]}" && #{cmd}`
+  def run_cmd(cli, cmd, opts = {})
+    opts = { return: :output, source: cli[:config] }.merge(opts)
+    MiGA::MiGA.run_cmd(cmd, opts)
   end
 
-  def run_r_cmd(cli, paths, cmd)
+  def run_r_cmd(cli, paths, cmd, opts = {})
     run_cmd(
       cli,
-      "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q 2>&1"
+      "echo #{cmd.shellescape} | #{paths['R'].shellescape} --vanilla -q",
+      { err2out: true, stdout: '/dev/null' }.merge(opts)
     )
   end
 
@@ -159,7 +161,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   def find_software(exec)
     path = nil
     loop do
-      d_path = File.dirname(run_cmd(cli, "which #{exec.shellescape}"))
+      d_path = File.dirname(run_cmd(cli, ['which', exec], raise: false))
       if cli[:ask] || d_path == '.'
         path = cli.ask_user('Where can I find it?', d_path, nil, true)
       else
@@ -172,7 +174,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
         end
         break
       end
-      cli.print "I cannot find #{exec} "
+      cli.print "I cannot find #{exec}. "
     end
     path
   end
@@ -208,19 +210,21 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
   end
 
   def test_library(cli, paths, language, pkg)
-    case language
-    when :r
-      run_r_cmd(cli, paths, "library('#{pkg}')")
-    when :ruby
-      x = "#{paths['ruby'].shellescape} -r #{pkg.shellescape} -e '' 2>/dev/null"
-      run_cmd(cli, x)
-    when :python
-      x = "#{paths['python3'].shellescape} -c 'import #{pkg}' 2>/dev/null"
-      run_cmd(cli, x)
-    else
-      raise "Unrecognized language: #{language}"
-    end
-    $?.success?
+    opts = { raise: false, return: :status, stderr: '/dev/null' }
+    status =
+      case language
+      when :r
+        run_r_cmd(cli, paths, "library('#{pkg}')", opts)
+      when :ruby
+        x = [paths['ruby'], '-r', pkg, '-e', '']
+        run_cmd(cli, x, opts)
+      when :python
+        x = [paths['python3'], '-c', "import #{pkg}"]
+        run_cmd(cli, x, opts)
+      else
+        raise "Unrecognized language: #{language}"
+      end
+    status.success?
   end
 
   def install_library(cli, paths, language, pkg)
@@ -232,14 +236,14 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       # This hackey mess is meant to ensure the test and installation are done
       # on the configuration Ruby, not on the Ruby currently executing the
       # init action
-      gem_cmd = "Gem::GemRunner.new.run %w(install --user #{pkg})"
-      x = "#{paths['ruby'].shellescape} -r rubygems -r rubygems/gem_runner \
-            -e #{gem_cmd.shellescape} 2>&1"
-      run_cmd(cli, x)
+      x = [
+        paths['ruby'], '-r', 'rubygems', '-r', 'rubygems/gem_runner',
+        '-e', "Gem::GemRunner.new.run %w(install --user #{pkg})"
+      ]
+      run_cmd(cli, x, err2out: true)
     when :python
-      x = "#{paths['python3'].shellescape} \
-            -m pip install --user #{pkg.shellescape} 2>&1"
-      run_cmd(cli, x)
+      x = [paths['python3'], '-m', 'pip', 'install', '--user', pkg]
+      run_cmd(cli, x, err2out: true)
     else
       raise "Unrecognized language: #{language}"
     end

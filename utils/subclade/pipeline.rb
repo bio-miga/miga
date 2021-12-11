@@ -29,7 +29,10 @@ module MiGA::SubcladeRunner::Pipeline
       ofh.close
       # Cluster genomes
       if File.size? abc_path
-        `ogs.mcl.rb -o '#{ogs_file}.tmp' --abc '#{abc_path}' -t '#{opts[:thr]}'`
+        run_cmd([
+          'ogs.mcl.rb',
+          '-o', "#{ogs_file}.tmp", '--abc', abc_path, '-t', opts[:thr]
+        ])
         File.open(ogs_file, 'w') do |fh|
           File.foreach("#{ogs_file}.tmp").with_index do |ln, lno|
             fh.puts(ln) if lno > 0
@@ -45,8 +48,10 @@ module MiGA::SubcladeRunner::Pipeline
     # Find genomospecies medoids
     src = File.expand_path('utils/find-medoid.R', MiGA::MiGA.root_path)
     dir = opts[:gsp_metric] == 'aai' ? '02.aai' : '03.ani'
-    `Rscript '#{src}' '../../09.distances/#{dir}/miga-project.rds' \
-      miga-project.gsp-medoids miga-project.gsp-clades`
+    run_cmd([
+      'Rscript', src, "../../09.distances/#{dir}/miga-project.rds",
+      'miga-project.gsp-medoids', 'miga-project.gsp-clades'
+    ])
     if File.exist? 'miga-project.gsp-clades.sorted'
       File.rename 'miga-project.gsp-clades.sorted', 'miga-project.gsp-clades'
     end
@@ -62,13 +67,15 @@ module MiGA::SubcladeRunner::Pipeline
     ofh.close
   end
 
-  def subclades metric
+  def subclades(metric)
     src = File.expand_path('utils/subclades.R', MiGA::MiGA.root_path)
     step = :"#{metric}_distances"
     metric_res = project.result(step) or raise "Incomplete step #{step}"
     matrix = metric_res.file_path(:matrix)
-    `Rscript '#{src}' '#{matrix}' miga-project '#{opts[:thr]}' \
-      miga-project.gsp-medoids '#{opts[:run_clades] ? 'cluster' : 'empty'}'`
+    run_cmd([
+      'Rscript', src, matrix, 'miga-project', opts[:thr],
+      'miga-project.gsp-medoids', opts[:run_clades] ? 'cluster' : 'empty'
+    ])
     if File.exist? 'miga-project.nwk'
       File.rename('miga-project.nwk', "miga-project.#{metric}.nwk")
     end
@@ -76,6 +83,10 @@ module MiGA::SubcladeRunner::Pipeline
 
   def compile
     src = File.expand_path('utils/subclades-compile.rb', MiGA::MiGA.root_path)
-    `ruby '#{src}' '.' 'miga-project.class'`
+    run_cmd(['ruby', src, '.', 'miga-project.class'])
+  end
+
+  def run_cmd(cmd)
+    MiGA::MiGA.run_cmd(cmd, show_cmd: true, err2out: true)
   end
 end

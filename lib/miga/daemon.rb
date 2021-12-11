@@ -321,7 +321,9 @@ class MiGA::Daemon < MiGA::MiGA
   def purge!
     say 'Probing running jobs'
     @jobs_running.select! do |job|
-      `#{runopts(:alive).miga_variables(pid: job[:pid])}`.chomp.to_i == 1
+      MiGA::MiGA.run_cmd(
+        runopts(:alive).miga_variables(pid: job[:pid]), return: :output
+      ).chomp.to_i == 1
     end
   end
 
@@ -346,7 +348,7 @@ class MiGA::Daemon < MiGA::MiGA
       Process.detach(job[:pid]) unless [nil, '', 0].include?(job[:pid])
     else
       # Schedule cluster job (qsub, msub, slurm)
-      job[:pid] = `#{job[:cmd]}`.chomp
+      job[:pid] = MiGA::MiGA.run_cmd(job[:cmd], return: :output).chomp
     end
 
     # Check if registered

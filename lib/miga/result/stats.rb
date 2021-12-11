@@ -1,4 +1,3 @@
-require 'zlib'
 require 'miga/result/base'
 
 ##
@@ -198,12 +197,12 @@ module MiGA::Result::Stats
        file_path(:raw_report)
 
     MiGA::MiGA.DEBUG "Fixing essential genes by domain"
-    scr = "#{MiGA::MiGA.root_path}/utils/domain-ess-genes.rb"
+    scr = File.join(MiGA::MiGA.root_path, 'utils', 'domain-ess-genes.rb')
     rep = file_path(:report)
-    rc_p = File.expand_path('.miga_rc', ENV['HOME'])
-    rc = File.exist?(rc_p) ? ". '#{rc_p}' && " : ''
-    $stderr.print `#{rc} ruby '#{scr}' \
-      '#{rep}' '#{rep}.domain' '#{tax[:d][0]}'`
+    $stderr.print MiGA::MiGA.run_cmd(
+      ['ruby', scr, rep, "#{rep}.domain", tax[:d][0]],
+      return: :output, err2out: true, source: :miga
+    )
     add_file(:raw_report, "#{source.name}.ess/log")
     add_file(:report, "#{source.name}.ess/log.domain")
   end

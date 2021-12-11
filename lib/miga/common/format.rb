@@ -1,5 +1,4 @@
 require 'tempfile'
-require 'zlib'
 
 ##
 # General formatting functions shared throughout MiGA.

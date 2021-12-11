@@ -236,8 +236,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
         file = res.file_path(f) or next
         if file !~ /\.gz/
           cli.say "  > Gzipping #{d.name} #{f}   "
-          cmdo = `gzip -9 '#{file}'`.chomp
-          warn(cmdo) unless cmdo.empty?
+          run_cmd(['gzip', '-9', file])
           changed = true
         end
       end
@@ -267,8 +266,9 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       next if Dir["#{dir}/*.faa"].empty?
 
       cli.say "  > Fixing #{d.name}"
-      cmdo = `cd '#{dir}' && tar -zcf proteins.tar.gz *.faa && rm *.faa`.chomp
-      warn(cmdo) unless cmdo.empty?
+      run_cmd <<~CMD
+        cd #{dir.shellescape} && tar -zcf proteins.tar.gz *.faa && rm *.faa
+      CMD
     end
   end
 
@@ -292,10 +292,11 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
       fix = false
       unless dir.nil?
         if Dir.exist? dir
-          cmdo = `cd '#{dir}/..' \
+          run_cmd <<~CMD
+            cd #{dir.shellescape}/.. \
                 && tar -zcf '#{d.name}.reg.tar.gz' '#{d.name}.reg' \
-                && rm -r '#{d.name}.reg'`.chomp
-          warn(cmdo) unless cmdo.empty?
+                && rm -r '#{d.name}.reg'
+          CMD
         end
         fix = true
       end
@@ -334,5 +335,13 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     # TODO: Find 95%ANI clusters with entries from different species
     # TODO: Find different 95%ANI clusters with genomes from the same species
     # TODO: Find AAI values too high or too low for each LCA rank
+  end
+
+  ##
+  # Run command +cmd+ with options +opts+
+  def run_cmd(cmd, opts = {})
+    opts = { return: :output, err2out: true, raise: false }.merge(opts)
+    cmdo = MiGA::MiGA.run_cmd(cmd, opts).chomp
+    warn(cmdo) unless cmdo.empty?
   end
 end
