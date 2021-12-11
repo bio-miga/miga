@@ -26,7 +26,6 @@ find_medoids <- function (ani.df, out, clades) {
   medoids <- c()
   for(i in cl){
     lab <- strsplit(i, ",")[[1]]
-    cat("Clade of:", lab[1], "\n")
     if(length(lab) == 1) {
       lab.s <- lab
     } else {
