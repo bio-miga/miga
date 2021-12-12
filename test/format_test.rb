@@ -58,6 +58,9 @@ class FormatTest < Test::Unit::TestCase
     assert_equal(50.0, o[:gc])
     assert_equal(5, o[:n50])
     assert_equal(4.0, o[:med])
+    o = MiGA::MiGA.seqs_length(f, :fasta, skew: true)
+    assert_equal(-50.0, o[:at_skew])
+    assert_equal(-25.0, o[:gc_skew])
   end
 
   def test_seqs_length_fastq
@@ -76,5 +79,23 @@ class FormatTest < Test::Unit::TestCase
     assert_equal('  -  - ', tab[1])
     assert_equal('123  45', tab[2])
     assert_equal('678  90', tab[3])
+  end
+
+  def test_miga_name
+    assert_not('a-bad-name'.miga_name?)
+    assert('a_good_one'.miga_name?)
+
+    assert('After_it_s_fixed_', 'After it\'s fixed!'.miga_name)
+
+    assert('A sp.', 'A_sp_'.unmiga_name)
+    assert('B str. C', 'B_sp_C'.unmiga_name)
+    assert('The X content', 'The_x_content'.unmiga_name)
+  end
+
+  def test_miga_variables
+    assert_equal(
+      '1 a box!',
+      '{{n}} {{my}} {{secret}}!'.miga_variables(my: 'a', secret: :box, n: 1)
+    )
   end
 end

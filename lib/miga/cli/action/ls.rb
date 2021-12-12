@@ -1,5 +1,4 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 require 'miga/cli/action'
 
@@ -42,33 +41,53 @@ class MiGA::Cli::Action::Ls < MiGA::Cli::Action
         '-s', '--silent',
         'No output and exit with non-zero status if the dataset list is empty'
       ) { |v| cli[:silent] = v }
+      opt.on(
+        '--exec CMD',
+        'Command to execute per dataset, with the following token variables:',
+        '~ {{dataset}}: Name of the dataset',
+        '~ {{project}}: Path to the project'
+      ) { |v| cli[:exec] = v }
     end
   end
 
   def perform
     ds = cli.load_and_filter_datasets(cli[:silent])
+    p  = cli.load_project
     exit(ds.empty? ? 1 : 0) if cli[:silent]
-    if !cli[:datum].nil?
+
+    head = nil
+    fun  = nil
+    if cli[:datum]
       cli[:tabular] = true
-      format_table(ds, [nil, nil]) { |d| [d.name, d.metadata[cli[:datum]]] }
-    elsif !cli[:fields].nil?
-      format_table(ds, [:name] + cli[:fields]) do |d|
-        [d.name] + cli[:fields].map { |f| d.metadata[f] }
-      end
+      head = [nil, nil]
+      fun  = proc { |d| [d.name, d.metadata[cli[:datum]]] }
+    elsif cli[:fields]
+      head = [:name] + cli[:fields]
+      fun  = proc { |d| [d.name] + cli[:fields].map { |f| d.metadata[f] } }
     elsif cli[:info]
-      format_table(ds, Dataset.INFO_FIELDS) { |d| d.info }
+      head = Dataset.INFO_FIELDS
+      fun  = proc(&:info)
     elsif cli[:processing]
-      comp = %w[- done queued]
-      format_table(ds, [:name] + MiGA::Dataset.PREPROCESSING_TASKS) do |d|
-        [d.name] + d.profile_advance.map { |i| comp[i] }
+      head = [:name] + MiGA::Dataset.PREPROCESSING_TASKS
+      fun  = proc do |d|
+        [d.name] + d.profile_advance.map { |i| %w[- done queued][i] }
       end
     elsif cli[:taskstatus]
-      format_table(ds, [:name] + MiGA::Dataset.PREPROCESSING_TASKS) do |d|
-        [d.name] + d.results_status.values
-      end
+      head = [:name] + MiGA::Dataset.PREPROCESSING_TASKS
+      fun  = proc { |d| [d.name] + d.results_status.values }
     else
       cli[:tabular] = true
-      format_table(ds, [nil]) { |d| [d.name] }
+      head = [nil]
+      fun  = proc { |d| [d.name] }
+    end
+
+    format_table(ds, head) do |d|
+      if cli[:exec]
+        MiGA::MiGA.run_cmd(
+          cli[:exec].miga_variables(dataset: d.name, project: p.path)
+        )
+      end
+      fun[d]
     end
   end
 

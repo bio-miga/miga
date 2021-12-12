@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'tempfile'
 
 ##
@@ -37,13 +39,13 @@ module MiGA::Common::Format
         tmp_path = tmp_fh.path
         fh = File.open(file, 'r')
       end
-      buffer = ''
+      buffer = ''.dup
       fh.each_line do |ln|
         ln.chomp!
         if ln =~ /^>\s*(\S+)(.*)/
           id, df = $1, $2
           tmp_fh.print buffer.wrap_width(80)
-          buffer = ''
+          buffer = ''.dup
           tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}"
         else
           buffer << ln.gsub(/[^A-Za-z\.\-]/, '')
@@ -165,7 +167,7 @@ class String
   ##
   # Replace {{variables}} using the +vars+ hash
   def miga_variables(vars)
-    o = "#{self}"
+    o = self.dup
     vars.each { |k, v| o.gsub!("{{#{k}}}", v.to_s) }
     o
   end

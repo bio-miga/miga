@@ -1,5 +1,4 @@
-# @package MiGA
-# @license Artistic-2.0
+# frozen_string_literal: true
 
 module MiGA::Cli::Base
   @@TASK_DESC = {
@@ -20,10 +19,10 @@ module MiGA::Cli::Base
     add: 'Create a dataset in a MiGA project',
     get: 'Download a dataset from public databases into a MiGA project',
     ncbi_get: 'Download all genomes in a taxon from NCBI into a MiGA project',
-    rm: 'Remove a dataset from an MiGA project',
+    rm: 'Remove a dataset from a MiGA project',
     find: 'Find unregistered datasets based on result files',
     ln: 'Link datasets (including results) from one project to another',
-    ls: 'List all registered datasets in an MiGA project',
+    ls: 'List all registered datasets in a MiGA project',
     archive: 'Generate a tar-ball with all files from select datasets',
     # Results
     add_result: 'Register a result',
