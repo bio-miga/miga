@@ -111,12 +111,17 @@ module MiGA::DistanceRunner::Commands
     return unless File.size?(f1)
 
     # Run FastANI
+    empty = true
     File.open(f2 = tmp_file, 'w') do |fh|
       targets.each do |target|
         target_asm = target&.result(:assembly)&.file_path(:largecontigs)
-        fh.puts target_asm if target_asm
+        if target_asm
+          fh.puts target_asm
+          empty = false
+        end
       end
     end
+    return if empty
     run_cmd <<~CMD
               fastANI -q "#{f1}" --rl "#{f2}" -t #{opts[:thr]} \
               -o "#{f3 = tmp_file}"

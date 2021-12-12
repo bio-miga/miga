@@ -33,6 +33,10 @@ module MiGA::DistanceRunner::Pipeline
 
   # Builds a tree with all visited medoids from any classification level
   def build_medoids_tree(metric)
+    # TODO Reduce impact and bring back the medoids tree
+    $stderr.puts 'Bypassing medoids tree'
+    return
+
     $stderr.puts "Building medoids tree (metric = #{metric})"
     db = query_db(metric)
     return unless File.size? db
