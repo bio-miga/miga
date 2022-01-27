@@ -112,7 +112,7 @@ module MiGA::Cli::Action::Init::FilesHelper
           && tar zxf #{arch.shellescape} \
           && rm #{arch.shellescape}
       CMD
-      run_cmd(cmd, source: nil)
+      run_cmd(cli, cmd, source: nil)
       cli.puts
     end
   end
