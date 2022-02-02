@@ -43,9 +43,8 @@ class MiGA::MiGA
   # +ext+ values (Array of String).
   def result_files_exist?(base, ext)
     ext = [ext] unless ext.is_a? Array
-    ext.all? do |f|
-      File.exist?(base + f) or File.exist?("#{base}#{f}.gz")
-    end
+    MiGA::MiGA.DEBUG("Assserting files for result: #{ext}")
+    ext.all? { |f| File.exist?(base + f) or File.exist?("#{base}#{f}.gz") }
   end
 
   ##

@@ -57,6 +57,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
 
   def perform
     p = cli.load_project
+    cli.ensure_par(type: '-t')
     files, file_type = get_files_and_type
 
     paired = cli[:input_type].to_s.include?('_paired')
@@ -113,7 +114,7 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       cli.ensure_type(Dataset)
       files = [nil]
     else
-      raise 'Please specify input type (-i).' if cli[:input_type].nil?
+      cli.ensure_par({ input_type: '-i' }, 'Please specify input type (-i)')
 
       file_type = self.class.INPUT_TYPES[cli[:input_type]]
       raise "Unrecognized input type: #{cli[:input_type]}." if file_type.nil?

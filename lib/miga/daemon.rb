@@ -67,6 +67,12 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
+  # Alias to +project.path+ for compatibility with lairs
+  def path
+    project.path
+  end
+
+  ##
   # Run only in the first loop
   def daemon_first_loop
     say '-----------------------------------'
