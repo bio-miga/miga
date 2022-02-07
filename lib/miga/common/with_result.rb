@@ -26,9 +26,7 @@ module MiGA::Common::WithResult
     task = task.to_sym
     return nil if result_dirs[task].nil?
 
-    base = File.join(
-      project.path, "data/#{result_dirs[task]}/#{result_base}"
-    )
+    base = File.join(project.path, 'data', result_dirs[task], result_base)
     json = "#{base}.json"
     return MiGA::Result.load(json) unless save
 
