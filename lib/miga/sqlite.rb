@@ -31,16 +31,30 @@ class MiGA::SQLite < MiGA::MiGA
   def initialize(path, opts = {})
     @opts = MiGA::SQLite.default_opts(opts)
     @path = File.absolute_path(path)
+    MiGA::MiGA.DEBUG("Accessing database: #{path}")
   end
 
   ##
-  # Executes +cmd+ and returns the result
+  # Executes +cmd+ and returns the result. Alternatively, if a block is
+  # passed, the commands are ignored and the block is executed with a
+  # single parameter of the database connection
   def run(*cmd)
+    if block_given?
+      run_block { |conn| yield(conn) }
+    else
+      y = nil
+      run_block { |conn| y = conn.execute(*cmd) }
+      y
+    end
+  end
+
+  ##
+  # Executes +blk+ that accepts a single parameter for the database
+  # connection
+  def run_block(&blk)
     busy_attempts ||= 0
     io_attempts ||= 0
-    y = nil
-    SQLite3::Database.new(path) { |conn| y = conn.execute(*cmd) }
-    y
+    SQLite3::Database.new(path) { |conn| blk[conn] }
   rescue SQLite3::BusyException => e
     busy_attempts += 1
     raise "Database busy #{path}: #{e.message}" if busy_attempts >= 3

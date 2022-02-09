@@ -31,6 +31,7 @@ module MiGA::Cli::Action::Doctor::Base
         file = File.join(base, dir, file_db)
         blk[file, metric, result, rank] if File.exist? file
       end
+      # Query databases for reference databases refer to taxonomy runs
       base = File.join(base, '05.taxonomy')
       result = :taxonomy
     end
@@ -137,10 +138,11 @@ module MiGA::Cli::Action::Doctor::Base
   def save_bidirectional(a, dist)
     each_database_file(a) do |db_file, metric, result, rank|
       next if rank == :haai # No need for hAAI to be bidirectional
+      next if result == :taxonomy # Taxonomy is never bidirectional
 
       b2a = dist[rank].map { |b_name, v| b_name if v[a.name] }.compact
       a2b = dist[rank][a.name]&.keys || []
-      SQLite3::Database.new(db_file) do |db|
+      MiGA::SQLite.new(db_file).run do |db|
         sql = <<~SQL
           insert into #{metric}(seq1, seq2, #{metric}, sd, n, omega) \
           values(?, ?, ?, ?, ?, ?);
