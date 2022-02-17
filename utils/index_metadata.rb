@@ -19,6 +19,7 @@ end
 p.each_dataset do |d|
   next unless d.ref? && d.active?
 
+  db.execute('BEGIN TRANSACTION')
   searchable(db, d, :name, d.name)
   d.metadata.each do |k, v|
     next if [:created, :updated].include? k
@@ -26,4 +27,5 @@ p.each_dataset do |d|
     v = v.sorted_ranks.map { |r| r[1] }.join(' ') if k == :tax
     searchable(db, d, k, v)
   end
+  db.execute('COMMIT')
 end

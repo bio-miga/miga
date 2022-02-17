@@ -69,15 +69,20 @@ module MiGA::Cli::Action::Wf
       'By default: ~/.miga_daemon.json'
     ) { |v| cli[:daemon_json] = v }
     opt.on(
-      '-j', '--jobs INT',
+      '-j', '--jobs INT', Integer,
       'Number of parallel jobs to execute',
       'By default controlled by the daemon configuration (maxjobs)'
-    ) { |v| cli[:jobs] = v.to_i }
+    ) { |v| cli[:jobs] = v }
     opt.on(
-      '-t', '--threads INT',
+      '-t', '--threads INT', Integer,
       'Number of CPUs to use per job',
       'By default controlled by the daemon configuration (ppn)'
-    ) { |v| cli[:threads] = v.to_i }
+    ) { |v| cli[:threads] = v }
+    opt.on(
+      '--threads-project INT', Integer,
+      'Number of CPUs to use per project-wide job',
+      'By default controlled by the daemon configuration (ppn_project or ppn)'
+    ) { |v| cli[:threads_project] = v }
   end
 
   def opts_for_wf_distances(opt)
@@ -184,9 +189,10 @@ module MiGA::Cli::Action::Wf
 
   def run_daemon
     cmd  = ['daemon', 'run', '-P', cli[:outdir], '--shutdown-when-done']
-    cmd += ['--json', cli[:daemon_json]] unless cli[:daemon_json].nil?
-    cmd += ['--max-jobs', cli[:jobs]] unless cli[:jobs].nil?
-    cmd += ['--ppn', cli[:threads]] unless cli[:threads].nil?
+    cmd += ['--json', cli[:daemon_json]] if cli[:daemon_json]
+    cmd += ['--max-jobs', cli[:jobs]] if cli[:jobs]
+    cmd += ['--ppn', cli[:threads]] if cli[:threads]
+    cmd += ['--ppn-project', cli[:threads_project]] if cli[:threads_project]
     cmd += ['--debug', MiGA::MiGA.debug_trace? ? '2' : '1'] if MiGA::MiGA.debug?
     cwd = Dir.pwd
     call_cli(cmd)
