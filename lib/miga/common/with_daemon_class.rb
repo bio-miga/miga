@@ -29,7 +29,7 @@ module MiGA::Common::WithDaemonClass
     return nil if c.nil? || c.empty?
 
     Time.parse(c)
-  rescue Errno::ENOENT
+  rescue Errno::ENOENT, ArgumentError
     return nil
   end
 end
