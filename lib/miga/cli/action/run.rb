@@ -5,7 +5,7 @@ require 'miga/cli/action'
 
 class MiGA::Cli::Action::Run < MiGA::Cli::Action
   def parse_cli
-    cli.defaults = { try_load: false, thr: 1, env: false }
+    cli.defaults = { try_load: false, thr: 1, env: false, check_first: false }
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt, :result_opt])
       opt.on(
@@ -25,6 +25,10 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
         '-e', '--environment',
         'Load PROJECT, DATASET, and CORES from the environment'
       ) { |v| cli[:env] = v }
+      opt.on(
+        '--check-first',
+        'Check if the result exists, and run only if it does not'
+      ) { |v| cli[:check_first] = v }
     end
   end
 
@@ -50,6 +54,15 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
 
     # Load project
     p = cli.load_project
+
+    # Check if result already exists
+    if cli[:check_first]
+      obj = cli[:dataset] ? p.dataset(cli[:dataset]) : p
+      if obj.result(cli[:result])
+        cli.say 'Result already exists'
+        return
+      end
+    end
 
     # Prepare command
     miga = MiGA.root_path
