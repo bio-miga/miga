@@ -216,11 +216,12 @@ module MiGA::DistanceRunner::Commands
       next unless target_ess
 
       # hAAI
-      h = aairb_cmd(
-            tmp_file('ess_genes.fa'), target_ess,
-            dataset.name, target.name, tmp_dbs[:haai],
-            aai_save_rbm: false, aai_p: opts[:haai_p], checkpoint: :haai
-          )&.chomp&.to_f
+      aairb_cmd(
+        tmp_file('ess_genes.fa'), target_ess,
+        dataset.name, target.name, tmp_dbs[:haai],
+        aai_save_rbm: false, aai_p: opts[:haai_p], checkpoint: :haai
+      )
+      h = value_from_db(dataset.name, target.name, tmp_dbs[:haai], :haai)
       next if h.nil? || h.zero? || h > 90.0
 
       # Estimated AAI
