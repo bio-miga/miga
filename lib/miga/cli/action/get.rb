@@ -128,7 +128,9 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
     end
 
     sub_cli.say 'Locating remote dataset'
-    RemoteDataset.new(sub_cli[:ids], sub_cli[:db], sub_cli[:universe])
+    RemoteDataset.new(
+      sub_cli[:ids].chomp, sub_cli[:db].chomp, sub_cli[:universe].chomp
+    )
   end
 
   def update_metadata(sub_cli, p, rd)

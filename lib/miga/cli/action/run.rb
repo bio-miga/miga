@@ -59,7 +59,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     if cli[:check_first]
       obj = cli[:dataset] ? p.dataset(cli[:dataset]) : p
       if obj.result(cli[:result])
-        cli.say 'Result already exists'
+        cli.say('Result already exists')
         return
       end
     end
