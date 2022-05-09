@@ -15,7 +15,7 @@ miga date > "$DATASET.start"
 for s in 1 2 ; do
   in="../02.trimmed_reads/${b}.${s}.clipped.fastq.gz"
   [[ -s "$in" ]] \
-    && FastQ.maskQual.rb -i "$in" -o "${b}.1.fasta" --fasta --qual 18
+    && FastQ.maskQual.rb -i "$in" -o "${b}.${s}.fasta" --fasta --qual 18
 done
 
 # Interpose
