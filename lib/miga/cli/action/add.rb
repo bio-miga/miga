@@ -121,19 +121,17 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
       raise 'Some files are duplicated, files must be unique.' if
         files.size != files.uniq.size
 
-      expected_files = 1
       if cli[:input_type].to_s =~ /_paired$/
         if files.size.odd?
           raise 'Odd number of files incompatible with input type.'
         end
 
-        expected_files = 2
         files = Hash[*files].to_a
       else
         files = files.map { |i| [i] }
       end
 
-      if files.size != expected_files && !cli[:dataset].nil?
+      if files.size != 1 && !cli[:dataset].nil?
         raise 'The dataset name (-D) can only be specified with one input set.'
       end
     end
