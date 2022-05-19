@@ -115,7 +115,7 @@ class MiGA::MiGA
     { T: 4, G: 3, M: 2, K: 1 }.each do |k, x|
       v = (bin ? 1024 : 1e3)**x
       if n > v
-        n = '%.1f' % (n / v)
+        n = '%.1f' % (n.to_f / v)
         p = k
         break
       end
