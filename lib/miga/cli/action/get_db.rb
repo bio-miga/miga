@@ -12,6 +12,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
       local: File.expand_path('.miga_db', ENV['MIGA_HOME']),
       host: MiGA::MiGA.known_hosts(:miga_db),
       pb: true,
+      reuse_archive: false,
       overwrite: true
     }
     cli.parse do |opt|
@@ -40,6 +41,10 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
         'List available versions of the database and exit'
       ) { |v| cli[:list_versions] = v }
       opt.on(
+        '--reuse-archive',
+        'Reuse a previously downloaded archive if available'
+      ) { |v| cli[:reuse_archive] = v }
+      opt.on(
         '--no-overwrite',
         'Exit without downloading if the target database already exists'
       ) { |v| cli[:overwrite] = v }
@@ -67,7 +72,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     check_target and return
 
     # Download and expand
-    file = download_file(@ftp, ver[:path])
+    file = download_file(@ftp, ver[:path], cli[:reuse_archive])
     check_digest(ver, file)
     unarchive(file)
     register_database(manif, db, ver)
@@ -89,13 +94,17 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     MiGA::MiGA.remote_connection(cli[:host])
   end
 
-  def download_file(ftp, path)
+  def download_file(ftp, path, reuse = false)
     cli.say "Downloading '#{path}'"
     file = File.expand_path(path, cli[:local])
-    MiGA::MiGA.download_file_ftp(ftp, path, file) do |n, size|
-      cli.advance("#{path}:", n, size) if cli[:pb]
+    if reuse && File.exist?(file)
+      cli.say "Reusing #{file}"
+    else
+      MiGA::MiGA.download_file_ftp(ftp, path, file) do |n, size|
+        cli.advance("#{path}:", n, size) if cli[:pb]
+      end
+      cli.print "\n" if cli[:pb]
     end
-    cli.print "\n" if cli[:pb]
     file
   end
 
