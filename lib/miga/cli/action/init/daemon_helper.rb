@@ -151,8 +151,8 @@ module MiGA::Cli::Action::Init::DaemonHelper
           "  {{variables}}: script, vars, cpus, log, task_name, task_name_simple\n ",
         "#{v[:type]} -q '#{queue}' -v '{{vars}}' -pe openmp {{cpus}} " \
           "-j y -o '{{log}}' -N '{{task_name_simple}}' -l h_vmem=9g " \
-          "-l h_rt=walltime=12:00:00 '{{script}}' | grep . | " \
-          "perl -pe 's/^Your job (\S+) .*/$1/'"
+          "-l h_rt=walltime=12:00:00 '{{script}}' | grep . " \
+          "| perl -pe 's/^Your job (\S+) .*/$1/'"
       )
     else
       v[:cmd] = cli.ask_user(
@@ -172,13 +172,23 @@ module MiGA::Cli::Action::Init::DaemonHelper
       'What should I use to separate variables?', ','
     )
     if v[:type] == 'qsub'
-      v[:alive] = cli.ask_user(
-        "How can I know that a process is still alive?\n" \
-          "  Output should be 1 for running and 0 for non-running\n" \
-          "  {{variables}}: pid\n ",
-        "qstat -f '{{pid}}' | grep ' job_state =' | perl -pe 's/.*= //' " \
-          "| grep '[^C]' | tail -n 1 | wc -l | awk '{print $1}'"
-      )
+      if flavor == 'sge'
+        v[:alive] = cli.ask_user(
+          "How can I know that a process is still alive?\n" \
+            "  Output should be 1 for running and 0 for non-running\n" \
+            "  {{variables}}: pid\n ",
+          "qstat -j '{{pid}}' -s pr 2>/dev/null | head -n 1 | wc -l " \
+            "| awk '{print $1}'"
+        )
+      else
+        v[:alive] = cli.ask_user(
+          "How can I know that a process is still alive?\n" \
+            "  Output should be 1 for running and 0 for non-running\n" \
+            "  {{variables}}: pid\n ",
+          "qstat -f '{{pid}}' | grep ' job_state =' | perl -pe 's/.*= //' " \
+            "| grep '[^C]' | tail -n 1 | wc -l | awk '{print $1}'"
+        )
+      end
       v[:kill] = cli.ask_user(
         "How should I terminate tasks?\n" \
           "  {{variables}}: pid\n ",
