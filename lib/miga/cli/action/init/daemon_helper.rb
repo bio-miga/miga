@@ -151,7 +151,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
           "  {{variables}}: script, vars, cpus, log, task_name, task_name_simple\n ",
         "#{v[:type]} -q '#{queue}' -v '{{vars}}' -pe openmp {{cpus}} " \
           "-j y -o '{{log}}' -N '{{task_name_simple}}' -l h_vmem=9g " \
-          "-l h_rt=walltime=12:00:00 '{{script}}' | grep . " \
+          "-l h_rt=12:00:00 '{{script}}' | grep . " \
           "| perl -pe 's/^Your job (\S+) .*/$1/'"
       )
     else
