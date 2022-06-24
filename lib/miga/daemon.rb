@@ -257,6 +257,7 @@ class MiGA::Daemon < MiGA::MiGA
       cpus: ppn(what),
       log: File.join(log_dir, "#{to_run[:ds_name]}.log"),
       task_name: to_run[:task_name],
+      task_name_simple: to_run[:task_name].gsub(/[^A-Za-z0-9_]/, '-'),
       miga: File.join(MiGA::MiGA.root_path, 'bin/miga').shellescape
     }
     runopts_for(:cmd, what).miga_variables(var_hsh)
