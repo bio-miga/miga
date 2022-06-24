@@ -35,6 +35,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
     v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '2').to_i
     v[:maxjobs] = cli.ask_user('How many jobs can I launch at once?', '6').to_i
     v[:ppn]     = cli.ask_user('How many CPUs can I use per job?', '2').to_i
+    v[:nodelist] = nil # <- To enable non-default with default SSH
     cli.puts 'Setting up internal daemon defaults.'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd] = cli.ask_user(
@@ -100,6 +101,7 @@ module MiGA::Cli::Action::Init::DaemonHelper
     v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '150').to_i
     v[:maxjobs] = cli.ask_user('How many jobs can I launch at once?', '300').to_i
     v[:ppn]     = cli.ask_user('How many CPUs can I use per job?', '2').to_i
+    v[:nodelist] = nil # <- To enable non-default with default SSH
     cli.puts 'Setting up internal daemon defaults'
     cli.puts 'If you don\'t understand this just leave default values:'
     v[:cmd] = cli.ask_user(
@@ -135,18 +137,32 @@ module MiGA::Cli::Action::Init::DaemonHelper
 
   def configure_qsub_msub_daemon(v)
     queue       = cli.ask_user('What queue should I use?', nil, nil, true)
+    flavor      = v[:type] == 'msub' ? 'msub' :
+                  cli.ask_user('Select qsub flavor', 'torque', %w[torque sge])
     v[:latency] = cli.ask_user('How long should I sleep? (in secs)', '150').to_i
     v[:maxjobs] = cli.ask_user('How many jobs can I launch at once?', '300').to_i
     v[:ppn]     = cli.ask_user('How many CPUs can I use per job?', '2').to_i
+    v[:nodelist] = nil # <- To enable non-default with default SSH
     cli.puts 'Setting up internal daemon defaults.'
     cli.puts 'If you don\'t understand this just leave default values:'
-    v[:cmd] = cli.ask_user(
-      "How should I launch tasks?\n" \
-        "  {{variables}}: script, vars, cpus, log, task_name\n ",
-      "#{v[:type]} -q '#{queue}' -v '{{vars}}' -l nodes=1:ppn={{cpus}} " \
-        "{{script}} -j oe -o '{{log}}' -N '{{task_name}}' -l mem=9g " \
-        "-l walltime=12:00:00 | grep ."
-    )
+    if flavor == 'sge'
+      v[:cmd] = cli.ask_user(
+        "How should I launch tasks?\n" \
+          "  {{variables}}: script, vars, cpus, log, task_name, task_name_simple\n ",
+        "#{v[:type]} -q '#{queue}' -v '{{vars}}' -pe openmp {{cpus}} " \
+          "-j y -o '{{log}}' -N '{{task_name_simple}}' -l h_vmem=9g " \
+          "-l h_rt=walltime=12:00:00 '{{script}}' | grep . | " \
+          "perl -pe 's/^Your job (\S+) .*/$1/'"
+      )
+    else
+      v[:cmd] = cli.ask_user(
+        "How should I launch tasks?\n" \
+          "  {{variables}}: script, vars, cpus, log, task_name, task_name_simple\n ",
+        "#{v[:type]} -q '#{queue}' -v '{{vars}}' -l nodes=1:ppn={{cpus}} " \
+          "-j oe -o '{{log}}' -N '{{task_name}}' -l mem=9g " \
+          "-l walltime=12:00:00 '{{script}}' | grep ."
+      )
+    end
     v[:var] = cli.ask_user(
       "How should I pass variables?\n" \
         "  {{variables}}: key, value\n ",
