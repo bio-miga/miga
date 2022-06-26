@@ -56,7 +56,7 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
     p = create_project(
       :assembly,
       p_metadata,
-      run_ssu: false, run_mytaxa_scan: false, run_distances: false
+      run_mytaxa_scan: false, run_distances: false
     )
     p.set_option(:ref_project, ref_db.path)
     p.set_option(:tax_pvalue, cli[:pvalue])
