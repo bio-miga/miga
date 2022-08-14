@@ -3,7 +3,7 @@
 
 require 'miga/cli/action'
 
-class MiGA::Cli::Action::Edit < MiGA::Cli::Action
+class MiGA::Cli::Action::Touch < MiGA::Cli::Action
   def parse_cli
     cli.parse do |opt|
       cli.opt_object(opt, [:project, :dataset_opt])
