@@ -34,6 +34,7 @@ module MiGA::Cli::Base
     # Objects (Datasets or Projects)
     edit: 'Edit the metadata of a dataset or project',
     option: 'Get or set options of a dataset or project',
+    touch: 'Chante the "last modified" time to now without changes',
     # System
     init: 'Initialize MiGA to process new projects',
     daemon: 'Control the daemon of a MiGA project',

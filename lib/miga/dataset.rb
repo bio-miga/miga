@@ -85,6 +85,11 @@ class MiGA::Dataset < MiGA::MiGA
   end
 
   ##
+  # Currently +save!+ is simply an alias of +save+, for compatibility with the
+  # +Project+ interface
+  alias :save! :save
+
+  ##
   # Get the type of dataset as Symbol
   def type
     metadata[:type]

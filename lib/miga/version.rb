@@ -12,7 +12,7 @@ module MiGA
   # - String indicating release status:
   #   - rc* release candidate, not released as gem
   #   - [0-9]+ stable release, released as gem
-  VERSION = [1.2, 7, 0].freeze
+  VERSION = [1.2, 8, 0].freeze
 
   ##
   # Nickname for the current major.minor version.
@@ -20,7 +20,7 @@ module MiGA
 
   ##
   # Date of the current gem relese.
-  VERSION_DATE = Date.new(2022, 6, 26)
+  VERSION_DATE = Date.new(2022, 8, 14)
 
   ##
   # References of MiGA
