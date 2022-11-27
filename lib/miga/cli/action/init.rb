@@ -52,6 +52,12 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
         'Type of daemon launcher, one of: bash, ssh, qsub, msub, slurm',
         "By default: interactive (#{cli[:dtype]} if --auto)"
       ) { |v| cli[:dtype] = v.to_sym }
+      %w[R ruby python].each do |bin|
+        opt.on(
+          "--path-to-#{bin} STRING",
+          "Use this path to #{bin} instead of testing for executables"
+        ) { |v| cli[:"path_to_#{bin}"] = v }
+      end
       opt.on(
         '--ask-all',
         'Ask for the location of all software',
@@ -130,8 +136,13 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       fh.each_line do |ln|
         r = define_software(ln) or next
         cli.print "Testing #{r[0]}#{" (#{r[3]})" if r[3]}... "
-        path = find_software(r[1])
-        paths[r[1]] = File.expand_path(r[1], path).shellescape
+        if cli[:"path_to_#{r[1]}"]
+          paths[r[1]] = cli[:"path_to_#{r[1]}"]
+          cli.puts "user-provided: #{paths[r[1]]}"
+        else
+          path = find_software(r[1])
+          paths[r[1]] = File.expand_path(r[1], path).shellescape
+        end
       end
     end
     rc_fh.puts 'export PATH="$MIGA_PATH$PATH"'
