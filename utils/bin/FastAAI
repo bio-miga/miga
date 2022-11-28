@@ -1,0 +1,5 @@
+#!/bin/bash
+
+UTILS="$(dirname "$0")"
+python3 "$UTILS/../FastAAI/fastaai/fastaai" "$@"
+

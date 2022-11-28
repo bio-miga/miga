@@ -282,7 +282,8 @@ module MiGA::Dataset::Result
       report: '.ess/log',
       alignments: '.ess/proteins.aln',
       fastaai_index: '.faix.db.gz',
-      fastaai_index_2: '.faix'
+      fastaai_index_2: '.faix',
+      fastaai_index_3: '.faix3'
     )
   end
 

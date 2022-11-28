@@ -15,7 +15,7 @@ class MiGA::Cli::Action::Env < MiGA::Cli::Action
       . "$MIGA_HOME/.miga_rc"
       # Ensure MiGA & submodules are first in PATH
       export PATH="$MIGA/bin:$PATH"
-      for util in enveomics/Scripts FastAAI/FastAAI FastAAI multitrim ; do
+      for util in enveomics/Scripts multitrim bin ; do
         export PATH="$MIGA/utils/$util:$PATH"
       done
     BASH

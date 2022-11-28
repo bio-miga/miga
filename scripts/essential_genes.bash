@@ -39,12 +39,9 @@ HMM.essential.rb \
 NOMULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --no-multi \
             | wc -l | awk '{print $1}')
 if [[ "$NOMULTI" -eq "1" ]] ; then
-  echo "$FAA" > "$DATASET"
-  FastAAI build_db --proteins "$DATASET" \
-    -o "${DATASET}.faix.d" --threads "$CORES"
-  rm "$DATASET"
-  mv "${DATASET}.faix.d/database/FastAAI_database.sqlite.db" "${DATASET}.faix"
-  rm -r "${DATASET}.faix.d"
+  FastAAI miga_merge --protein "$FAA" --output "${DATASET}.faix3.d"
+  mv "${DATASET}.faix3.d/database/FastAAI_database.sqlite.db" "${DATASET}.faix3"
+  rm -r "${DATASET}.faix3.d"
 fi
 
 # Reduce files

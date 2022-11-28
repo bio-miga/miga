@@ -146,13 +146,13 @@ module MiGA::DistanceRunner::Commands
   ##
   # Execute a FastAAI command
   def fastaai_cmd(targets)
-    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index_2)
+    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index_3)
     return nil unless qry_idx
 
     # Merge databases
     donors = []
     targets.each do |target|
-      tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_index_2)
+      tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_index_3)
       donors << tgt_idx if tgt_idx
     end
     return nil if donors.empty?
@@ -187,10 +187,11 @@ module MiGA::DistanceRunner::Commands
     aai_data = {}
     # Ugly workaround to the insistence of FastAAI not to provide the files
     # I ask for ;-)
-    qry_results = File.basename(qry_idx, '.faix') + '_results.txt'
-    out_file = File.join(f2, 'results', qry_results)
+    out_file = Dir.new(File.join(f2, 'results')).children[0]
+    raise "Empty results folder in FastAAI: #{f2}" unless out_file
     File.open(out_file, 'r') do |fh|
       fh.each do |ln|
+        next if $. == 1
         out = ln.chomp.split("\t")
         haai_data[out[1]] = [
           out[2].to_f * 100, out[3].to_f * 100, out[4].to_i, out[5].to_i

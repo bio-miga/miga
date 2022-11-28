@@ -275,9 +275,10 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   ##
   # Check if the essential genes result +res+ has an outdated FastAAI index
   def outdated_fastaai_ess(res)
-    idx1 = res.file_path(:fastaai_index)
-    idx2 = res.file_path(:fastaai_index_2)
-    idx2.nil? && !idx1.nil?
+    idx1 = res.file_path(:fastaai_index)   # Carlos' original format
+    idx2 = res.file_path(:fastaai_index_2) # Kenji's first format
+    idx3 = res.file_path(:fastaai_index_3) # v0.1.17
+    idx3.nil? && (!idx2.nil? || !idx1.nil?)
   end
 
   ##
