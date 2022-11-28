@@ -28,10 +28,11 @@ class MiGA::Cli::Action::QualityWf < MiGA::Cli::Action
     d_metadata = { run_distances: false }
     d_metadata[:run_mytaxa_scan] = false unless cli[:mytaxa]
     p = create_project(:assembly, p_metadata, d_metadata)
+
     # Run
     run_daemon
     summarize
-    if cli[:mytaxa]
+    if cli[:mytaxa] && !cli[:prepare_and_exit]
       dir = File.expand_path('mytaxa_scan', cli[:outdir])
       Dir.mkdir(dir)
       p.each_dataset do |d|

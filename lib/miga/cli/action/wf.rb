@@ -8,7 +8,8 @@ module MiGA::Cli::Action::Wf
     cli.expect_files = true
     cli.defaults = {
       clean: false, project_type: :genomes, dataset_type: :popgenome,
-      ncbi_draft: true, min_qual: MiGA::Project.OPTIONS[:min_qual][:default]
+      ncbi_draft: true, min_qual: MiGA::Project.OPTIONS[:min_qual][:default],
+      prepare_and_exit: false
     }
   end
 
@@ -83,6 +84,10 @@ module MiGA::Cli::Action::Wf
       'Number of CPUs to use per project-wide job',
       'By default controlled by the daemon configuration (ppn_project or ppn)'
     ) { |v| cli[:threads_project] = v }
+    opt.on(
+      '--prepare-and-exit',
+      'Create project and import datasets, but do not run any analyses'
+    ) { |v| cli[:prepare_and_exit] = v }
   end
 
   def opts_for_wf_distances(opt)
@@ -159,6 +164,8 @@ module MiGA::Cli::Action::Wf
   end
 
   def summarize(which = %w[cds assembly essential_genes ssu])
+    return if cli[:prepare_and_exit]
+
     which.each do |r|
       cli.say "Summary: #{r}"
       call_cli(
@@ -173,6 +180,7 @@ module MiGA::Cli::Action::Wf
   end
 
   def cleanup
+    return if cli[:prepare_and_exit]
     return unless cli[:clean]
 
     cli.say 'Cleaning up intermediate files'
@@ -188,6 +196,8 @@ module MiGA::Cli::Action::Wf
   end
 
   def run_daemon
+    return if cli[:prepare_and_exit]
+
     cmd  = ['daemon', 'run', '-P', cli[:outdir], '--shutdown-when-done']
     cmd += ['--json', cli[:daemon_json]] if cli[:daemon_json]
     cmd += ['--max-jobs', cli[:jobs]] if cli[:jobs]

@@ -68,6 +68,8 @@ class MiGA::Cli::Action::DerepWf < MiGA::Cli::Action
   private
 
   def dereplicate(p)
+    return if cli[:prepare_and_exit]
+
     cli.say 'Extracting genomospecies clades'
     r = p.result(:clade_finding) or raise 'Result unavailable: run failed'
     c_f = r.file_path(:clades_gsp) or raise 'Result incomplete: run failed'

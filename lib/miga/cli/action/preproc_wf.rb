@@ -41,6 +41,7 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
       d_metadata[:run_mytaxa] = false
     end
     p = create_project(cli[:input_type], p_metadata, d_metadata)
+
     # Run
     run_daemon
     summarize

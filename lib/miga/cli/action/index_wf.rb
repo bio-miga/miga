@@ -26,6 +26,7 @@ class MiGA::Cli::Action::IndexWf < MiGA::Cli::Action
   def perform
     # Input data
     p = create_project(:assembly, {}, run_mytaxa_scan: cli[:mytaxa])
+
     # Run
     run_daemon
     summarize

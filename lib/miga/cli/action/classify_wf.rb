@@ -60,13 +60,16 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
     )
     p.set_option(:ref_project, ref_db.path)
     p.set_option(:tax_pvalue, cli[:pvalue])
+
     # Run
     run_daemon
     summarize(%w[cds assembly essential_genes]) if cli[:summaries]
-    summarize(['taxonomy'])
-    cli.say "Summary: classification"
-    ofile = File.expand_path('classification.tsv', cli[:outdir])
-    call_cli(['ls', '-P', cli[:outdir], '-m', 'tax', '--tab', '-o', ofile])
+    summarize(%w[taxonomy])
+    unless cli[:prepare_and_exit]
+      cli.say "Summary: classification"
+      ofile = File.expand_path('classification.tsv', cli[:outdir])
+      call_cli(['ls', '-P', cli[:outdir], '-m', 'tax', '--tab', '-o', ofile])
+    end
     cleanup
   end
 
