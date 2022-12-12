@@ -87,6 +87,6 @@ module MiGA::SubcladeRunner::Pipeline
   end
 
   def run_cmd(cmd)
-    MiGA::MiGA.run_cmd(cmd, show_cmd: true, err2out: true)
+    MiGA::MiGA.run_cmd(cmd, show_cmd: true, err2out: true, source: :miga)
   end
 end
