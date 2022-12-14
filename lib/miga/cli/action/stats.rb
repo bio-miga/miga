@@ -28,14 +28,15 @@ class MiGA::Cli::Action::Stats < MiGA::Cli::Action
   end
 
   def perform
-    if cli[:try_load] && !r[:stats].nil? && !r[:stats].empty?
-      cli[:compute] = false
-    end
     r = cli.load_result or return
+
+    cli[:compute] = false if cli[:try_load] && !r[:stats]&.empty?
+
     if cli[:compute]
       cli.say 'Computing statistics'
       r.compute_stats
     end
+
     if cli[:key].nil?
       r[:stats].each do |k, v|
         k_n = k.to_s.unmiga_name.sub(/^./, &:upcase)
