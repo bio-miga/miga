@@ -12,6 +12,8 @@ end
 
 module MiGA::RemoteDataset::Base
   @@_EUTILS = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+  @@_EBI_API = 'https://www.ebi.ac.uk/Tools'
+  @@_GTDB_API = 'https://api.gtdb.ecogenomic.org'
   @@_NCBI_API_KEY = lambda { |url|
     ENV['NCBI_API_KEY'].nil? ? url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}"
   }
@@ -43,8 +45,25 @@ module MiGA::RemoteDataset::Base
     },
     ebi: {
       dbs: { embl: { stage: :assembly, format: :fasta } },
-      url: 'https://www.ebi.ac.uk/Tools/dbfetch/dbfetch/%1$s/%2$s/%3$s',
+      url: "#{@@_EBI_API}/dbfetch/dbfetch/%1$s/%2$s/%3$s",
       method: :rest
+    },
+    gtdb: {
+      dbs: {
+        # This is a dummy entry plugged directly to +ncbi_asm_rest+
+        assembly: { stage: :assembly, format: :fasta_gz, getter: :ncbi_asm },
+        # The 'taxon' namespace actually returns a list of genomes (+format+)
+        taxon: {
+          stage: :metadata, format: :genomes, map_to: [:assembly],
+          extra: ['sp_reps_only=false']
+        },
+        # The 'genome' namespace actually returns the taxonomy (+format+)
+        genome: { stage: :metadata, format: 'taxon-history' }
+      },
+      url: "#{@@_GTDB_API}/%1$s/%2$s/%3$s?%4$s",
+      method: :rest,
+      map_to_universe: :ncbi,
+      headers: 'accept: application/json' # < TODO not currently supported
     },
     ncbi: {
       dbs: {

@@ -49,7 +49,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     @@UNIVERSE.keys.include?(@universe) or
       raise "Unknown Universe: #{@universe}. Try: #{@@UNIVERSE.keys}"
     @@UNIVERSE[@universe][:dbs].include?(@db) or
-      raise "Unknown Database: #{@db}. Try: #{@@UNIVERSE[@universe][:dbs]}"
+      raise "Unknown Database: #{@db}. Try: #{@@UNIVERSE[@universe][:dbs].keys}"
     @_ncbi_asm_json_doc = nil
     # FIXME: Part of the +map_to+ support:
     # unless @@UNIVERSE[@universe][:dbs][@db][:map_to].nil?
@@ -104,6 +104,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
     when :ebi, :ncbi, :web
       # Get taxonomy
       @metadata[:tax] = get_ncbi_taxonomy
+    when :gtdb
+      # Get taxonomy
+      @metadata[:tax] = get_gtdb_taxonomy
     end
     @metadata = get_type_status(metadata)
   end
@@ -129,10 +132,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   ##
-  # Get NCBI taxonomy as MiGA::Taxonomy.
+  # Get NCBI taxonomy as MiGA::Taxonomy
   def get_ncbi_taxonomy
-    tax_id = get_ncbi_taxid
-    return nil if tax_id.nil?
+    tax_id = get_ncbi_taxid or return
 
     lineage = { ns: 'ncbi' }
     doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
@@ -148,11 +150,33 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   ##
+  # Get GTDB taxonomy as MiGA::Taxonomy
+  def get_gtdb_taxonomy
+    gtdb_genome = metadata[:gtdb_assembly] or return
+
+    doc = MiGA::Json.parse(
+      MiGA::RemoteDataset.download(
+        :gtdb, :genome, gtdb_genome, 'taxon-history', nil, ['']
+      ),
+      contents: true
+    )
+    lineage = { ns: 'gtdb' }
+    lineage.merge!(doc.first) # Get only the latest available classification
+    release = lineage.delete(:release)
+    @metadata[:gtdb_release] = release
+    lineage.transform_values! { |v| v.gsub(/^\S__/, '') }
+    MiGA.DEBUG "Got lineage from #{release}: #{lineage}"
+    MiGA::Taxonomy.new(lineage)
+  end
+
+  ##
   # Get the JSON document describing an NCBI assembly entry.
   def ncbi_asm_json_doc
     return @_ncbi_asm_json_doc unless @_ncbi_asm_json_doc.nil?
 
-    metadata[:ncbi_asm] ||= ids.first if universe == :ncbi and db == :assembly
+    if db == :assembly && %i[ncbi gtdb].include?(universe)
+      metadata[:ncbi_asm] ||= ids.first
+    end
     return nil unless metadata[:ncbi_asm]
 
     ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]

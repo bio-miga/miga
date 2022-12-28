@@ -17,7 +17,8 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
       ) { |v| cli[:ids] = v }
       opt.on(
         '-U', '--universe STRING',
-        "Universe of the remote database. By default: #{cli[:universe]}"
+        "Universe of the remote database. By default: #{cli[:universe]}",
+        "Supported: #{MiGA::RemoteDataset.UNIVERSE.keys.join(', ')}"
       ) { |v| cli[:universe] = v.to_sym }
       opt.on(
         '--db STRING',
