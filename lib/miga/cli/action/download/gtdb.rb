@@ -28,7 +28,6 @@ module MiGA::Cli::Action::Download::Gtdb
 
   def remote_list
     cli.say 'Downloading genome list'
-    ds = {}
     extra = ['sp_reps_only=' + cli[:reference].to_s]
     json = MiGA::RemoteDataset.download(
       :gtdb, :taxon, cli[:taxon], :genomes, nil, extra
@@ -49,7 +48,7 @@ module MiGA::Cli::Action::Download::Gtdb
   end
 
   def remote_row_name(asm)
-    acc = "#{asm}"
+    acc = asm.to_s
     acc.gsub!(/\.\d+\Z/, '') unless cli[:add_version]
     acc.miga_name
   end
