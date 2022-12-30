@@ -187,10 +187,10 @@ Supported file keys:
 
 * `proteins` (*req*): FastA file containing translated protein sequences
 * `genes`: FastA file containing putative gene sequences
-* `gff3` (*gz*): GFF v3 file containing the coordinates of coding sequences
+* `gff3` (*gz*): GFF v3 file containing the coordinates of coding sequences.
   This file is not required, but [MyTaxa](#mytaxa) depends on it (or `gff2` or
   `tab`, whichever is available)
-* `gff2` (*gz*): GFF v2 file containing the coordinates of coding sequences
+* `gff2` (*gz*): GFF v2 file containing the coordinates of coding sequences.
   This file is not produced by MiGA, but it's supported for backwards
   compatibility with earlier versions using MetaGeneMark
 * `tab` (*gz*): Tabular-delimited file containing the columns: gene ID, gene
@@ -403,7 +403,11 @@ In this step, MiGA traces back all the results of the dataset and estimates
 summary statistics. In addition, it cleans any stored values in the distances
 database including datasets no longer registered in the project.
 
-No supported file keys.
+Supported file keys:
+
+* `trna_list`: List of tRNA elements detected. This file is only produced for
+  genome datasets with defined taxonomy within the Archaea, Bacteria, or
+  Eukaryota domains
 
 MiGA symbol: `stats`.
 

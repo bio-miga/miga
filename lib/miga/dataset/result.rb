@@ -384,7 +384,10 @@ module MiGA::Dataset::Result
   ##
   # Add result type +:stats+ at +base+ (no +_opts+ supported)
   def add_result_stats(base, _opts)
-    MiGA::Result.new("#{base}.json")
+    add_files_to_ds_result(
+      MiGA::Result.new("#{base}.json"), name,
+      trna_list: '.trna.txt'
+    )
   end
 
   ##

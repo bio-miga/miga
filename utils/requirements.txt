@@ -20,3 +20,4 @@ Fastp (reads)	fastp		https://github.com/OpenGene/fastp
 Temurin (rdp)	java		https://adoptium.net/				Any Java VM would work
 MyTaxa (mytaxa)	MyTaxa		http://enve-omics.ce.gatech.edu/mytaxa
 Krona (mytaxa)	ktImportText	https://github.com/marbl/Krona/wiki
+tRNAscan-SE	tRNAscan-SE	http://trna.ucsc.edu/tRNAscan-SE/		Required version: 2+

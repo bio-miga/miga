@@ -63,6 +63,8 @@ class MiGA::Taxonomy < MiGA::MiGA
     @ranks[rank.to_sym]
   end
 
+  alias :fetch :[]
+
   ##
   # Get the alternative taxonomies.
   # - If +which+ is nil (default), returns all alternative taxonomies as Array

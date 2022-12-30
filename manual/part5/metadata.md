@@ -126,6 +126,8 @@ Metadata with additional information and features about the dataset:
 | ------------:|:----------------:|:----------------------------------
 | tax          | MiGA::Taxonomy   | Taxonomy of the dataset
 | quality      | String           | Description of genome quality
+| trna_count   | Integer          | Number of tRNA elements detected
+| trna_aa      | Integer          | Number of distinct AA with tRNA elements
 | dprotologue  | String           | Taxonumber in the Digital Protologue DB
 | ncbi_tax_id  | String           | Linking ID(s)<sup>1</sup> for NCBI Taxonomy
 | ncbi_nuccore | String           | Linking ID(s)<sup>1</sup> for NCBI Nucleotide

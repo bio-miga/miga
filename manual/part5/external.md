@@ -105,3 +105,9 @@ boundaries. [Nature Comm 9:5114](https://doi.org/10.1038/s41467-018-07641-9).
 
 Ruiz-Perez et al. [FastAAI in GitHub](https://github.com/cruizperez/FastAAI).
 
+## tRNAscan-SE
+
+Chan PP, Lin BY, Mak AJ, and Lowe TM (2021). tRNAscan-SE 2.0:
+improved detection and functional classification of transfer RNA genes.
+[Nucleic Acids Res 49:9077–9096](https://doi.org/10.1093/nar/gkab688).
+
