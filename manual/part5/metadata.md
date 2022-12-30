@@ -50,11 +50,11 @@ Metadata entries that trigger specific behaviors in MiGA:
 | Field        | Supported values | Description
 | ------------:|:----------------:|:------------------------------------
 | ref_project  | Path             | Project with reference taxonomy
-| db_proj_dir  | Path             | Directory containing database projects<sup>1</sup>
+| db_proj_dir  | Path             | Directory containing database projects {1}
 | tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
-| haai_p       | String           | hAAI engine<sup>2</sup> (def: fastaai)
-| aai_p        | String           | AAI engine<sup>2</sup> (def: diamond)
-| ani_p        | String           | ANI engine<sup>2</sup> (def: fastani)
+| haai_p       | String           | hAAI engine {2} (def: fastaai)
+| aai_p        | String           | AAI engine {2} (def: diamond)
+| ani_p        | String           | ANI engine {2} (def: fastani)
 | max_try      | Integer          | Max number of task attempts (def: 10)
 | aai_save_rbm | Boolean          | Should RBMs be saved for OGS analysis?
 | ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
@@ -63,19 +63,19 @@ Metadata entries that trigger specific behaviors in MiGA:
 | gsp_ani      | Float [0,100]    | ANI limit to propose gsp clades (def: 95)
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 90)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
-| ess_coll     | String           | Collection of essential genes to use<sup>3</sup>
+| ess_coll     | String           | Collection of essential genes to use {3}
 | min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 25)
 | distances_checkpoint | Integer  | Comparisons before storing data (def: 10)
 
-> **<sup>1</sup>** This is the relative location of the databases used by
+> **{1}** This is the relative location of the databases used by
 > [db_project](#dataset-flags). If not set, it is assumed to be the parent
 > folder of the current project.
 >
-> **<sup>2</sup>** Supported values: `blast`, `blat`, `diamond`
+> **{2}** Supported values: `blast`, `blat`, `diamond`
 > (only for hAAI and AAI), `fastani` (only for ANI), `no` (only for hAAI),
 > and `fastaai` (only for hAAI).
 >
-> **<sup>3</sup>** One of: `dupont_2012` (default), or `lee_2019`
+> **{3}** One of: `dupont_2012` (default), or `lee_2019`
 
 
 ### Project Hooks
@@ -129,22 +129,22 @@ Metadata with additional information and features about the dataset:
 | trna_count   | Integer          | Number of tRNA elements detected
 | trna_aa      | Integer          | Number of distinct AA with tRNA elements
 | dprotologue  | String           | Taxonumber in the Digital Protologue DB
-| ncbi_tax_id  | String           | Linking ID(s)<sup>1</sup> for NCBI Taxonomy
-| ncbi_nuccore | String           | Linking ID(s)<sup>1</sup> for NCBI Nucleotide
-| ncbi_asm     | String           | Linking ID(s)<sup>1</sup> for NCBI Assembly
-| ebi_embl     | String           | Linking ID(s)<sup>1</sup> for EBI EMBL
-| ebi_ena      | String           | Linking ID(s)<sup>1</sup> for EBI ENA
+| ncbi_tax_id  | String           | Linking ID(s) {1} for NCBI Taxonomy
+| ncbi_nuccore | String           | Linking ID(s) {1} for NCBI Nucleotide
+| ncbi_asm     | String           | Linking ID(s) {1} for NCBI Assembly
+| ebi_embl     | String           | Linking ID(s) {1} for EBI EMBL
+| ebi_ena      | String           | Linking ID(s) {1} for EBI ENA
 | web_assembly | String           | URL to download assembly
 | web_assembly_gz | String        | URL to download gzipped assembly
-| see_also     | String           | Link(s)<sup>1</sup> in the format text:url
+| see_also     | String           | Link(s) {1} in the format text:url
 | is_type      | Boolean          | If it is type material
-| is_ref_type  | Boolean          | If it is reference material<sup>2</sup>
+| is_ref_type  | Boolean          | If it is reference material {2}
 | type_rel     | String           | Relationship to type material
 | suspect      | Array(String)    | Flags indicating a suspect dataset
 
-> **<sup>1</sup>** Multiple values can be provided separated by commas or colons
+> **{1}** Multiple values can be provided separated by commas or colons
 > 
-> **<sup>2</sup>** This is not a valid type, but it represents the closest
+> **{2}** This is not a valid type, but it represents the closest
 > available dataset to material that is unavailable and unlikely to ever become
 > available. See also [Federhen, 2015, NAR](https://doi.org/10.1093/nar/gku1127)
 

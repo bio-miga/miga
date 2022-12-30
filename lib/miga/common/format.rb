@@ -155,6 +155,9 @@ class String
       .gsub(/g_c_(skew)/, 'G-C \\1')
       .gsub(/a_t_(skew)/, 'A-T \\1')
       .gsub(/x_content/, &:capitalize)
+      .gsub(/(^|_)([sl]su|a[an]i)(_|$)/, &:upcase)
+      .gsub(/^trna_/, 'tRNA ')
+      .gsub(/tRNA aa/, 'tRNA AA')
       .tr('_', ' ')
   end
 

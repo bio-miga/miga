@@ -159,18 +159,52 @@ module MiGA::Result::Stats
   end
 
   def compute_stats_ssu
-    stats = { ssu: 0, complete_ssu: 0 }
+    stats = {
+      ssu: 0, complete_ssu: 0, ssu_fragment: 0.0,
+      lsu: 0, complete_lsu: 0, lsu_fragment: 0.0
+    }
+
     Zlib::GzipReader.open(file_path(:gff)) do |fh|
       fh.each_line do |ln|
         next if ln =~ /^#/
 
         rl = ln.chomp.split("\t")
-        len = (rl[4].to_i - rl[3].to_i).abs + 1
-        stats[:max_length] = [stats[:max_length] || 0, len].max
+        feat = Hash[rl[8].split(';').map { |i| i.split('=', 2) }]
+        subunit = feat['Name'] == '16S_rRNA' ? :ssu : :lsu
+        if subunit == :ssu
+          len = (rl[4].to_i - rl[3].to_i).abs + 1
+          stats[:max_length] = [stats[:max_length] || 0, len].max
+        end
         stats[:ssu] += 1
-        stats[:complete_ssu] += 1 unless rl[8] =~ /\(partial\)/
+        if feat['product'] =~ /\(partial\)/
+          if feat['note'] =~ /aligned only (\d+) percent/
+            fragment = $1.to_f
+            stats[:"#{subunit}_fragment"] ||= [fragment, '%']
+            if fragment > stats[:"#{subunit}_fragment"][0]
+              stats[:"#{subunit}_fragment"][0] = fragment
+            end
+          end
+        else
+          stats[:"complete_#{subunit}"] += 1
+          stats[:"#{subunit}_fragment"] = [100.0, '%']
+        end
       end
     end
+
+    Zlib::GzipReader.open(file_path(:trna_list)) do |fh|
+      no = 0
+      stats[:trna_count] = 0
+      aa = {}
+      fh.each_line do |ln|
+        next if (no += 1) < 4
+        stats[:trna_count] += 1
+        row = ln.chomp.split("\t")
+        next if row[9] == 'pseudo' || row[4] == 'Undet'
+        aa[row[4].gsub(/^f?([A-Za-z]+)[0-9]?/, '\1')] = true
+      end
+      stats[:trna_aa] = aa.size
+    end if file_path(:trna_list)
+
     stats
   end
 

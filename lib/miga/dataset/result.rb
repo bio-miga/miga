@@ -295,9 +295,11 @@ module MiGA::Dataset::Result
     r = add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
       longest_ssu_gene: '.ssu.fa',
-      gff: '.ssu.gff',
+      ssu_gff: '.ssu.gff', # DEPRECATED
+      gff: '.gff',
       all_ssu_genes: '.ssu.all.fa',
-      classification: '.rdp.tsv'
+      classification: '.rdp.tsv',
+      trna_list: '.trna.txt'
     )
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]
@@ -384,10 +386,7 @@ module MiGA::Dataset::Result
   ##
   # Add result type +:stats+ at +base+ (no +_opts+ supported)
   def add_result_stats(base, _opts)
-    add_files_to_ds_result(
-      MiGA::Result.new("#{base}.json"), name,
-      trna_list: '.trna.txt'
-    )
+    MiGA::Result.new("#{base}.json")
   end
 
   ##

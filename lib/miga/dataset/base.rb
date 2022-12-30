@@ -38,13 +38,13 @@ module MiGA::Dataset::Base
     cds: '06.cds',
     # Annotation
     essential_genes: '07.annotation/01.function/01.essential',
-    ssu: '07.annotation/01.function/02.ssu',
     mytaxa: '07.annotation/02.taxonomy/01.mytaxa',
     mytaxa_scan: '07.annotation/03.qa/02.mytaxa_scan',
     # Distances (for single-species datasets)
     taxonomy: '09.distances/05.taxonomy',
     distances: '09.distances',
-    # General statistics
+    # Post-QC
+    ssu: '07.annotation/01.function/02.ssu',
     stats: '90.stats'
   }
 
@@ -72,8 +72,8 @@ module MiGA::Dataset::Base
   # Returns an Array of tasks to be executed before project-wide tasks
   @@PREPROCESSING_TASKS = [
     :raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta,
-    :assembly, :cds, :essential_genes, :ssu, :mytaxa, :mytaxa_scan,
-    :taxonomy, :distances, :stats
+    :assembly, :cds, :essential_genes, :mytaxa, :mytaxa_scan,
+    :taxonomy, :distances, :ssu, :stats
   ]
 
   ##

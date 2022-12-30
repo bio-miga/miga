@@ -24,11 +24,11 @@ and some are directories (marked with *dir*).
   - [Assembly](#assembly)
   - [CDS](#cds)
   - [Essential Genes](#essential-genes)
-  - [SSU](#ssu)
   - [MyTaxa](#mytaxa)
   - [MyTaxa Scan](#mytaxa-scan)
   - [Distances](#distances)
   - [Taxonomy](#taxonomy)
+  - [SSU](#ssu)
   - [Stats](#stats)
 - [Project Results](#project-results)
   - [hAAI Distances](#haai-distances)
@@ -85,10 +85,10 @@ MiGA symbol: `raw_reads`.
 ## Trimmed Reads
 
 This is part of *Trimming & read quality* in the above diagram. In this step,
-MiGA trims reads by Phred quality score 20 (Q20) and minimum length of 50bp
-using [SolexaQA++](external.md#solexaqa), and clips potential adapter
-contamination using [Scythe](external.md#scythe) (reapplying the length filter).
-If the reads are paired, only pairs passing the filters are used.
+MiGA trims reads and clips potential adapters with an adaptive strategy using
+a combination of [FaQCs](external.md#faqcs), [Seqtk](external.md#seqtk), and
+[fastp](external.md#fastp). The full pipeline is implemented as a stand-alone
+submodule called [multitrim](external.md#multitrim).
 
 Supported file keys:
 
@@ -99,7 +99,7 @@ Supported file keys:
   * `pair2` (*req*, *gz*): FastQ file containing trimmed/clipped reverse reads
   * `single` (*req*, *gz*): FastQ file containing trimmed/clipped reads with
     only one sister passing quality control
-* **For either type**
+* **Deprecated** (for backwards-compatibility)
   * `trimming_summary`: Raw text file containing a summary of the trimmed
     sequences
 
@@ -109,14 +109,22 @@ MiGA symbol: `trimmed_reads`.
 
 This is a quality-control step included as part of *Trimming & read quality* in
 the diagram above. In this step, MiGA generates quality reports of the
-trimmed/clipped reads using [SolexaQA++](external.md#solexaqa) and
-[FastQC](external.md#fastqc).
+trimmed/clipped reads using [Falco](external.md#falco) via
+[multitrim](external.md#multitrim).
 
 Supported file keys:
-
-* `solexaqa` (*dir*): Folder containing the SolexaQA++ quality-control
-  summaries
-* `fastqc` (*dir*): Folder containing the FastQC quality-control analyses
+* **For single and paired reads**
+  * `pre_qc_1`: HTML file with QC-report of the forward reads before trimming
+  * `post_qc_1` (*req*): HTML file with QC-report of the forward reads after
+    trimming
+  * `adapter_detection`: List of adapters identified in the first pass
+* **For paired reads only**
+  * `pre_qc_2`: HTML file with QC-report of the reverse reads before trimming
+  * `post_qc_2`: HTML file with QC-report of the reverse reads after trimming
+* **Deprecated** (for backwards-compatibility)
+  * `solexaqa` (*dir*): Folder containing the SolexaQA++ quality-control
+    summaries
+  * `fastqc` (*dir*): Folder containing the FastQC quality-control analyses
 
 MiGA symbol: `read_quality`.
 
@@ -181,7 +189,8 @@ MiGA symbol: `assembly`.
 
 This step corresponds to *Gene prediction* in the diagram above. MiGA predicts
 coding sequences (putative genes and proteins) using
-[Prodigal](external.md#prodigal).
+[Prodigal](external.md#prodigal), and automatically calculates the most likely
+codon table between 11 and 4.
 
 Supported file keys:
 
@@ -230,6 +239,8 @@ Supported file keys:
   copy counts (for metagenomes and viromes)
 * `alignments`: Generated for all genomes (non-multi types). It contains the
   best matching protein for each detected model aligned to the model
+* `fastaai_index`: A FastAAI index now deprecated (for backwards-compatibility)
+* `fastaai_index_2`: A FastAAI index with the second format version (SQLite)
 * `bac_report`: If present, this is the original report, and it indicates that a
   corrected report has been generated to accomodate particular features of the
   dataset
@@ -247,27 +258,6 @@ Statistics:
   * `quality`: Completeness - 5 x Contamination
 
 MiGA symbol: `essential_genes`.
-
-## SSU
-
-In this step, MiGA detects small-subunit rRNA genes (16S) using
-[Barrnap](external.md#barrnap) and extracts their sequences using
-[Bedtools](external.md#bedtools).
-
-Supported file keys:
-
-* `longest_ssu_gene` (*req*): FastA file containing the longest detected SSU
-  gene
-* `gff` (*gz*): GFF v3 file containing the location of detected SSU genes
-* `all_ssu_genes` (*gz*): FastA file containing all the detected SSU genes
-
-Statistics:
-
-* `ssu`: Total number of detected SSU fragments
-* `complete_ssu`: Number of complete SSU loci
-* `max_length`: Length of the longest detected SSU fragment
-
-MiGA symbol: `ssu`.
 
 ## MyTaxa
 
@@ -316,7 +306,7 @@ Supported file keys:
 * `nomytaxa`: If it exists, MiGA assumes no support for MyTaxa modules, and none
   of the above files are required
 
-Deprecated file keys:
+Deprecated file keys (for backwards-compatibility):
 
 * `wintax`: Taxonomic distribution of each window
 * `blast` (*gz*): BLAST against the reference genomes database
@@ -396,6 +386,43 @@ Statistics:
   relative, based on the observed AAI
 
 MiGA symbol: `taxonomy`
+
+## SSU
+
+In this step, MiGA detects rRNA genes (16S and 23S) using
+[Barrnap](external.md#barrnap), extracts the sequences of the small subunit
+genes (16S) using [Bedtools](external.md#bedtools), and identifies tRNA elements
+using [tRNAscan-SE](external.md#trnascan-se). If configured, it will also
+classify all the 16S rRNA genes detected using the
+[RDP Naïve Bayes Classifier](external.md#rdp-classifier).
+
+Supported file keys:
+
+* `longest_ssu_gene` (*req*): FastA file containing the longest detected SSU
+  gene
+* `gff` (*gz*): GFF v3 file containing the location of detected SSU genes
+* `all_ssu_genes` (*gz*): FastA file containing all the detected SSU genes
+* `classification`: Taxonomic classification with RDP taxonomy
+* `trna_list` (*gz*): Raw-text table with tRNA predictions
+
+Deprecated file keys (for backwards-compatibility):
+
+* `ssu_gff` (*gz*): GFF3 file containing pre-filtered SSU rRNA predictions
+
+Statistics:
+
+* `ssu`: Total number of detected SSU fragments
+* `complete_ssu`: Number of complete SSU loci
+* `ssu_fragment`: Maximum percentage covered for any detected SSU fragments
+* `lsu`: Total number of detected LSU fragments
+* `complete_lsu`: Number of complete LSU loci
+* `lsu_fragment`: Maximum percentage covered for any detected LSU fragments
+* `max_length`: Length of the longest detected SSU fragment
+* `trna_count`: Total number of tRNA elements detected (including pseudogenes)
+* `trna_aa`: Number of distinct amino acids for which tRNA elements were
+  detected (excluding pseudogenes)
+
+MiGA symbol: `ssu`.
 
 ## Stats
 

@@ -20,21 +20,32 @@ Challenges in Homology Search: HMMER3 and Convergent Evolution of Coiled-Coil
 Regions.
 [Nucleic Acids Res 41:e121](https://doi.org/10.1093/nar/gkt263).
 
-## SolexaQA++
+## FaQCs
 
-Cox MP, Peterson DA, and Biggs PJ (2010). SolexaQA: At-a-glance quality
-assessment of Illumina second-generation sequencing data.
-[BMC Bioinformatics 11:485](https://doi.org/10.1186/1471-2105-11-485).
+Chienchi L and Chain PSG (2014). Rapid evaluation and Quality Control of Next
+Generation Sequencing Data with FaQCs.
+[BMC Bioinformatics 15:366](https://doi.org/10.1186/s12859-014-0366-2).
 
-## Scythe
+## Seqtk
 
-[GitHub: vsbuffalo/scythe](https://github.com/vsbuffalo/scythe), by
-Vince Buffalo.
+[GitHub: lh3/seqtk](https://github.com/lh3/seqtk) by Heng Li et al.
 
-## FastQC
+## fastp
 
-[FastQC site](https://www.bioinformatics.babraham.ac.uk/projects/fastqc),
-by Simon Andrews.
+Chen S, Zhou Y, Chen Y, Gu J (2018). fastp: an ultra-fast all-in-one FASTQ
+preprocessor.
+[Bioinformatics 34(17):i884–i890](https://doi.org/10.1093/bioinformatics/bty560)
+
+## Falco
+
+de Sena BG and Smith AD (2021). Falco: high-speed FastQC emulation for quality
+control of sequencing data.
+[F1000Research 8:1874](https://doi.org/10.12688/f1000research.21142.2)
+
+## multitrim
+
+[GitHub: KGerhardt/multitrim](https://github.com/KGerhardt/multitrim), by
+Kenji Gerhardt et al.
 
 ## IDBA-UD
 
@@ -50,13 +61,19 @@ prokaryotic gene recognition and translation initiation site identification.
 
 ## Barrnap
 
-[GitHub: tseemann/barrnap](https://github.com/tseemann/barrnap), by Torsten
-Seemann.
+[GitHub: tseemann/barrnap](https://github.com/tseemann/barrnap),
+by Torsten Seemann.
 
 ## Bedtools
 
 [Bedtools site](http://bedtools.readthedocs.io/en/latest), by the Quinlan
 Laboratory.
+
+## RDP Classifier
+
+Wang Q, Garrity GM, Tiedje JM, and Cole JR (2007). Naïve Bayesian Classifier for
+Rapid Assignment of rRNA Sequences into the New Bacterial Taxonomy.
+[Appl Environ Microbiol 73(16):5261-7](https://doi.org/10.1128/aem.00062-07).
 
 ## MyTaxa
 
@@ -103,7 +120,8 @@ boundaries. [Nature Comm 9:5114](https://doi.org/10.1038/s41467-018-07641-9).
 
 ## FastAAI
 
-Ruiz-Perez et al. [FastAAI in GitHub](https://github.com/cruizperez/FastAAI).
+[GitHub: cruizperez/FastAAI](https://github.com/cruizperez/FastAAI), by
+Carlos Ruiz-Perez et al.
 
 ## tRNAscan-SE
 
