@@ -99,6 +99,9 @@ module MiGA::Cli::ObjectsHelper
         when 'true';  v = true
         when 'false'; v = false
         when 'nil';   v = nil
+        when /^(Int|Float)\(.*\)$/
+          tr = v =~ /^Int/ ? :to_i : :to_f
+          v = v.gsub(/.*\((.*)\)/, '\1').send(tr)
         end
         if k == '_step'
           obj.metadata["_try_#{v}"] ||= 0
