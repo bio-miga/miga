@@ -160,8 +160,8 @@ module MiGA::Result::Stats
 
   def compute_stats_ssu
     stats = {
-      ssu: 0, complete_ssu: 0, ssu_fragment: 0.0,
-      lsu: 0, complete_lsu: 0, lsu_fragment: 0.0
+      ssu: 0, complete_ssu: 0, ssu_fragment: [0.0, '%'],
+      lsu: 0, complete_lsu: 0, lsu_fragment: [0.0, '%']
     }
 
     Zlib::GzipReader.open(file_path(:gff)) do |fh|
@@ -179,7 +179,6 @@ module MiGA::Result::Stats
         if feat['product'] =~ /\(partial\)/
           if feat['note'] =~ /aligned only (\d+) percent/
             fragment = $1.to_f
-            stats[:"#{subunit}_fragment"] ||= [fragment, '%']
             if fragment > stats[:"#{subunit}_fragment"][0]
               stats[:"#{subunit}_fragment"][0] = fragment
             end
