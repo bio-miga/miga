@@ -164,18 +164,24 @@ module MiGA::Result::Stats
       lsu: 0, complete_lsu: 0, lsu_fragment: [0.0, '%']
     }
 
+    subunits = {
+      '16S_rRNA' => :ssu, '23S_rRNA' => :lsu,
+      '18S_rRNA' => :ssu, '28S_rRNA' => :lsu
+    }
     Zlib::GzipReader.open(file_path(:gff)) do |fh|
       fh.each_line do |ln|
         next if ln =~ /^#/
 
         rl = ln.chomp.split("\t")
         feat = Hash[rl[8].split(';').map { |i| i.split('=', 2) }]
-        subunit = feat['Name'] == '16S_rRNA' ? :ssu : :lsu
+        subunit = subunits[feat['Name']] or next # Ignore 5S
+
         if subunit == :ssu
           len = (rl[4].to_i - rl[3].to_i).abs + 1
           stats[:max_length] = [stats[:max_length] || 0, len].max
         end
-        stats[:ssu] += 1
+
+        stats[subunit] += 1
         if feat['product'] =~ /\(partial\)/
           if feat['note'] =~ /aligned only (\d+) percent/
             fragment = $1.to_f
@@ -185,7 +191,7 @@ module MiGA::Result::Stats
           end
         else
           stats[:"complete_#{subunit}"] += 1
-          stats[:"#{subunit}_fragment"] = [100.0, '%']
+          stats[:"#{subunit}_fragment"][0] = 100.0
         end
       end
     end
