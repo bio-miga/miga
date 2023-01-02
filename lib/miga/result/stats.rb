@@ -205,7 +205,7 @@ module MiGA::Result::Stats
         stats[:trna_count] += 1
         row = ln.chomp.split("\t")
         next if row[9] == 'pseudo' || row[4] == 'Undet'
-        aa[row[4].gsub(/^f?([A-Za-z]+)[0-9]?/, '\1')] = true
+        aa[row[4].gsub(/^[a-z]?([A-Za-z]+)[0-9]?/, '\1')] = true
       end
       stats[:trna_aa] = aa.size
     end if file_path(:trna_list)
