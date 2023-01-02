@@ -28,7 +28,7 @@ jobs:
       - run: bundle exec rake test
         env:
           REMOTE_TESTS: true
-      - uses: paambaati/codeclimate-action@v2.7.5
+      - uses: paambaati/codeclimate-action@v3.2.0
         env:
           CC_TEST_REPORTER_ID: "${{ secrets.CC_MIGA_REPORTER_ID }}"
         with:
@@ -48,7 +48,7 @@ jobs:
           gem_version="$(ruby -r rubygems -e "puts Gem::Specification::load('$(ls *.gemspec)').version")"
           unset STABLE
           [[ "$gem_version" == *.rc* ]] || STABLE='true'
-          echo "::set-output name=STABLE::${STABLE}"
+          echo "STABLE=${STABLE}" >> $GITHUB_OUTPUT
       - name: Tag and deploy
         uses: discourse/publish-rubygems-action@v2-beta
         if: steps.release.outputs.STABLE
