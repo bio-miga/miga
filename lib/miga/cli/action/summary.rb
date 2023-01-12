@@ -37,12 +37,16 @@ class MiGA::Cli::Action::Summary < MiGA::Cli::Action
     cli.ensure_par(result: '-r')
     ds = cli.load_and_filter_datasets
     cli.say 'Loading results'
+    k = 0
+    n = ds.size
     stats = ds.map do |d|
+      cli.advance('Datasets:', k += 1, n, false)
       r = d.result(cli[:result])
       r.compute_stats if cli[:compute] && !r.nil? && r[:stats].empty?
       s = r.nil? ? {} : r[:stats]
       s.tap { |i| i[:dataset] = d.name }
     end
+    cli.say ''
     keys = cli[:key_md].nil? ? stats.map(&:keys).flatten.uniq :
       [:dataset, cli[:key_md].downcase.miga_name.to_sym]
     keys.delete :dataset
