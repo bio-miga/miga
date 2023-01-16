@@ -106,6 +106,12 @@ class RemoteDatasetTest < Test::Unit::TestCase
     assert { rd.get_metadata[:is_ref_type] }
   end
 
+  def test_missing_data
+    declare_remote_access
+    rd = MiGA::RemoteDataset.new('GCA_000484975.1', :assembly, :ncbi)
+    assert_raise(MiGA::RemoteDataMissingError) { rd.save_to(project, 'bad') }
+  end
+
   # This test is too expensive (too much time to run it!)
   # def test_net_timeout
   #   declare_remote_access
