@@ -9,9 +9,9 @@ end
 module MiGA::Cli::Action::Download::Base
   def cli_filters(opt)
     opt.on(
-      '--blacklist PATH',
-      'A file with dataset names to blacklist'
-    ) { |v| cli[:blacklist] = v }
+      '--exclude PATH',
+      'A file with dataset names to exclude'
+    ) { |v| cli[:exclude] = v }
     cli.opt_flag(opt, 'dry', 'Do not download or save the datasets')
     opt.on(
       '--ignore-until STRING',
@@ -49,10 +49,10 @@ module MiGA::Cli::Action::Download::Base
     ) { |v| cli[:remote_list] = v }
   end
 
-  def discard_blacklisted(ds)
-    unless cli[:blacklist].nil?
-      cli.say "Discarding datasets in #{cli[:blacklist]}"
-      File.readlines(cli[:blacklist])
+  def discard_excluded(ds)
+    unless cli[:exclude].nil?
+      cli.say "Discarding datasets in #{cli[:exclude]}"
+      File.readlines(cli[:exclude])
           .select { |i| i !~ /^#/ }
           .map(&:chomp)
           .each { |i| ds.delete i }

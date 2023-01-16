@@ -42,7 +42,7 @@ class MiGA::Cli::Action::GtdbGet < MiGA::Cli::Action
     sanitize_cli
     p = cli.load_project
     ds = remote_list
-    ds = discard_blacklisted(ds)
+    ds = discard_excluded(ds)
     ds = impose_limit(ds)
     d, downloaded = download_entries(ds, p)
 
