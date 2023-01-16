@@ -23,6 +23,9 @@ module MiGA::Cli::Action::Download::Gtdb
 
   def sanitize_cli
     cli.ensure_par(taxon: '-T')
+    unless cli[:taxon] =~ /^[a-z]__\S+$/
+      raise 'Taxon (-T) must be in GTDB format: s__Macondimonas_diazotrophica'
+    end
     cli[:save_every] = 1 if cli[:dry]
   end
 

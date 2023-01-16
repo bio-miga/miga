@@ -31,6 +31,10 @@ class MiGA::Cli::Action::GtdbGet < MiGA::Cli::Action
       cli_name_modifiers(opt)
       cli_filters(opt)
       cli_save_actions(opt)
+      opt.on(
+        '--api-key STRING',
+        'NCBI API key'
+      ) { |v| ENV['NCBI_API_KEY'] = v }
     end
   end
 

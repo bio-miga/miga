@@ -36,9 +36,17 @@ module MiGA::Cli::Action::Wf
         'Download all the genomes in NCBI classified as this taxon'
       ) { |v| cli[:ncbi_taxon] = v }
       opt.on(
+        '-G', '--gtdb-taxon STRING',
+        'Download all the genomes in GTDB classified as this taxon'
+      ) { |v| cli[:gtdb_taxon] = v }
+      opt.on(
         '--no-draft',
-        'Only download complete genomes, not drafts'
+        'Only download complete genomes, not drafts (requires -T)'
       ) { |v| cli[:ncbi_draft] = v }
+      opt.on(
+        '--gtdb-ref',
+        'Only download reference anchor genomes in GTDB (requires -G)'
+      ) { |v| cli[:gtdb_ref] = v }
       opt.on(
         '--max-download INT', Integer,
         'Maximum number of genomes to download (by default: unlimited)'
@@ -136,10 +144,18 @@ module MiGA::Cli::Action::Wf
       p.set_option(i, cli[i])
     end
 
-    # Download datasets
+    # Download datasets from NCBI
     unless cli[:ncbi_taxon].nil?
       what = cli[:ncbi_draft] ? '--all' : '--complete'
       cmd = ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
+      cmd += ['--max', cli[:ncbi_max]] if cli[:ncbi_max]
+      call_cli(cmd)
+    end
+
+    # Download datasets from GTDB
+    unless cli[:gtdb_taxon].nil?
+      cmd = ['gtdb_get', '-P', cli[:outdir], '-T', cli[:gtdb_taxon]]
+      cmd << '--reference' if cli[:gtdb_ref]
       cmd += ['--max', cli[:ncbi_max]] if cli[:ncbi_max]
       call_cli(cmd)
     end

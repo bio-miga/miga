@@ -25,7 +25,7 @@ module MiGA::Cli::Action::Download::Base
 
   def cli_save_actions(opt)
     cli.opt_flag(
-      opt, '--only-metadata',
+      opt, 'only-metadata',
       'Create datasets without input data but retrieve all metadata',
       :only_md
     )
