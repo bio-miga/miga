@@ -38,6 +38,7 @@ class MiGA::Cli::Action::GtdbGet < MiGA::Cli::Action
     end
   end
 
-  alias :generic_perform :perform
-
+  def perform
+    generic_perform
+  end
 end

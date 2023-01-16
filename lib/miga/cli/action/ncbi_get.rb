@@ -40,6 +40,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     end
   end
 
-  alias :generic_perform :perform
-
+  def perform
+    generic_perform
+  end
 end
