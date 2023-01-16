@@ -105,7 +105,7 @@ module MiGA::Cli::Action::Download::Base
   # Saves the (generic remote) entry identified by +name+ with +body+ into the
   # project +p+, and returns +true+ on success and +false+ otherwise
   def save_entry(name, body, p)
-    cli.say '  Locating remote dataset'
+    cli.say "  Locating remote dataset: #{name}"
     body[:md][:metadata_only] = true if cli[:only_md]
     rd = MiGA::RemoteDataset.new(body[:ids], body[:db], body[:universe])
     if cli[:get_md]
@@ -119,6 +119,7 @@ module MiGA::Cli::Action::Download::Base
     true
   rescue MiGA::RemoteDataMissingError => e
     raise(e) unless cli[:ignore_removed]
+    cli.say "    Removed dataset ignored: #{name}"
     false
   end
 end
