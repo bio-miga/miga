@@ -1,9 +1,6 @@
 require 'miga/cli/action'
 require 'miga/sqlite'
 
-class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
-end
-
 module MiGA::Cli::Action::Doctor::Base
   ##
   # Check the database in +db_file+ maintains integrity for the
@@ -156,5 +153,21 @@ module MiGA::Cli::Action::Doctor::Base
         db.execute('COMMIT;')
       end
     end
+  end
+
+  ##
+  # Run command +cmd+ with options +opts+
+  def run_cmd(cmd, opts = {})
+    opts = { return: :output, err2out: true, raise: false }.merge(opts)
+    cmdo = MiGA::MiGA.run_cmd(cmd, opts).chomp
+    warn(cmdo) unless cmdo.empty?
+  end
+
+  ##
+  # Check if the essential genes result +res+ has an outdated FastAAI index
+  def outdated_fastaai_ess(res)
+    idx1 = res.file_path(:fastaai_index)
+    idx2 = res.file_path(:fastaai_index_2)
+    idx2.nil? && !idx1.nil?
   end
 end
