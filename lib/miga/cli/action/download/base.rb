@@ -17,6 +17,10 @@ module MiGA::Cli::Action::Download::Base
       '--ignore-until STRING',
       'Ignores all datasets until a name is found (useful for large reruns)'
     ) { |v| cli[:ignore_until] = v }
+    opt.on(
+      '--ignore-removed',
+      'Ignores entries removed from NCBI (by default fails on removed entries)'
+    ) { |v| cli[:ignore_removed] = v }
     cli.opt_flag(
       opt, 'get-metadata',
       'Only download and update metadata for existing datasets', :get_md
@@ -84,7 +88,11 @@ module MiGA::Cli::Action::Download::Base
 
       downloaded += 1
       unless cli[:dry]
-        save_entry(name, body, p)
+        unless save_entry(name, body, p)
+          downloaded -= 1
+          d.pop
+          next
+        end
         p.save! if cli[:save_every] > 1 && (downloaded % cli[:save_every]).zero?
       end
     end
@@ -93,6 +101,9 @@ module MiGA::Cli::Action::Download::Base
     [d, downloaded]
   end
 
+  ##
+  # Saves the (generic remote) entry identified by +name+ with +body+ into the
+  # project +p+, and returns +true+ on success and +false+ otherwise
   def save_entry(name, body, p)
     cli.say '  Locating remote dataset'
     body[:md][:metadata_only] = true if cli[:only_md]
@@ -105,5 +116,9 @@ module MiGA::Cli::Action::Download::Base
       rd.save_to(p, name, !cli[:query], body[:md])
       cli.add_metadata(p.add_dataset(name))
     end
+    true
+  rescue MiGA::RemoteDataMissingError => e
+    raise(e) unless cli[:ignore_removed]
+    false
   end
 end

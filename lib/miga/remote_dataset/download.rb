@@ -43,6 +43,12 @@ class MiGA::RemoteDataset
     # +format+: String, passed to download
     def ncbi_asm_rest(opts)
       url_dir = opts[:obj].ncbi_asm_json_doc['ftppath_genbank']
+      if url_dir.nil? || url_dir.empty?
+        raise MiGA::RemoteDataMissingError.new(
+          "Missing ftppath_genbank in NCBI Assembly JSON"
+        )
+      end
+
       url = "#{url_dir}/#{File.basename url_dir}_genomic.fna.gz"
       download(
         :web, :assembly_gz, url,
