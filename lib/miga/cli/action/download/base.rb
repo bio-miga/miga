@@ -53,6 +53,40 @@ module MiGA::Cli::Action::Download::Base
     ) { |v| cli[:remote_list] = v }
   end
 
+  def generic_perform
+    p, ds = load_tasks
+    d, downloaded = download_entries(ds, p)
+
+    # Finalize
+    finalize_tasks(d, downloaded)
+    unlink_entries(p, p.dataset_names - d) if cli[:unlink]
+  end
+
+  def load_tasks
+    sanitize_cli
+    p = cli.load_project
+    ds = remote_list
+    ds = discard_excluded(ds)
+    ds = impose_limit(ds)
+    [p, ds]
+  end
+
+  def finalize_tasks(d, downloaded)
+    cli.say "Datasets listed: #{d.size}"
+    act = cli[:dry] ? 'to download' : 'downloaded'
+    cli.say "Datasets #{act}: #{downloaded}"
+    unless cli[:remote_list].nil?
+      File.open(cli[:remote_list], 'w') do |fh|
+        d.each { |i| fh.puts i }
+      end
+    end
+  end
+
+  def unlink_entries(p, unlink)
+    unlink.each { |i| p.unlink_dataset(i).remove! }
+    cli.say "Datasets unlinked: #{unlink.size}"
+  end
+
   def discard_excluded(ds)
     unless cli[:exclude].nil?
       cli.say "Discarding datasets in #{cli[:exclude]}"

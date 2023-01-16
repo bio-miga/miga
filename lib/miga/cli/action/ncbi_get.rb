@@ -40,28 +40,6 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
     end
   end
 
-  def perform
-    sanitize_cli
-    p = cli.load_project
-    ds = remote_list
-    ds = discard_excluded(ds)
-    ds = impose_limit(ds)
-    d, downloaded = download_entries(ds, p)
-
-    # Finalize
-    cli.say "Datasets listed: #{d.size}"
-    act = cli[:dry] ? 'to download' : 'downloaded'
-    cli.say "Datasets #{act}: #{downloaded}"
-    unless cli[:remote_list].nil?
-      File.open(cli[:remote_list], 'w') do |fh|
-        d.each { |i| fh.puts i }
-      end
-    end
-    return unless cli[:unlink]
-
-    unlink = p.dataset_names - d
-    unlink.each { |i| p.unlink_dataset(i).remove! }
-    cli.say "Datasets unlinked: #{unlink.size}"
-  end
+  alias :generic_perform :perform
 
 end
