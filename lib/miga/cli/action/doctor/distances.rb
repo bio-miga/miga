@@ -38,7 +38,43 @@ module MiGA::Cli::Action::Doctor::Distances
     cli.say 'Checking if reference distances are bidirectional'
     project = cli.load_project
     ref_ds = project.each_dataset.select(&:ref?)
-    ref_names = ref_ds.map(&:name)
+
+    # Read and merge data
+    tmp = partial_bidir_tmp(project, ref_ds)
+    dist = merge_bidir_tmp(tmp)
+    FileUtils.rm_rf(tmp)
+
+    # Write missing values (threaded)
+    MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
+      cli.advance('Datasets:', idx + 1, ref_ds.size, false) if thr == 0
+      save_bidirectional(ds, dist)
+    end
+    cli.say
+  end
+
+  ##
+  # Perform distances operation with MiGA::Cli +cli+
+  def check_dist(cli)
+    p = cli.load_project
+    %i[ani aai].each do |dist|
+      res = p.result("#{dist}_distances")
+      next if res.nil?
+
+      cli.say "Checking #{dist} table for consistent datasets"
+      notok, fix = check_dist_eval(cli, p, res)
+      check_dist_fix(cli, p, fix)
+      check_dist_recompute(cli, res, notok)
+    end
+  end
+
+  #---- Auxuliary functions -----
+
+  ##
+  # Make a temporal directory holding partial bidirectionality reports (one per thread)
+  # in a custom multi-JSON format. Requires a MiGA::Project +project+ and the iterator of
+  # the reference datasets +ref_ds+. Returns the path to the temporal directory created.
+  # Used by +check_bidir+
+  def partial_bidir_tmp(project, ref_ds)
     n = ref_ds.size
 
     # Read data first (threaded)
@@ -66,7 +102,14 @@ module MiGA::Cli::Action::Doctor::Distances
       end
     end
 
-    # Merge pieces per thread
+    return tmp
+  end
+
+  ##
+  # Read partial temporal reports of bidirectionality (located in +tmp+), and return
+  # a two-deep hash with the final missingness report by metric (first key) and
+  # dataset name (second key). Used by +check_bidir+
+  def merge_bidir_tmp(tmp)
     dist = { aai: {}, ani: {} }
     cli[:threads].times do |i|
       cli.advance('Merging:', i + 1, cli[:threads], false)
@@ -75,6 +118,7 @@ module MiGA::Cli::Action::Doctor::Distances
         metric = nil
         fh.each do |ln|
           qry, row = ln.chomp.split(' ', 2)
+          row or raise "Unexpected format in #{file}:#{$.}"
           if qry == '#'
             metric = row.to_sym
           else
@@ -93,29 +137,8 @@ module MiGA::Cli::Action::Doctor::Distances
       end
     end
     cli.say
-    FileUtils.rm_rf(tmp)
 
-    # Write missing values (threaded)
-    MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
-      cli.advance('Datasets:', idx + 1, n, false) if thr == 0
-      save_bidirectional(ds, dist)
-    end
-    cli.say
-  end
-
-  ##
-  # Perform distances operation with MiGA::Cli +cli+
-  def check_dist(cli)
-    p = cli.load_project
-    %i[ani aai].each do |dist|
-      res = p.result("#{dist}_distances")
-      next if res.nil?
-
-      cli.say "Checking #{dist} table for consistent datasets"
-      notok, fix = check_dist_eval(cli, p, res)
-      check_dist_fix(cli, p, fix)
-      check_dist_recompute(cli, res, notok)
-    end
+    return dist
   end
 end
 

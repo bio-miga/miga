@@ -3,9 +3,11 @@
 
 class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   require 'miga/cli/action/doctor/base'
+  require 'miga/cli/action/doctor/databases'
   require 'miga/cli/action/doctor/distances'
   require 'miga/cli/action/doctor/operations'
   include MiGA::Cli::Action::Doctor::Base
+  include MiGA::Cli::Action::Doctor::Databases
   include MiGA::Cli::Action::Doctor::Distances
   include MiGA::Cli::Action::Doctor::Operations
 
