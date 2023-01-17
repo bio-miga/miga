@@ -7,18 +7,47 @@ class MiGA::Dataset < MiGA::MiGA
 
   # Class-level
   class << self
+    ##
+    # Directories containing the results from dataset-specific tasks
     def RESULT_DIRS
       @@RESULT_DIRS
     end
 
+    ##
+    # Supported dataset types
     def KNOWN_TYPES
       @@KNOWN_TYPES
     end
 
+    ##
+    # Returns an Array of tasks (Symbols) to be executed before project-wide
+    # tasks
     def PREPROCESSING_TASKS
       @@PREPROCESSING_TASKS
     end
 
+    ##
+    # Tasks to be excluded from query datasets
+    def EXCLUDE_NOREF_TASKS
+      @@EXCLUDE_NOREF_TASKS
+    end
+
+    ##
+    # Tasks to be executed only in datasets that are single-organism. These
+    # tasks are ignored for multi-organism datasets or for unknown types
+    def ONLY_NONMULTI_TASKS
+      @@ONLY_NONMULTI_TASKS
+    end
+
+    ##
+    # Tasks to be executed only in datasets that are multi-organism. These
+    # tasks are ignored for single-organism datasets or for unknwon types
+    def ONLY_MULTI_TASKS
+      @@ONLY_MULTI_TASKS
+    end
+
+    ##
+    # Options supported by datasets
     def OPTIONS
       @@OPTIONS
     end
@@ -69,7 +98,7 @@ module MiGA::Dataset::Base
   }
 
   ##
-  # Returns an Array of tasks to be executed before project-wide tasks
+  # Returns an Array of tasks (Symbols) to be executed before project-wide tasks
   @@PREPROCESSING_TASKS = [
     :raw_reads, :trimmed_reads, :read_quality, :trimmed_fasta,
     :assembly, :cds, :essential_genes, :mytaxa, :mytaxa_scan,
@@ -77,19 +106,19 @@ module MiGA::Dataset::Base
   ]
 
   ##
-  # Tasks to be excluded from query datasets.
+  # Tasks to be excluded from query datasets
   @@EXCLUDE_NOREF_TASKS = [:mytaxa_scan, :taxonomy]
   @@_EXCLUDE_NOREF_TASKS_H = Hash[@@EXCLUDE_NOREF_TASKS.map { |i| [i, true] }]
 
   ##
-  # Tasks to be executed only in datasets that are not multi-organism. These
-  # tasks are ignored for multi-organism datasets or for unknown types.
+  # Tasks to be executed only in datasets that are single-organism. These
+  # tasks are ignored for multi-organism datasets or for unknown types
   @@ONLY_NONMULTI_TASKS = [:mytaxa_scan, :taxonomy, :distances]
   @@_ONLY_NONMULTI_TASKS_H = Hash[@@ONLY_NONMULTI_TASKS.map { |i| [i, true] }]
 
   ##
   # Tasks to be executed only in datasets that are multi-organism. These
-  # tasks are ignored for single-organism datasets or for unknwon types.
+  # tasks are ignored for single-organism datasets or for unknwon types
   @@ONLY_MULTI_TASKS = [:mytaxa]
   @@_ONLY_MULTI_TASKS_H = Hash[@@ONLY_MULTI_TASKS.map { |i| [i, true] }]
 
