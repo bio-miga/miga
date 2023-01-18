@@ -19,6 +19,7 @@ dependencies:
   - bedtools
   - prodigal
   - barrnap
+  - trnascan-se
   - krona
 
   # Distances

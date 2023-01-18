@@ -58,18 +58,20 @@ module MiGA::Dataset::Result
   # - 2 for a queued result (a task yet to be executed).
   # It passes +save+ to #add_result
   def profile_advance(save = false)
+    # Determine the start point
     first_task = first_preprocessing(save)
-    return Array.new(@@PREPROCESSING_TASKS.size, 0) if first_task.nil?
+    return Array.new(self.class.PREPROCESSING_TASKS.size, 0) if first_task.nil?
 
-    adv = []
-    state = 0
-    next_task = next_preprocessing(save)
-    @@PREPROCESSING_TASKS.each do |task|
+    # Traverse all tasks
+    adv, state, next_task = [[], 0, next_preprocessing(save)]
+    self.class.PREPROCESSING_TASKS.each do |task|
       state = 1 if first_task == task
       state = 2 if !next_task.nil? && next_task == task
       adv << state
     end
-    adv
+
+    # Return advance array
+    return adv
   end
 
   ##
@@ -88,9 +90,9 @@ module MiGA::Dataset::Result
   def result_status(task)
     reason = why_ignore(task)
     case reason
-    when :upstream; :-
-    when :execute; :pending
-    when :complete; :complete
+    when :upstream then :-
+    when :execute  then :pending
+    when :complete then :complete
     else; :"ignore_#{reason}"
     end
   end
@@ -99,23 +101,33 @@ module MiGA::Dataset::Result
   # Clean-up all the stored distances, removing values for datasets no longer in
   # the project as reference datasets.
   def cleanup_distances!
-    r = get_result(:distances)
-    return if r.nil?
+    return if get_result(:distances).nil?
 
     require 'miga/sqlite'
     ref = project.datasets.select(&:ref?).select(&:active?).map(&:name)
-    %i[haai_db aai_db ani_db].each do |db_type|
-      db = r.file_path(db_type)
-      next if db.nil? || !File.size?(db)
-
-      sqlite_db = MiGA::SQLite.new(db)
-      table = db_type[-6..-4]
-      val = sqlite_db.run("select seq2 from #{table}")
-      next if val.empty?
-
-      (val.map(&:first) - ref).each do |extra|
-        sqlite_db.run("delete from #{table} where seq2=?", extra)
-      end
+    %i[haai aai ani].each do |metric|
+      cleanup_distances_by_metric!(ref, metric)
     end
   end
+
+  private
+
+  ##
+  # Cleanup the tables of a specific +metric+ (symbol) removing all values
+  # against dataset names not in +ref+ (Array of string)
+  def cleanup_distances_by_metric!(ref, metric)
+    db_type = :"#{metric}_db"
+    db = get_result(:distances).file_path(db_type)
+    return if db.nil? || !File.size?(db)
+
+    sqlite_db = MiGA::SQLite.new(db)
+    table = db_type[-6..-4]
+    val = sqlite_db.run("select seq2 from #{table}")
+    return if val.empty?
+
+    (val.map(&:first) - ref).each do |extra|
+      sqlite_db.run("delete from #{table} where seq2=?", extra)
+    end
+  end
+
 end
