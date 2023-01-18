@@ -59,19 +59,17 @@ module MiGA::Dataset::Result
   # It passes +save+ to #add_result
   def profile_advance(save = false)
     # Determine the start point
-    first_task = first_preprocessing(save)
-    return Array.new(self.class.PREPROCESSING_TASKS.size, 0) if first_task.nil?
+    first_task = first_preprocessing(save) or
+      return Array.new(self.class.PREPROCESSING_TASKS.size, 0)
 
-    # Traverse all tasks
-    adv, state, next_task = [[], 0, next_preprocessing(save)]
-    self.class.PREPROCESSING_TASKS.each do |task|
+    # Traverse all tasks and determine the corresponding state
+    state = 0
+    next_task = next_preprocessing(save)
+    self.class.PREPROCESSING_TASKS.map do |task|
       state = 1 if first_task == task
       state = 2 if !next_task.nil? && next_task == task
-      adv << state
+      state
     end
-
-    # Return advance array
-    return adv
   end
 
   ##
@@ -129,5 +127,4 @@ module MiGA::Dataset::Result
       sqlite_db.run("delete from #{table} where seq2=?", extra)
     end
   end
-
 end
