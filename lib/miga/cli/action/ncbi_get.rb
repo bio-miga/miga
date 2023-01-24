@@ -20,21 +20,17 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '-T', '--taxon STRING',
         '(Mandatory) Taxon name (e.g., a species binomial)'
       ) { |v| cli[:taxon] = v }
-      opt.on(
-        '--max INT', Integer,
-        'Maximum number of datasets to download (by default: unlimited)'
-      ) { |v| cli[:max_datasets] = v }
-      opt.on(
-        '-m', '--metadata STRING',
-        'Metadata as key-value pairs separated by = and delimited by comma',
-        'Values are saved as strings except for booleans (true / false) or nil'
-      ) { |v| cli[:metadata] = v }
+      cli_base_flags(opt)
       cli_task_flags(opt)
       cli_name_modifiers(opt)
       cli_filters(opt)
       cli_save_actions(opt)
       opt.on(
         '--api-key STRING',
+        '::HIDE::' # For backwards compatibility
+      ) { |v| ENV['NCBI_API_KEY'] = v }
+      opt.on(
+        '--ncbi-api-key STRING',
         'NCBI API key'
       ) { |v| ENV['NCBI_API_KEY'] = v }
     end

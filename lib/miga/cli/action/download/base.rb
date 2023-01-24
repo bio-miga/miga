@@ -7,6 +7,18 @@ end
 ##
 # Helper module including download functions for the *_get actions
 module MiGA::Cli::Action::Download::Base
+  def cli_base_flags(opt)
+    opt.on(
+      '--max INT', Integer,
+      'Maximum number of datasets to download (by default: unlimited)'
+    ) { |v| cli[:max_datasets] = v }
+    opt.on(
+      '-m', '--metadata STRING',
+      'Metadata as key-value pairs separated by = and delimited by comma',
+      'Values are saved as strings except for booleans (true / false) or nil'
+    ) { |v| cli[:metadata] = v }
+  end
+
   def cli_filters(opt)
     opt.on(
       '--exclude PATH',

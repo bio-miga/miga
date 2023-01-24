@@ -18,15 +18,7 @@ class MiGA::Cli::Action::GtdbGet < MiGA::Cli::Action
         '-T', '--taxon STRING',
         '(Mandatory) Taxon name in GTDB format (e.g., g__Escherichia)'
       ) { |v| cli[:taxon] = v }
-      opt.on(
-        '--max INT', Integer,
-        'Maximum number of datasets to download (by default: unlimited)'
-      ) { |v| cli[:max_datasets] = v }
-      opt.on(
-        '-m', '--metadata STRING',
-        'Metadata as key-value pairs separated by = and delimited by comma',
-        'Values are saved as strings except for booleans (true / false) or nil'
-      ) { |v| cli[:metadata] = v }
+      cli_base_flags(opt)
       cli_task_flags(opt)
       cli_name_modifiers(opt)
       cli_filters(opt)
