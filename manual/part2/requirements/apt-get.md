@@ -4,11 +4,11 @@
 
 If you prefer to see code in action, the full installation process
 with apt-get is available as a
-[Notebook in Google Colab](https://colab.research.google.com/drive/1DhEMlcFwGgzW6q_fGEHLsihRSTK6ZRXD).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/78f2f48eadce96bc2dd526fd194fb00a/miga_1-2_apt_installation.ipynb).
 
 ## Packages
 
-If you have `apt-get`, execute:
+Run:
 
 ```bash
 sudo apt-get update
@@ -16,8 +16,7 @@ sudo apt-get install \
   ruby ruby-sqlite3 r-base sqlite3 python \
   libcurl4-openssl-dev zlib1g zlib1g-dev \
   ncbi-blast+ hmmer bedtools idba prodigal \
-  mcl barrnap diamond-aligner
-sudo ln -s $(which diamond-aligner)
+  mcl barrnap diamond-aligner trnascan-se
 ```
 
 ## Additional Software
@@ -46,9 +45,9 @@ curl -Lso fastp "http://opengene.org/fastp/fastp"
 sudo install fastp /usr/bin/ && rm fastp
 
 # FastANI
-curl -Lso fastani-Linux64-v1.32.zip \
-  "https://github.com/ParBLiSS/FastANI/releases/download/v1.32/fastani-Linux64-v1.32.zip"
-unzip fastani-Linux64-v1.32.zip fastANI > /dev/null && rm fastani-Linux64-v1.32.zip
+curl -Lso fastani-Linux64-v1.33.zip \
+  "https://github.com/ParBLiSS/FastANI/releases/download/v1.33/fastani-Linux64-v1.33.zip"
+unzip fastani-Linux64-v1.33.zip fastANI > /dev/null && rm fastani-Linux64-v1.33.zip
 sudo install fastANI /usr/bin/ && rm fastANI
 ```
 
