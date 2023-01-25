@@ -12,14 +12,32 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Class-level
 
   class << self
-    def ncbi_asm_acc2id(acc)
+    ##
+    # Translate an NCBI Assembly Accession (+acc+) to corresponding internal
+    # NCBI ID, with up to +retrials+ retrials if the returned JSON document
+    # does not conform to the expected format
+    def ncbi_asm_acc2id(acc, retrials = 3)
       return acc if acc =~ /^\d+$/
 
       search_doc = MiGA::Json.parse(
         download(:ncbi_search, :assembly, acc, :json),
         symbolize: false, contents: true
       )
-      (search_doc['esearchresult']['idlist'] || []).first
+      out = (search_doc['esearchresult']['idlist'] || []).first
+      if out.nil?
+        raise MiGA::RemoteDataMissingError.new(
+          "NCBI Assembly Accession not found: #{acc}"
+        )
+      end
+      return out
+    rescue MiGA::RemoteDataMissingError => e
+      if retrials <= 0
+        raise e
+      else
+        MiGA::MiGA.DEBUG("#{self}.ncbi_asm_acc2id - RETRY #{retrials}")
+        retrials -= 1
+        retry
+      end
     end
   end
 

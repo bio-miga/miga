@@ -63,7 +63,9 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   def test_asm_acc2id
     declare_remote_access
-    assert_nil(MiGA::RemoteDataset.ncbi_asm_acc2id('NotAnAccession'))
+    assert_raise(MiGA::RemoteDataMissingError) do
+      MiGA::RemoteDataset.ncbi_asm_acc2id('NotAnAccession', 1)
+    end
     id = MiGA::RemoteDataset.ncbi_asm_acc2id('GCA_004684205.1')
     assert_equal('2514661', id)
     assert_equal(id, MiGA::RemoteDataset.ncbi_asm_acc2id(id))
