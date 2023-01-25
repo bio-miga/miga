@@ -38,7 +38,7 @@ brew tap brewsci/bio
 brew install \
     r sqlite3 python temurin \
     blast hmmer bedtools prodigal gmp idba mcl krona \
-    barrnap diamond fastani faqcs falco seqtk fastp
+    barrnap diamond fastani faqcs falco seqtk fastp trnascan
 ```
 
 We also recommend installing the `sqlite3` gem beforehand using the brew
