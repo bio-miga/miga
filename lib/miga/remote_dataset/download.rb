@@ -42,7 +42,7 @@ class MiGA::RemoteDataset
     # +extra+: Array, passed to download
     # +format+: String, passed to download
     def ncbi_asm_rest(opts)
-      url_dir = opts[:obj].ncbi_asm_json_doc['ftppath_genbank']
+      url_dir = opts[:obj].ncbi_asm_json_doc&.dig('ftppath_genbank')
       if url_dir.nil? || url_dir.empty?
         raise MiGA::RemoteDataMissingError.new(
           "Missing ftppath_genbank in NCBI Assembly JSON"
@@ -60,7 +60,8 @@ class MiGA::RemoteDataset
     # Download data from NCBI GenBank (nuccore) database using the REST method.
     # Supported +opts+ (Hash) are the same as #download_rest and #ncbi_asm_rest.
     def ncbi_gb_rest(opts)
-      o = download_rest(opts)
+      # Simply use defaults, but ensure that the URL can be properly formed
+      o = download_rest(opts.merge(universe: :ncbi, db: :nuccore, format: :gb))
       return o unless o.strip.empty?
 
       MiGA::MiGA.DEBUG 'Empty sequence, attempting download from NCBI assembly'
