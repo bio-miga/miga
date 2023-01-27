@@ -168,6 +168,12 @@ class MiGA::Taxonomy < MiGA::MiGA
     hsh.to_json(*a)
   end
 
+  ##
+  # Generate a duplicate of the current object
+  def dup
+    self.class.new(to_s, nil, alternative.map(&:dup))
+  end
+
   private
 
   def initialize_by_str(str)
