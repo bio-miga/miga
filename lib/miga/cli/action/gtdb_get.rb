@@ -19,6 +19,10 @@ class MiGA::Cli::Action::GtdbGet < MiGA::Cli::Action
         '(Mandatory) Taxon name in GTDB format (e.g., g__Escherichia)'
       ) { |v| cli[:taxon] = v }
       cli_base_flags(opt)
+      opt.on(
+        '--ncbi-taxonomy',
+        'Retrieve NCBI taxonomy instead of GTDB taxonomy'
+      ) { |v| cli[:get_ncbi_taxonomy] = v }
       cli_task_flags(opt)
       cli_name_modifiers(opt)
       cli_filters(opt)

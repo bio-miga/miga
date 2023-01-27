@@ -43,7 +43,10 @@ module MiGA::Cli::Action::Download::Gtdb
           remote_row_name(acc),
           {
             ids: [acc], db: :assembly, universe: :gtdb,
-            md: { type: :genome, gtdb_assembly: acc }
+            md: {
+              type: :genome, gtdb_assembly: acc,
+              get_ncbi_taxonomy: cli[:get_ncbi_taxonomy]
+            }
           }
         ]
       end

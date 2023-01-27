@@ -118,6 +118,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get metadata from the remote location.
   def get_metadata(metadata_def = {})
     metadata_def.each { |k, v| @metadata[k] = v }
+
     case universe
     when :ebi, :ncbi, :web
       # Get taxonomy
@@ -126,14 +127,20 @@ class MiGA::RemoteDataset < MiGA::MiGA
       # Get taxonomy
       @metadata[:tax] = get_gtdb_taxonomy
     end
+
+    if metadata[:get_ncbi_taxonomy]
+      tax = get_ncbi_taxonomy
+      tax&.add_alternative(@metadata[:tax].dup, false) if @metadata[:tax]
+      @metadata[:tax] = tax
+    end
+    @metadata[:get_ncbi_taxonomy] = nil
     @metadata = get_type_status(metadata)
   end
 
   ##
   # Get NCBI Taxonomy ID.
   def get_ncbi_taxid
-    origin = (universe == :ncbi and db == :assembly) ? :web : universe
-    send("get_ncbi_taxid_from_#{origin}")
+    send("get_ncbi_taxid_from_#{universe}")
   end
 
   ##
@@ -141,9 +148,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # +metadata+ hash.
   def get_type_status(metadata)
     if metadata[:ncbi_asm]
-      get_type_status_ncbi_asm metadata
+      get_type_status_ncbi_asm(metadata)
     elsif metadata[:ncbi_nuccore]
-      get_type_status_ncbi_nuccore metadata
+      get_type_status_ncbi_nuccore(metadata)
     else
       metadata
     end
@@ -218,7 +225,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   def get_ncbi_taxid_from_ncbi
-    doc = self.class.download(universe, db, ids, :gb).split(/\n/)
+    return get_ncbi_taxid_from_web if db == :assembly
+
+    doc = self.class.download(:ncbi, db, ids, :gb, nil, [], self).split(/\n/)
     ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
     return nil if ln.nil?
 
@@ -228,8 +237,10 @@ class MiGA::RemoteDataset < MiGA::MiGA
     ln
   end
 
+  alias :get_ncbi_taxid_from_gtdb :get_ncbi_taxid_from_ncbi
+
   def get_ncbi_taxid_from_ebi
-    doc = self.class.download(universe, db, ids, :annot).split(/\n/)
+    doc = self.class.download(:ebi, db, ids, :annot).split(/\n/)
     ln = doc.grep(%r{^FT\s+/db_xref="taxon:}).first
     ln = doc.grep(/^OX\s+NCBI_TaxID=/).first if ln.nil?
     return nil if ln.nil?
