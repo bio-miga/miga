@@ -30,7 +30,14 @@ class MiGA::RemoteDataset < MiGA::MiGA
         )
       end
       return out
-    rescue MiGA::RemoteDataMissingError => e
+    rescue JSON::ParserError, MiGA::RemoteDataMissingError => e
+      # Note that +JSON::ParserError+ is being rescued because the NCBI backend
+      # may in some cases return a malformed JSON response indicating that the
+      # "Search Backend failed". The issue with the JSON payload is that it
+      # includes two tab characters (\t\t) in the error message, which is not
+      # allowed by the JSON specification and causes a parsing error
+      # (see https://www.rfc-editor.org/rfc/rfc4627#page-4)
+
       if retrials <= 0
         raise e
       else
