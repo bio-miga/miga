@@ -128,7 +128,10 @@ class MiGA::Daemon < MiGA::MiGA
     say(*msg) if verbosity >= level
   end
 
-  alias miga_say say
+  ##
+  # Rename the orginal MiGA::MiGA.say as +miga_say+, allowing
+  # external reporting since MiGA::Daemon overwrites +say+
+  alias_method :miga_say, :say
 
   ##
   # Same as +l_say+ with +level = 1+

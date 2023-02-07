@@ -143,14 +143,16 @@ class MiGA::Lair < MiGA::MiGA
   end
 
   ##
-  # Launch daemon for the MiGA::Project +project+
+  # Launch daemon for the MiGA::Project +project+ and returns the corresponding
+  # MiGA::Daemon object
   def launch_daemon(project)
     say "Launching daemon: #{project.path}"
-    d = MiGA::Daemon.new(project, options[:json])
-    d.runopts(:shutdown_when_done, true) unless options[:keep_inactive]
+    daemon = MiGA::Daemon.new(project, options[:json])
+    daemon.runopts(:shutdown_when_done, true) unless options[:keep_inactive]
     unless options[:dry]
-      d.start
+      daemon.start
       sleep(1) # <- to make sure the daemon started up (it takes about 0.1 secs)
     end
+    daemon
   end
 end
