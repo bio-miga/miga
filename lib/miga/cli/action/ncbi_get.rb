@@ -30,6 +30,12 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '::HIDE::' # For backwards compatibility
       ) { |v| ENV['NCBI_API_KEY'] = v }
       opt.on(
+        '--ncbi-table-file STRING',
+        '::HIDE::' # Only meant for debugging
+        # It can take the table returned by NCBI and parse it from a file
+        # instead of downloading it directly
+      ) { |v| cli[:ncbi_table_file] = v }
+      opt.on(
         '--ncbi-api-key STRING',
         'NCBI API key'
       ) { |v| ENV['NCBI_API_KEY'] = v }

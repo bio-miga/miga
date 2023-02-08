@@ -52,10 +52,22 @@ module MiGA::Cli::Action::Download::Ncbi
   end
 
   def remote_list
-    cli.say 'Downloading genome list'
+    doc =
+      if cli[:ncbi_table_file]
+        cli.say 'Reading genome list from file'
+        File.open(cli[:ncbi_table_file], 'r')
+      else
+        cli.say 'Downloading genome list'
+        url = remote_list_url
+        MiGA::RemoteDataset.download_url(url)
+      end
+    ds = parse_csv_as_datasets(doc)
+    doc.close if cli[:ncbi_table_file]
+    ds
+  end
+  
+  def parse_csv_as_datasets(doc)
     ds = {}
-    url = remote_list_url
-    doc = MiGA::RemoteDataset.download_url(url)
     CSV.parse(doc, headers: true).each do |r|
       asm = r['assembly']
       next if asm.nil? || asm.empty? || asm == '-'
