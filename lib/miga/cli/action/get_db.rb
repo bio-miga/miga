@@ -29,9 +29,9 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
         "Local directory to store the database. By default: #{cli[:local]}"
       ) { |v| cli[:local] = v }
       opt.on(
-        '-h', '--host STRING',
+        '--host STRING',
         "Remote host of the database. By default: #{cli[:host]}"
-      ) { |v| cli[:db] = v.to_sym }
+      ) { |v| cli[:host] = v }
       opt.on(
         '--list',
         'List available databases and exit'
