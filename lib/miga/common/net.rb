@@ -15,14 +15,20 @@ module MiGA::Common::Net
   def known_hosts(name)
     case name.to_sym
     when :miga_online_ftp
-      'ftp://microbial-genomes.org//' # <- // to simplify chdir in connection
+      "ftp://#{main_server}//" # <- // to simplify chdir in connection
     when :miga_db
-      'ftp://microbial-genomes.org/db'
+      "ftp://#{main_server}/db"
     when :miga_dist
-      'ftp://microbial-genomes.org/dist'
+      "ftp://#{main_server}/dist"
     else
       raise "Unrecognized server name: #{host}"
     end
+  end
+
+  ##
+  # Returns the address of the main MiGA server
+  def main_server
+    'gatech.microbial-genomes.org'
   end
 
   ##
