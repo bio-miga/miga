@@ -48,9 +48,14 @@ module MiGA::Cli::Action::Wf
         'Only download reference anchor genomes in GTDB (requires -G)'
       ) { |v| cli[:gtdb_ref] = v }
       opt.on(
+        '-S', '--seqcode-type',
+        'Download all type genomes from the SeqCode Registry'
+      ) { |v| cli[:seqcode_type] = v }
+      opt.on(
         '--max-download INT', Integer,
-        'Maximum number of genomes to download (by default: unlimited)'
-      ) { |v| cli[:ncbi_max] = v }
+        'Maximum number of genomes to download (by default: unlimited)',
+        'It applies independently to -T, -G and --S'
+      ) { |v| cli[:max_download] = v }
     end
     if params[:qual]
       opt.on(
@@ -131,24 +136,39 @@ module MiGA::Cli::Action::Wf
     paired = cli[:input_type].to_s.include?('_paired')
     cli[:regexp] ||= MiGA::Cli.FILE_REGEXP(paired)
 
-    # Create empty project
+    # Create empty project and populate with datasets
+    p = initialize_empty_project(p_metadata)
+    download_datasets
+    import_datasets(stage)
+
+    # Define datasets metadata
+    p.load
+    d_metadata[:type] = cli[:dataset_type]
+    p.each_dataset { |d| transfer_metadata(d, d_metadata) }
+    p
+  end
+
+  def initialize_empty_project(metadata)
     call_cli(
       ['new', '-P', cli[:outdir], '-t', cli[:project_type]]
     ) unless MiGA::Project.exist? cli[:outdir]
 
     # Define project metadata
     p = cli.load_project(:outdir, '-o')
-    p_metadata[:type] = cli[:project_type]
-    transfer_metadata(p, p_metadata)
+    metadata[:type] = cli[:project_type]
+    transfer_metadata(p, metadata)
     %i[haai_p aai_p ani_p ess_coll min_qual].each do |i|
       p.set_option(i, cli[i])
     end
+    p
+  end
 
+  def download_datasets
     # Download datasets from NCBI
     unless cli[:ncbi_taxon].nil?
       what = cli[:ncbi_draft] ? '--all' : '--complete'
       cmd = ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
-      cmd += ['--max', cli[:ncbi_max]] if cli[:ncbi_max]
+      cmd += ['--max', cli[:max_download]] if cli[:max_download]
       call_cli(cmd)
     end
 
@@ -156,11 +176,19 @@ module MiGA::Cli::Action::Wf
     unless cli[:gtdb_taxon].nil?
       cmd = ['gtdb_get', '-P', cli[:outdir], '-T', cli[:gtdb_taxon]]
       cmd << '--reference' if cli[:gtdb_ref]
-      cmd += ['--max', cli[:ncbi_max]] if cli[:ncbi_max]
+      cmd += ['--max', cli[:max_download]] if cli[:max_download]
       call_cli(cmd)
     end
 
-    # Add datasets
+    # Download datasets from SeqCode Registry
+    if cli[:seqcode_type]
+      cmd = ['seqcode_get', '-P', cli[:outdir]]
+      cmd += ['--max', cli[:max_download]] if cli[:max_download]
+      call_cli(cmd)
+    end
+  end
+
+  def import_datasets(stage)
     call_cli(
       [
         'add',
@@ -171,12 +199,6 @@ module MiGA::Cli::Action::Wf
         '-R', cli[:regexp]
       ] + cli.files
     ) unless cli.files.empty?
-
-    # Define datasets metadata
-    p.load
-    d_metadata[:type] = cli[:dataset_type]
-    p.each_dataset { |d| transfer_metadata(d, d_metadata) }
-    p
   end
 
   def summarize(which = %w[cds assembly essential_genes ssu])

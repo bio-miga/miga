@@ -14,6 +14,7 @@ module MiGA::RemoteDataset::Base
   @@_EUTILS = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
   @@_EBI_API = 'https://www.ebi.ac.uk/Tools'
   @@_GTDB_API = 'https://api.gtdb.ecogenomic.org'
+  @@_SEQCODE_API = 'https://disc-genomics.uibk.ac.at/seqcode'
   @@_NCBI_API_KEY = lambda { |url|
     ENV['NCBI_API_KEY'].nil? ? url : "#{url}&api_key=#{ENV['NCBI_API_KEY']}"
   }
@@ -64,6 +65,18 @@ module MiGA::RemoteDataset::Base
       method: :rest,
       map_to_universe: :ncbi,
       headers: 'accept: application/json' # < TODO not currently supported
+    },
+    seqcode: {
+      dbs: {
+        # These are dummy entries plugged directly to +ncbi_*_rest+
+        assembly: { stage: :assembly, format: :fasta_gz, getter: :ncbi_asm },
+        nuccore:  { stage: :assembly, format: :fasta, getter: :ncbi_gb },
+        # This is the list of type genomes
+        :'type-genomes' => { stage: :metadata, format: :json }
+      },
+      url: "#{@@_SEQCODE_API}/%1$s.json?%4$s",
+      method: :rest,
+      map_to_universe: :ncbi
     },
     ncbi: {
       dbs: {

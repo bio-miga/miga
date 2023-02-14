@@ -20,6 +20,7 @@ module MiGA::Cli::Base
     get: 'Download a dataset from public databases into a MiGA project',
     ncbi_get: 'Download all genomes in a taxon from NCBI into a MiGA project',
     gtdb_get: 'Download all genomes in a taxon from GTDB into a MiGA project',
+    seqcode_get: 'Download all type genomes from SeqCode into a MiGA project',
     rm: 'Remove a dataset from a MiGA project',
     find: 'Find unregistered datasets based on result files',
     ln: 'Link datasets (including results) from one project to another',

@@ -133,6 +133,8 @@ class MiGA::RemoteDataset < MiGA::MiGA
     when :gtdb
       # Get taxonomy
       @metadata[:tax] = get_gtdb_taxonomy
+    when :seqcode
+      # Do nothing, taxonomy already defined
     end
 
     if metadata[:get_ncbi_taxonomy]
@@ -206,7 +208,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def ncbi_asm_json_doc
     return @_ncbi_asm_json_doc unless @_ncbi_asm_json_doc.nil?
 
-    if db == :assembly && %i[ncbi gtdb].include?(universe)
+    if db == :assembly && %i[ncbi gtdb seqcode].include?(universe)
       metadata[:ncbi_asm] ||= ids.first
     end
     return nil unless metadata[:ncbi_asm]
@@ -244,6 +246,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     ln
   end
 
+  alias :get_ncbi_taxid_from_seqcode :get_ncbi_taxid_from_ncbi
   alias :get_ncbi_taxid_from_gtdb :get_ncbi_taxid_from_ncbi
 
   def get_ncbi_taxid_from_ebi
