@@ -49,12 +49,8 @@ jobs:
           unset STABLE
           [[ "$gem_version" == *.rc* ]] || STABLE='true'
           echo "STABLE=${STABLE}" >> $GITHUB_OUTPUT
-      - name: Check git files (DEBUG)
-        run: ls -a . .git
-      - name: Test git config
-        run: git config user.email bot@microbial-genomes.org
       - name: Tag and deploy
-        uses: bio-miga/publish-rubygems-action@v2
+        uses: bio-miga/publish-rubygems-action@v2.0.1
         if: steps.release.outputs.STABLE
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
