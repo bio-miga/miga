@@ -50,7 +50,7 @@ jobs:
           [[ "$gem_version" == *.rc* ]] || STABLE='true'
           echo "STABLE=${STABLE}" >> $GITHUB_OUTPUT
       - name: Tag and deploy
-        uses: bio-miga/publish-rubygems-action@v2
+        uses: discourse/publish-rubygems-action@v2
         if: steps.release.outputs.STABLE
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
