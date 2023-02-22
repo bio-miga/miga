@@ -134,7 +134,10 @@ class MiGA::RemoteDataset < MiGA::MiGA
       # Get taxonomy
       @metadata[:tax] = get_gtdb_taxonomy
     when :seqcode
-      # Do nothing, taxonomy already defined
+      # Taxonomy already defined
+      # Copy IDs over to allow additional metadata linked
+      @metadata[:ncbi_asm] = @metadata[:seqcode_asm]
+      @metadata[:ncbi_nuccore] = @metadata[:seqcode_nuccore]
     end
 
     if metadata[:get_ncbi_taxonomy]
@@ -276,6 +279,10 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def get_type_status_ncbi_asm(metadata)
     return metadata if ncbi_asm_json_doc.nil?
 
+    metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
+    metadata[:suspect] = nil if metadata[:suspect].empty?
+    return metadata if metadata[:is_type] # If predefined, as in SeqCode
+
     from_type = ncbi_asm_json_doc['from_type']
     from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
     case from_type
@@ -292,8 +299,6 @@ class MiGA::RemoteDataset < MiGA::MiGA
       metadata[:is_type] = true
       metadata[:type_rel] = from_type
     end
-    metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
-    metadata[:suspect] = nil if metadata[:suspect].empty?
     MiGA.DEBUG "Got type: #{from_type}"
     metadata
   end
@@ -306,7 +311,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     File.open("#{base}.start", 'w') { |ofh| ofh.puts Time.now.to_s }
     if udb[:format] == :fasta_gz
       download "#{l_ctg}.gz"
-      system "gzip -d '#{l_ctg}.gz'"
+      system "gzip -fd '#{l_ctg}.gz'"
     else
       download l_ctg
     end

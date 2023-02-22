@@ -6,6 +6,7 @@ dependencies:
   - conda-forge::ruby
   - sqlite
   - openjdk
+  - pip
 
   # Read processing
   - faqcs
@@ -31,3 +32,4 @@ dependencies:
 channels:
   - conda-forge
   - bioconda
+  - anaconda

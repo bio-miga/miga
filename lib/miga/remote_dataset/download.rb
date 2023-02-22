@@ -61,7 +61,7 @@ class MiGA::RemoteDataset
     # Supported +opts+ (Hash) are the same as #download_rest and #ncbi_asm_rest.
     def ncbi_gb_rest(opts)
       # Simply use defaults, but ensure that the URL can be properly formed
-      o = download_rest(opts.merge(universe: :ncbi, db: :nuccore, format: :gb))
+      o = download_rest(opts.merge(universe: :ncbi, db: :nuccore))
       return o unless o.strip.empty?
 
       MiGA::MiGA.DEBUG 'Empty sequence, attempting download from NCBI assembly'
