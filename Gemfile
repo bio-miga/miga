@@ -1,9 +1,9 @@
-source "https://rubygems.org"
-gemspec name: "miga-base"
+source 'https://rubygems.org'
+gemspec name: 'miga-base'
 
 group :test do
-  gem "simplecov"
-  gem "codeclimate-test-reporter", "~> 1.0.0"
+  gem 'simplecov'
+  gem 'codeclimate-test-reporter', '~> 1.0'
 end
 
-gem "rake", "~> 12.0"
+gem 'rake', '~> 12.0'
