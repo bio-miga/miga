@@ -89,6 +89,7 @@ class MiGA::Taxonomy < MiGA::MiGA
   # Add an alternative taxonomy. If the namespace matches an existing namespace,
   # the alternative (or master) is replaced instead if +replace+ is true.
   def add_alternative(tax, replace = true)
+    return if tax.nil?
     raise 'Unsupported taxonomy class.' unless tax.is_a? MiGA::Taxonomy
 
     alt_ns = alternative(tax.namespace)
