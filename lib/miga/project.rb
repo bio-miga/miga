@@ -32,10 +32,10 @@ class MiGA::Project < MiGA::MiGA
     @datasets = {}
     @do_not_save = false
     @path = File.absolute_path(path)
-    self.create if not update and not Project.exist? self.path
+    self.create if !update && !Project.exist?(self.path)
     self.load if self.metadata.nil?
     self.metadata[:type] = :mixed if type.nil?
-    raise "Unrecognized project type: #{type}." if @@KNOWN_TYPES[type].nil?
+    raise "Unrecognized project type: #{type}" if @@KNOWN_TYPES[type].nil?
   end
 
   ##

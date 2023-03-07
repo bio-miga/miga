@@ -34,13 +34,18 @@ class MiGA::Cli::Action::New < MiGA::Cli::Action
         'Metadata as key-value pairs separated by = and delimited by comma',
         'Values are saved as strings except for booleans (true / false) or nil'
       ) { |v| cli[:metadata] = v }
+      opt.on(
+        '--ignore-init',
+        'Ignore checks for MiGA initialization',
+        'This can be used to create projects that are processed elsewhere'
+      ) { |v| cli[:ignore_init] = v }
     end
   end
 
   def perform
     cli.ensure_type(MiGA::Project)
     cli.ensure_par(project: '-P')
-    unless MiGA::MiGA.initialized?
+    if !cli[:ignore_init] && !MiGA::MiGA.initialized?
       raise 'MiGA has not been initialized, please use "miga init" first'
     end
     cli.say "Creating project: #{cli[:project]}"
