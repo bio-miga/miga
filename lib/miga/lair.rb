@@ -123,7 +123,7 @@ class MiGA::Lair < MiGA::MiGA
   # if +include_self+.
   def each_daemon(include_self = true)
     yield(self) if include_self
-    each_project { |project| yield(MiGA::Daemon.new(project)) }
+    each_project { |project| yield(MiGA::Daemon.new(project, options[:json])) }
   end
 
   ##
