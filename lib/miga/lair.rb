@@ -60,7 +60,7 @@ class MiGA::Lair < MiGA::MiGA
   ##
   # Return the daemon of +project+, a MiGA::Project object
   def project_daemon(project)
-    MiGA::Daemon.new(project, opts[:json])
+    MiGA::Daemon.new(project, options[:json])
   end
 
   ##
