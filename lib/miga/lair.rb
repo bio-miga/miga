@@ -58,6 +58,12 @@ class MiGA::Lair < MiGA::MiGA
   end
 
   ##
+  # Return the daemon of +project+, a MiGA::Project object
+  def project_daemon(project)
+    MiGA::Daemon.new(project, opts[:json])
+  end
+
+  ##
   # First loop of the lair's chief daemon
   def daemon_first_loop
     say '-----------------------------------'
@@ -123,14 +129,14 @@ class MiGA::Lair < MiGA::MiGA
   # if +include_self+.
   def each_daemon(include_self = true)
     yield(self) if include_self
-    each_project { |project| yield(MiGA::Daemon.new(project, options[:json])) }
+    each_project { |project| yield(project_daemon(project)) }
   end
 
   ##
   # Traverse directories checking MiGA projects
   def check_directories
     each_project do |project|
-      d = MiGA::Daemon.new(project)
+      d = project_daemon(project)
       next if d.active?
 
       l_alive = d.last_alive
@@ -147,7 +153,7 @@ class MiGA::Lair < MiGA::MiGA
   # MiGA::Daemon object
   def launch_daemon(project)
     say "Launching daemon: #{project.path}"
-    daemon = MiGA::Daemon.new(project, options[:json])
+    daemon = project_daemon(project)
     daemon.runopts(:shutdown_when_done, true) unless options[:keep_inactive]
     unless options[:dry]
       daemon.start
