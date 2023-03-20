@@ -146,56 +146,84 @@ module MiGA::DistanceRunner::Commands
   ##
   # Execute a FastAAI command
   def fastaai_cmd(targets)
-    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_index_2)
+    qry_idx = dataset.result(:essential_genes).file_path(:fastaai_crystal)
     return nil unless qry_idx
 
     # Merge databases
     donors = []
     targets.each do |target|
-      tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_index_2)
+      tgt_idx = target&.result(:essential_genes)&.file_path(:fastaai_crystal)
       donors << tgt_idx if tgt_idx
     end
     return nil if donors.empty?
 
     # Build target database
-    f1 = tmp_file
-    if donors.size == 1
-      FileUtils.cp(donors.first, f1)
-    else
-      File.open(f0 = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
-      run_cmd(
-        <<~CMD
-          FastAAI merge_db --threads #{opts[:thr]} \
-            --donor_file "#{f0}" --recipient "#{f1}"
-        CMD
-      )
-      raise "Cannot merge databases into: #{f1}" unless File.size?(f1)
-    end
-
-    # Run FastAAI
+    fastaai_dir = File.join(MiGA::MiGA.root_path, 'utils', 'FastAAI', 'fastaai')
+    t_db = tmp_file # Target database (from crystals)
+    q_db = tmp_file # Query database (from crystal)
+    File.open(crystals = tmp_file, 'w') { |fh| donors.each { |i| fh.puts i } }
+    script = File.join(fastaai_dir, 'fastaai_miga_crystals_to_db.py')
     run_cmd(
       <<~CMD
-        FastAAI db_query --query "#{qry_idx}" --target "#{f1}" \
-          --output "#{f2 = tmp_file}" --threads #{opts[:thr]} \
-          --do_stdev
+        python3 "#{script}" \
+          --crystal_list "#{crystals}" --database_path "#{t_db}" --overwrite
       CMD
     )
-    raise "Cannot find FastAAI output directory: #{f2}" unless Dir.exist?(f2)
+    raise "Cannot merge databases into: #{t_db}" unless File.size?(t_db)
+    run_cmd(
+      <<~CMD
+        echo "#{qry_idx}" | \
+          python3 "#{script}" \
+            --crystal_list /dev/stdin --database_path "#{q_db}" --overwrite
+      CMD
+    )
+    raise "Cannot merge databases into: #{q_db}" unless File.size?(q_db)
+
+    # Run FastAAI
+    script = File.join(fastaai_dir, 'fastaai')
+    run_cmd(
+      <<~CMD
+        python3 "#{script}" db_query \
+          --query "#{q_db}" --target "#{t_db}" \
+          --output "#{out_dir = tmp_file}" \
+          --threads 1 --do_stdev
+      CMD
+    )
+    #run_cmd(
+    #  <<~CMD
+    #    python3 "#{script}" db_query --query "#{q_db}" --target "#{t_db}" \
+    #      --output "#{out_dir = tmp_file}" --threads #{opts[:thr]} \
+    #      --do_stdev
+    #  CMD
+    #)
+    raise "Cannot find FastAAI output: #{out_dir}" unless Dir.exist?(out_dir)
 
     # Save values in the databases
     haai_data = {}
     aai_data = {}
     # Ugly workaround to the insistence of FastAAI not to provide the files
     # I ask for ;-)
-    qry_results = File.basename(qry_idx, '.faix') + '_results.txt'
-    out_file = File.join(f2, 'results', qry_results)
+    # qry_results = File.basename(qry_idx, '.crystal') + '_results.txt'
+    # out_file = File.join(out_dir, 'results', qry_results)
+    out_file = Dir["#{out_dir}/results/*_results.txt"].first
+    unless out_file && File.exist?(out_file)
+      raise "Cannot find FastAAI results: #{Dir["#{out_dir}/**/*"]}"
+    end
     File.open(out_file, 'r') do |fh|
       fh.each do |ln|
         out = ln.chomp.split("\t")
         haai_data[out[1]] = [
           out[2].to_f * 100, out[3].to_f * 100, out[4].to_i, out[5].to_i
         ]
-        out[6] = (out[6] =~ /^>/) ? 95.0 : out[6].to_f
+        if out[6] =~ /^>/
+          # J-bar = 0.843 <=> AAI-hat = 90%
+          # This approximation is not in the original FastAAI paper, but it
+          # allows to maintain monotonicity at AAI-hat ≥ 90%, which solves
+          # indexing issues the ML-estimate of "AAI ~ 95%"
+          out[6] = Math.sqrt(out[2].to_f) * 100
+        else
+          out[6] = out[6].to_f
+        end
         aai_data[out[1]] = [out[6], 0, 0, 0]
       end
     end
@@ -204,7 +232,7 @@ module MiGA::DistanceRunner::Commands
     batch_data_to_db(:aai, aai_data)
 
     # Cleanup
-    [f1, f2].each { |i| FileUtils.rm_r(i) }
+    FileUtils.rm_rf([crystals, t_db, q_db, out_dir])
   end
 
   ##

@@ -131,6 +131,7 @@ module MiGA::Cli::Action::Doctor::Base
   def outdated_fastaai_ess(res)
     idx1 = res.file_path(:fastaai_index)
     idx2 = res.file_path(:fastaai_index_2)
-    idx2.nil? && !idx1.nil?
+    idx3 = res.file_path(:fastaai_crystal)
+    idx3.nil? && !(idx1.nil? && idx2.nil?)
   end
 end
