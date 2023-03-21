@@ -231,15 +231,16 @@ module MiGA::Result::Stats
 
   # Fix estimates based on essential genes based on taxonomy
   def fix_essential_genes_by_domain
-    return if (tax = source.metadata[:tax]).nil? ||
-       !%w[Archaea Bacteria].include?(tax[:d]) ||
+    tax = source.metadata[:tax]
+    return if (!tax.nil? && !%w[Archaea Bacteria].include?(tax[:d])) ||
        file_path(:raw_report)
 
+    domain = tax.nil? ? 'AB' : tax[:d][0]
     MiGA::MiGA.DEBUG "Fixing essential genes by domain"
     scr = File.join(MiGA::MiGA.root_path, 'utils', 'domain-ess-genes.rb')
     rep = file_path(:report)
     $stderr.print MiGA::MiGA.run_cmd(
-      ['ruby', scr, rep, "#{rep}.domain", tax[:d][0]],
+      ['ruby', scr, rep, "#{rep}.domain", domain],
       return: :output, err2out: true, source: :miga
     )
     add_file(:raw_report, "#{source.name}.ess/log")
