@@ -50,10 +50,23 @@ jobs:
           [[ "$gem_version" == *.rc* ]] || STABLE='true'
           echo "STABLE=${STABLE}" >> $GITHUB_OUTPUT
       - name: Tag and deploy
+        id: publish
         uses: discourse/publish-rubygems-action@v2
         if: steps.release.outputs.STABLE
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
           GIT_EMAIL: bot@microbial-genomes.org
           GIT_NAME: Automated Release
+      - name: Find major.minor version
+        id: major-minor
+        if: steps.publish.outputs.new_version_published
+        uses: actions-ecosystem/action-create-comment@v1
+        with:
+          text: ${{ steps.publish.outputs.gem_version }}
+          regex: '^([0-9]*\.[0-9]*)\.'
+      - name: Update major.minor tag
+        if: ${{ steps.major-minor.outputs.match != '' }}
+        uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: v${{ steps.regex-match.outputs.group1 }}
 
