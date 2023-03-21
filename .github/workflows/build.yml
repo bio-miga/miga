@@ -60,7 +60,7 @@ jobs:
       - name: Find major.minor version
         id: major-minor
         if: steps.publish.outputs.new_version
-        uses: actions-ecosystem/action-create-comment@v1
+        uses: actions-ecosystem/action-regex-match@v2
         with:
           text: ${{ steps.publish.outputs.gem_version }}
           regex: '^([0-9]*\.[0-9]*)\.'
