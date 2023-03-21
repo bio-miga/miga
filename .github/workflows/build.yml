@@ -59,7 +59,7 @@ jobs:
           GIT_NAME: Automated Release
       - name: Find major.minor version
         id: major-minor
-        if: steps.publish.outputs.new_version_published
+        if: steps.publish.outputs.new_version
         uses: actions-ecosystem/action-create-comment@v1
         with:
           text: ${{ steps.publish.outputs.gem_version }}
