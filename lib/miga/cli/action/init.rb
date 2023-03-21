@@ -194,7 +194,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
     req_libraries = {
       r: %w[ape cluster vegan],
       ruby: %w[sqlite3 daemons json],
-      python: %w[numpy sqlite3 pyhmmer]
+      python: %w[numpy sqlite3 pyhmmer pyrodigal]
     }
 
     req_libraries.each do |language, libraries|
