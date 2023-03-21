@@ -2,7 +2,7 @@ module MiGA::DistanceRunner::Commands
   ##
   # Estimates AAI against +targets+ using hAAI
   def haai(targets)
-    puts "[#{Time.now}] hAAI: #{dataset.name} vs #{targets.size} targets"
+    $stderr.puts "[#{Time.now}] hAAI: #{dataset.name} vs #{targets.size} targets"
     empty_vals = targets.map { |_i| nil }
     return empty_vals if opts[:haai_p] == 'no'
 
@@ -19,7 +19,7 @@ module MiGA::DistanceRunner::Commands
   ##
   # Estimates or calculates AAI against +targets+
   def aai(targets)
-    puts "[#{Time.now}] AAI: #{dataset.name} vs #{targets.size} targets"
+    $stderr.puts "[#{Time.now}] AAI: #{dataset.name} vs #{targets.size} targets"
 
     # Try hAAI first
     haai(targets)
@@ -41,7 +41,7 @@ module MiGA::DistanceRunner::Commands
   ##
   # Calculates ANI against +targets+
   def ani(targets)
-    puts "[#{Time.now}] ANI: #{dataset.name} vs #{targets.size} targets"
+    $stderr.puts "[#{Time.now}] ANI: #{dataset.name} vs #{targets.size} targets"
     empty_vals = targets.map { |_i| nil }
     return empty_vals unless File.size?(tmp_file('largecontigs.fa'))
 
@@ -227,7 +227,7 @@ module MiGA::DistanceRunner::Commands
         aai_data[out[1]] = [out[6], 0, 0, 0]
       end
     end
-    puts "Results: #{haai_data.size} | Inferences: #{aai_data.size}"
+    $stderr.puts "Results: #{haai_data.size} | Inferences: #{aai_data.size}"
     batch_data_to_db(:haai, haai_data)
     batch_data_to_db(:aai, aai_data)
 

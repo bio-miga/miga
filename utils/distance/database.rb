@@ -104,6 +104,9 @@ module MiGA::DistanceRunner::Database
       ).first
     end if File.size?(db)
     y
+  rescue SQLite3::CorruptException => e
+    $stderr.puts "Corrupt database: #{db}"
+    raise e
   end
 
   ##

@@ -42,10 +42,19 @@ module MiGA::DistanceRunner::Temporal
   # Copies temporal databases back to the MiGA Project
   def checkpoint!(metric)
     $stderr.puts "Checkpoint (metric = #{metric})"
+
+    # This is simply to test database consistency before overwriting the
+    # previous persistent version
     SQLite3::Database.new(tmp_dbs[metric]) do |conn|
       conn.execute("select count(*) from #{metric == :haai ? :aai : metric}")
     end
-    FileUtils.cp(tmp_dbs[metric], dbs[metric])
+
+    # This reduces the probability of other threads failing due to incomplete
+    # databases, +cp+ can be slower, and that effect is increased by the fact
+    # that tmp_dbs -> dbs could involve a transfer between filesystems, whereas
+    # +move+ within the same filesystem is nearly instantaenous
+    FileUtils.cp(tmp_dbs[metric], "#{dbs[metric]}.tmp")
+    FileUtils.move("#{dbs[metric]}.tmp", dbs[metric])
     @db_counts[metric] = 0
   end
 end
