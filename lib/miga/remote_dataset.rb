@@ -216,7 +216,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     end
     return nil unless metadata[:ncbi_asm]
 
-    ncbi_asm_id = self.class.ncbi_asm_acc2id metadata[:ncbi_asm]
+    ncbi_asm_id = self.class.ncbi_asm_acc2id(metadata[:ncbi_asm])
     txt = nil
     3.times do
       txt = self.class.download(:ncbi_summary, :assembly, ncbi_asm_id, :json)
@@ -226,6 +226,12 @@ class MiGA::RemoteDataset < MiGA::MiGA
     return if doc.nil? || doc['result'].nil? || doc['result'].empty?
 
     @_ncbi_asm_json_doc = doc['result'][ doc['result']['uids'].first ]
+    url_dir = @_ncbi_asm_json_doc['ftppath_genbank']
+    if url_dir
+      metadata[:web_assembly_gz] ||=
+        '%s/%s_genomic.fna.gz' % [url_dir, File.basename(url_dir)]
+    end
+    @_ncbi_asm_json_doc
   end
 
   private

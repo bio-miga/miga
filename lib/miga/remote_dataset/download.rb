@@ -49,7 +49,7 @@ class MiGA::RemoteDataset
         )
       end
 
-      url = "#{url_dir}/#{File.basename url_dir}_genomic.fna.gz"
+      url = '%s/%s_genomic.fna.gz' % [url_dir, File.basename(url_dir)]
       download(
         :web, :assembly_gz, url,
         opts[:format], opts[:file], opts[:extra], opts[:obj]
@@ -134,9 +134,8 @@ module MiGA::RemoteDataset::Download
   ##
   # Download data into +file+
   def download(file)
-    self.class.download(
-      universe, db, ids, self.class.UNIVERSE[universe][:dbs][db][:format],
-      file, [], self
-    )
+    format = self.class.UNIVERSE[universe][:dbs][db][:format]
+    # MiGA::MiGA.DEBUG "download: #{universe}, #{db}, #{ids}, #{format}"
+    self.class.download(universe, db, ids, format, file, [], self)
   end
 end

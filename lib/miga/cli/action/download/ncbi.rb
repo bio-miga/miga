@@ -71,16 +71,13 @@ module MiGA::Cli::Action::Download::Ncbi
     CSV.parse(doc, headers: true).each do |r|
       asm = r['assembly']
       next if asm.nil? || asm.empty? || asm == '-'
-      next unless r['ftp_path_genbank']
 
       rep = remote_row_replicons(r)
       n = remote_row_name(r, rep, asm)
 
       # Register for download
-      fna_url = '%s/%s_genomic.fna.gz' %
-                [r['ftp_path_genbank'], File.basename(r['ftp_path_genbank'])]
       ds[n] = {
-        ids: [fna_url], db: :assembly_gz, universe: :web,
+        ids: [asm], db: :assembly, universe: :ncbi,
         md: {
           type: :genome, ncbi_asm: asm, strain: r['strain']
         }
@@ -123,8 +120,7 @@ module MiGA::Cli::Action::Download::Ncbi
         'matching(tab==["Prokaryotes"] and q=="' \
           "#{cli[:taxon]&.tr('"', "'")}\"",
       fields: 'organism|organism,assembly|assembly,replicons|replicons,' \
-        'level|level,ftp_path_genbank|ftp_path_genbank,' \
-        'release_date|release_date,strain|strain',
+        'level|level,release_date|release_date,strain|strain',
       nolimit: 'on'
     }
     if cli[:reference]
