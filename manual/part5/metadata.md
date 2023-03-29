@@ -49,12 +49,12 @@ Metadata entries that trigger specific behaviors in MiGA:
 
 | Field        | Supported values | Description
 | ------------:|:----------------:|:------------------------------------
-| ref_project  | Path             | Project with reference taxonomy
-| db_proj_dir  | Path             | Directory containing database projects {1}
+| ref_project  | Path             | Project with reference taxonomy {1}
+| db_proj_dir  | Path             | Directory containing database projects {1} {2}
 | tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
-| haai_p       | String           | hAAI engine {2} (def: fastaai)
-| aai_p        | String           | AAI engine {2} (def: diamond)
-| ani_p        | String           | ANI engine {2} (def: fastani)
+| haai_p       | String           | hAAI engine {3} (def: fastaai)
+| aai_p        | String           | AAI engine {3} (def: diamond)
+| ani_p        | String           | ANI engine {3} (def: fastani)
 | max_try      | Integer          | Max number of task attempts (def: 10)
 | aai_save_rbm | Boolean          | Should RBMs be saved for OGS analysis?
 | ogs_identity | Float [0,100]    | Min RBM identity for OGS (def: 80)
@@ -63,19 +63,21 @@ Metadata entries that trigger specific behaviors in MiGA:
 | gsp_ani      | Float [0,100]    | ANI limit to propose gsp clades (def: 95)
 | gsp_aai      | Float [0,100]    | AAI limit to propose gsp clades (def: 90)
 | gsp_metric   | String           | Metric to propose clades: `ani` (def), `aai`
-| ess_coll     | String           | Collection of essential genes to use {3}
+| ess_coll     | String           | Collection of essential genes to use {4}
 | min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 25)
 | distances_checkpoint | Integer  | Comparisons before storing data (def: 10)
 
-> **{1}** This is the relative location of the databases used by
+> **{1}** This path can be either absolute or relative to the project's path.
+>
+> **{2}** This is the location of the databases used by
 > [db_project](#dataset-flags). If not set, it is assumed to be the parent
 > folder of the current project.
 >
-> **{2}** Supported values: `blast`, `blat`, `diamond`
+> **{3}** Supported values: `blast`, `blat`, `diamond`
 > (only for hAAI and AAI), `fastani` (only for ANI), `no` (only for hAAI),
 > and `fastaai` (only for hAAI).
 >
-> **{3}** One of: `dupont_2012` (default), or `lee_2019`
+> **{4}** One of: `dupont_2012` (default), or `lee_2019`
 
 
 ### Project Hooks

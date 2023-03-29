@@ -128,4 +128,19 @@ class MiGA::Project < MiGA::MiGA
     require 'miga/daemon'
     @daemon ||= MiGA::Daemon.new(self)
   end
+
+  ##
+  # Retrieves the option with name +key+ from the project's metadata,
+  # extending support to relative paths in +:ref_project+ and
+  # +:db_proj_dir+
+  def option_by_metadata(key)
+    case key.to_sym
+    when :ref_project, :db_proj_dir
+      y = metadata[key]
+      y = File.expand_path(y, path) if y && y =~ /^[^\/]/
+      return y
+    end
+
+    super
+  end
 end
