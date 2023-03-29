@@ -360,7 +360,7 @@ scgenome) that are
 with a set reference project (`:ref_project` in metadata).
 
 In this step, MiGA compares the genome against a reference project using the
-query search method, and imports the resulting taxonomy with p-value below 0.05
+query search method, and imports the resulting taxonomy with p-value below 0.1
 (or whichever value is set as `:tax_pvalue` in metadata).
 
 Supported file keys:

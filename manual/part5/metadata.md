@@ -51,7 +51,7 @@ Metadata entries that trigger specific behaviors in MiGA:
 | ------------:|:----------------:|:------------------------------------
 | ref_project  | Path             | Project with reference taxonomy {1}
 | db_proj_dir  | Path             | Directory containing database projects {1} {2}
-| tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.05)
+| tax_pvalue   | Float [0,1]      | Max p-value to transfer taxonomy (def: 0.1)
 | haai_p       | String           | hAAI engine {3} (def: fastaai)
 | aai_p        | String           | AAI engine {3} (def: diamond)
 | ani_p        | String           | ANI engine {3} (def: fastani)

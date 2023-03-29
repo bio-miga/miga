@@ -126,7 +126,7 @@ module MiGA::Project::Base
       desc: 'Directory containing database projects', type: String
     },
     tax_pvalue: {
-      desc: 'Maximum p-value to transfer taxonomy', default: 0.05, type: Float,
+      desc: 'Maximum p-value to transfer taxonomy', default: 0.1, type: Float,
       in: 0.0..1.0
     },
     haai_p: {

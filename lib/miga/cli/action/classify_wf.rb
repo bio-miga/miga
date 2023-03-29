@@ -10,7 +10,7 @@ class MiGA::Cli::Action::ClassifyWf < MiGA::Cli::Action
   def parse_cli
     default_opts_for_wf
     cli.defaults = {
-      download: false, summaries: true, pvalue: 0.05,
+      download: false, summaries: true, pvalue: 0.1,
       local: File.expand_path('.miga_db', ENV['MIGA_HOME'])
     }
     cli.parse do |opt|
