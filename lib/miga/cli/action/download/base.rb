@@ -9,7 +9,7 @@ end
 module MiGA::Cli::Action::Download::Base
   def cli_base_flags(opt)
     opt.on(
-      '--max INT', Integer,
+      '--max-download INT', Integer,
       'Maximum number of datasets to download (by default: unlimited)'
     ) { |v| cli[:max_datasets] = v }
     opt.on(
@@ -37,6 +37,11 @@ module MiGA::Cli::Action::Download::Base
       opt, 'get-metadata',
       'Only download and update metadata for existing datasets', :get_md
     )
+    opt.on(
+      '--updated-before DATE',
+      'Only download metadata for datasets last updated before the given date',
+      'Requires --get-metadata, supports date or date-time'
+    ) { |v| cli[:updated_before] = DateTime.parse(v) }
   end
 
   def cli_save_actions(opt)
@@ -79,6 +84,7 @@ module MiGA::Cli::Action::Download::Base
     p = cli.load_project
     ds = remote_list
     ds = discard_excluded(ds)
+    ds = exclude_newer(ds)
     ds = impose_limit(ds)
     [p, ds]
   end
@@ -108,6 +114,16 @@ module MiGA::Cli::Action::Download::Base
           .each { |i| ds.delete i }
     end
     ds
+  end
+
+  def exclude_newer(ds)
+    return ds unless cli[:updated_before]
+
+    project = cli.load_project
+    ds.select do |name|
+      d = project.dataset(name)
+      d && DateTime.parse(d.metadata[:updated]) < cli[:updated_before]
+    end
   end
 
   def impose_limit(ds)
