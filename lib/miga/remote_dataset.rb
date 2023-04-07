@@ -178,9 +178,9 @@ class MiGA::RemoteDataset < MiGA::MiGA
     doc.scan(%r{<Taxon>(.*?)</Taxon>}m).map(&:first).each do |i|
       name = i.scan(%r{<ScientificName>(.*)</ScientificName>}).first.to_a.first
       rank = i.scan(%r{<Rank>(.*)</Rank>}).first.to_a.first
-      rank = nil if rank == 'no rank' or rank.empty?
-      rank = 'dataset' if lineage.empty? and rank.nil?
-      lineage[rank] = name unless rank.nil? or rank.nil?
+      rank = nil if rank.nil? || rank == 'no rank' || rank.empty?
+      rank = 'dataset' if lineage.size == 1 && rank.nil?
+      lineage[rank] = name unless rank.nil? || name.nil?
     end
     MiGA.DEBUG "Got lineage: #{lineage}"
     MiGA::Taxonomy.new(lineage)

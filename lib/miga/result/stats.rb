@@ -231,9 +231,10 @@ module MiGA::Result::Stats
 
   # Fix estimates based on essential genes based on taxonomy
   def fix_essential_genes_by_domain
+    return if file_path(:raw_report)
+
     tax = source.metadata[:tax]
-    return if (!tax.nil? && !%w[Archaea Bacteria].include?(tax[:d])) ||
-       file_path(:raw_report)
+    return unless tax.nil? || %w[Archaea Bacteria].include?(tax[:d])
 
     domain = tax.nil? ? 'AB' : tax[:d][0]
     MiGA::MiGA.DEBUG "Fixing essential genes by domain"
