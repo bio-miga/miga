@@ -47,7 +47,7 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
     say("Loading")
     ani.medoids <- read.table(paste(out_base, "medoids", sep = "."),
       sep = " ", as.is = TRUE)[,1]
-    a <- read.table(paste(out_base, "classif", sep="."),
+    a <- read.table(paste(out_base, "classif", sep = "."),
       sep = "\t", as.is = TRUE)
     ani.types <- a[,2]
     names(ani.types) <- a[,1]
@@ -70,17 +70,17 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
   say("Recursive search")
   for (i in 1:length(ani.medoids)) {
     medoid <- ani.medoids[i]
-    ds_f <- names(ani.types)[ ani.types==i ]
+    ds_f <- names(ani.types)[ani.types == i]
     say("Analyzing subclade", i, "with medoid:", medoid)
-    dir_f <- paste(out_base, ".sc-", i, sep="")
+    dir_f <- paste(out_base, ".sc-", i, sep = "")
     if (!dir.exists(dir_f)) dir.create(dir_f)
     write.table(ds_f,
-      paste(out_base, ".sc-", i, "/miga-project.all",sep=""),
-      quote=FALSE, col.names=FALSE, row.names=FALSE)
+      paste(out_base, ".sc-", i, "/miga-project.all", sep = ""),
+      quote = FALSE, col.names = FALSE, row.names = FALSE)
     if (length(ds_f) > 8L) {
       ani_subset <- as.dist(as.matrix(ani.d)[ds_f, ds_f])
       subclades(
-        out_base = paste(out_base, ".sc-", i, "/miga-project", sep=""),
+        out_base = paste(out_base, ".sc-", i, "/miga-project", sep = ""),
         thr = thr,
         ani.d = ani_subset
       )
@@ -111,7 +111,7 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   # Silhouette
   say("Silhouette")
   nn <- length(labels(ani.d))
-  k <- min(max(floor(0.005 * nn), 2), 20):min(nn-1, 100)
+  k <- min(max(floor(0.005 * nn), 2), 20):min(nn - 1, 100)
   say("- Make cluster")
   cl <- makeCluster(thr)
   say("- Launch parallel jobs")
@@ -119,8 +119,8 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
     cl, k,
     function(x) {
       library(cluster)
-      s <- pam(ani.d, x, do.swap = FALSE, pamonce = 1)$silinfo
-      c(s$avg.width, -sum(ifelse(s$widths[,3] > 0, 0, s$widths[,3])))
+      s <- pam(ani.d, x, do.swap = FALSE, variant = "faster")$silinfo
+      c(s$avg.width, -sum(ifelse(s$widths[, 3] > 0, 0, s$widths[, 3])))
     }
   )
   say("- Stop cluster")
@@ -135,29 +135,38 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
 
   # Classify genomes
   say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
-  ani.cl <- pam(ani.d, top.n)
+  is.huge <- length(labels(ani.d)) > 4e4
+  ani.cl <- pam(ani.d, top.n, variant = "faster", do.swap = !is.huge)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
 
   # Build tree
-  say("Tree")
-  ani.ph <- bionj(ani.d)
-  say("- Write")
-  express.ori <- options("expressions")$expressions
-  if(express.ori < ani.ph$Nnode * 4){
-    options(expressions=min(c(5e7, ani.ph$Nnode * 4)))
+  if (is.huge) {
+    say("Bypassing tree for large set")
+    write.table(
+      '{}', file = paste(out_base, ".nwk", sep = ""),
+      col.names = FALSE, row.names = FALSE, quote = FALSE
+    )
+  } else {
+    say("Tree")
+    ani.ph <- bionj(ani.d)
+    say("- Write")
+    express.ori <- options("expressions")$expressions
+    if(express.ori < ani.ph$Nnode * 4){
+      options(expressions = min(c(5e7, ani.ph$Nnode * 4)))
+    }
+    write.tree(ani.ph, paste(out_base, ".nwk", sep = ""))
+    options(expressions = express.ori)
   }
-  write.tree(ani.ph, paste(out_base, ".nwk", sep = ""))
-  options(expressions=express.ori)
 
   # Generate graphic report
   say("Graphic report")
   pdf(paste(out_base, ".pdf", sep = ""), 7, 12)
   layout(matrix(c(rep(1:3, each = 2), 4:5), byrow = TRUE, ncol = 2))
   plot_distances(ani.d)
-  plot_silhouette(k, s[1,], s[2,], ds, top.n)
+  plot_silhouette(k, s[1, ], s[2, ], ds, top.n)
   plot_clustering(ani.cl, ani.d, ani.types)
-  plot_tree(ani.ph, ani.types, ani.medoids)
+  if (!is.huge) plot_tree(ani.ph, ani.types, ani.medoids)
   dev.off()
 
   # Save results
@@ -198,7 +207,7 @@ write_text_report <- function (out_base, ani.d, ani.medoids, ani.types) {
     classif[j,4] <- ani.d.m[classif[j,1], classif[j,3]]
   }
   write.table(
-    classif, paste(out_base, "classif", sep="."),
+    classif, paste(out_base, "classif", sep = "."),
     quote = FALSE, col.names = FALSE, row.names = FALSE, sep = "\t"
   )
 }
@@ -249,7 +258,8 @@ plot_clustering <- function (cl, dist, types) {
   top.n <- length(cl$medoids)
   col <- ggplotColours(top.n)
   plot(silhouette(cl), col = col)
-  if (length(labels(dist)) <= 15) {
+  dist.n <- length(labels(dist))
+  if (dist.n <= 15 | dist.n > 4e4) {
     plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", bty = "n")
     plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", bty = "n")
   } else {
@@ -261,7 +271,7 @@ plot_clustering <- function (cl, dist, types) {
       )
       plot(
         ani.mds[,3], ani.mds[,4], col = col[types], cex = 1/2,
-	xlab = "Component 3", ylab="Component 4"
+	xlab = "Component 3", ylab = "Component 4"
       )
     }else{
       for (i in 1:2)
@@ -305,16 +315,28 @@ ani_distance <- function (ani_file, sel) {
   if (nrow(sim) == 0) return(NULL)
 
   # Apply filter (if requested)
+  ids <- NULL
   if (!is.na(sel) && file.exists(sel)) {
     say("Filter selection")
-    lab <- read.table(sel, sep = "\t", head = FALSE, as.is = TRUE)[,1]
-    sim <- sim[sim$a %in% lab & sim$b %in% lab, ]
+    ids <- read.table(sel, sep = "\t", head = FALSE, as.is = TRUE)[,1]
+    sim <- sim[sim$a %in% ids & sim$b %in% ids, ]
+  } else {
+    ids <- with(sim, unique(c(a, b)))
   }
 
   # Transform to distances
   say("Distances")
   sim$d <- 1 - (sim$value / 100)
-  return(enve.df2dist(sim, "a", "b", "d", default.d = max(sim$d) * 1.2))
+  return(as.dist(with(sim, {
+    out <- matrix(
+      max(d) * 1.2, nrow = length(ids), ncol = length(ids),
+      dimnames = list(ids, ids)
+    )
+    out[cbind(ids, ids)] <- 0
+    out[cbind(a, b)] <- d
+    out[cbind(b, a)] <- d
+    out
+  })))
 }
 
 #= Main
