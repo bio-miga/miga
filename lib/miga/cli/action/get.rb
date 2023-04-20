@@ -120,7 +120,12 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
   def create_remote_dataset(sub_cli, p)
     sub_cli.ensure_par(dataset: '-D', ids: '-I')
     unless sub_cli[:api_key].nil?
-      ENV["#{sub_cli[:universe].to_s.upcase}_API_KEY"] = sub_cli[:api_key]
+      if sub_cli[:universe] == :web && sub_cli[:db] == :assembly_gz
+        ENV['NCBI_API_KEY'] = sub_cli[:api_key]
+      end
+
+      var_space = sub_cli[:universe].to_s.upcase
+      ENV["#{var_space}_API_KEY"] = sub_cli[:api_key]
     end
 
     sub_cli.say "Dataset: #{sub_cli[:dataset]}"
