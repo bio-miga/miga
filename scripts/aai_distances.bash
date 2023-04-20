@@ -18,6 +18,14 @@ DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
   for i in $DS ; do
     echo "$SQL" | sqlite3 "$DIR/$i.db" | tr "\\|" "\\t"
   done
+  # The following block pipes retrieved data from all databases, reorganizes the
+  # names in cannonical order, and removes repeats from the first two columns,
+  # in order to keep only one result per pair. This is not being included into
+  # production, but the code may be useful for extremely large databases.
+  # | tee \
+  # | awk -F"\t" \
+  #   'BEGIN { OFS="\t" } { if($1 > $2) { a=$1; $1=$2; $2=a; } } { print $0 }' \
+  # | sort -k 1,2 -u
 ) | gzip -9c > miga-project.txt.gz
 
 # R-ify
