@@ -76,18 +76,47 @@ module MiGA::Dataset::Result::Ignore
   ##
   # Ignore +task+ because it's not a reference dataset
   def ignore_noref?(task)
-    self.class.EXCLUDE_NOREF_TASKS.include?(task) && !ref?
+    ignore_by_type?(task, :noref)
   end
 
   ##
   # Ignore +task+ because it's not a multi dataset
   def ignore_multi?(task)
-    self.class.ONLY_MULTI_TASKS.include?(task) && !multi?
+    ignore_by_type?(task, :multi)
   end
 
   ##
   # Ignore +task+ because it's not a nonmulti dataset
   def ignore_nonmulti?(task)
-    self.class.ONLY_NONMULTI_TASKS.include?(task) && !nonmulti?
+    ignore_by_type?(task, :nonmulti)
+  end
+
+  ##
+  # Ignore +task+ by +type+ of dataset, one of: +:noref+, +:multi+, or
+  # +:nonmulti+
+  def ignore_by_type?(task, type)
+    return false if force_task?(task)
+
+    test, list =
+      case type.to_sym
+      when :noref
+        [:ref?, self.class.EXCLUDE_NOREF_TASKS]
+      when :multi
+        [:multi?, self.class.ONLY_MULTI_TASKS]
+      when :nonmulti
+        [:nonmulti?, self.class.ONLY_NONMULTI_TASKS]
+      else
+        raise "Unexpected error, unknown type reason: #{type}"
+      end
+
+    list.include?(task) && !send(test)
+  end
+
+  ##
+  # Force the +task+ to be executed even if it should otherwise be
+  # ignored due to reasons: +:noref+, +:multi+, or +:nonmulti+. Other
+  # reasons to ignore a task are not affected by metadata forcing
+  def force_task?(task)
+    !!metadata["run_#{task}"]
   end
 end
