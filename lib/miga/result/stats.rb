@@ -141,12 +141,16 @@ module MiGA::Result::Stats
       # Determine qualitative range
       stats[:quality] = stats[:completeness][0] - stats[:contamination][0] * 5
       source.metadata[:quality] =
-        case stats[:quality]
-        when 80..100; :excellent
-        when 50..80; :high
-        when 20..50; :intermediate
-        else; :low
+        if stats[:completeness][0] >= 90 && stats[:contamination][0] <= 5
+          :excellent    # Finished or High-quality draft*
+        elsif stats[:completeness][0] >= 50 && stats[:contamination][0] <= 10
+          :high         # Medium-quality draft*
+        elsif stats[:quality] >= 25
+          :intermediate # Low-quality draft* but sufficient for classification
+        else
+          :low          # Low-quality draft* and insufficient for classification
         end
+        # * Bowers et al 2017, DOI: 10.1038/nbt.3893
       source.save
 
       # Inactivate low-quality datasets
