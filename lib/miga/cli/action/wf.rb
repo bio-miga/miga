@@ -21,6 +21,10 @@ module MiGA::Cli::Action::Wf
       '-o', '--out_dir PATH',
       '(Mandatory) Directory to be created with all output data'
     ) { |v| cli[:outdir] = v }
+    opt.on(
+      '-P', '--project PATH',
+      '::HIDE::' # Applying the principle of least surprise, alias of -o
+    ) { |v| cli[:outdir] = v }
     opt.separator ''
     opt.separator "    FILES...: #{files_desc}"
     opt.separator ''
