@@ -4,7 +4,7 @@
 require 'miga/cli/action'
 require 'digest/md5'
 
-class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
+class MiGA::Cli::Action::Db < MiGA::Cli::Action
   def parse_cli
     cli.defaults = {
       database: :recommended,
@@ -41,6 +41,10 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
         'List available versions of the database and exit'
       ) { |v| cli[:list_versions] = v }
       opt.on(
+        '--list-local',
+        'List only the versions of the local databases (if any) and exit'
+      ) { |v| cli[:list_local] = v }
+      opt.on(
         '--reuse-archive',
         'Reuse a previously downloaded archive if available'
       ) { |v| cli[:reuse_archive] = v }
@@ -48,6 +52,10 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
         '--no-overwrite',
         'Exit without downloading if the target database already exists'
       ) { |v| cli[:overwrite] = v }
+      opt.on(
+        '--tab',
+        'Return a tab-delimited table'
+      ) { |v| cli[:tabular] = v }
       opt.on('--no-progress', 'Supress progress bars') { |v| cli[:pb] = v }
     end
   end
@@ -57,6 +65,12 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
     dir = File.join(cli[:local], cli[:database].to_s)
     if !cli[:overwrite] && Dir.exist?(dir)
       cli.puts "Database exists: #{dir}"
+      return
+    end
+
+    # If dealing with local checks only
+    if cli[:list_local]
+      list_local
       return
     end
 
@@ -89,6 +103,28 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   private
 
+  def list_local
+    local_manif = local_manifest
+    raise "Local manifest not found." unless local_manif
+    databases =
+      if %i[recommended test].include?(cli[:database])
+        local_manif[:databases].keys
+      else
+        [cli[:database].to_sym]
+      end
+    cli.table(
+      %w[database version genomes updated path],
+      databases.map do |db|
+        path = File.join(cli[:local], db.to_s)
+        p = MiGA::Project.load(path)
+        if p
+          md = p.metadata
+          [db, md[:release], md[:datasets].count, md[:updated], p.path]
+        end
+      end.compact
+    )
+  end
+
   def remote_connection
     cli.say "Connecting to '#{cli[:host]}'"
     MiGA::MiGA.remote_connection(cli[:host])
@@ -111,6 +147,11 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
   def remote_manifest(ftp)
     file = download_file(ftp, '_manif.json')
     MiGA::Json.parse(file)
+  end
+
+  def local_manifest
+    file = File.join(cli[:local], '_local_manif.json')
+    MiGA::Json.parse(file) if File.exist?(file)
   end
 
   def db_requested(manif)
@@ -208,8 +249,7 @@ class MiGA::Cli::Action::GetDb < MiGA::Cli::Action
 
   def register_database(manif, db, ver)
     cli.say "Registering database locally"
-    local_manif = File.expand_path('_local_manif.json', cli[:local])
-    reg = File.exist?(local_manif) ? MiGA::Json.parse(local_manif) : {}
+    local_manif = local_manifest || {}
     reg[:last_update] = Time.now.to_s
     reg[:databases] ||= {}
     reg[:databases][cli[:database]] ||= {}
