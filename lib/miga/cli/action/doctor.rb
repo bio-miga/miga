@@ -46,16 +46,18 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
   end
 
   @@OPERATIONS = {
+    # TODO Implement this check:
+    # refdb:  ['ref-db', 'Check index format of reference databases'],
     status: ['status', 'Update metadata status of all datasets'],
-    db: ['databases', 'Check integrity of database files'],
-    bidir: ['bidirectional', 'Check distances are bidirectional'],
-    dist: ['distances', 'Check distance summary tables'],
-    files: ['files', 'Check for outdated files'],
-    cds: ['cds', 'Check for gzipped genes and proteins'],
-    ess: ['essential-genes', 'Check for outdated essential genes'],
-    mts: ['mytaxa-scan', 'Check for unarchived MyTaxa scan'],
-    start: ['start', 'Check for lingering .start files'],
-    tax: ['taxonomy', 'Check for taxonomy consistency (not yet implemented)']
+    db:     ['databases', 'Check integrity of database files'],
+    bidir:  ['bidirectional', 'Check distances are bidirectional'],
+    dist:   ['distances', 'Check distance summary tables'],
+    files:  ['files', 'Check for outdated files'],
+    cds:    ['cds', 'Check for gzipped genes and proteins'],
+    ess:    ['essential-genes', 'Check for outdated essential genes'],
+    mts:    ['mytaxa-scan', 'Check for unarchived MyTaxa scan'],
+    start:  ['start', 'Check for lingering .start files'],
+    tax:    ['taxonomy', 'Check for taxonomy consistency (not yet implemented)']
   }
 
   class << self

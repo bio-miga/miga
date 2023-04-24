@@ -1,6 +1,20 @@
 
 module MiGA::Cli::Action::Doctor::Operations
   ##
+  # Perform refdb operation with MiGA::Cli +cli+
+  def check_refdb(cli)
+    cli.say 'Checking index format of reference database'
+    ref_dbs = File.join(ENV['MIGA_HOME'], '.miga_db')
+    manif_file = File.join(ref_dbs, '_local_manif.json')
+    return unless File.size?(manif_file)
+
+    MiGA::Json.parse(manif_file)[:databases]&.keys&.each do |db|
+      p = MiGA::Project.load(File.join(ref_dbs, db.to_s))
+      md = p&.metadata
+    end
+  end
+
+  ##
   # Perform status operation with MiGA::Cli +cli+
   def check_status(cli)
     cli.say 'Updating metadata status'
