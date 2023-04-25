@@ -9,7 +9,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     cli.defaults = {
       database: :recommended,
       version: :latest,
-      local: File.expand_path('.miga_db', ENV['MIGA_HOME']),
+      local: File.join(ENV['MIGA_HOME'], '.miga_db'),
       host: MiGA::MiGA.known_hosts(:miga_db),
       pb: true,
       reuse_archive: false,

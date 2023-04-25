@@ -10,23 +10,31 @@ DIR="$PROJECT/data/09.distances/02.aai"
 miga_start_project_step "$DIR"
 
 # Extract values
-rm -f miga-project.txt
-SQL="SELECT seq1, seq2, aai, sd, n, omega from aai;"
-DS=$(miga ls -P "$PROJECT" --ref --no-multi --active)
-(
-  echo "a b value sd n omega" | tr " " "\\t"
-  for i in $DS ; do
-    echo "$SQL" | sqlite3 "$DIR/$i.db" | tr "\\|" "\\t"
+function foreach_database_aai {
+  local SQL="SELECT seq1, seq2, aai, sd, n, omega from aai;"
+  local k=0
+  while [[ -n ${DS[$k]} ]] ; do
+    echo "$SQL" | sqlite3 "$DIR/${DS[$k]}.db" | tr "\\|" "\\t"
+    let k=$k+1
   done
-  # The following block pipes retrieved data from all databases, reorganizes the
-  # names in cannonical order, and removes repeats from the first two columns,
-  # in order to keep only one result per pair. This is not being included into
-  # production, but the code may be useful for extremely large databases.
-  # | tee \
-  # | awk -F"\t" \
-  #   'BEGIN { OFS="\t" } { if($1 > $2) { a=$1; $1=$2; $2=a; } } { print $0 }' \
-  # | sort -k 1,2 -u
-) | gzip -9c > miga-project.txt.gz
+}
+
+function aai_tsv {
+  DS=($(miga ls -P "$PROJECT" --ref --no-multi --active))
+  echo "a b value sd n omega" | tr " " "\\t"
+  if [[ ${#DS[@]} -gt 40000 ]] ; then
+    # Use comparisons in strictly one direction only for huge projects
+    foreach_database_aai \
+      | awk -F"\t" 'BEGIN { OFS="\t" }
+          { if ($1 > $2) { a=$1; $1=$2; $2=a; } } { print $0 }' \
+      | sort -k 1,2 -u
+  else
+    foreach_database "$SQL"
+  fi
+}
+
+rm -f "miga-project.txt"
+aai_tsv | gzip -9c > "miga-project.txt.gz"
 
 # R-ify
 cat <<R | R --vanilla

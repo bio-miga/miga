@@ -138,6 +138,12 @@ class MiGA::Taxonomy < MiGA::MiGA
   end
 
   ##
+  # Domain of the taxonomy (a String) or +nil+
+  def domain
+    self[:d]
+  end
+
+  ##
   # Get the most general rank as a two-entry Array (rank and value).
   # If +force_ranks+ is true, it always returns the value for domain (d)
   # even if undefined.

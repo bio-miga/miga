@@ -9,7 +9,7 @@ cd "$PROJECT/data/09.distances"
 # Initialize
 miga date > "$DATASET.start"
 
-# Check quality first
+# Check quality
 miga stats -P "$PROJECT" -D "$DATASET" -r essential_genes --compute-and-save
 inactive=$(miga ls -P "$PROJECT" -D "$DATASET" -m inactive | cut -f 2)
 [[ "$inactive" == "true" ]] && exit

@@ -1,4 +1,4 @@
-require 'sqlite3'
+require 'miga/sqlite'
 
 module MiGA::DistanceRunner::Database
   ##
@@ -11,6 +11,8 @@ module MiGA::DistanceRunner::Database
     { haai: :aai, aai: :aai, ani: :ani }.each do |m, t|
       @db_counts[m] = 0
       @dbs[m] = for_ref ? ref_db(m) : query_db(m)
+      @tmp_dbs[m] = tmp_file("#{m}.db")
+
       # Remove if corrupt
       if File.size?(dbs[m])
         begin
@@ -21,9 +23,12 @@ module MiGA::DistanceRunner::Database
           FileUtils.rm dbs[m]
         end
       end
-      # Initialize if it doesn't exist
-      unless File.size? dbs[m]
-        SQLite3::Database.new(dbs[m]) do |conn|
+
+      # Initialize if it doesn't exist, copy otherwise
+      if File.size? dbs[m]
+        FileUtils.cp(dbs[m], tmp_dbs[m])
+      else
+        SQLite3::Database.new(tmp_dbs[m]) do |conn|
           conn.execute <<~SQL
             create table if not exists #{t}(
               seq1 varchar(256), seq2 varchar(256),
@@ -31,10 +36,8 @@ module MiGA::DistanceRunner::Database
             )
           SQL
         end
+        FileUtils.cp(tmp_dbs[m], dbs[m]) unless opts[:only_domain]
       end
-      # Copy over to (local) temporals
-      @tmp_dbs[m] = tmp_file("#{m}.db")
-      FileUtils.cp(dbs[m], tmp_dbs[m])
     end
   end
 
@@ -157,6 +160,20 @@ module MiGA::DistanceRunner::Database
       conn.execute(sql).each { |row| data[row.shift] = row }
     end
     data
+  rescue => e
+    $stderr.puts "Database file: #{db}" if db ||= nil
+    raise e
+  end
+
+  ##
+  # Retrieve the name and AAI of the closest relative from the AAI database
+  def closest_relative
+    db = tmp_dbs[:aai]
+    sql = 'select seq2, aai from aai order by aai desc limit 1'
+    MiGA::SQLite.new(db).run(sql).first
+  rescue => e
+    $stderr.puts "Database file: #{db}" if db ||= nil
+    raise e
   end
 
   ##

@@ -41,6 +41,7 @@ module MiGA::DistanceRunner::Temporal
 
   # Copies temporal databases back to the MiGA Project
   def checkpoint!(metric)
+    return if opts[:only_domain]
     $stderr.puts "Checkpoint (metric = #{metric})"
 
     # This is simply to test database consistency before overwriting the

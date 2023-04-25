@@ -72,22 +72,13 @@ module MiGA::DistanceRunner::Pipeline
     $stderr.puts "Testing taxonomy | opts = #{opts}"
     # Get taxonomy of closest relative
     from_ref_project = (project != ref_project)
-    res_dir =
-      from_ref_project ?
-        File.expand_path('data/09.distances/05.taxonomy', project.path) :
-        home
-    Dir.mkdir res_dir unless Dir.exist? res_dir
-    File.open(File.expand_path("#{dataset.name}.done", res_dir), 'w') do |fh|
-      fh.puts Time.now.to_s
-    end
-    dataset.add_result(from_ref_project ? :taxonomy : :distances, true)
-    cr = dataset.closest_relatives(1, from_ref_project)
+    cr = closest_relative
     return if cr.nil? or cr.empty?
 
-    tax = ref_project.dataset(cr[0][0]).metadata[:tax] || {}
+    tax = ref_project.dataset(cr[0]).metadata[:tax] || {}
 
     # Run the test for each rank
-    tax_test = MiGA::TaxDist.aai_pvalues(cr[0][1], :intax, engine: opts[:aai_p])
+    tax_test = MiGA::TaxDist.aai_pvalues(cr[1], :intax, engine: opts[:aai_p])
     r = tax_test.map do |k, v|
       sig = ''
       [0.5, 0.1, 0.05, 0.01].each { |i| sig << '*' if v < i }
@@ -95,12 +86,14 @@ module MiGA::DistanceRunner::Pipeline
     end
 
     # Save test
-    File.open(File.expand_path("#{dataset.name}.intax.txt", home), 'w') do |fh|
-      fh.puts "Closest relative: #{cr[0][0]} with AAI: #{cr[0][1]}."
-      fh.puts ''
-      fh.puts MiGA::MiGA.tabulate(%w[Rank Taxonomy P-value Signif.], r)
-      fh.puts ''
-      fh.puts 'Significance at p-value below: *0.5, **0.1, ***0.05, ****0.01.'
+    unless opts[:only_domain]
+      File.open(File.join(home, "#{dataset.name}.intax.txt"), 'w') do |fh|
+        fh.puts "Closest relative: #{cr[0]} with AAI: #{cr[1]}."
+        fh.puts ''
+        fh.puts MiGA::MiGA.tabulate(%w[Rank Taxonomy P-value Signif.], r)
+        fh.puts ''
+        fh.puts 'Significance at p-value below: *0.5, **0.1, ***0.05, ****0.01.'
+      end
     end
     return r
   end
@@ -115,6 +108,7 @@ module MiGA::DistanceRunner::Pipeline
             .select { |i| i[1] != '?' && i[2] <= pval }
             .map { |i| i[0, 2].join(':') }
     dataset.metadata[:tax] = MiGA::Taxonomy.new(tax_a)
+    $stderr.puts " > #{dataset.metadata[:tax]}"
     dataset.save
   end
 end

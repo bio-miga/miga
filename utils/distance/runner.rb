@@ -12,8 +12,9 @@ class MiGA::DistanceRunner
     @home = File.expand_path('data/09.distances', project.path)
 
     # Default opts
-    if opts[:run_taxonomy] && project.option(:ref_project)
-      ref_path = project.option(:ref_project)
+    if opts[:run_taxonomy] &&
+          (opts[:ref_project] || project.option(:ref_project))
+      ref_path = opts[:ref_project] || project.option(:ref_project)
       @home = File.expand_path('05.taxonomy', @home)
       @ref_project = MiGA::Project.load(ref_path)
       raise "Cannot load reference project: #{ref_path}" if @ref_project.nil?
@@ -73,48 +74,55 @@ class MiGA::DistanceRunner
     # Initialize the databases
     initialize_dbs! false
     distances_by_request(tsk[1])
+
     # Calculate the classification-informed AAI/ANI traverse
-    results = File.expand_path("#{dataset.name}.#{tsk[1]}-medoids.tsv", home)
-    fh = File.open(results, 'w')
+    tmp_results = tmp_file("#{tsk[1]}-medoids.tsv")
+    fh = File.open(tmp_results, 'w')
     classif, val_cls = *classify(res.dir, '.', tsk[1], fh)
     fh.close
 
-    # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
-    par_dir = File.dirname(File.expand_path(classif, res.dir))
-    par = File.expand_path('miga-project.classif', par_dir)
-    closest = { dataset: nil, ani: 0.0 }
-    sbj_datasets = []
-    if File.size? par
-      File.open(par, 'r') do |fh|
-        fh.each_line do |ln|
-          r = ln.chomp.split("\t")
-          sbj_datasets << ref_project.dataset(r[0]) if r[1].to_i == val_cls
-        end
-      end
-      ani = ani_after_aai(sbj_datasets, 80.0)
-      ani_max = ani.map(&:to_f).each_with_index.max
-      closest = { ds: sbj_datasets[ani_max[1]].name, ani: ani_max[0] }
-    end
+    unless opts[:only_domain]
+      results = File.join(home, "#{dataset.name}.#{tsk[1]}-medoids.tsv")
+      FileUtils.move(tmp_results, results)
 
-    # Calculate all the AAIs/ANIs against the closest ANI95-clade (if AAI > 80%)
-    cl_path = res.file_path :clades_ani95
-    if !cl_path.nil? && File.size?(cl_path) && tsk[0] == :clade_finding
-      clades = File.foreach(cl_path).map { |i| i.chomp.split(',') }
-      sbj_dataset_names = clades.find { |i| i.include?(closest[:ds]) }
-      sbj_datasets = sbj_dataset_names&.map { |i| ref_project.dataset(i) }
-      ani_after_aai(sbj_datasets, 80.0) if sbj_datasets
+      # Calculate all the AAIs/ANIs against the lowest subclade (if classified)
+      par_dir = File.dirname(File.expand_path(classif, res.dir))
+      par = File.expand_path('miga-project.classif', par_dir)
+      closest = { dataset: nil, ani: 0.0 }
+      sbj_datasets = []
+      if File.size? par
+        File.open(par, 'r') do |fh|
+          fh.each_line do |ln|
+            r = ln.chomp.split("\t")
+            sbj_datasets << ref_project.dataset(r[0]) if r[1].to_i == val_cls
+          end
+        end
+        ani = ani_after_aai(sbj_datasets, 80.0)
+        ani_max = ani.map(&:to_f).each_with_index.max
+        closest = { ds: sbj_datasets[ani_max[1]].name, ani: ani_max[0] }
+      end
+
+      # Calculate all the AAIs/ANIs against the closest ANI95-clade
+      # (if AAI > 80%)
+      cl_path = res.file_path :clades_ani95
+      if !cl_path.nil? && File.size?(cl_path) && tsk[0] == :clade_finding
+        clades = File.foreach(cl_path).map { |i| i.chomp.split(',') }
+        sbj_dataset_names = clades.find { |i| i.include?(closest[:ds]) }
+        sbj_datasets = sbj_dataset_names&.map { |i| ref_project.dataset(i) }
+        ani_after_aai(sbj_datasets, 80.0) if sbj_datasets
+      end
     end
 
     # Finalize
     [:haai, :aai, :ani].each { |m| checkpoint! m if db_counts[m] > 0 }
-    build_medoids_tree(tsk[1])
+    build_medoids_tree(tsk[1]) unless opts[:only_domain]
     transfer_taxonomy(tax_test)
   end
 
   # Launch analysis for taxonomy jobs
   def go_taxonomy!
     $stderr.puts 'Launching taxonomy analysis'
-    return unless project.option(:ref_project)
+    return unless opts[:ref_project] || project.option(:ref_project)
 
     go_query! # <- yeah, it's actually the same, just different ref_project
   end
