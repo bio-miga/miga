@@ -149,9 +149,12 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     MiGA::Json.parse(file)
   end
 
+  def local_manifest_file
+    File.join(cli[:local], '_local_manif.json')
+  end
+
   def local_manifest
-    file = File.join(cli[:local], '_local_manif.json')
-    MiGA::Json.parse(file) if File.exist?(file)
+    MiGA::Json.parse(local_manifest_file) if File.exist?(local_manifest_file)
   end
 
   def db_requested(manif)
@@ -249,14 +252,13 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
 
   def register_database(manif, db, ver)
     cli.say "Registering database locally"
-    local_manif = local_manifest || {}
-    reg[:last_update] = Time.now.to_s
+    reg = local_manifest.merge(last_update: Time.now.to_s)
     reg[:databases] ||= {}
     reg[:databases][cli[:database]] ||= {}
     reg[:databases][cli[:database]][:manif_last_update] = manif[:last_update]
     reg[:databases][cli[:database]][:manif_host] = manif[:host]
-    db.each { |k, v| reg[:databases][cli[:database]][k] = v }
+    reg[:databases][cli[:database]].merge! db
     reg[:databases][cli[:database]][:local_version] = ver
-    MiGA::Json.generate(reg, local_manif)
+    MiGA::Json.generate(reg, local_manifest_file)
   end
 end
