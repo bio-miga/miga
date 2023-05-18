@@ -172,11 +172,10 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
   end
 
   def version_requested(db)
-    if cli[:version] == :latest
-      cli[:version] = db[:latest].to_sym
-    end
+    cli[:version] = db[:latest].to_sym if cli[:version] == :latest
     ver = db[:versions][cli[:version]]
     raise 'Cannot find database version' if ver.nil?
+    ver[:version] = cli[:version]
 
     cli.puts "# Database size: #{version_size(ver)}"
     ver
@@ -252,12 +251,13 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
 
   def register_database(manif, db, ver)
     cli.say "Registering database locally"
-    reg = local_manifest.merge(last_update: Time.now.to_s)
+    reg = (local_manifest || {}).merge(last_update: Time.now.to_s)
     reg[:databases] ||= {}
     reg[:databases][cli[:database]] ||= {}
     reg[:databases][cli[:database]][:manif_last_update] = manif[:last_update]
     reg[:databases][cli[:database]][:manif_host] = manif[:host]
     reg[:databases][cli[:database]].merge! db
+    reg[:databases][cli[:database]].delete(:versions)
     reg[:databases][cli[:database]][:local_version] = ver
     MiGA::Json.generate(reg, local_manifest_file)
   end
