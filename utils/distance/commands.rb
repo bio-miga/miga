@@ -224,7 +224,10 @@ module MiGA::DistanceRunner::Commands
         else
           out[6] = out[6].to_f
         end
-        aai_data[out[1]] = [out[6], 0, 0, 0]
+
+        # AAI-hat can result in 0.0 values (e.g., "<30%") when low-quality
+        # genome comparisons produce unrealistically small estimates. 
+        aai_data[out[1]] = [out[6], 0, 0, 0] unless out[6].zero?
       end
     end
     $stderr.puts "Results: #{haai_data.size} | Inferences: #{aai_data.size}"
