@@ -29,7 +29,7 @@ function aai_tsv {
           { if ($1 > $2) { a=$1; $1=$2; $2=a; } } { print $0 }' \
       | sort -k 1,2 -u
   else
-    foreach_database "$SQL"
+    foreach_database_aai
   fi
 }
 
