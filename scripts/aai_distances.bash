@@ -34,12 +34,20 @@ function aai_tsv {
 }
 
 rm -f "miga-project.txt"
-aai_tsv | gzip -9c > "miga-project.txt.gz"
+aai_tsv | tee >(wc -l | awk '{print $1-1}' > "miga-project.txt.lno") \
+  | gzip -9c > "miga-project.txt.gz"
+LNO=$(cat "miga-project.txt.lno")
+rm "miga-project.txt.lno"
 
 # R-ify
 cat <<R | R --vanilla
 file <- gzfile("miga-project.txt.gz")
-aai <- read.table(file, sep = "\t", header = TRUE, as.is = TRUE)
+aai <- read.table(
+  file, sep = "\t", header = TRUE, as.is = TRUE, quote = "",
+  stringsAsFactors = FALSE, comment.char = "", nrows = $LNO,
+  colClasses = c("character", "character",
+                 "numeric", "numeric", "integer", "integer")
+)
 saveRDS(aai, file = "miga-project.rds")
 if(sum(aai[, "a"] != aai[, "b"]) > 0) {
   h <- hist(aai[aai[, "a"] != aai[, "b"], "value"], breaks = 100, plot = FALSE)
