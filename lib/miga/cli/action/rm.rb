@@ -17,7 +17,7 @@ class MiGA::Cli::Action::Rm < MiGA::Cli::Action
   end
 
   def perform
-    if r = cli.load_result
+    if cli[:result] && r = cli.load_result
       cli[:remove] ? r.remove! : r.unlink
     elsif d = cli.load_dataset
       cli.load_project.unlink_dataset(d.name)

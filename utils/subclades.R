@@ -311,7 +311,7 @@ ani_distance <- function (ani_file, sel) {
     sim <- read.table(gzfile(ani_file), sep = "\t", header = TRUE, as.is = TRUE)
   }
   
-  # If there is not data end process
+  # If there is no data, end process
   if (nrow(sim) == 0) return(NULL)
 
   # Apply filter (if requested)
@@ -319,7 +319,7 @@ ani_distance <- function (ani_file, sel) {
   if (!is.na(sel) && file.exists(sel)) {
     say("Filter selection")
     ids <- read.table(sel, sep = "\t", head = FALSE, as.is = TRUE)[,1]
-    sim <- sim[sim$a %in% ids & sim$b %in% ids, ]
+    sim <- sim[which(sim$a %in% ids & sim$b %in% ids), ]
   } else {
     ids <- with(sim, unique(c(a, b)))
   }
@@ -329,7 +329,7 @@ ani_distance <- function (ani_file, sel) {
   sim$d <- 1 - (sim$value / 100)
   return(as.dist(with(sim, {
     out <- matrix(
-      max(d) * 1.2, nrow = length(ids), ncol = length(ids),
+      min(max(d) * 1.2, 1.0), nrow = length(ids), ncol = length(ids),
       dimnames = list(ids, ids)
     )
     out[cbind(ids, ids)] <- 0
