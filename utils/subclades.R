@@ -127,11 +127,12 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   say("- Launch parallel jobs")
   s <- parSapply(
     cl, k,
-    function(x) {
+    function(x, ani.d) {
       library(cluster)
       s <- pam(ani.d, x, do.swap = FALSE, variant = "faster")$silinfo
       c(s$avg.width, -sum(ifelse(s$widths[, 3] > 0, 0, s$widths[, 3])))
-    }
+    },
+    ani.d = ani.d
   )
   say("- Stop cluster")
   stopCluster(cl)
