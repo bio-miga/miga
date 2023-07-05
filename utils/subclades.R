@@ -97,7 +97,7 @@ subclades <- function(ani_file, out_base, thr = 1, ani.d = dist(0), sel = NA) {
 #= Heavy-lifter
 subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   # Get ANI distances
-  if (length(ani.d) > 0) {
+  if (length(ani.d) > 0L) {
     # Just use ani.d (and save in dist_rds)
     if (!file.exists(dist_rds)) saveRDS(ani.d, dist_rds)
   } else if (file.exists(dist_rds)) {
@@ -107,10 +107,20 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
     stop("Cannot find input matrix", out_base)
   }
   if (length(labels(ani.d)) <= 8L) return(list())
-  
+
+  # Subsample huge collections
+  nMax <- 65536L
+  nn <- length(labels(ani.d))
+  is.huge <- nn > nMax
+  if (is.huge) {
+    say("Subsampling large collection")
+    ids <- sample(labels(ani.d), nMax)
+    ani.d.ori <- ani.d
+    ani.d <- as.dist(as.matrix(ani.d)[ids, ids])
+  }
+
   # Silhouette
   say("Silhouette")
-  nn <- length(labels(ani.d))
   k <- min(max(floor(0.005 * nn), 2), 20):min(nn - 1, 100)
   say("- Make cluster")
   cl <- makeCluster(thr)
@@ -135,13 +145,30 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
 
   # Classify genomes
   say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
-  is.huge <- length(labels(ani.d)) > 4e4
-  ani.cl <- pam(ani.d, top.n, variant = "faster", do.swap = !is.huge)
+  is.large <- nn > 3e4
+  ani.cl <- pam(ani.d, top.n, variant = "faster", do.swap = !is.large)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
 
-  # Build tree
+  # Classify excluded genome (for huge collections)
   if (is.huge) {
+    say("Classifying excluded genomes")
+    ani.d <- ani.d.ori
+    # Find closest medoid for missing genomes
+    missing <- labels(ani.d)[!labels(ani.d) %in% names(ani.types)]
+    for (i in missing)
+      ani.types[i] <- which.min(as.matrix(ani.d)[ani.medoids, i])
+    # Reorder
+    ani.types <- ani.types[labels(ani.d)]
+    # Save missing genomes for inspection
+    write.table(
+      missing, paste0(out_base, ".missing.txt"),
+      quote = FALSE, col.names = FALSE, row.names = FALSE
+    )
+  }
+
+  # Build tree
+  if (is.large) {
     say("Bypassing tree for large set")
     write.table(
       '{}', file = paste(out_base, ".nwk", sep = ""),
@@ -165,8 +192,8 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   layout(matrix(c(rep(1:3, each = 2), 4:5), byrow = TRUE, ncol = 2))
   plot_distances(ani.d)
   plot_silhouette(k, s[1, ], s[2, ], ds, top.n)
-  plot_clustering(ani.cl, ani.d, ani.types)
-  if (!is.huge) plot_tree(ani.ph, ani.types, ani.medoids)
+  if (!is.huge) plot_clustering(ani.cl, ani.d, ani.types)
+  if (!is.large) plot_tree(ani.ph, ani.types, ani.medoids)
   dev.off()
 
   # Save results
@@ -310,33 +337,48 @@ ani_distance <- function (ani_file, sel) {
   } else {
     sim <- read.table(gzfile(ani_file), sep = "\t", header = TRUE, as.is = TRUE)
   }
+
+  # Extract individual variables to deal with very large matrices
+  a <- sim$a
+  b <- sim$b
+  d <- 1 - (sim$value / 100)
   
   # If there is no data, end process
-  if (nrow(sim) == 0) return(NULL)
+  if (length(a) == 0) return(NULL)
 
   # Apply filter (if requested)
   ids <- NULL
   if (!is.na(sel) && file.exists(sel)) {
     say("Filter selection")
     ids <- read.table(sel, sep = "\t", head = FALSE, as.is = TRUE)[,1]
-    sim <- sim[which(sim$a %in% ids & sim$b %in% ids), ]
+    sel.idx <- which(sim$a %in% ids & sim$b %in% ids)
+    a <- a[sel.idx]
+    b <- b[sel.idx]
+    d <- d[sel.idx]
   } else {
-    ids <- with(sim, unique(c(a, b)))
+    ids <- unique(c(a, b))
   }
 
-  # Transform to distances
+  # Transform to dist object
   say("Distances")
-  sim$d <- 1 - (sim$value / 100)
-  return(as.dist(with(sim, {
-    out <- matrix(
-      min(max(d) * 1.2, 1.0), nrow = length(ids), ncol = length(ids),
-      dimnames = list(ids, ids)
-    )
-    out[cbind(ids, ids)] <- 0
-    out[cbind(a, b)] <- d
-    out[cbind(b, a)] <- d
-    out
-  })))
+  out <- matrix(
+    min(max(d) * 1.2, 1.0), nrow = length(ids), ncol = length(ids),
+    dimnames = list(ids, ids)
+  )
+  diag(out) <- 0
+  # Split task to reduce peak RAM and support very large matrices
+  # - Note that `k` is subsetting by index, but it's defined as numeric
+  #   instead of integer. The reason is that integer overflow occurs
+  #   at just over 2e9, whereas numerics can represent much larger
+  #   numbers without problems
+  i <- 0
+  while (i < length(a)) {
+    k <- seq(i + 1, min(i + 1e8, length(a)))
+    out[cbind(a[k], b[k])] <- d[k]
+    out[cbind(b[k], a[k])] <- d[k]
+    i <- i + 1e8
+  }
+  return(as.dist(out))
 }
 
 #= Main
