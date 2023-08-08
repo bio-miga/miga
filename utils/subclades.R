@@ -116,7 +116,8 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
     say("Subsampling large collection")
     ids <- sample(labels(ani.d), nMax)
     ani.d.ori <- ani.d
-    ani.d <- as.dist(as.matrix(ani.d)[ids, ids])
+    ani.d.m <- as.matrix(ani.d)
+    ani.d <- as.dist(ani.d.m[ids, ids])
   }
 
   # Silhouette
@@ -157,9 +158,10 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
     ani.d <- ani.d.ori
     # Find closest medoid for missing genomes
     missing <- labels(ani.d)[!labels(ani.d) %in% names(ani.types)]
-    for (i in missing)
-      ani.types[i] <- which.min(as.matrix(ani.d)[ani.medoids, i])
+    say("- Classify:", length(missing))
+    for (i in missing) ani.types[i] <- which.min(ani.d.m[ani.medoids, i])
     # Reorder
+    say("- Reorder and save")
     ani.types <- ani.types[labels(ani.d)]
     # Save missing genomes for inspection
     write.table(
@@ -190,11 +192,16 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   # Generate graphic report
   say("Graphic report")
   pdf(paste(out_base, ".pdf", sep = ""), 7, 12)
-  layout(matrix(c(rep(1:3, each = 2), 4:5), byrow = TRUE, ncol = 2))
-  plot_distances(ani.d)
-  plot_silhouette(k, s[1, ], s[2, ], ds, top.n)
-  if (!is.huge) plot_clustering(ani.cl, ani.d, ani.types)
-  if (!is.large) plot_tree(ani.ph, ani.types, ani.medoids)
+  if (is.huge) {
+    plot(NULL, axes = FALSE, xlab = '', ylab = '', xlim = 0:1, ylim = 0:1)
+    legend('center', legend = 'Dataset too large for graphical representation')
+  } else {
+    layout(matrix(c(rep(1:3, each = 2), 4:5), byrow = TRUE, ncol = 2))
+    plot_distances(ani.d)
+    plot_silhouette(k, s[1, ], s[2, ], ds, top.n)
+    plot_clustering(ani.cl, ani.d, ani.types)
+    if (!is.large) plot_tree(ani.ph, ani.types, ani.medoids)
+  }
   dev.off()
 
   # Save results
