@@ -12,7 +12,7 @@
 For additional information on MiGA, visit:
 
 * [MiGA Online][miga-online]: The Microbial Genomes Atlas Online
-* [MiGA@XSEDE][miga-at-xsede]: The MiGA@XSEDE Gateway
+* [MiGA Gateway][miga-gatewat]: The MiGA Science Gateway
 * [MiGA users list][mailing-list]:
   Forum to discuss with other users and developers
 * [MiGA manual][manual]: The definitive guide to MiGA
@@ -57,6 +57,6 @@ See [LICENSE](LICENSE).
 [miga-web]: https://github.com/bio-miga/miga-web
 [miga-gui]: https://github.com/bio-miga/miga-gui
 [miga-online]: http://microbial-genomes.org/
-[miga-at-xsede]: https://xsede.microbial-genomes.org/
+[miga-gateway]: https://gateway.microbial-genomes.org/
 [kostas]: http://enve-omics.gatech.edu/
 [rdp]: http://rdp.cme.msu.edu/

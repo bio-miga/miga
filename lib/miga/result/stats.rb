@@ -219,6 +219,8 @@ module MiGA::Result::Stats
 
   def compute_stats_taxonomy
     stats = {}
+    return stats unless file_path(:intax_test)
+
     File.open(file_path(:intax_test), 'r') do |fh|
       fh.gets.chomp =~ /Closest relative: (\S+) with AAI: (\S+)\.?/
       stats[:closest_relative] = $1

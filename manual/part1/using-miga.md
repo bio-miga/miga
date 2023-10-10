@@ -13,7 +13,7 @@ most technically involved and requires computational resources available to you.
 
 ## MiGA Container
 
-## MiGA@XSEDE Gateway
+## MiGA Science Gateway
 
 ## MiGA in the cloud
 
