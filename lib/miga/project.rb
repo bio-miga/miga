@@ -98,7 +98,7 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Is this a clade project?
   def clade?
-    type == :clade
+    %i[clade plasmids].include? type
   end
 
   ##
@@ -114,6 +114,12 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Same as multi? For backward compatibility
   alias is_multi? multi?
+
+  ##
+  # Does the project support the use of universal markers?
+  def markers?
+    @@KNOWN_TYPES[type][:markers]
+  end
 
   ##
   # Is this project active? Currently a dummy function, returns

@@ -15,7 +15,7 @@ if [[ "$MIGA_MYTAXA" == "no" ]] ; then
     > "$DATASET.nomytaxa.txt"
 else
   # Check type of dataset
-  MULTI=$(miga list_datasets -P "$PROJECT" -D "$DATASET" --multi \
+  MULTI=$(miga ls -P "$PROJECT" -D "$DATASET" --multi \
     | wc -l | awk '{print $1}')
   if [[ "$MULTI" -eq "1" ]] ; then
     # Check requirements

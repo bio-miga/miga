@@ -40,7 +40,7 @@ class DatasetTest < Test::Unit::TestCase
     d2.save
     assert_not_predicate(d2, :multi?)
     assert_not_predicate(d2, :nonmulti?)
-    assert_nil(d2.metadata[:type])
+    assert_equal(:empty, d2.metadata[:type])
     d2.metadata[:type] = :metagenome
     d2.save
     assert_equal(:metagenome, d2.metadata[:type])
@@ -89,25 +89,40 @@ class DatasetTest < Test::Unit::TestCase
     assert_equal(:trimmed_reads, d2.first_preprocessing(true))
     assert_equal(:read_quality, d2.next_preprocessing(true))
     assert { !d2.done_preprocessing?(true) }
-    # Ref and undeclared multi
+
+    # Ref and undeclared type (empty)
     assert { d2.ignore_task?(:mytaxa) }
     assert { d2.ignore_task?(:mytaxa_scan) }
     assert { d2.ignore_task?(:distances) }
+    assert { d2.ignore_task?(:essential_genes) }
+
     # Ref and multi
     d2.metadata[:type] = :metagenome
     assert { !d2.ignore_task?(:mytaxa) }
     assert { d2.ignore_task?(:mytaxa_scan) }
     assert { d2.ignore_task?(:distances) }
+    assert { !d2.ignore_task?(:essential_genes) }
+
     # Ref and nonmulti
     d2.metadata[:type] = :genome
     assert { d2.ignore_task?(:mytaxa) }
     assert { !d2.ignore_task?(:mytaxa_scan) }
     assert { !d2.ignore_task?(:distances) }
+    assert { !d2.ignore_task?(:essential_genes) }
+
     # Qry and nonmulti
     d2.metadata[:ref] = false
     assert { d2.ignore_task?(:mytaxa) }
     assert { d2.ignore_task?(:mytaxa_scan) }
     assert { !d2.ignore_task?(:distances) }
+    assert { !d2.ignore_task?(:essential_genes) }
+
+    # Qry and plasmid
+    d2.metadata[:type] = :plasmid
+    assert { d2.ignore_task?(:mytaxa) }
+    assert { d2.ignore_task?(:mytaxa_scan) }
+    assert { !d2.ignore_task?(:distances) }
+    assert { d2.ignore_task?(:essential_genes) }
   end
 
   def test_profile_advance

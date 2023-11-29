@@ -54,7 +54,9 @@ class MiGA::DistanceRunner
     # first-come-first-serve traverse
     sbj = []
     ref_project.each_dataset do |ds|
-      sbj << ds if ds.ref? && !ds.multi? && ds.result(:essential_genes)
+      torun = ds.ref? && !ds.multi?
+      torun &&= ds.result(:essential_genes) || (!ds.markers? && ds.result(:cds))
+      sbj << ds if torun
     end
     ani_after_aai(sbj)
 

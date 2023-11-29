@@ -17,10 +17,14 @@ module MiGA::Dataset::Result::Ignore
   # - project: incompatible project
   # - noref: incompatible dataset, only for reference
   # - multi: incompatible dataset, only for multi
+  # - nomarkers: incompatible dataset, only for markers
   # - nonmulti: incompatible dataset, only for nonmulti
   # - complete: the task is already complete
   def ignore_reasons
-    %i[empty inactive upstream force project noref multi nonmulti complete]
+    %i[
+      empty inactive upstream force project
+      noref multi nonmulti nomarkers complete
+    ]
   end
 
   ##
@@ -92,8 +96,14 @@ module MiGA::Dataset::Result::Ignore
   end
 
   ##
+  # Ignore +task+ because it's not a markers dataset
+  def ignore_nomarkers?(task)
+    ignore_by_type?(task, :nomarkers)
+  end
+
+  ##
   # Ignore +task+ by +type+ of dataset, one of: +:noref+, +:multi+, or
-  # +:nonmulti+
+  # +:nonmulti+, +:nomarkers+
   def ignore_by_type?(task, type)
     return false if force_task?(task)
 
@@ -105,6 +115,8 @@ module MiGA::Dataset::Result::Ignore
         [:multi?, self.class.ONLY_MULTI_TASKS]
       when :nonmulti
         [:nonmulti?, self.class.ONLY_NONMULTI_TASKS]
+      when :nomarkers
+        [:markers?, self.class.EXCLUDE_NOMARKER_TASKS]
       else
         raise "Unexpected error, unknown type reason: #{type}"
       end

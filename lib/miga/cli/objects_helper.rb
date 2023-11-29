@@ -60,6 +60,9 @@ module MiGA::Cli::ObjectsHelper
       o &&= (d.ref? == self[:ref]) unless self[:ref].nil?
       o &&= (d.active? == self[:active]) unless self[:active].nil?
       o &&= (self[:multi] ? d.multi? : d.nonmulti?) unless self[:multi].nil?
+      unless self[:markers].nil?
+        o &&= (self[:markers] ? d.markers? : !d.markers?)
+      end
       unless self[:taxonomy].nil?
         o &&= !d.metadata[:tax].nil? && d.metadata[:tax].in?(self[:taxonomy])
       end

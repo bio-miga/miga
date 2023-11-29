@@ -19,7 +19,7 @@ fi
 # Run Prodigal
 TYPE=$(miga ls -P "$PROJECT" -D "$DATASET" -m type | cut -f 2)
 case "$TYPE" in
-  metagenome|virome)
+  metagenome|virome|plasmid)
     prodigal -a "${DATASET}.faa" -d "${DATASET}.fna" -o "${DATASET}.gff3" \
       -f gff -q -i "../05.assembly/${DATASET}.LargeContigs.fna" -p meta
     ;;

@@ -6,6 +6,7 @@
 require 'miga/metadata'
 require 'miga/dataset/result'
 require 'miga/dataset/status'
+require 'miga/dataset/type'
 require 'miga/dataset/hooks'
 
 # This library is only required by +#closest_relatives+, so it is now
@@ -18,6 +19,7 @@ require 'miga/dataset/hooks'
 class MiGA::Dataset < MiGA::MiGA
   include MiGA::Dataset::Result
   include MiGA::Dataset::Status
+  include MiGA::Dataset::Type
   include MiGA::Dataset::Hooks
 
   # Class-level
@@ -56,6 +58,7 @@ class MiGA::Dataset < MiGA::MiGA
             name.to_s
     @project, @name, @metadata = project, name, nil
     metadata[:ref] = is_ref
+    metadata[:type] ||= :empty
     @metadata_future = [
       File.join(project.path, 'metadata', "#{name}.json"),
       metadata
@@ -88,12 +91,6 @@ class MiGA::Dataset < MiGA::MiGA
   # Currently +save!+ is simply an alias of +save+, for compatibility with the
   # +Project+ interface
   alias :save! :save
-
-  ##
-  # Get the type of dataset as Symbol
-  def type
-    metadata[:type]
-  end
 
   ##
   # Delete the dataset with all it's contents (including results) and returns
@@ -144,22 +141,6 @@ class MiGA::Dataset < MiGA::MiGA
   # Is this dataset a query (non-reference)?
   def query?
     !metadata[:ref]
-  end
-
-  ##
-  # Is this dataset known to be multi-organism?
-  def multi?
-    return false if metadata[:type].nil? || @@KNOWN_TYPES[type].nil?
-
-    @@KNOWN_TYPES[type][:multi]
-  end
-
-  ##
-  # Is this dataset known to be single-organism?
-  def nonmulti?
-    return false if metadata[:type].nil? || @@KNOWN_TYPES[type].nil?
-
-    !@@KNOWN_TYPES[type][:multi]
   end
 
   ##
