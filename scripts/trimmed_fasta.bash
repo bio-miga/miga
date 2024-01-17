@@ -32,6 +32,14 @@ for x in 1.fasta 2.fasta SingleReads.fa CoupledReads.fa ; do
 done
 
 # Finalize
-miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+miga date > "${DATASET}.done"
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+=> Enveomics Collection: FastQ.maskQual.rb
+$(FastQ.maskQual.rb --version | perl -pe 's/.* //')
+=> Enveomics Collection: FastA.interpose.pl
+version unknown
+VERSIONS
 

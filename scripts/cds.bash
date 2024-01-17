@@ -68,6 +68,12 @@ for ext in gff3 faa fna ; do
 done
 
 # Finalize
-miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+miga date > "${DATASET}.done"
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+=> Prodigal
+$(prodigal -v 2>&1 | grep . | perl -pe 's/^Prodigal //')
+VERSIONS
 

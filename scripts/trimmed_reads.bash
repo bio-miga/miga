@@ -36,15 +36,19 @@ if [[ -s "$b.2.fastq.gz" ]] ; then
   $CMD -1 "$b.1.fastq.gz" -2 "$b.2.fastq.gz"
   for s in 1 2 ; do
     mv "$b/${s}.post_trim_${b}.${s}.fq.gz" "${b}.${s}.clipped.fastq.gz"
-    mv "$b/${s}.pre_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.pre.${s}.html"
-    mv "$b/${s}.post_trim_QC_${b}.${s}.html" "../03.read_quality/${b}.post.${s}.html"
+    mv "$b/${s}.pre_trim_QC_${b}.${s}.html" \
+       "../03.read_quality/${b}.pre.${s}.html"
+    mv "$b/${s}.post_trim_QC_${b}.${s}.html" \
+       "../03.read_quality/${b}.post.${s}.html"
   done
 else
   # Unpaired
   $CMD -u "$b.1.fastq.gz"
   mv "$b/unpaired.post_trim_${b}.1.fq.gz" "${b}.1.clipped.fastq.gz"
-  mv "$b/unpaired.pre_trim_QC_${b}.1.html" "../03.read_quality/${b}.pre.1.html"
-  mv "$b/unpaired.post_trim_QC_${b}.1.html" "../03.read_quality/${b}.post.1.html"
+  mv "$b/unpaired.pre_trim_QC_${b}.1.html" \
+     "../03.read_quality/${b}.pre.1.html"
+  mv "$b/unpaired.post_trim_QC_${b}.1.html" \
+     "../03.read_quality/${b}.post.1.html"
 fi
 mv "$b/Subsample_Adapter_Detection.stats.txt" \
   "../03.read_quality/$b.adapters.txt"
@@ -54,6 +58,22 @@ rm -r "$b"
 rm -f "$b".[12].fastq.gz
 
 # Finalize
-miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+miga date > "${DATASET}.done"
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+=> Enveomics Collection: FastQ.tag.rb
+$(FastQ.tag.rb --version | perl -pe 's/.* //')
+=> Multitrim
+version unknown
+=> FaQCs
+$(FaQCs --version 2>&1 | perl -pe 's/.*: //')
+=> Seqtk
+$(seqtk 2>&1 | grep Version | perl -pe 's/.*: //')
+=> Fastp
+$(fastp --version 2>&1 | perl -pe 's/^fastp //')
+=> Falco
+$(falco -V 2>&1 | tee)
+VERSIONS
 

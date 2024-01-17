@@ -98,5 +98,20 @@ else
 fi
 
 # Finalize
-miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+miga date > "${DATASET}.done"
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+$(
+  if [[ "$MIGA_MYTAXA" != "no" && "$MULTI" -eq "1" ]] ; then
+    echo "=> MyTaxa"
+    MyTaxa | grep Version: | perl -pe 's/.*: //'
+    echo "=> Diamond"
+    diamond --version 2>&1 | perl -pe 's/^diamond version //'
+    echo "=> Krona"
+    ktImportText | head -n 2 | tail -n 1 | awk '{ print $3 }'
+  fi
+)
+VERSIONS
+
