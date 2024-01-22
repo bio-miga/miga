@@ -15,6 +15,7 @@ require 'miga/common/hooks'
 # Supported hooks:
 # - run_lambda(lambda, args...)
 # - recalculate_status()
+# - check_type()
 # - clear_run_counts()
 # - run_cmd(cmd)
 # Internal hooks:
@@ -27,6 +28,7 @@ module MiGA::Dataset::Hooks
   def default_hooks
     {
       on_create: [[:recalculate_status]],
+      on_save: [[:check_type]],
       on_activate: [[:clear_run_counts], [:recalculate_status]],
       on_inactivate: [[:recalculate_status]],
       on_result_ready: [[:_pull_result_hooks]],
@@ -49,6 +51,12 @@ module MiGA::Dataset::Hooks
   # Recalculate the dataset status and save in metadata
   def hook_recalculate_status(_hook_args, _event_args)
     recalculate_status
+  end
+
+  ##
+  # Ensure that the dataset type exists and is compatible with the project type
+  def hook_check_type(_hook_args, _event_args)
+    check_type
   end
 
   ##

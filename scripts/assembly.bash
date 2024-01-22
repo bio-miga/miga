@@ -10,6 +10,7 @@ cd "$PROJECT/data/05.assembly"
 miga date > "$DATASET.start"
 
 # Interpose (if needed)
+interpose=no
 TF="../04.trimmed_fasta"
 b=$DATASET
 if [[ -s "$TF/${b}.2.fasta" || -s "$TF/${b}.2.fasta.gz" ]] ; then
@@ -22,6 +23,7 @@ if [[ -s "$TF/${b}.2.fasta" || -s "$TF/${b}.2.fasta.gz" ]] ; then
         gzip -cd "$TF/${b}.${s}.fasta.gz" > "${b}.${s}.tmp"
       fi
     done
+    interpose=yes
     FastA.interpose.pl "$cr" "$b".[12].tmp
     rm "$b".[12].tmp
     miga add_result -P "$PROJECT" -D "$DATASET" -r trimmed_fasta -f
@@ -62,5 +64,17 @@ FastA.length.pl "$DATASET.AllContigs.fna" | awk '$2>=1000{print $1}' \
 
 # Finalize
 miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+$(
+  if [[ "$interpose" == "yes" ]] ; then
+    echo "=> Enveomics Collection: FastA.interpose.pl"
+    echo "version unknown"
+  fi
+)
+=> IDBA-UD
+version unknown
+VERSIONS
 

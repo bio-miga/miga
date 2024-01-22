@@ -89,32 +89,36 @@ module MiGA::Project::Base
   @@KNOWN_TYPES = {
     mixed: {
       description: 'Mixed collection of genomes, metagenomes, and viromes',
-      single: true, multi: true
+      single: true, multi: true, markers: true
     },
     genomes: {
       description: 'Collection of genomes',
-      single: true, multi: false
+      single: true, multi: false, markers: true
     },
     clade: {
       description: 'Collection of closely-related genomes (ANI >= 90%)',
-      single: true, multi: false
+      single: true, multi: false, markers: true
     },
     metagenomes: {
       description: 'Collection of metagenomes and/or viromes',
-      single: false, multi: true
+      single: false, multi: true, markers: true
+    },
+    plasmids: {
+      description: 'Collection of plasmids',
+      single: true, multi: false, markers: false
     }
   }
 
   ##
   # Project-wide distance estimations
-  @@DISTANCE_TASKS = [
-    :project_stats, :haai_distances, :aai_distances, :ani_distances,
-    :clade_finding
+  @@DISTANCE_TASKS = %i[
+    project_stats haai_distances aai_distances ani_distances
+    clade_finding
   ]
 
   ##
   # Project-wide tasks for :clade projects
-  @@INCLADE_TASKS = [:subclades, :ogs]
+  @@INCLADE_TASKS = %i[subclades ogs]
 
   ##
   # Options supported by projects
@@ -131,7 +135,9 @@ module MiGA::Project::Base
     },
     haai_p: {
       desc: 'Value of aai.rb -p on hAAI', type: String,
-      default: proc { |project| project.clade? ? 'no' : 'fastaai' },
+      default: proc { |project|
+        project.clade? || !project.markers? ? 'no' : 'fastaai'
+      },
       in: %w[blast+ blast blat diamond fastaai no]
     },
     aai_p: {

@@ -29,8 +29,7 @@ module MiGA::Cli::Action::Download::Seqcode
 
     while current_page <= total_pages
       json = MiGA::RemoteDataset.download(
-        :seqcode, :'type-genomes', nil, :json, nil,
-        ["page=#{current_page}"]
+        :seqcode, :'type-genomes', nil, :json, nil, page: current_page
       )
       doc = MiGA::Json.parse(json, contents: true)
       current_page = doc[:current_page] + 1

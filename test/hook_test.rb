@@ -9,9 +9,10 @@ class HookTest < Test::Unit::TestCase
   end
 
   def test_add_hook
-    assert_nil(dataset.hooks[:on_save])
-    dataset.add_hook(:on_save, :run_lambda, Proc.new { $counter += 1 })
+    assert_nil(dataset.hooks[:on_remove])
     assert_equal(1, dataset.hooks[:on_save].size)
+    dataset.add_hook(:on_save, :run_lambda, Proc.new { $counter += 1 })
+    assert_equal(2, dataset.hooks[:on_save].size)
     $counter = 1
     dataset.save
     assert_equal(2, $counter)

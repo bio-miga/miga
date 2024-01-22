@@ -8,8 +8,7 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
 
   def parse_cli
     cli.defaults = {
-      query: false, unlink: false,
-      reference: false, legacy_name: false,
+      query: false, unlink: false, reference: false,
       complete: false, chromosome: false,
       scaffold: false, contig: false, add_version: true, dry: false,
       get_md: false, only_md: false, save_every: 1
@@ -29,12 +28,6 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
         '--api-key STRING',
         '::HIDE::' # For backwards compatibility
       ) { |v| ENV['NCBI_API_KEY'] = v }
-      opt.on(
-        '--ncbi-table-file STRING',
-        '::HIDE::' # Only meant for debugging
-        # It can take the table returned by NCBI and parse it from a file
-        # instead of downloading it directly
-      ) { |v| cli[:ncbi_table_file] = v }
       opt.on(
         '--ncbi-api-key STRING',
         'NCBI API key'

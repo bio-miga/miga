@@ -70,4 +70,17 @@ fi
 
 # Finalize
 miga date > "${DATASET}.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+=> Enveomics Collection: HMM.essential.rb
+$(HMM.essential.rb --version 2>&1 | perl -pe 's/.*: //')
+$(
+  if [[ "$NOMULTI" -eq "1" ]] ; then
+    echo "=> FastAAI"
+    fastaai version 2>&1 | perl -pe 's/.*=//'
+  fi
+)
+VERSIONS
+

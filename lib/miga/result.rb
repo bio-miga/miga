@@ -3,6 +3,7 @@
 require 'miga/result/dates'
 require 'miga/result/source'
 require 'miga/result/stats'
+require 'miga/result/versions'
 
 ##
 # The result from a task run. It can be project-wide or dataset-specific.
@@ -10,6 +11,7 @@ class MiGA::Result < MiGA::MiGA
   include MiGA::Result::Dates
   include MiGA::Result::Source
   include MiGA::Result::Stats
+  include MiGA::Result::Versions
 
   # Class-level
   class << self
@@ -151,7 +153,11 @@ class MiGA::Result < MiGA::MiGA
   ##
   # Initialize and #save empty result
   def create
-    @data = { created: Time.now.to_s, stats: {}, files: {} }
+    @data = {
+      created: Time.now.to_s,
+      stats: {}, files: {},
+      versions: { 'MiGA' => MiGA::VERSION.join('.') }
+    }
     save
   end
 

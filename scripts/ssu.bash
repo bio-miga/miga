@@ -65,4 +65,22 @@ fi
 
 # Finalize
 miga date > "${DATASET}.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+$(
+  if [[ -s $fa ]] ; then
+    echo "=> barrnap"
+    barrnap --version 2>&1 | perl -pe 's/^barrnap //'
+    echo "=> bedtools"
+    bedtools --version 2>&1 | perl -pe 's/^bedtools //'
+    echo "=> Enveomics Collection"
+    echo "version unknown"
+    echo "=> RDP Naive Bayes Classifier"
+    gzip -cd "${DATASET}.rdp.tsv.gz" | tail -n 1 | perl -pe 's/.*: //'
+    echo "=> tRNAscan-SE"
+    tRNAscan-SE -h 2>&1 | head -n 2 | tail -n 1 | perl -pe 's/^tRNAscan-SE //'
+  fi
+)
+VERSIONS

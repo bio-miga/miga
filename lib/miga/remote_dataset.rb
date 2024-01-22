@@ -193,7 +193,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
     doc = MiGA::Json.parse(
       MiGA::RemoteDataset.download(
-        :gtdb, :genome, gtdb_genome, 'taxon-history', nil, ['']
+        :gtdb, :genome, gtdb_genome, 'taxon-history'
       ),
       contents: true
     )
@@ -237,15 +237,24 @@ class MiGA::RemoteDataset < MiGA::MiGA
   private
 
   def get_ncbi_taxid_from_web
-    return nil if ncbi_asm_json_doc.nil?
+    # Check first if metadata was pulled from NCBI already
+    taxid = metadata.dig(:ncbi_dataset, :organism, :tax_id)
+    return taxid if taxid
 
-    ncbi_asm_json_doc['taxid']
+    # Otherwise, try to get the Assembly JSON document
+    ncbi_asm_json_doc&.dig('taxid')
   end
 
   def get_ncbi_taxid_from_ncbi
+    # Try first from Assembly data
     return get_ncbi_taxid_from_web if db == :assembly
 
-    doc = self.class.download(:ncbi, db, ids, :gb, nil, [], self).split(/\n/)
+    # Try from previously pulled NCBI data
+    taxid = metadata.dig(:ncbi_dataset, :organism, :tax_id)
+    return taxid if taxid
+
+    # Try from GenBank document (obtain it)
+    doc = self.class.download(:ncbi, db, ids, :gb, nil, {}, self).split(/\n/)
     ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
     return nil if ln.nil?
 
@@ -283,14 +292,25 @@ class MiGA::RemoteDataset < MiGA::MiGA
   end
 
   def get_type_status_ncbi_asm(metadata)
-    return metadata if ncbi_asm_json_doc.nil?
+    from_type = nil
 
-    metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
-    metadata[:suspect] = nil if metadata[:suspect].empty?
-    return metadata if metadata[:is_type] # If predefined, as in SeqCode
+    # Try first from previously pulled NCBI metadata
+    if metadata[:ncbi_dataset]
+      from_type = metadata.dig(
+        :ncbi_dataset, :type_material, :type_display_text
+      )
+    else
+      # Otherwise, check Assembly JSON document
+      return metadata if ncbi_asm_json_doc.nil?
 
-    from_type = ncbi_asm_json_doc['from_type']
-    from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
+      metadata[:suspect] = (ncbi_asm_json_doc['exclfromrefseq'] || [])
+      metadata[:suspect] = nil if metadata[:suspect].empty?
+      return metadata if metadata[:is_type] # If predefined, as in SeqCode
+
+      from_type = ncbi_asm_json_doc['from_type']
+      from_type = ncbi_asm_json_doc['fromtype'] if from_type.nil?
+    end
+
     case from_type
     when nil
       # Do nothing
@@ -316,10 +336,11 @@ class MiGA::RemoteDataset < MiGA::MiGA
     a_ctg = "#{base}.AllContigs.fna"
     File.open("#{base}.start", 'w') { |ofh| ofh.puts Time.now.to_s }
     if udb[:format] == :fasta_gz
-      download "#{l_ctg}.gz"
-      system "gzip -fd '#{l_ctg}.gz'"
+      l_ctg_gz = "#{l_ctg}.gz"
+      download(l_ctg_gz)
+      self.class.run_cmd(['gzip', '-f', '-d', l_ctg_gz])
     else
-      download l_ctg
+      download(l_ctg)
     end
     File.unlink(a_ctg) if File.exist? a_ctg
     File.open("#{base}.done", 'w') { |ofh| ofh.puts Time.now.to_s }

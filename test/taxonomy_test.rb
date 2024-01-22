@@ -92,8 +92,12 @@ class TaxonomyTest < Test::Unit::TestCase
   end
 
   def test_reset
-    tx = MiGA::Taxonomy.new('ns:Letters d:Latin s:A', nil,
-                            ['ns:Words d:English s:A', 'ns:Music d:Tone s:A'])
+    tx = MiGA::Taxonomy.new(
+      'ns:Letters d:Latin s:A', nil,
+      ['ns:Words d:English s:A', 'ns:Music d:Tone s:A']
+    )
+    assert_equal('Latin', tx.domain)
+
     # Reset
     assert_equal(2, tx.alternative.size)
     assert_equal('Letters', tx.namespace)
@@ -102,11 +106,13 @@ class TaxonomyTest < Test::Unit::TestCase
     assert_nil(tx.namespace)
     tx.reset('ns:Letters d:Latin s:A')
     assert_equal('Letters', tx.namespace)
+
     # Change of alternative
     assert_equal('ns:Words d:English s:A', tx.alternative('Words').to_s)
     tx.add_alternative(MiGA::Taxonomy.new('ns:Words d:Spanish s:A'))
     assert_equal('ns:Words d:Spanish s:A', tx.alternative('Words').to_s)
-    # Change of master
+
+    # Change of main
     assert_equal('ns:Letters d:Latin s:A', tx.to_s)
     tx.add_alternative(MiGA::Taxonomy.new('ns:Letters d:Unicode s:A'))
     assert_equal('ns:Letters d:Unicode s:A', tx.to_s)

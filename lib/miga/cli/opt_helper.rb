@@ -43,7 +43,7 @@ module MiGA::Cli::OptHelper
       '-h', '--help',
       'Display this screen'
     ) do
-      puts opt.to_s.gsub(/^.*\s+::HIDE::\s*$/, '')
+      puts opt.to_a.select { |i| i !~ /\s::HIDE::\s/ }
       exit
     end
     opt.separator ''
@@ -120,10 +120,11 @@ module MiGA::Cli::OptHelper
   # as determined by +what+ an Array with any combination of:
   # - :ref To filter by reference (--ref) or query (--no-ref)
   # - :multi To filter by multiple (--multi) or single (--no-multi) species
+  # - :markers To filter by with (--markers) or without markers (--no-markers)
   # - :active To filter by active (--active) or inactive (--no-active)
   # - :taxonomy To filter by taxonomy (--taxonomy)
   # The "k-th" filter (--dataset-k) is always included
-  def opt_filter_datasets(opt, what = %i[ref multi active taxonomy])
+  def opt_filter_datasets(opt, what = %i[ref multi markers active taxonomy])
     what.each do |w|
       case w
       when :ref
@@ -136,6 +137,11 @@ module MiGA::Cli::OptHelper
           '--[no-]multi',
           'Use only multi-species (or only single-species) datasets'
         ) { |v| self[:multi] = v }
+      when :markers
+        opt.on(
+          '--[no-]markers',
+          'Use only datasets with (or without) markers'
+        ) { |v| self[:markers] = v }
       when :active
         opt.on(
           '--[no-]active',

@@ -12,11 +12,17 @@ cd "$DIR"
 miga date > "${DATASET}.start"
 
 # Calculate statistics
-for i in raw_reads trimmed_fasta assembly cds essential_genes distances taxonomy ssu ; do
+for i in raw_reads trimmed_fasta assembly \
+         cds essential_genes distances taxonomy ssu ; do
   echo "# $i"
   miga stats --compute-and-save --ignore-empty -P "$PROJECT" -D "$DATASET" -r $i
 done
 
 # Finalize
-miga date > "$DATASET.done"
-miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f
+miga date > "${DATASET}.done"
+cat <<VERSIONS \
+  | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
+=> MiGA
+$(miga --version)
+VERSIONS
+

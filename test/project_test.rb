@@ -8,6 +8,12 @@ class ProjectTest < Test::Unit::TestCase
     initialize_miga_home
   end
 
+  def test_class_variables
+    assert(MiGA::Project.INCLADE_TASKS.is_a? Array)
+    assert(MiGA::Project.DISTANCE_TASKS.is_a? Array)
+    assert(MiGA::Project.KNOWN_TYPES.is_a? Hash)
+  end
+
   def create_result_files(project, res, exts)
     d = MiGA::Project.RESULT_DIRS[res]
     (['.done'] + exts).each do |x|
@@ -154,5 +160,12 @@ class ProjectTest < Test::Unit::TestCase
     assert_equal(date1, date2)
     date3 = p1.add_result(:ogs, true, force: true)[:created]
     assert_not_equal(date1, date3)
+  end
+
+  def test_options
+    assert_equal('fastaai', project.option(:haai_p))
+    assert_equal(false, project.option(:aai_save_rbm))
+    project.metadata[:type] = 'clade'
+    assert_equal(true, project.option(:aai_save_rbm))
   end
 end
