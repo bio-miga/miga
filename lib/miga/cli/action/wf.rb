@@ -8,7 +8,8 @@ module MiGA::Cli::Action::Wf
     cli.expect_files = true
     cli.defaults = {
       clean: false, project_type: :genomes, dataset_type: :popgenome,
-      ncbi_draft: true, min_qual: MiGA::Project.OPTIONS[:min_qual][:default],
+      ncbi_draft: true, ncbi_ref: false,
+      min_qual: MiGA::Project.OPTIONS[:min_qual][:default],
       prepare_and_exit: false
     }
   end
@@ -40,13 +41,20 @@ module MiGA::Cli::Action::Wf
         'Download all the genomes in NCBI classified as this taxon'
       ) { |v| cli[:ncbi_taxon] = v }
       opt.on(
+        '--no-draft', '::HIDE::' # Deprecated
+      ) { |v| cli[:ncbi_draft] = v }
+      opt.on(
+        '--ncbi-complete',
+        'Only download complete genomes, not drafts (requires -T)'
+      ) { |v| cli[:ncbi_draft] = !v }
+      opt.on(
+        '--ncbi-ref',
+        'Only download RefSeq reference genomes (requires -T)'
+      ) { |v| cli[:ncbi_ref] = v }
+      opt.on(
         '-G', '--gtdb-taxon STRING',
         'Download all the genomes in GTDB classified as this taxon'
       ) { |v| cli[:gtdb_taxon] = v }
-      opt.on(
-        '--no-draft',
-        'Only download complete genomes, not drafts (requires -T)'
-      ) { |v| cli[:ncbi_draft] = v }
       opt.on(
         '--gtdb-ref',
         'Only download reference anchor genomes in GTDB (requires -G)'
@@ -170,7 +178,8 @@ module MiGA::Cli::Action::Wf
   def download_datasets
     # Download datasets from NCBI
     unless cli[:ncbi_taxon].nil?
-      what = cli[:ncbi_draft] ? '--all' : '--complete'
+      what = cli[:ncbi_ref] ? '--reference' :
+             cli[:ncbi_draft] ? '--all' : '--complete'
       cmd = ['ncbi_get', '-P', cli[:outdir], '-T', cli[:ncbi_taxon], what]
       cmd += ['--max', cli[:max_download]] if cli[:max_download]
       call_cli(cmd)

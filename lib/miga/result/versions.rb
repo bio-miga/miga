@@ -4,9 +4,15 @@ require 'miga/result/base'
 # Helper module including functions for results to handle software versions
 module MiGA::Result::Versions
   ##
+  # Return the versions hash
+  def versions
+    self[:versions]
+  end
+
+  ##
   # Add version information for the Software used by this result
   def add_versions(versions)
-    versions.each { |k, v| self[:versions][k] = v }
+    versions.each { |k, v| self[:versions][k.to_sym] = v }
   end
 
   ##

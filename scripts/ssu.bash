@@ -78,7 +78,7 @@ $(
     echo "=> Enveomics Collection"
     echo "version unknown"
     echo "=> RDP Naive Bayes Classifier"
-    tail -n 1 "${DATASET}.rdp.tsv" | perl -pe 's/.*: //'
+    gzip -cd "${DATASET}.rdp.tsv.gz" | tail -n 1 | perl -pe 's/.*: //'
     echo "=> tRNAscan-SE"
     tRNAscan-SE -h 2>&1 | head -n 2 | tail -n 1 | perl -pe 's/^tRNAscan-SE //'
   fi

@@ -6,14 +6,15 @@ class MiGA::Taxonomy < MiGA::MiGA
     ##
     # Returns cannonical rank (Symbol) for the +rank+ String
     def normalize_rank(rank)
+      return unless rank
       return rank.to_sym if @@_KNOWN_RANKS_H[rank.to_sym]
 
       rank = rank.to_s.downcase
-      return nil if rank == 'no rank'
+      return if rank == 'no rank'
 
       rank = @@RANK_SYNONYMS[rank] unless @@RANK_SYNONYMS[rank].nil?
       rank = rank.to_sym
-      return nil unless @@_KNOWN_RANKS_H[rank]
+      return unless @@_KNOWN_RANKS_H[rank]
 
       rank
     end

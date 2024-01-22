@@ -20,7 +20,7 @@ module MiGA
 
   ##
   # Date of the current gem relese.
-  VERSION_DATE = Date.new(2023, 11, 29)
+  VERSION_DATE = Date.new(2024, 1, 22)
 
   ##
   # References of MiGA

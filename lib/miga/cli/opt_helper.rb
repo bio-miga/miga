@@ -43,7 +43,7 @@ module MiGA::Cli::OptHelper
       '-h', '--help',
       'Display this screen'
     ) do
-      puts opt.to_s.gsub(/^.*\s+::HIDE::\s*$/, '')
+      puts opt.to_a.select { |i| i !~ /\s::HIDE::\s/ }
       exit
     end
     opt.separator ''

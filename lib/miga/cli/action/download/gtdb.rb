@@ -31,7 +31,7 @@ module MiGA::Cli::Action::Download::Gtdb
 
   def remote_list
     cli.say 'Downloading genome list'
-    extra = ['sp_reps_only=' + cli[:reference].to_s]
+    extra = { sp_reps_only: cli[:reference].to_s }
     json = MiGA::RemoteDataset.download(
       :gtdb, :taxon, cli[:taxon], :genomes, nil, extra
     )

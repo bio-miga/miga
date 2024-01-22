@@ -69,5 +69,14 @@ class MiGA::Json < MiGA::MiGA
       File.open(path, 'w') { |fh| fh.print y } unless path.nil?
       y
     end
+
+    ##
+    # Generates and returns plain JSON to represent +obj+.
+    # If +path+ is passed, it saves the JSON in that file.
+    def generate_plain(obj, path = nil)
+      y = JSON.generate(obj)
+      File.open(path, 'w') { |fh| fh.print y } unless path.nil?
+      y
+    end
   end
 end

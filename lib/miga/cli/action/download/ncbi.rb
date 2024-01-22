@@ -34,11 +34,8 @@ module MiGA::Cli::Action::Download::Ncbi
       'Do not add sequence version to the dataset name',
       'Only affects --complete and --chromosome'
     ) { |v| cli[:add_version] = v }
-    cli.opt_flag(
-      opt, 'legacy-name',
-      'Use dataset names based on chromosome entries instead of assembly',
-      :legacy_name
-    )
+    # For backwards compatibility
+    cli.opt_flag(opt, 'legacy-name', '::HIDE::', :legacy_name)
   end
 
   def sanitize_cli
@@ -52,89 +49,67 @@ module MiGA::Cli::Action::Download::Ncbi
   end
 
   def remote_list
-    doc =
-      if cli[:ncbi_table_file]
-        cli.say 'Reading genome list from file'
-        File.open(cli[:ncbi_table_file], 'r')
-      else
-        cli.say 'Downloading genome list'
-        url = remote_list_url
-        MiGA::RemoteDataset.download_url(url)
-      end
-    ds = parse_csv_as_datasets(doc)
-    doc.close if cli[:ncbi_table_file]
-    ds
+    list  = {}
+    query = remote_list_query
+    loop do
+      # Query the remote collection
+      page = MiGA::Json.parse(
+        MiGA::RemoteDataset.download(:ncbi_datasets, :genome, query, :json),
+        contents: true
+      )
+      break unless page&.any? && page[:reports]&.any?
+
+      # Process reports in this page
+      list.merge!(parse_reports_as_datasets(page[:reports]))
+
+      # Next page
+      break unless page[:next_page_token]
+      query[:page_token] = page[:next_page_token]
+    end
+    list
   end
   
-  def parse_csv_as_datasets(doc)
+  def parse_reports_as_datasets(reports)
     ds = {}
-    CSV.parse(doc, headers: true).each do |r|
-      asm = r['assembly']
+    reports.each do |r|
+      asm = r[:accession]
       next if asm.nil? || asm.empty? || asm == '-'
 
-      rep = remote_row_replicons(r)
-      n = remote_row_name(r, rep, asm)
-
       # Register for download
+      n = remote_report_name(r, asm)
       ds[n] = {
         ids: [asm], db: :assembly, universe: :ncbi,
         md: {
-          type: :genome, ncbi_asm: asm, strain: r['strain']
+          type: :genome, ncbi_asm: asm, strain: r.dig(:organism, :infraspecific_names, :strain)
         }
       }
-      ds[n][:md][:ncbi_nuccore] = rep.join(',') unless rep.nil?
-      unless r['release_date'].nil?
-        ds[n][:md][:release_date] = Time.parse(r['release_date']).to_s
-      end
+      date = r.dig(:assembly_info, :release_date)
+      ds[n][:md][:release_date] = Time.parse(date).to_s if date
+      ds[n][:md][:ncbi_dataset] = r
     end
     ds
   end
 
-  def remote_row_replicons(r)
-    return if r['replicons'].nil?
-
-    r['replicons']
-      .split('; ')
-      .map { |i| i.gsub(/.*:/, '') }
-      .map { |i| i.gsub(%r{/.*}, '') }
-  end
-
-  def remote_row_name(r, rep, asm)
-    return r['#organism'].miga_name if cli[:legacy_name] && cli[:reference]
-
-    if cli[:legacy_name] && ['Complete', ' Chromosome'].include?(r['level'])
-      acc = rep.nil? ? '' : rep.first
-    else
-      acc = asm
-    end
+  def remote_report_name(r, asm)
+    acc = "#{asm}"
     acc.gsub!(/\.\d+\Z/, '') unless cli[:add_version]
-    "#{r['#organism']}_#{acc}".miga_name
+    org = r.dig(:organism, :organism_name)
+    acc = "#{org}_#{acc}" if org
+    acc.miga_name
   end
 
-  def remote_list_url
-    url_base = 'https://www.ncbi.nlm.nih.gov/genomes/solr2txt.cgi?'
-    url_param = {
-      q: '[display()].' \
-        'from(GenomeAssemblies).' \
-        'usingschema(/schema/GenomeAssemblies).' \
-        'matching(tab==["Prokaryotes"] and q=="' \
-          "#{cli[:taxon]&.tr('"', "'")}\"",
-      fields: 'organism|organism,assembly|assembly,replicons|replicons,' \
-        'level|level,release_date|release_date,strain|strain',
-      nolimit: 'on'
-    }
+  def remote_list_query
+    q = { taxons: [cli[:taxon]], filters: {} }
     if cli[:reference]
-      url_param[:q] += ' and refseq_category==["representative"]'
+      q[:filters][:reference_only] = true
     else
-      status = {
-        complete: 'Complete',
-        chromosome: ' Chromosome', # <- The leading space is *VERY* important!
-        scaffold: 'Scaffold',
-        contig: 'Contig'
-      }.map { |k, v| '"' + v + '"' if cli[k] }.compact.join(',')
-      url_param[:q] += ' and level==[' + status + ']'
+      q[:assembly_level] = {
+        contig: 'contig',
+        scaffold: 'scaffold',
+        chromosome: 'chromosome',
+        complete: 'complete_genome'
+      }.map { |k, v| '"' + v + '"' if cli[k] }.compact
     end
-    url_param[:q] += ')'
-    url_base + URI.encode_www_form(url_param)
+    q
   end
 end
