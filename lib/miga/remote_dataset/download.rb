@@ -19,6 +19,10 @@ class MiGA::RemoteDataset
       getter = database_hash[:getter] || :download
       action = database_hash[:method] || universe_hash[:method]
 
+      # Clean IDs
+      ids = 
+
+      # Return options
       {
         universe: universe,  db:   db,    ids: ids.is_a?(Array) ? ids : [ids],
         format:   format,    file: file,  obj: obj,
@@ -50,22 +54,37 @@ class MiGA::RemoteDataset
     # Supported +opts+ (Hash) include:
     # +obj+ (mandatory): MiGA::RemoteDataset
     # +ids+ (mandatory): String or Array of String
-    # +file+: String, passed to download
+    # +file+ (mandatory): String, assembly saved here
     # +extra+: Hash, passed to download
-    # +format+: String, passed to download
+    # +format+: String, ignored
     def ncbi_asm_get(opts)
-      url_dir = opts[:obj].ncbi_asm_json_doc&.dig('ftppath_genbank')
-      if url_dir.nil? || url_dir.empty?
-        raise MiGA::RemoteDataMissingError.new(
-          "Missing ftppath_genbank in NCBI Assembly JSON"
-        )
-      end
+      require 'tempfile'
+      require 'zip'
 
-      url = '%s/%s_genomic.fna.gz' % [url_dir, File.basename(url_dir)]
-      download(
-        :web, :assembly_gz, url,
-        opts[:format], opts[:file], opts[:extra], opts[:obj]
+      zipped = download(
+        :ncbi_datasets_download, :genome, opts[:ids],
+        :zip, nil, opts[:extra], opts[:obj]
       )
+      zip_tmp = Tempfile.new('asm.zip')
+      zip_tmp.puts zipped
+      zip_tmp.close
+
+      o = ''
+      ofh = opts[:file] ? File.open(opts[:file], 'w') : nil
+      Zip::File.open(zip_tmp.path) do |zfh|
+        zfh.each do |entry|
+          if entry.file? && entry.name =~ /_genomic\.fna$/
+            DEBUG "Extracting: #{entry.name}"
+            entry.get_input_stream do |ifh|
+              cont = ifh.read
+              ofh&.puts cont
+              o += cont
+            end
+          end
+        end
+      end
+      ofh&.close
+      o
     end
 
     ##
@@ -77,11 +96,7 @@ class MiGA::RemoteDataset
       return o unless o.strip.empty?
 
       MiGA::MiGA.DEBUG 'Empty sequence, attempting download from NCBI assembly'
-      opts[:format] = :fasta_gz
-      if opts[:file]
-        File.unlink(opts[:file]) if File.exist? opts[:file]
-        opts[:file] = "#{opts[:file]}.gz"
-      end
+      opts[:format] = :fasta
       ncbi_asm_get(opts)
     end
 

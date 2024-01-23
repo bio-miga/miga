@@ -14,7 +14,7 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
       opt.on(
         '-I', '--ids ID1,ID2,...', Array,
         '(Mandatory unless -F) IDs in the remote database separated by commas'
-      ) { |v| cli[:ids] = v }
+      ) { |v| cli[:ids] = v.map(&:strip) }
       opt.on(
         '-U', '--universe STRING',
         "Universe of the remote database. By default: #{cli[:universe]}",
