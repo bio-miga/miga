@@ -65,17 +65,26 @@ class MiGA::Json < MiGA::MiGA
     # Generates and returns prettyfied JSON to represent +obj+.
     # If +path+ is passed, it saves the JSON in that file.
     def generate(obj, path = nil)
-      y = JSON.pretty_generate(obj)
-      File.open(path, 'w') { |fh| fh.print y } unless path.nil?
-      y
+      generate_generic(:pretty_generate, obj, path)
     end
 
     ##
     # Generates and returns plain JSON to represent +obj+.
     # If +path+ is passed, it saves the JSON in that file.
     def generate_plain(obj, path = nil)
-      y = JSON.generate(obj)
-      File.open(path, 'w') { |fh| fh.print y } unless path.nil?
+      generate_generic(:generate, obj, path)
+    end
+
+    private
+
+    def generate_generic(method, obj, path)
+      y = JSON.send(method, obj)
+      return y unless path
+
+      io = StringIO.new(y)
+      File.open(path, 'w') do |fh|
+        fh.print(io.read(1024)) until io.eof?
+      end
       y
     end
   end
