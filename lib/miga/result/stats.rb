@@ -29,33 +29,15 @@ module MiGA::Result::Stats
     seq_opts = { gc: true, x: true, skew: true }
     if self[:files][:pair1].nil?
       s = MiGA::MiGA.seqs_length(file_path(:single), :fastq, seq_opts)
-      stats = {
-        reads: s[:n],
-        length_average: [s[:avg], 'bp'],
-        length_standard_deviation: [s[:sd], 'bp'],
-        g_c_content: [s[:gc], '%'],
-        x_content: [s[:x], '%'],
-        g_c_skew: [s[:gc_skew], '%'],
-        a_t_skew: [s[:at_skew], '%']
-      }
+      stats = seqs_length_as_stats_hash(s)
     else
-      s1 = MiGA::MiGA.seqs_length(file_path(:pair1), :fastq, seq_opts)
-      s2 = MiGA::MiGA.seqs_length(file_path(:pair2), :fastq, seq_opts)
-      stats = {
-        read_pairs: s1[:n],
-        forward_length_average: [s1[:avg], 'bp'],
-        forward_length_standard_deviation: [s1[:sd], 'bp'],
-        forward_g_c_content: [s1[:gc], '%'],
-        forward_x_content: [s1[:x], '%'],
-        forward_g_c_skew: [s1[:gc_skew], '%'],
-        forward_a_t_skew: [s1[:at_skew], '%'],
-        reverse_length_average: [s2[:avg], 'bp'],
-        reverse_length_standard_deviation: [s2[:sd], 'bp'],
-        reverse_g_c_content: [s2[:gc], '%'],
-        reverse_x_content: [s2[:x], '%'],
-        reverse_g_c_skew: [s2[:gc_skew], '%'],
-        reverse_a_t_skew: [s2[:at_skew], '%']
-      }
+      stats = { read_pairs: nil }
+      { pair1: :forward, pair2: :reverse }.each do |pair, direction|
+        s = MiGA::MiGA.seqs_length(file_path(pair), :fastq, seq_opts)
+        seqs_length_as_stats_hash(s).each do |k, v|
+          stats[k == :reads ? :read_pairs : :"#{direction}_#{k}"] ||= v
+        end
+      end
     end
     stats
   end
@@ -63,15 +45,7 @@ module MiGA::Result::Stats
   def compute_stats_trimmed_fasta
     f = self[:files][:coupled].nil? ? file_path(:single) : file_path(:coupled)
     s = MiGA::MiGA.seqs_length(f, :fasta, gc: true, x: true, skew: true)
-    {
-      reads: s[:n],
-      length_average: [s[:avg], 'bp'],
-      length_standard_deviation: [s[:sd], 'bp'],
-      g_c_content: [s[:gc], '%'],
-      x_content: [s[:x], '%'],
-      g_c_skew: [s[:gc_skew], '%'],
-      a_t_skew: [s[:at_skew], '%']
-    }
+    seqs_length_as_stats_hash(s)
   end
 
   def compute_stats_assembly
@@ -79,16 +53,17 @@ module MiGA::Result::Stats
       file_path(:largecontigs), :fasta,
       n50: true, gc: true, x: true, skew: true
     )
+    h = seqs_length_as_stats_hash(s)
     {
       contigs: s[:n],
       n50: [s[:n50], 'bp'],
       total_length: [s[:tot], 'bp'],
-      longest_sequence: [s[:max], 'bp'],
-      g_c_content: [s[:gc], '%'],
-      x_content: [s[:x], '%'],
-      g_c_skew: [s[:gc_skew], '%'],
-      a_t_skew: [s[:at_skew], '%']
-    }
+      longest_sequence: [s[:max], 'bp']
+    }.tap do |stats|
+      %i[g_c_content x_content g_c_skew a_t_skew].each do |i|
+        stats[i] = h[i]
+      end
+    end
   end
 
   def compute_stats_cds
@@ -252,5 +227,17 @@ module MiGA::Result::Stats
     )
     add_file(:raw_report, "#{source.name}.ess/log")
     add_file(:report, "#{source.name}.ess/log.domain")
+  end
+
+  def seqs_length_as_stats_hash(s)
+    {
+      reads: s[:n],
+      length_average: [s[:avg], 'bp'],
+      length_standard_deviation: [s[:sd], 'bp'],
+      g_c_content: [s[:gc], '%'],
+      x_content: [s[:x], '%'],
+      g_c_skew: [s[:gc_skew], '%'],
+      a_t_skew: [s[:at_skew], '%']
+    }
   end
 end
