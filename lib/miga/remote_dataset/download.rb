@@ -66,7 +66,7 @@ class MiGA::RemoteDataset
         :zip, nil, opts[:extra], opts[:obj]
       )
       zip_tmp = Tempfile.new('asm.zip')
-      zip_tmp.puts zipped
+      zip_tmp.print(zipped)
       zip_tmp.close
 
       o = ''
@@ -76,14 +76,15 @@ class MiGA::RemoteDataset
           if entry.file? && entry.name =~ /_genomic\.fna$/
             DEBUG "Extracting: #{entry.name}"
             entry.get_input_stream do |ifh|
-              cont = ifh.read
-              ofh&.puts cont
+              cont = MiGA::MiGA.normalize_encoding(ifh.read) + "\n"
+              ofh&.print(cont)
               o += cont
             end
           end
         end
       end
       ofh&.close
+      File.unlink(zip_tmp.path)
       o
     end
 

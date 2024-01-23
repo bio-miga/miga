@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'sqlite3', '~> 1.3'
   s.add_runtime_dependency 'net-http'
   s.add_runtime_dependency 'net-ftp'
-  s.add_runtime_dependency 'rubyzip'
+  s.add_runtime_dependency 'rubyzip', '~> 2.3'
   s.required_ruby_version = '>= 2.7'
 
   # Docs + tests
