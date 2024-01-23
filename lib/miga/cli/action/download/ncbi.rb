@@ -26,6 +26,9 @@ module MiGA::Cli::Action::Download::Ncbi
       cli[:scaffold] = true
       cli[:contig] = true
     end
+    opt.on('--ncbi-list-json STRING', '::HIDE::') do |v|
+      cli[:ncbi_list_json] = v
+    end
   end
 
   def cli_name_modifiers(opt)
@@ -35,7 +38,9 @@ module MiGA::Cli::Action::Download::Ncbi
       'Only affects --complete and --chromosome'
     ) { |v| cli[:add_version] = v }
     # For backwards compatibility
-    cli.opt_flag(opt, 'legacy-name', '::HIDE::', :legacy_name)
+    opt.on('--legacy-name', '::HIDE::') do
+      warn 'Deprecated flag --legacy-name ignored'
+    end
   end
 
   def sanitize_cli
@@ -49,6 +54,11 @@ module MiGA::Cli::Action::Download::Ncbi
   end
 
   def remote_list
+    if cli[:ncbi_list_json] && File.size?(cli[:ncbi_list_json])
+      cli.say "Reusing remote list: #{cli[:ncbi_list_json]}"
+      return MiGA::Json.parse(cli[:ncbi_list_json])
+    end
+
     list  = {}
     query = remote_list_query
     loop do
@@ -66,6 +76,14 @@ module MiGA::Cli::Action::Download::Ncbi
       break unless page[:next_page_token]
       query[:page_token] = page[:next_page_token]
     end
+
+    if cli[:ncbi_list_json]
+      cli.say "Saving remote list: #{cli[:ncbi_list_json]}"
+      File.open(cli[:ncbi_list_json], 'w') do |fh|
+        fh.puts MiGA::Json.generate_plain(list)
+      end
+    end
+
     list
   end
   
@@ -80,7 +98,8 @@ module MiGA::Cli::Action::Download::Ncbi
       ds[n] = {
         ids: [asm], db: :assembly, universe: :ncbi,
         md: {
-          type: :genome, ncbi_asm: asm, strain: r.dig(:organism, :infraspecific_names, :strain)
+          type: :genome, ncbi_asm: asm,
+          strain: r.dig(:organism, :infraspecific_names, :strain)
         }
       }
       date = r.dig(:assembly_info, :release_date)
