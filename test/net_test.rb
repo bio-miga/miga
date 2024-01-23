@@ -47,4 +47,24 @@ class FormatTest < Test::Unit::TestCase
     ### m.download_file_ftp(:miga_db, '../api_test.txt', f)
     ### assert_equal('miga', File.read(f).chomp)
   end
+
+  def test_encoding
+    # Test original encoding
+    t1 = '()!@*#àøo'
+    t2 = "#{t1}"
+    assert_equal(t1, t2)
+    assert_equal(t1, MiGA::MiGA.normalize_encoding(t2))
+
+    # Test with a different encoding
+    t2 = t2.encode('windows-1252')
+    assert_equal('Windows-1252', t2.encoding_to_s)
+    assert_not_equal(t1, t2)
+    assert_equal(t1, MiGA::MiGA.normalize_encoding(t2))
+
+    # Test with a different encoding wrongly declared
+    t2.force_encoding('utf-8')
+    assert_equal('UTF-8', t2.encoding_to_s)
+    assert_not_equal(t1, t2)
+    assert_equal(t1, MiGA::MiGA.normalize_encoding(t2))
+  end
 end
