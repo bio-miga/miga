@@ -142,7 +142,7 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   def test_missing_data
     declare_remote_access
-    rd = MiGA::RemoteDataset.new('GCA_000484975.1', :assembly, :ncbi)
+    rd = MiGA::RemoteDataset.new('XYZ_GCA_000484975.1', :assembly, :ncbi)
     assert_raise(MiGA::RemoteDataMissingError) { rd.save_to(project, 'bad') }
   end
 
