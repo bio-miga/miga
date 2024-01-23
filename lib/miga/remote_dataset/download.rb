@@ -65,7 +65,7 @@ class MiGA::RemoteDataset
         :ncbi_datasets_download, :genome, opts[:ids],
         :zip, nil, opts[:extra], opts[:obj]
       )
-      zip_tmp = Tempfile.new('asm.zip')
+      zip_tmp = Tempfile.new(['asm', '.zip'], encoding: zipped.encoding.to_s)
       zip_tmp.print(zipped)
       zip_tmp.close
 
@@ -76,7 +76,7 @@ class MiGA::RemoteDataset
           if entry.file? && entry.name =~ /_genomic\.fna$/
             DEBUG "Extracting: #{entry.name}"
             entry.get_input_stream do |ifh|
-              cont = MiGA::MiGA.normalize_encoding(ifh.read) + "\n"
+              cont = MiGA::MiGA.normalize_encoding(ifh.read).chomp + "\n"
               ofh&.print(cont)
               o += cont
             end
