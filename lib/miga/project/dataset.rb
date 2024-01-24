@@ -26,7 +26,7 @@ module MiGA::Project::Dataset
   ##
   # Returns MiGA::Dataset
   def dataset(name)
-    name = name.miga_name
+    name = name.to_s.miga_name
     return nil unless MiGA::Dataset.exist?(self, name)
 
     @datasets ||= {}

@@ -79,7 +79,7 @@ module MiGA::Cli::Action::Download::Ncbi
 
     if cli[:ncbi_list_json]
       cli.say "Saving remote list: #{cli[:ncbi_list_json]}"
-      MiGA::Json.generate_plain(list, cli[:ncbi_list_json])
+      MiGA::Json.generate_fast(list, cli[:ncbi_list_json])
     end
 
     list

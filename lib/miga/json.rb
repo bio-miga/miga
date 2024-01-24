@@ -75,6 +75,13 @@ class MiGA::Json < MiGA::MiGA
       generate_generic(:generate, obj, path)
     end
 
+    ##
+    # Generates and returns plain JSON to represent +obj+ without checking for
+    # circular references. If +path+ is passed, it saves the JSON in that file.
+    def generate_fast(obj, path = nil)
+      generate_generic(:fast_generate, obj, path)
+    end
+
     private
 
     def generate_generic(method, obj, path)
