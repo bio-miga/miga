@@ -53,9 +53,11 @@ class MiGA::Dataset < MiGA::MiGA
   # be treated as reference (true, default) or query (false). Pass any
   # additional +metadata+ as a Hash.
   def initialize(project, name, is_ref = true, metadata = {})
+    name = name.to_s
     name.miga_name? or
       raise 'Invalid name, please use only alphanumerics and underscores: ' +
-            name.to_s
+            name
+
     @project, @name, @metadata = project, name, nil
     metadata[:ref] = is_ref
     metadata[:type] ||= :empty
