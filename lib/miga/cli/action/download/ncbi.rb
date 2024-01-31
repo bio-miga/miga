@@ -17,10 +17,7 @@ module MiGA::Cli::Action::Download::Ncbi
     cli.opt_flag(opt, 'chromosome', 'Download complete chromosomes')
     cli.opt_flag(opt, 'scaffold', 'Download genomes in scaffolds')
     cli.opt_flag(opt, 'contig', 'Download genomes in contigs')
-    opt.on(
-      '--all',
-      'Download all genomes (in any status)'
-    ) do
+    opt.on('--all', 'Download all genomes (in any status)') do
       cli[:complete] = true
       cli[:chromosome] = true
       cli[:scaffold] = true
@@ -29,6 +26,10 @@ module MiGA::Cli::Action::Download::Ncbi
     opt.on('--ncbi-list-json STRING', '::HIDE::') do |v|
       cli[:ncbi_list_json] = v
     end
+    opt.on(
+      '--ncbi-taxonomy-dump STRING',
+      'Path to an NCBI Taxonomy dump directory to query instead of API calls'
+    ) { |v| MiGA::RemoteDataset.use_ncbi_taxonomy_dump(v) }
   end
 
   def cli_name_modifiers(opt)

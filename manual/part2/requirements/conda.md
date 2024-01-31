@@ -9,7 +9,7 @@ If you don't have Conda, you can follow the
 
 If you prefer to see code in action, the full installation process
 with conda is available as a
-[Notebook in Google Colab](https://colab.research.google.com/drive/1d8ClPe8dQOPp2eviQh6bX3inI84USzE4).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/c973df8d63c1b0d2c6ebddc39f3d92fd/miga_1-2_conda_installation.ipynb).
 
 ## Note for macOS users
 
@@ -28,6 +28,10 @@ curl -Lso miga.yml \
   "https://raw.githubusercontent.com/bio-miga/miga/main/conda.yml"
 conda env create -f miga.yml
 rm miga.yml
+
+# Fix conda-forge Ruby issue (see https://github.com/bio-miga/miga/issues/168)
+mkdir -p "$GEM_HOME/bin"
+ln -s "$CONDA_PREFIX/bin/ruby" "$GEM_HOME/bin/ruby"
 
 # Tell MiGA to activate the proper conda environment
 echo 'eval "$(conda shell.bash hook)" && conda activate miga' > ~/.miga_modules

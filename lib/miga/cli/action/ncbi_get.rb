@@ -24,14 +24,13 @@ class MiGA::Cli::Action::NcbiGet < MiGA::Cli::Action
       cli_name_modifiers(opt)
       cli_filters(opt)
       cli_save_actions(opt)
-      opt.on(
-        '--api-key STRING',
-        '::HIDE::' # For backwards compatibility
-      ) { |v| ENV['NCBI_API_KEY'] = v }
-      opt.on(
-        '--ncbi-api-key STRING',
-        'NCBI API key'
-      ) { |v| ENV['NCBI_API_KEY'] = v }
+      opt.on('--api-key STRING', '::HIDE::') do |v|
+        warn "The use of --api-key is deprecated, please use --ncbi-api-key"
+        ENV['NCBI_API_KEY'] = v
+      end
+      opt.on('--ncbi-api-key STRING', 'NCBI API key') do |v|
+        ENV['NCBI_API_KEY'] = v
+      end
     end
   end
 

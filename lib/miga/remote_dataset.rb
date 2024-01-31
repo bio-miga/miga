@@ -13,6 +13,55 @@ class MiGA::RemoteDataset < MiGA::MiGA
 
   class << self
     ##
+    # Path to a directory with a recent NCBI Taxonomy dump to use instead of
+    # making API calls to NCBI servers, which can be obtained at:
+    # https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
+    def use_ncbi_taxonomy_dump(path)
+      raise "Directory doesn't exist: #{path}" unless File.directory?(path)
+
+      # Structure: { TaxID => ["name", "rank", parent TaxID] }
+      @ncbi_taxonomy_names = {}
+
+      # Read names.dmp
+      File.open(File.join(path, 'names.dmp')) do |fh|
+        fh.each do |ln|
+          row = ln.split(/\t\|\t?/)
+          next unless row[3] == 'scientific name'
+          @ncbi_taxonomy_names[row[0].to_i] = [row[1].strip]
+        end
+      end
+
+      # Read nodes.dmp
+      File.open(File.join(path, 'nodes.dmp')) do |fh|
+        fh.each do |ln|
+          row = ln.split(/\t\|\t?/)
+          child  = row[0].to_i
+          parent = row[1].to_i
+          @ncbi_taxonomy_names[child][1] = row[2]
+          @ncbi_taxonomy_names[child][2] = parent unless parent == child
+        end
+      end
+    end
+
+    ##
+    # Is a local NCBI Taxonomy dump available?
+    def ncbi_taxonomy_dump?
+      (@ncbi_taxonomy_names ||= nil) ? true : false
+    end
+
+    ##
+    # Get the MiGA::Taxonomy object for the lineage of the taxon with TaxID
+    # +id+ using the local NCBI Taxonomy dump.
+    def taxonomy_from_ncbi_dump(id)
+      MiGA::Taxonomy.new(ns: 'ncbi').tap do |tax|
+        while @ncbi_taxonomy_names[id]
+          tax << { @ncbi_taxonomy_names[id][1] => @ncbi_taxonomy_names[id][0] }
+          id = @ncbi_taxonomy_names[id][2]
+        end
+      end
+    end
+
+    ##
     # Translate an NCBI Assembly Accession (+acc+) to corresponding internal
     # NCBI ID, with up to +retrials+ retrials if the returned JSON document
     # does not conform to the expected format
@@ -172,6 +221,10 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get NCBI taxonomy as MiGA::Taxonomy
   def get_ncbi_taxonomy
     tax_id = get_ncbi_taxid or return
+
+    if self.class.ncbi_taxonomy_dump?
+      return self.class.taxonomy_from_ncbi_dump(tax_id)
+    end
 
     lineage = { ns: 'ncbi' }
     doc = MiGA::RemoteDataset.download(:ncbi, :taxonomy, tax_id, :xml)
