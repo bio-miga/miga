@@ -61,6 +61,7 @@ class MiGA::Dataset < MiGA::MiGA
     @project, @name, @metadata = project, name, nil
     metadata[:ref] = is_ref
     metadata[:type] ||= :empty
+    metadata[:status] ||= 'incomplete'
     @metadata_future = [
       File.join(project.path, 'metadata', "#{name}.json"),
       metadata
@@ -84,15 +85,18 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Save any changes you've made in the dataset
   def save
-    MiGA.DEBUG "Dataset.metadata: #{metadata.data}"
+    MiGA.DEBUG "Dataset.save: #{name}"
     metadata.save
     pull_hook :on_save
   end
 
   ##
-  # Currently +save!+ is simply an alias of +save+, for compatibility with the
-  # +Project+ interface
-  alias :save! :save
+  # Forces a save even if nothing has changed in the metadata
+  def save!
+    MiGA.DEBUG "Dataset.save!: #{name}"
+    metadata.save!
+    pull_hook :on_save
+  end
 
   ##
   # Delete the dataset with all it's contents (including results) and returns
@@ -148,7 +152,7 @@ class MiGA::Dataset < MiGA::MiGA
   ##
   # Is this dataset active?
   def active?
-    metadata[:inactive].nil? or !metadata[:inactive]
+    metadata[:inactive].nil? || !metadata[:inactive]
   end
 
   ##

@@ -27,11 +27,16 @@ class MiGA::Metadata < MiGA::MiGA
   attr_reader :path
 
   ##
+  # Hash (Integer) of the last saved data Hash (object)
+  attr_reader :saved_hash
+
+  ##
   # Initiate a MiGA::Metadata object with description in +path+.
   # It will create it if it doesn't exist.
   def initialize(path, defaults = {})
     @data = nil
     @path = File.absolute_path(path)
+    @saved_hash = nil
     unless File.exist? path
       @data = {}
       defaults.each { |k, v| self[k] = v }
@@ -57,35 +62,41 @@ class MiGA::Metadata < MiGA::MiGA
   # Save the metadata into #path
   def save
     return if self[:never_save]
+    return if !saved_hash.nil? && saved_hash == data.hash
 
     MiGA::MiGA.DEBUG "Metadata.save #{path}"
+    path_tmp = "#{path}.tmp"
     self[:updated] = Time.now.to_s
+    @saved_hash = data.hash
     json = to_json
     wait_for_lock
     FileUtils.touch(lock_file)
-    ofh = File.open("#{path}.tmp", 'w')
-    ofh.puts json
-    ofh.close
+    File.open(path_tmp, 'w') { |ofh| ofh.puts json }
 
-    unless File.exist?("#{path}.tmp") && File.exist?(lock_file)
+    unless File.exist?(path_tmp) && File.exist?(lock_file)
       raise "Lock-racing detected for #{path}"
     end
 
-    File.rename("#{path}.tmp", path)
+    File.rename(path_tmp, path)
     File.unlink(lock_file)
+  end
+
+  ##
+  # Force +save+ even if nothing has changed since the last save
+  # or load. However, it doesn't save if +:never_save+ is true.
+  def save!
+    @saved_hash = nil
+    save
   end
 
   ##
   # (Re-)load metadata stored in #path
   def load
-    sleeper = 0.0
-    while File.exist? lock_file
-      sleeper += 0.1 if sleeper <= 10.0
-      sleep(sleeper.to_i)
-    end
+    wait_for_lock
     tmp = MiGA::Json.parse(path, additions: true)
     @data = {}
     tmp.each { |k, v| self[k] = v }
+    @saved_hash = data.hash
   end
 
   ##

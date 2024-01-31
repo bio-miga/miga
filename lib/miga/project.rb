@@ -67,7 +67,7 @@ class MiGA::Project < MiGA::MiGA
   ##
   # Save any changes persistently, regardless of +do_not_save+
   def save!
-    metadata.save
+    metadata.save!
     pull_hook :on_save
     self.load
   end

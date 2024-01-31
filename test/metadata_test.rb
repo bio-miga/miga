@@ -13,7 +13,7 @@ class MetadataTest < Test::Unit::TestCase
       File.unlink(md1.lock_file)
     end
     t1 = Time.new
-    md1.save
+    md1.save!
     t2 = Time.new
     assert_path_not_exist(md1.lock_file)
     assert_ge(t2 - t1, 1.0)

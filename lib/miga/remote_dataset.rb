@@ -20,6 +20,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
       raise "Directory doesn't exist: #{path}" unless File.directory?(path)
 
       # Structure: { TaxID => ["name", "rank", parent TaxID] }
+      MiGA::MiGA.DEBUG "Loading NCBI Taxonomy dump: #{path}"
       @ncbi_taxonomy_names = {}
 
       # Read names.dmp
