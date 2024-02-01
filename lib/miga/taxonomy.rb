@@ -188,7 +188,7 @@ class MiGA::Taxonomy < MiGA::MiGA
     when Array, Hash
       self << str
     else
-      "#{str} ".scan(/([A-Za-z]+):([^:]*)( )/) { |r, n, _| self << { r => n } }
+      " #{str} ".scan(/(?<= )([A-Za-z]+):([^:]*) /) { |r, n| self << { r => n } }
     end
   end
 
