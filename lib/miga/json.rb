@@ -15,6 +15,8 @@ class MiGA::Json < MiGA::MiGA
     # - +:symbolize+: If names should be symbolized. By default it's true if
     #   additions is false, or false otherwise. They can both be false, but an
     #   exception will be raised if both are true
+    # - +:large_file+: If passed, the file is treated as a file with very long
+    #   lines (possibly a single long line)
     def default_opts(opts = {})
       opts[:contents] ||= false
       opts[:additions] ||= false
@@ -36,11 +38,18 @@ class MiGA::Json < MiGA::MiGA
 
       # Read JSON
       cont = path
-      12.times do
-        cont = File.read(path)
-        break unless cont.empty?
-        sleep 1 # Wait up to 12 seconds for racing processes (iff empty file)
-      end unless opts[:contents]
+      if opts[:large_file]
+        cont = ''
+        File.open(path, 'r') do |fh|
+          cont += fh.read(2 ** 16) until fh.eof?
+        end
+      elsif !opts[:contents]
+        12.times do
+          cont = File.read(path)
+          break unless cont.empty?
+          sleep 1 # Wait up to 12 seconds for racing processes (iff empty file)
+        end
+      end
       raise "Empty descriptor: #{opts[:contents] ? "''" : path}" if cont.empty?
 
       # Parse JSON

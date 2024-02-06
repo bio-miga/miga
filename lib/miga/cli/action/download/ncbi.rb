@@ -57,14 +57,14 @@ module MiGA::Cli::Action::Download::Ncbi
   def remote_list
     if cli[:ncbi_taxonomy_dump]
       cli.say "Reading NCBI Taxonomy dump: #{cli[:ncbi_taxonomy_dump]}"
-      MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump])
+      MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump], cli)
     end
 
     if cli[:ncbi_list_json] && File.size?(cli[:ncbi_list_json])
-      cli.say "Reusing remote list: #{cli[:ncbi_list_json]}"
-      return MiGA::Json.parse(cli[:ncbi_list_json])
+      return read_ncbi_list_json(cli[:ncbi_list_json])
     end
 
+    cli.say "Obtaining remote list of datasets"
     list  = {}
     query = remote_list_query
     loop do
@@ -79,18 +79,45 @@ module MiGA::Cli::Action::Download::Ncbi
       list.merge!(parse_reports_as_datasets(page[:reports]))
 
       # Next page
+      cli.advance('Datasets:', list.size, page[:total_count])
       break unless page[:next_page_token]
       query[:page_token] = page[:next_page_token]
     end
+    cli.say
 
-    if cli[:ncbi_list_json]
-      cli.say "Saving remote list: #{cli[:ncbi_list_json]}"
-      MiGA::Json.generate_fast(list, cli[:ncbi_list_json])
-    end
-
+    write_ncbi_list_json(cli[:ncbi_list_json], list) if cli[:ncbi_list_json]
     list
   end
-  
+
+  def read_ncbi_list_json(file)
+    cli.say "Reusing remote list: #{file}"
+    list = {}
+    n_tot = nil
+    File.open(file, 'r') do |fh|
+      n_tot = fh.gets.chomp.sub(/^# /, '').to_i
+      fh.each_with_index do |ln, k|
+        row = ln.chomp.split("\t", 2)
+        list[row[0]] = MiGA::Json.parse(row[1], contents: true)
+        cli.advance('Lines:', k, n_tot)
+      end
+      cli.say
+    end
+    return list
+  end
+
+  def write_ncbi_list_json(file, list)
+    cli.say "Saving remote list: #{file}"
+    File.open(file, 'w') do |fh|
+      fh.puts('# %i' % list.size)
+      kk = 0
+      list.each do |k, v|
+        fh.puts([k, MiGA::Json.generate_fast(v)].join("\t"))
+        cli.advance('Datasets:', kk += 1, list.size)
+      end
+      cli.say
+    end
+  end
+
   def parse_reports_as_datasets(reports)
     ds = {}
     reports.each do |r|

@@ -16,7 +16,12 @@ class MiGA::RemoteDataset < MiGA::MiGA
     # Path to a directory with a recent NCBI Taxonomy dump to use instead of
     # making API calls to NCBI servers, which can be obtained at:
     # https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
-    def use_ncbi_taxonomy_dump(path)
+    #
+    # The +cli+ parameter, if passed, should be a MiGA::Cli object that will
+    # be used to report advance in the reading. Other objects can be passed,
+    # minimally supporting the MiGA::Cli#say and MiGA::Cli#advance method
+    # interfaces
+    def use_ncbi_taxonomy_dump(path, cli = nil)
       raise "Directory doesn't exist: #{path}" unless File.directory?(path)
 
       # Structure: { TaxID => ["name", "rank", parent TaxID] }
@@ -24,23 +29,31 @@ class MiGA::RemoteDataset < MiGA::MiGA
       @ncbi_taxonomy_names = {}
 
       # Read names.dmp
-      File.open(File.join(path, 'names.dmp')) do |fh|
+      File.open(file = File.join(path, 'names.dmp')) do |fh|
+        read = 0
+        size = File.size(file)
         fh.each do |ln|
+          cli&.advance('- names.dmp:', read += ln.size, size)
           row = ln.split(/\t\|\t?/)
           next unless row[3] == 'scientific name'
           @ncbi_taxonomy_names[row[0].to_i] = [row[1].strip]
         end
+        cli&.say
       end
 
       # Read nodes.dmp
-      File.open(File.join(path, 'nodes.dmp')) do |fh|
+      File.open(file = File.join(path, 'nodes.dmp')) do |fh|
+        read = 0
+        size = File.size(file)
         fh.each do |ln|
+          cli&.advance('- nodes.dmp:', read += ln.size, size)
           row = ln.split(/\t\|\t?/)
           child  = row[0].to_i
           parent = row[1].to_i
           @ncbi_taxonomy_names[child][1] = row[2]
           @ncbi_taxonomy_names[child][2] = parent unless parent == child
         end
+        cli&.say
       end
     end
 

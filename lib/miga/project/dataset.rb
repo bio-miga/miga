@@ -5,22 +5,30 @@
 # Helper module including specific functions handle datasets.
 module MiGA::Project::Dataset
   ##
-  # Returns Array of MiGA::Dataset.
+  # Returns Array of MiGA::Dataset
   def datasets
     metadata[:datasets].map { |name| dataset(name) }
   end
 
   ##
-  # Returns Array of String (without evaluating dataset objects).
+  # Returns Array of String (without evaluating dataset objects)
   def dataset_names
     metadata[:datasets]
   end
 
   ##
-  # Returns Hash of Strings => true. Similar to +dataset_names+ but as
-  # Hash for efficiency.
+  # Returns Hash of +{ String => true }+. Similar to +dataset_names+ but as
+  # Hash for efficiency
   def dataset_names_hash
+    warn 'The Project#dataset_names_hash method will be deprecated soon'
     @dataset_names_hash ||= Hash[dataset_names.map { |i| [i, true] }]
+  end
+
+  ##
+  # Returns Set of Strings. Similar to +dataset_names+ but as Set for
+  # efficiency
+  def dataset_names_set
+    @dataset_names_set ||= Set.new(dataset_names)
   end
 
   ##
@@ -50,7 +58,8 @@ module MiGA::Project::Dataset
     unless metadata[:datasets].include? name
       d = MiGA::Dataset.new(self, name)
       @metadata[:datasets] << name
-      @dataset_names_hash = nil # Ensure loading even if +do_not_save+ is true
+      @dataset_names_hash[name] = true if @dataset_names_hash
+      @dataset_names_set << name if @dataset_names_set
       save
       if d.ref? && d.active?
         recalculate_tasks("Reference dataset added: #{d.name}")

@@ -3,6 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
+require'set'
 require 'miga/metadata'
 require 'miga/dataset/result'
 require 'miga/dataset/status'
@@ -27,7 +28,7 @@ class MiGA::Dataset < MiGA::MiGA
     ##
     # Does the +project+ already have a dataset with that +name+?
     def exist?(project, name)
-      !project.dataset_names_hash[name].nil?
+      project.dataset_names_set.include? name
     end
 
     ##
