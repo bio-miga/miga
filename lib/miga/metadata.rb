@@ -103,7 +103,7 @@ class MiGA::Metadata < MiGA::MiGA
   # Delete file at #path
   def remove!
     MiGA.DEBUG "Metadata.remove! #{path}"
-    File.unlink(path)
+    File.unlink(path) if File.exist?(path)
     nil
   end
 
