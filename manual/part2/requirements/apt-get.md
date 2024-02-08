@@ -13,10 +13,10 @@ Run:
 ```bash
 sudo apt-get update
 sudo apt-get install \
-  ruby ruby-sqlite3 r-base sqlite3 python \
+  ruby ruby-sqlite3 r-base sqlite3 \
   libcurl4-openssl-dev zlib1g zlib1g-dev \
-  ncbi-blast+ hmmer bedtools idba prodigal \
-  mcl barrnap diamond-aligner trnascan-se
+  ncbi-blast+ hmmer bedtools idba prodigal mcl barrnap \
+  diamond-aligner trnascan-se fastp fastani seqtk
 ```
 
 ## Additional Software
@@ -26,29 +26,34 @@ you can install it in your 64bit Linux machine using:
 
 ```bash
 ## FaQCs
-curl -Lso FaQCs \
+wget -O FaQCs \
   "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.10/FaQCs_linux_x86_64"
 sudo install FaQCs /usr/bin/ && rm FaQCs
 
 ## Falco
-curl -Lso falco.tar.gz \
-  "https://github.com/smithlabcode/falco/releases/download/v0.2.4/falco-0.2.4.tar.gz"
+wget -O falco.tar.gz \
+  "https://github.com/smithlabcode/falco/releases/download/v1.2.1/falco-1.2.1.tar.gz"
 tar zxf falco.tar.gz
-( cd falco-0.2.4 \
+( cd falco-1.2.1 \
     && ./configure CXXFLAGS="-O3 -Wall" \
     && make && sudo make install
 ) > /dev/null
-rm -rf falco-0.2.4
+rm -rf falco-1.2.1 falco.tar.gz
+```
 
-## Fastp
-curl -Lso fastp "http://opengene.org/fastp/fastp"
-sudo install fastp /usr/bin/ && rm fastp
+# JAVA VM
 
-# FastANI
-curl -Lso fastani-Linux64-v1.33.zip \
-  "https://github.com/ParBLiSS/FastANI/releases/download/v1.33/fastani-Linux64-v1.33.zip"
-unzip fastani-Linux64-v1.33.zip fastANI > /dev/null && rm fastani-Linux64-v1.33.zip
-sudo install fastANI /usr/bin/ && rm fastANI
+If you want support for RDP classifications, you'll need any working Java VM.
+For example, you could install Temurin as follows:
+
+```bash
+wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public \
+  | sudo apt-key add -
+echo "deb https://packages.adoptium.net/artifactory/deb \
+  $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" \
+  | sudo tee /etc/apt/sources.list.d/adoptium.list
+sudo apt-get update
+sudo apt-get install temurin-21-jdk
 ```
 
 ## MyTaxa utils

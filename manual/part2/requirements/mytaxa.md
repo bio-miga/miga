@@ -18,7 +18,7 @@ echo 'export PATH=$HOME/apps/bin:$PATH' >> ~/.miga_modules
 ## MyTaxa
 
 ```bash
-curl -L \
+wget -O - \
   https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
 cd MyTaxa-master
 make
@@ -33,7 +33,7 @@ If you followed the instructions for [conda](conda.md) or [Homebrew](brew.md),
 you already have Krona. If you still need to install Krona, simply execute:
 
 ```bash
-curl -L \
+wget -O - \
   https://github.com/marbl/Krona/archive/master.tar.gz | tar zx
 ( cd Krona-master/KronaTools && ./install.pl --prefix ../.. )
 ```
