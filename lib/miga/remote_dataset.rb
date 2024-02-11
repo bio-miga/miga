@@ -188,6 +188,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
   # Get metadata from the remote location.
   def get_metadata(metadata_def = {})
     metadata_def.each { |k, v| @metadata[k] = v }
+    return @metadata if @metadata[:bypass_metadata]
 
     case universe
     when :ebi, :ncbi, :web

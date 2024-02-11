@@ -62,6 +62,10 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
         'Create datasets without input data but retrieve all metadata'
       ) { |v| cli[:only_md] = v }
       opt.on(
+        '--bypass-metadata',
+        'Do not gather optional metadata such as the dataset taxonomy'
+      ) { |v| cli[:bypass_md] = v }
+      opt.on(
         '--api-key STRING',
         'API key for the given universe'
       ) { |v| cli[:api_key] = v }
@@ -75,6 +79,7 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
       rd = create_remote_dataset(sub_cli, p)
       next if rd.nil?
 
+      rd.metadata[:bypass_metadata] = true if sub_cli[:bypass_md]
       if sub_cli[:get_md]
         update_metadata(sub_cli, p, rd)
       else
