@@ -13,7 +13,7 @@ Run:
 ```bash
 sudo apt-get update
 sudo apt-get install \
-  ruby ruby-sqlite3 r-base sqlite3 \
+  ruby ruby-sqlite3 r-base sqlite3 python3-pip \
   libcurl4-openssl-dev zlib1g zlib1g-dev \
   ncbi-blast+ hmmer bedtools idba prodigal mcl barrnap \
   diamond-aligner trnascan-se fastp fastani seqtk
