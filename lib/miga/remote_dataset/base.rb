@@ -21,7 +21,7 @@ module MiGA::RemoteDataset::Base
   @@_NCBI_DATASETS = 'https://api.ncbi.nlm.nih.gov/datasets/v2alpha/'
   @@_EUTILS        = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
   @@_EBI_API       = 'https://www.ebi.ac.uk/Tools/'
-  @@_GTDB_API      = 'https://api.gtdb.ecogenomic.org/'
+  @@_GTDB_API      = 'https://gtdb-api.ecogenomic.org/'
   @@_SEQCODE_API   = 'https://disc-genomics.uibk.ac.at/seqcode/'
   @@_EUTILS_BUILD  = lambda { |service, q|
     q[:api_key] = ENV['NCBI_API_KEY'] if ENV['NCBI_API_KEY']
