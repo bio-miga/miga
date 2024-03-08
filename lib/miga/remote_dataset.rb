@@ -67,6 +67,7 @@ class MiGA::RemoteDataset < MiGA::MiGA
     # Get the MiGA::Taxonomy object for the lineage of the taxon with TaxID
     # +id+ using the local NCBI Taxonomy dump.
     def taxonomy_from_ncbi_dump(id)
+      id = id.to_i unless id.is_a? Integer
       MiGA::Taxonomy.new(ns: 'ncbi').tap do |tax|
         while @ncbi_taxonomy_names[id]
           tax << { @ncbi_taxonomy_names[id][1] => @ncbi_taxonomy_names[id][0] }
