@@ -3,7 +3,7 @@
 # @package MiGA
 # @license Artistic-2.0
 
-require'set'
+require 'set'
 require 'miga/metadata'
 require 'miga/dataset/result'
 require 'miga/dataset/status'

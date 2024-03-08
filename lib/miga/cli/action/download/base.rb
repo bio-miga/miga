@@ -68,6 +68,10 @@ module MiGA::Cli::Action::Download::Base
       '-R', '--remote-list PATH',
       'Path to an output file with the list of all datasets listed remotely'
     ) { |v| cli[:remote_list] = v }
+    opt.on(
+      '--ncbi-taxonomy-dump STRING',
+      'Path to an NCBI Taxonomy dump directory to query instead of API calls'
+    ) { |v| cli[:ncbi_taxonomy_dump] = v }
   end
 
   def generic_perform
@@ -82,12 +86,21 @@ module MiGA::Cli::Action::Download::Base
   def load_tasks
     sanitize_cli
     p = cli.load_project
+    load_ncbi_taxonomy_dump
     ds = remote_list
     ds = discard_excluded(ds)
     ds = exclude_newer(ds)
     ds = impose_limit(ds)
     [p, ds]
   end
+
+  def load_ncbi_taxonomy_dump
+    return unless cli[:ncbi_taxonomy_dump]
+
+    cli.say "Reading NCBI Taxonomy dump: #{cli[:ncbi_taxonomy_dump]}"
+    MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump], cli)
+  end
+
 
   def finalize_tasks(d, downloaded)
     cli.say "Datasets listed: #{d.size}"

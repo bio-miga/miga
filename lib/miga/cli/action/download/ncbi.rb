@@ -26,10 +26,6 @@ module MiGA::Cli::Action::Download::Ncbi
     opt.on('--ncbi-list-json STRING', '::HIDE::') do |v|
       cli[:ncbi_list_json] = v
     end
-    opt.on(
-      '--ncbi-taxonomy-dump STRING',
-      'Path to an NCBI Taxonomy dump directory to query instead of API calls'
-    ) { |v| cli[:ncbi_taxonomy_dump] = v }
   end
 
   def cli_name_modifiers(opt)
@@ -55,11 +51,6 @@ module MiGA::Cli::Action::Download::Ncbi
   end
 
   def remote_list
-    if cli[:ncbi_taxonomy_dump]
-      cli.say "Reading NCBI Taxonomy dump: #{cli[:ncbi_taxonomy_dump]}"
-      MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump], cli)
-    end
-
     if cli[:ncbi_list_json] && File.size?(cli[:ncbi_list_json])
       return read_ncbi_list_json(cli[:ncbi_list_json])
     end
