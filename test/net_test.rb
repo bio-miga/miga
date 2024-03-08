@@ -37,15 +37,13 @@ class FormatTest < Test::Unit::TestCase
     f = tmpfile('t/test.txt')
     d = File.dirname(f)
     assert(!Dir.exist?(d))
-    # TODO
-    # Bring back when I can connect to the Gatech's FTP
-    ### m = MiGA::MiGA
-    ### m.download_file_ftp(:miga_online_ftp, 'api_test.txt', f)
-    ### assert(Dir.exist?(d))
-    ### assert_equal('miga', File.read(f).chomp)
-    ### File.unlink(f)
-    ### m.download_file_ftp(:miga_db, '../api_test.txt', f)
-    ### assert_equal('miga', File.read(f).chomp)
+    m = MiGA::MiGA
+    m.download_file_ftp(:miga_online_ftp, 'api_test.txt', f)
+    assert(Dir.exist?(d))
+    assert_equal('miga', File.read(f).chomp)
+    File.unlink(f)
+    m.download_file_ftp(:miga_db, '../api_test.txt', f)
+    assert_equal('miga', File.read(f).chomp)
   end
 
   def test_encoding

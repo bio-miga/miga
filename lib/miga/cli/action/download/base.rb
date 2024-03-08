@@ -69,9 +69,10 @@ module MiGA::Cli::Action::Download::Base
       'Path to an output file with the list of all datasets listed remotely'
     ) { |v| cli[:remote_list] = v }
     opt.on(
-      '--ncbi-taxonomy-dump STRING',
-      'Path to an NCBI Taxonomy dump directory to query instead of API calls'
-    ) { |v| cli[:ncbi_taxonomy_dump] = v }
+      '--ncbi-taxonomy-dump [path]',
+      'Path to an NCBI Taxonomy dump directory to query instead of API calls',
+      'If the path is not passed, the dump is automatically downloaded'
+    ) { |v| cli[:ncbi_taxonomy_dump] = v || true }
   end
 
   def generic_perform
@@ -97,8 +98,21 @@ module MiGA::Cli::Action::Download::Base
   def load_ncbi_taxonomy_dump
     return unless cli[:ncbi_taxonomy_dump]
 
-    cli.say "Reading NCBI Taxonomy dump: #{cli[:ncbi_taxonomy_dump]}"
-    MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump], cli)
+    if cli[:ncbi_taxonomy_dump] == true
+      cli.say 'Downloading and reading NCBI Taxonomy dump'
+      Dir.mktmpdir do |dir|
+        file = 'taxdump.tar.gz'
+        path = File.join(dir, file)
+        url  = 'https://ftp.ncbi.nih.gov/pub/taxonomy/%s' % file
+        
+        File.open(path, 'wb') { |fh| fh.print MiGA::MiGA.net_method(:get, url) }
+        MiGA::MiGA.run_cmd('cd "%s" && tar -zxf "%s"' % [dir, file])
+        MiGA::RemoteDataset.use_ncbi_taxonomy_dump(dir, cli)
+      end
+    else
+      cli.say "Reading NCBI Taxonomy dump: #{cli[:ncbi_taxonomy_dump]}"
+      MiGA::RemoteDataset.use_ncbi_taxonomy_dump(cli[:ncbi_taxonomy_dump], cli)
+    end
   end
 
 

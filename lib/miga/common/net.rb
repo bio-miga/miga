@@ -123,10 +123,11 @@ module MiGA::Common::Net
 
   def net_method(method, uri, *opts)
     attempts ||= 0
+    uri = URI.parse(uri) if uri.is_a? String
     DEBUG "#{method.to_s.upcase}: #{uri} #{opts}"
     case method.to_sym
     when :ftp
-      download_file_ftp(uri)
+      download_file_ftp(uri, *opts)
     else
       http_request(method, uri, *opts)
     end
