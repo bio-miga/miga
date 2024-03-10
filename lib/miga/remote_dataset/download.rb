@@ -96,9 +96,21 @@ class MiGA::RemoteDataset
       o = download_rest(opts.merge(universe: :ncbi, db: :nuccore))
       return o unless o.strip.empty?
 
-      MiGA::MiGA.DEBUG 'Empty sequence, attempting download from NCBI assembly'
-      opts[:format] = :fasta
-      ncbi_asm_get(opts)
+      begin
+        MiGA::MiGA.DEBUG 'Empty sequence, attempting download as NCBI assembly'
+        opts[:format] = :fasta
+        ncbi_asm_get(opts)
+      rescue => e
+        raise e unless opts[:obj]&.metadata&.dig(:ncbi_wgs)
+        MiGA::MiGA.DEBUG e.to_s
+      end
+
+      MiGA::MiGA.DEBUG 'Empty sequence, attempting download as WGS records'
+      a, b = opts[:obj].metadata[:ncbi_wgs].split('-', 2)
+      pref = longest_common_prefix([a, b])
+      rang = a[pref.size .. -1].to_i .. b[pref.size .. -1].to_i
+      ids  = rang.map { |k| "%s%0#{a.size - pref.size}i" % [pref, k] }
+      download_rest(opts.merge(universe: :ncbi, db: :nuccore, ids: ids))
     end
 
     ##
@@ -183,6 +195,15 @@ class MiGA::RemoteDataset
         break if tree.nil?
       end
       tree
+    end
+
+    ##
+    # From: https://github.com/isisAnchalee/Algorithms
+    def longest_common_prefix(strs)
+      return '' if strs.empty?
+      min, max = strs.minmax
+      idx = min.size.times { |i| break i if min[i] != max[i] }
+      min[0...idx]
     end
   end
 end

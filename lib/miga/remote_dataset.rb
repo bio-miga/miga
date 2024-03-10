@@ -322,9 +322,16 @@ class MiGA::RemoteDataset < MiGA::MiGA
     taxid = metadata.dig(:ncbi_dataset, :organism, :tax_id)
     return taxid if taxid
 
-    # Try from GenBank document (obtain it)
+    # Get GenBank document
     doc = self.class.download(:ncbi, db, ids, :gb, nil, {}, self).split(/\n/)
-    ln = doc.grep(%r{^\s+/db_xref="taxon:}).first
+
+    # Since we're here, try to recover WGS for synthetic records
+    ln  = doc.grep(/^WGS\s+\S+-\S+/).first
+    wgs = ln&.gsub(/^WGS\s+(\S+-\S+).*/, '\1')
+    @metadata[:ncbi_wgs] = wgs if wgs
+
+    # Now try to extract taxid from GenBank
+    ln  = doc.grep(%r{^\s+/db_xref="taxon:}).first
     return nil if ln.nil?
 
     ln.sub!(/.*(?:"taxon:)(\d+)["; ].*/, '\\1')
