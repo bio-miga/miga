@@ -5,6 +5,9 @@ require 'miga/cli/action'
 require 'miga/remote_dataset'
 
 class MiGA::Cli::Action::Get < MiGA::Cli::Action
+  require 'miga/cli/action/download/base'
+  include MiGA::Cli::Action::Download::Base
+
   def parse_cli
     cli.defaults = {
       query: false, universe: :ncbi, db: :nuccore, get_md: false, only_md: false
@@ -69,12 +72,18 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
         '--api-key STRING',
         'API key for the given universe'
       ) { |v| cli[:api_key] = v }
+      opt.on(
+        '--ncbi-taxonomy-dump [path]',
+        'Path to an NCBI Taxonomy dump directory to query instead of API calls',
+        'If the path is not passed, the dump is automatically downloaded'
+      ) { |v| cli[:ncbi_taxonomy_dump] = v || true }
     end
   end
 
   def perform
     glob = get_sub_cli
     p = cli.load_project
+    load_ncbi_taxonomy_dump
     glob.each do |sub_cli|
       rd = create_remote_dataset(sub_cli, p)
       next if rd.nil?
