@@ -186,15 +186,21 @@ class MiGA::RemoteDataset
     # Looks for the entry +id+ in +dbfrom+, and returns the linked
     # identifier in +db+ (or nil).
     def ncbi_map(id, dbfrom, db)
+      attempts = 0
       doc = download(:ncbi_map, dbfrom, id, :json, nil, db: db)
       return if doc.empty?
 
-      tree = MiGA::Json.parse(doc, contents: true)
-      [:linksets, 0, :linksetdbs, 0, :links, 0].each do |i|
-        tree = tree[i]
-        break if tree.nil?
+      begin
+        tree = MiGA::Json.parse(doc, contents: true)
+      rescue => e
+        sleep 5 # <- Usually caused by busy servers: BLOB ID IS NOT IMPLEMENTED
+        DEBUG "RETRYING after: #{e}"
+        doc = download(:ncbi_map, dbfrom, id, :json, nil, db: db)
+        return if doc.empty?
+        tree = MiGA::Json.parse(doc, contents: true)
       end
-      tree
+
+      tree&.dig(:linksets, 0, :linksetdbs, 0, :links, 0)
     end
 
     ##
