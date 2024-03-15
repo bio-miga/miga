@@ -27,7 +27,7 @@ module MiGA::DistanceRunner::Commands
     # Launch comparisons
     pending_targets(targets, :aai).each do |target|
       # Full AAI
-      target_cds = target.result(:cds).file_path(:proteins) or next
+      target_cds = target.result(:cds)&.file_path(:proteins) or next
       aairb_cmd(
         tmp_file('proteins.fa'), target_cds,
         dataset.name, target.name, tmp_dbs[:aai], checkpoint: :aai
