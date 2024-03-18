@@ -97,15 +97,14 @@ module MiGA::Dataset::Result
 
   ##
   # Clean-up all the stored distances, removing values for datasets no longer in
-  # the project as reference datasets.
-  def cleanup_distances!
+  # the project as reference datasets. All metrics are processed unless +metric+
+  # is passed (Array[Symbol], including :haai, :aai, :ani)
+  def cleanup_distances!(metrics = %i[haai aai ani])
     return if get_result(:distances).nil?
 
     require 'miga/sqlite'
-    ref = project.datasets.select(&:ref?).select(&:active?).map(&:name)
-    %i[haai aai ani].each do |metric|
-      cleanup_distances_by_metric!(ref, metric)
-    end
+    ref = project.dataset_ref_active.map(&:name)
+    metrics.each { |metric| cleanup_distances_by_metric!(ref, metric) }
   end
 
   private

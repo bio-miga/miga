@@ -12,8 +12,7 @@ module MiGA::Cli::Action::Doctor::Base
   # list, and therefore the databases need to be cleaned.
   # This is a subtask of +check_dist+
   def check_dist_eval(cli, p, res)
-    notok = {}
-    fix = {}
+    y = { notok: Set.new, fix: Set.new }
     Zlib::GzipReader.open(res.file_path(:matrix)) do |fh|
       lineno = 0
       fh.each_line do |ln|
@@ -23,16 +22,11 @@ module MiGA::Cli::Action::Doctor::Base
         names = [r[0], r[1]]
         next unless names.any? { |i| p.dataset(i).nil? }
 
-        names.each do |i|
-          if p.dataset(i).nil? || !p.dataset(i).active?
-            notok[i] = true
-          else
-            fix[i] = true
-          end
-        end
+        names.each { |i| y[p.dataset(i)&.active? ? :fix : :notok] << i }
       end
     end
-    [notok.keys, fix.keys]
+    # The code below is more readable than `y.values.map(&:to_a)`
+    [y[:notok].to_a, y[:fix].to_a]
   end
 
   ##
@@ -43,8 +37,8 @@ module MiGA::Cli::Action::Doctor::Base
     return if fix.empty?
 
     cli.say("- Fixing #{fix.size} datasets")
-    fix.each do |d_n|
-      cli.say "  > Fixing #{d_n}."
+    fix.each_with_index do |d_n, k|
+      cli.advance('  > Fixing', k + 1, fix.size, false)
       p.dataset(d_n).cleanup_distances!
     end
   end

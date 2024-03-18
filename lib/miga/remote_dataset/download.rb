@@ -186,7 +186,6 @@ class MiGA::RemoteDataset
     # Looks for the entry +id+ in +dbfrom+, and returns the linked
     # identifier in +db+ (or nil).
     def ncbi_map(id, dbfrom, db)
-      attempts = 0
       doc = download(:ncbi_map, dbfrom, id, :json, nil, db: db)
       return if doc.empty?
 

@@ -32,6 +32,22 @@ module MiGA::Project::Dataset
   end
 
   ##
+  # Cache for the special set of datasets which are both reference and
+  # active, returned as an Array. Use carefully, as it doesn't get
+  # recalculated upon dataset (in)activation once loaded. To force
+  # recalculating, use +dataset_ref_active!+
+  def dataset_ref_active
+    @dataset_ref_active ||= dataset_ref_active!
+  end
+
+  ##
+  # Force recalculation of +dataset_ref_active+ and returns the Array
+  # of MiGA::Dataset objects
+  def dataset_ref_active!
+    @dataset_ref_active = datasets.select(&:ref?).select(&:active?)
+  end
+
+  ##
   # Returns MiGA::Dataset
   def dataset(name)
     name = name.to_s.miga_name
@@ -60,6 +76,7 @@ module MiGA::Project::Dataset
       @metadata[:datasets] << name
       @dataset_names_hash[name] = true if @dataset_names_hash
       @dataset_names_set << name if @dataset_names_set
+      @dataset_ref_active = nil
       save
       if d.ref? && d.active?
         recalculate_tasks("Reference dataset added: #{d.name}")
@@ -75,6 +92,9 @@ module MiGA::Project::Dataset
     d = dataset(name)
     return nil if d.nil?
 
+    @dataset_names_hash = nil
+    @dataset_names_set  = nil
+    @dataset_ref_active = nil
     self.metadata[:datasets].delete(name)
     save
     if d.ref? && d.active?
