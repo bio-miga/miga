@@ -19,8 +19,12 @@ class MiGA::Cli < MiGA::MiGA
   attr_accessor :task
 
   ##
-  # The CLI parameters (except the task), and Array of String
+  # The unparsed CLI parameters (except the task), an Array of String
   attr_accessor :argv
+
+  ##
+  # The original ARGV passed to the CLI, an Array of String
+  attr_accessor :original_argv
 
   ##
   # Action to launch, an object inheriting from MiGA::Cli::Action
@@ -62,6 +66,7 @@ class MiGA::Cli < MiGA::MiGA
     @data = {}
     @defaults = { verbose: false, tabular: false }
     @opt_common = true
+    @original_argv = argv.dup
     @objects = {}
     if argv[0].nil? or argv[0].to_s[0] == '-'
       @task = :generic

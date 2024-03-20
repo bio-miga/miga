@@ -77,6 +77,9 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
         'Path to an NCBI Taxonomy dump directory to query instead of API calls',
         'If the path is not passed, the dump is automatically downloaded'
       ) { |v| cli[:ncbi_taxonomy_dump] = v || true }
+      opt.on(
+        '--ignore-file', '::HIDE::' # Only for internal use
+      ) { |v| cli[:ignore_file] = v }
     end
   end
 
@@ -100,9 +103,10 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
   private
 
   def get_sub_cli
-    return [cli] if cli[:file].nil?
+    return [cli] if cli[:file].nil? || cli[:ignore_file]
 
     glob = []
+    cli_default = cli.original_argv + ['--ignore-file']
     File.open(cli[:file], 'r') do |fh|
       h = nil
       fh.each do |ln|
@@ -110,7 +114,7 @@ class MiGA::Cli::Action::Get < MiGA::Cli::Action
         if h.nil?
           h = r
         else
-          argv_i = [self.name]
+          argv_i = cli_default.dup
           h.each_with_index do |field, k|
             case field.downcase
             when *%w[query ignore-dup get-metadata only-metadata]
