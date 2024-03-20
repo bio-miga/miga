@@ -37,10 +37,11 @@ module MiGA::Cli::Action::Doctor::Base
     return if fix.empty?
 
     cli.say("- Fixing #{fix.size} datasets")
-    fix.each_with_index do |d_n, k|
-      cli.advance('  > Fixing', k + 1, fix.size, false)
+    MiGA::Parallel.distribute(fix, cli[:threads]) do |d_n, idx, thr|
+      cli.advance('  > Fixing', idx + 1, fix.size, false) if thr == 0
       p.dataset(d_n).cleanup_distances!
     end
+    cli.say
   end
 
   ##
