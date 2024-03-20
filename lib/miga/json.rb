@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 require 'json'
+begin
+  require 'oj'
+  OJ.mimic_JSON()
+rescue LoadError
+  # Do nothing if not available
+end
 
 ##
 # Taxonomic classifications in MiGA.
