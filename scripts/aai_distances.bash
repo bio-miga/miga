@@ -24,10 +24,8 @@ function aai_tsv {
   echo "a b value sd n omega" | tr " " "\\t"
   if [[ ${#DS[@]} -gt 40000 ]] ; then
     # Use comparisons in strictly one direction only for huge projects
-    foreach_database_aai \
-      | awk -F"\t" 'BEGIN { OFS="\t" }
-          { if ($1 > $2) { a=$1; $1=$2; $2=a; } } { print $0 }' \
-      | sort -k 1,2 -u
+    # (assuming the distances are truly bidirectional!)
+    foreach_database_aai | awk -F"\t" '$1 >= $2'
   else
     foreach_database_aai
   fi

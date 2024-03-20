@@ -12,6 +12,9 @@ miga_start_project_step "$DIR"
 # Cleanup databases
 ruby -I "$MIGA/lib" "$MIGA/utils/cleanup-databases.rb" "$PROJECT" "$CORES"
 
+# Ensure bidirectional reference distances
+miga doctor -P "$PROJECT" --only bidirectional -v -t "$CORES"
+
 # No real need for hAAI distributions at all
 echo -n "" > miga-project.log
 echo -n "" > miga-project.txt

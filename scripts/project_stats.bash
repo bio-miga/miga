@@ -9,9 +9,9 @@ DIR="$PROJECT/data/90.stats"
 # Initialize
 miga_start_project_step "$DIR"
 
-# Execute doctor
+# Execute doctor (bidirectional is checked in haai_distances)
 echo "# Doctor"
-miga doctor -P "$PROJECT" -t "$CORES" -v
+miga doctor -P "$PROJECT" -t "$CORES" -v --ignore bidirectional
 
 # Index taxonomy
 echo "# Index taxonomy"
