@@ -33,14 +33,26 @@ class MiGA::Result < MiGA::MiGA
     ##
     # Check if +path+ describes a result and otherwise create
     # it using the passed block. If +force+, ignore existing
-    # JSON in +path+ if any.
+    # JSON in +path+ if any, but it can rescue the versions 
+    # field from the old one if it exists and the new one doesn't
+    # contain such field.
     def create(path, force = false)
-      FileUtils.rm(path) if force && File.exist?(path)
-      r_pre = load(path)
-      return r_pre unless r_pre.nil?
+      # Deal with old results first
+      r_old = load(path)
+      return r_old if r_old && !force
 
+      # Create the new result using the block passed
+      FileUtils.rm(path) if r_old
       yield
-      load(path)
+
+      # Load and return
+      load(path).tap do |r_new|
+        # Rescue versions and start (if any and if necessary)
+        if r_old
+          %i[versions started].each { |i| r_new[i] ||= r_old[i] }
+          r_new[:versions] = (r_old[:versions] || {}).merge(r_new[:versions])
+        end
+      end
     end
   end
 

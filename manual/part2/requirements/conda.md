@@ -29,15 +29,15 @@ curl -Lso miga.yml \
 conda env create -f miga.yml
 rm miga.yml
 
-# Fix conda-forge Ruby issue (see https://github.com/bio-miga/miga/issues/168)
-mkdir -p "$GEM_HOME/bin"
-ln -s "$CONDA_PREFIX/bin/ruby" "$GEM_HOME/bin/ruby"
-
 # Tell MiGA to activate the proper conda environment
 echo 'eval "$(conda shell.bash hook)" && conda activate miga' > ~/.miga_modules
 
 # Activate the environment
 . ~/.miga_modules
+
+# Fix conda-forge Ruby issue (see https://github.com/bio-miga/miga/issues/168)
+mkdir -p "$GEM_HOME/bin"
+ln -s "$CONDA_PREFIX/bin/ruby" "$GEM_HOME/bin/ruby"
 ```
 
 ## MyTaxa utils

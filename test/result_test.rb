@@ -26,6 +26,30 @@ class ResultTest < Test::Unit::TestCase
     assert_instance_of(MiGA::Result, r)
   end
 
+  def test_overwrite_result
+    r = dataset.add_result(:trimmed_reads)
+    r[:ephemeral] = '@'
+    r[:versions] = { you: 'best' }
+    r.save
+
+    # Before reloading
+    assert_equal('@', r[:ephemeral])
+    assert_equal('best', r[:versions][:you])
+    assert_nil(r[:versions][:MiGA])
+
+    # After reloading (without forcing)
+    r = dataset.add_result(:trimmed_reads, true, force: false)
+    assert_equal('@', r[:ephemeral])
+    assert_equal('best', r[:versions][:you])
+    assert_nil(r[:versions][:MiGA])
+
+    # After reloading (with forcing)
+    r = dataset.add_result(:trimmed_reads, true, force: true)
+    assert_nil(r[:ephemeral])
+    assert_equal('best', r[:versions][:you])
+    assert_not_nil(r[:versions][:MiGA])
+  end
+
   def test_unlink
     r = project.add_result(:clade_finding)
     path = r.path

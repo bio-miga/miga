@@ -23,12 +23,12 @@ class ResultStatsTest < Test::Unit::TestCase
     File.open(fq, 'w') { |fh| fh.puts '@1', 'ACTAC', '+', '####' }
     touch_done(dir)
     r = dataset.add_result(:raw_reads)
-    assert_equal({}, r[:stats])
+    assert_equal({}, r.stats)
     r.compute_stats
-    assert_not_empty(r[:stats])
-    assert_equal(Hash, r[:stats].class)
-    assert_equal(1, r[:stats][:reads])
-    assert_equal([40.0, '%'], r[:stats][:g_c_content])
+    assert_not_empty(r.stats)
+    assert_equal(Hash, r.stats.class)
+    assert_equal(1, r.stats[:reads])
+    assert_equal([40.0, '%'], r.stats[:g_c_content])
   end
 
   def test_coupled_raw_reads
@@ -40,10 +40,10 @@ class ResultStatsTest < Test::Unit::TestCase
     touch_done(dir)
     r = dataset.add_result(:raw_reads)
     r.compute_stats
-    assert_not_empty(r[:stats])
-    assert_nil(r[:stats][:reads])
-    assert_equal(1, r[:stats][:read_pairs])
-    assert_equal([40.0, '%'], r[:stats][:reverse_g_c_content])
+    assert_not_empty(r.stats)
+    assert_nil(r.stats[:reads])
+    assert_equal(1, r.stats[:read_pairs])
+    assert_equal([40.0, '%'], r.stats[:reverse_g_c_content])
   end
 
   def test_trimmed_reads
@@ -51,9 +51,9 @@ class ResultStatsTest < Test::Unit::TestCase
     FileUtils.touch(file_path(dir, '.1.clipped.fastq'))
     touch_done(dir)
     r = dataset.add_result(:trimmed_reads)
-    assert_equal({}, r[:stats])
+    assert_equal({}, r.stats)
     r.compute_stats
-    assert_equal({}, r[:stats])
+    assert_equal({}, r.stats)
   end
 
   def test_read_quality
@@ -62,9 +62,9 @@ class ResultStatsTest < Test::Unit::TestCase
     Dir.mkdir(file_path(dir, '.fastqc'))
     touch_done(dir)
     r = dataset.add_result(:read_quality)
-    assert_equal({}, r[:stats])
+    assert_equal({}, r.stats)
     r.compute_stats
-    assert_equal({}, r[:stats])
+    assert_equal({}, r.stats)
   end
 
   def test_trimmed_fasta
@@ -133,10 +133,10 @@ class ResultStatsTest < Test::Unit::TestCase
     r = dataset.add_result(:taxonomy)
 
     # Test assertions
-    assert_nil(r[:stats][:closest_relative])
+    assert_nil(r.stats[:closest_relative])
     r.compute_stats
-    assert_equal('dad', r[:stats][:closest_relative])
-    assert_equal([100.0, '%'], r[:stats][:aai])
-    assert_equal(0.0, r[:stats][:phylum_pvalue])
+    assert_equal('dad', r.stats[:closest_relative])
+    assert_equal([100.0, '%'], r.stats[:aai])
+    assert_equal(0.0, r.stats[:phylum_pvalue])
   end
 end

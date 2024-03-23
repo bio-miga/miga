@@ -58,7 +58,7 @@ module MiGA::Cli::Action::Doctor::Operations
         unless ok
           cli.say "  > Registering again #{d.name}:#{r_k}   "
           d.add_result(r_k, true, force: true)
-          sr = d.result(:stats) and sr.remove!
+          d.result(:stats)&.remove!
         end
       end
     end

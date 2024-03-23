@@ -70,10 +70,10 @@ module MiGA::Cli::Action::Doctor::Distances
   #---- Auxuliary functions -----
 
   ##
-  # Make a temporal directory holding partial bidirectionality reports (one per thread)
-  # in a custom multi-JSON format. Requires a MiGA::Project +project+ and the iterator of
-  # the reference datasets +ref_ds+. Returns the path to the temporal directory created.
-  # Used by +check_bidir+
+  # Make a temporal directory holding partial bidirectionality reports (one per
+  # thread) in a custom multi-JSON format. Requires a MiGA::Project +project+
+  # and the iterator of the reference datasets +ref_ds+. Returns the path to the
+  # temporal directory created. Used by +check_bidir+
   def partial_bidir_tmp(project, ref_ds)
     n = ref_ds.size
 
@@ -106,9 +106,9 @@ module MiGA::Cli::Action::Doctor::Distances
   end
 
   ##
-  # Read partial temporal reports of bidirectionality (located in +tmp+), and return
-  # a two-deep hash with the final missingness report by metric (first key) and
-  # dataset name (second key). Used by +check_bidir+
+  # Read partial temporal reports of bidirectionality (located in +tmp+), and
+  # return a two-deep hash with the final missingness report by metric (first
+  # key) and dataset name (second key). Used by +check_bidir+
   def merge_bidir_tmp(tmp)
     dist = { aai: {}, ani: {} }
     cli[:threads].times do |i|

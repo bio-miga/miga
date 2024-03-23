@@ -73,7 +73,9 @@ module MiGA::Cli::Action::Doctor::Base
 
   ##
   # Reads all the distance estimates in +a+ -> * for +metric+ and
-  # returns them as a hash +{"b_name" => [val, sd, ...], ...}+
+  # returns them as a hash +{"b_name" => [val, sd, ...], ...}+ for
+  # rows with values other than the metric, or +{"b_name" => val}+ for
+  # rows with the metric only
   def read_bidirectional(a, metric)
     db_file = a.result(:distances)&.file_path("#{metric}_db") or return {}
     sql = "select seq2, #{metric}, sd, n, omega from #{metric}"
