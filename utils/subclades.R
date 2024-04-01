@@ -338,18 +338,25 @@ ggplotColours <- function (n = 6, h = c(0, 360) + 15, alpha = 1) {
 }
 
 ani_distance <- function (ani_file, sel) {
-  # Try to locate rds, otherwise read gzipped table
-  rds <- gsub("\\.txt\\.gz$", ".rds", ani_file)
-  if (file.exists(rds)) {
-    sim <- readRDS(rds)
+  # Try to locate rda, then rds, and otherwise read gzipped table
+  rda <- gsub("\\.txt\\.gz$", ".rda", ani_file)
+  if (file.exists(rda)) {
+    load(rda) # Should already contain `a`, `b`, and `d` as vectors
   } else {
-    sim <- read.table(gzfile(ani_file), sep = "\t", header = TRUE, as.is = TRUE)
-  }
+    rds <- gsub("\\.txt\\.gz$", ".rds", ani_file)
+    if (file.exists(rds)) {
+      sim <- readRDS(rds)
+    } else {
+      sim <- read.table(
+        gzfile(ani_file), sep = "\t", header = TRUE, as.is = TRUE
+      )
+    }
 
-  # Extract individual variables to deal with very large matrices
-  a <- sim$a
-  b <- sim$b
-  d <- 1 - (sim$value / 100)
+    # Extract individual variables to deal with very large matrices
+    a <- sim$a
+    b <- sim$b
+    d <- 1 - (sim$value / 100)
+  }
   
   # If there is no data, end process
   if (length(a) == 0) return(NULL)
@@ -359,7 +366,7 @@ ani_distance <- function (ani_file, sel) {
   if (!is.na(sel) && file.exists(sel)) {
     say("Filter selection")
     ids <- read.table(sel, sep = "\t", head = FALSE, as.is = TRUE)[,1]
-    sel.idx <- which(sim$a %in% ids & sim$b %in% ids)
+    sel.idx <- which(a %in% ids & b %in% ids)
     a <- a[sel.idx]
     b <- b[sel.idx]
     d <- d[sel.idx]

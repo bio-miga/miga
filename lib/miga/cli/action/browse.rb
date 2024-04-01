@@ -179,7 +179,7 @@ class MiGA::Cli::Action::Browse < MiGA::Cli::Action
     str
       .to_s.unmiga_name
       .sub(/^./, &:upcase)
-      .gsub(/(Aai|Ani|Ogs|Cds|Ssu|Rds|ani95|aai90| db$| ssu )/, &:upcase)
+      .gsub(/(Aai|Ani|Ogs|Cds|Ssu|Rds|Rda|ani95|aai90| db$| ssu )/, &:upcase)
       .sub(/Haai/, 'hAAI')
       .sub(/Mytaxa/, 'MyTaxa')
       .sub(/ pvalue$/, ' p-value')

@@ -463,10 +463,11 @@ Consolidation of AAI distances.
 
 Supported file keys:
 
-* `rds` (*req*): Pairwise values in a `data.frame` for `R`
+* `rda` (*req*): Pairwise values for `R` in three vectors
 * `matrix` (*req*): Pairwise values in a raw tab-delimited file
 * `log` (*req*): List of datasets included in the matrix
 * `hist`: Histogram of AAI values as raw tab-delimited file
+* `rds` (*deprecated*): Pairwise values in a `data.frame` for `R`
 
 MiGA symbol: `aai_distances`.
 
@@ -476,10 +477,11 @@ Consolidation of ANI distances.
 
 Supported file keys:
 
-* `rds` (*req*): Pairwise values in a `data.frame` for `R`
+* `rda` (*req*): Pairwise values for `R` in three vectors
 * `matrix` (*req*): Pairwise values in a raw tab-delimited file
 * `log` (*req*): List of datasets included in the matrix
 * `hist`: Histogram of ANI values as raw tab-delimited file
+* `rds` (*deprecated*): Pairwise values in a `data.frame` for `R`
 
 MiGA symbol: `ani_distances`.
 

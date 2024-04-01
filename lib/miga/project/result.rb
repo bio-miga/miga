@@ -55,10 +55,13 @@ module MiGA::Project::Result
   ##
   # Add result of any type +:*_distances+ at +base+ (no +_opts+ supported).
   def add_result_distances(base, _opts)
-    return nil unless result_files_exist?(base, %w[.rds .txt])
+    return nil unless result_files_exist?(base, ['.txt']) &&
+      (result_files_exist?(base, ['.rds']) ||
+       result_files_exist?(base, ['.rda']))
 
     r = MiGA::Result.new("#{base}.json")
     r.add_file(:rds,    'miga-project.rds')
+    r.add_file(:rda,    'miga-project.rda')
     r.add_file(:rdata,  'miga-project.Rdata') # Legacy file
     r.add_file(:matrix, 'miga-project.txt')
     r.add_file(:log,    'miga-project.log') # Legacy file
@@ -84,6 +87,7 @@ module MiGA::Project::Result
 
     r = add_result_iter_clades(base)
     r.add_file(:aai_dist_rds, 'miga-project.dist.rds')
+    r.add_file(:aai_dist_rda, 'miga-project.dist.rda')
     r.add_file(:aai_tree,     'miga-project.aai.nwk')
     r.add_file(:proposal,     'miga-project.proposed-clades')
     r.add_file(:clades_aai90, 'miga-project.aai90-clades')
@@ -108,6 +112,7 @@ module MiGA::Project::Result
     r = add_result_iter_clades(base)
     r.add_file(:ani_tree, 'miga-project.ani.nwk')
     r.add_file(:ani_dist_rds, 'miga-project.dist.rds')
+    r.add_file(:ani_dist_rda, 'miga-project.dist.rda')
     r
   end
 

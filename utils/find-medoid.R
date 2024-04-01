@@ -16,15 +16,14 @@ if(Sys.getenv("MIGA") == ""){
   ))
 }
 
-find_medoids <- function (ani.df, out, clades) {
-  if(nrow(ani.df) == 0) return(NULL)
-  ani.df$d <- 1 - (ani.df$value/100)
-  dist <- enve.df2dist(ani.df, "a", "b", "d", default.d = max(ani.df$d) * 1.2)
+find_medoids <- function (a, b, d, out, clades) {
+  if (length(d) == 0) return(NULL)
+  dist <- enve.df2dist(cbind(a, b, d), "a", "b", "d", default.d = max(d) * 1.2)
   dist <- as.matrix(dist)
   cl <- read.table(clades, header = FALSE, sep = "\t", as.is = TRUE)[,1]
   cl.s <- c()
   medoids <- c()
-  for(i in cl){
+  for (i in cl) {
     lab <- strsplit(i, ",")[[1]]
     if(length(lab) == 1) {
       lab.s <- lab
@@ -44,6 +43,12 @@ find_medoids <- function (ani.df, out, clades) {
 
 #= Main
 cat("Finding Medoids\n")
-ani <- readRDS(argv[1])
-find_medoids(ani.df = ani, out = argv[2], clades = argv[3])
+if (grepl("\\.rds$", argv[1])) {
+  ani <- readRDS(argv[1])
+  find_medoids(ani$a, ani$b, 1 - (ani$value / 100),
+    out = argv[2], clades = argv[3])
+} else {
+  load(argv[1]) # assume .rda
+  find_medoids(a, b, d, out = argv[2], clades = argv[3])
+}
 

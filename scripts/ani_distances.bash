@@ -34,15 +34,16 @@ rm "miga-project.txt.lno"
 # R-ify
 cat <<R | R --vanilla
 file <- gzfile("miga-project.txt.gz")
-ani <- read.table(
-  file, sep = "\t", header = TRUE, as.is = TRUE, quote = "",
-  stringsAsFactors = FALSE, comment.char = "", nrows = $LNO,
-  colClasses = c("character", "character",
-                 "numeric", "numeric", "integer", "integer")
-)
-saveRDS(ani, file = "miga-project.rds")
-if(sum(ani[, "a"] != ani[, "b"]) > 0) {
-  h <- hist(ani[ani[, "a"] != ani[, "b"], "value"], breaks = 100, plot = FALSE)
+text <- readLines(file, n = $LNO + 1, ok = FALSE)
+list <- strsplit(text[-1], "\t", fixed = TRUE)
+a <- sapply(list, function(x) x[1])
+b <- sapply(list, function(x) x[2])
+d <- sapply(list, function(x) 1 - (as.numeric(x[3]) / 100))
+save(a, b, d, file = "miga-project.rda")
+
+non_self <- a != b
+if(sum(non_self) > 0) {
+  h <- hist((1 - d[non_self]) * 100, breaks = 100, plot = FALSE)
   len <- length(h[["breaks"]])
   write.table(
     cbind(h[["breaks"]][-len], h[["breaks"]][-1], h[["counts"]]),
