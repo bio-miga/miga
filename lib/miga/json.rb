@@ -3,7 +3,7 @@
 require 'json'
 begin
   require 'oj'
-  OJ.mimic_JSON()
+  Oj.mimic_JSON()
 rescue LoadError
   # Do nothing if not available
 end
