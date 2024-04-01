@@ -134,6 +134,15 @@ module MiGA::RemoteDataset::Base
       end,
       method: :get
     },
+    ncbi_fetch: {
+      dbs: { nuccore: { stage: :metadata, format: :gb } },
+      uri: lambda do |opts|
+        @@_EUTILS_BUILD[:efetch,
+          db: opts[:db], id: opts[:ids], rettype: opts[:format], retmode: :text
+        ]
+      end,
+      method: :get
+    },
     ncbi_search: {
       dbs: {
         assembly: { stage: :metadata, format: :json },

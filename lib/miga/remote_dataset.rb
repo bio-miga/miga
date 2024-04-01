@@ -300,6 +300,16 @@ class MiGA::RemoteDataset < MiGA::MiGA
       metadata[:web_assembly_gz] ||=
         '%s/%s_genomic.fna.gz' % [url_dir, File.basename(url_dir)]
     end
+
+    # If all conditions are right, try getting the WGS range
+    if @_ncbi_asm_json_doc['wgs'] && !@_ncbi_asm_json_doc['wgs'].empty? &&
+         metadata[:ncbi_nuccore] && !metadata[:ncbi_wgs]
+      doc = self.class.download(:ncbi_fetch, :nuccore, metadata[:ncbi_nuccore], :gb).split(/\n/)
+      ln  = doc.grep(/^WGS\s+\S+-\S+/).first
+      wgs = ln&.gsub(/^WGS\s+(\S+-\S+).*/, '\1')
+      metadata[:ncbi_wgs] = wgs if wgs
+    end
+
     @_ncbi_asm_json_doc
   end
 

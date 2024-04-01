@@ -107,9 +107,12 @@ class MiGA::RemoteDataset
 
       MiGA::MiGA.DEBUG 'Empty sequence, attempting download as WGS records'
       a, b = opts[:obj].metadata[:ncbi_wgs].split('-', 2)
-      pref = longest_common_prefix([a, b])
-      rang = a[pref.size .. -1].to_i .. b[pref.size .. -1].to_i
-      ids  = rang.map { |k| "%s%0#{a.size - pref.size}i" % [pref, k] }
+      ids  = [a]
+      unless b.nil?
+        pref = longest_common_prefix([a, b])
+        rang = a[pref.size .. -1].to_i .. b[pref.size .. -1].to_i
+        ids  = rang.map { |k| "%s%0#{a.size - pref.size}i" % [pref, k] }
+      end
       download_rest(opts.merge(universe: :ncbi, db: :nuccore, ids: ids))
     end
 
