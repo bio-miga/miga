@@ -37,7 +37,7 @@ class MiGA::Cli::Action::Find < MiGA::Cli::Action
       if cli[:add]
         cli.say "Registering: #{dn}"
         d = Dataset.new(p, dn, cli[:ref])
-        add_metadata(d)
+        cli.add_metadata(d)
         p.add_dataset(dn)
         res = d.first_preprocessing(true)
         cli.say "- #{res}"
