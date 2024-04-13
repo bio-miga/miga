@@ -84,7 +84,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
     cmd << MiGA.script_path(cli[:result], miga: miga, project: p).shellescape
     if cli[:remote]
       cmd = [
-        'ssh', '-t', '-t', '-o', 'StrictHostKeyChecking off',
+        'ssh', '-t', '-t', '-o', 'StrictHostKeyChecking off'.shellescape,
         cli[:remote].shellescape,
         cmd.join(' ').shellescape
       ]
