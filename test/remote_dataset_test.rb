@@ -22,7 +22,10 @@ class RemoteDatasetTest < Test::Unit::TestCase
 
   def test_get
     hiv2 = 'M30502.1'
-    { embl: :ebi, nuccore: :ncbi }.each do |db, universe|
+    # TODO
+    # EMBL Temporarily down, enable back whenever possible!
+    #{ embl: :ebi, nuccore: :ncbi }.each do |db, universe|
+    { nuccore: :ncbi }.each do |db, universe|
       rd = MiGA::RemoteDataset.new(hiv2, db, universe)
       assert_equal([hiv2], rd.ids)
 
