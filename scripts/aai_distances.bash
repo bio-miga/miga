@@ -31,15 +31,11 @@ function aai_tsv {
   fi
 }
 
-if [[ ! -s "miga-project.txt.gz" ]] ; then
-  rm -f "miga-project.txt"
-  aai_tsv | tee >(wc -l | awk '{print $1-1}' > "miga-project.txt.lno") \
-    | gzip -9c > "miga-project.txt.gz"
-  LNO=$(cat "miga-project.txt.lno")
-  rm "miga-project.txt.lno"
-else
-  LNO=$(gzip -cd "miga-project.txt.gz" | wc -l | awk '{print $1-1}')
-fi
+rm -f "miga-project.txt"
+aai_tsv | tee >(wc -l | awk '{print $1-1}' > "miga-project.txt.lno") \
+  | gzip -9c > "miga-project.txt.gz"
+LNO=$(cat "miga-project.txt.lno")
+rm "miga-project.txt.lno"
 
 # R-ify
 cat <<R | R --vanilla
