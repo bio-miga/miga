@@ -31,20 +31,31 @@ function aai_tsv {
   fi
 }
 
-rm -f "miga-project.txt"
-aai_tsv | tee >(wc -l | awk '{print $1-1}' > "miga-project.txt.lno") \
-  | gzip -9c > "miga-project.txt.gz"
-LNO=$(cat "miga-project.txt.lno")
-rm "miga-project.txt.lno"
+if [[ ! -s "miga-project.txt.gz" ]] ; then
+  rm -f "miga-project.txt"
+  aai_tsv | tee >(wc -l | awk '{print $1-1}' > "miga-project.txt.lno") \
+    | gzip -9c > "miga-project.txt.gz"
+  LNO=$(cat "miga-project.txt.lno")
+  rm "miga-project.txt.lno"
+else
+  LNO=$(gzip -cd "miga-project.txt.gz" | wc -l | awk '{print $1-1}')
+fi
 
 # R-ify
 cat <<R | R --vanilla
 file <- gzfile("miga-project.txt.gz")
-text <- readLines(file, n = $LNO + 1, ok = FALSE)
-list <- strsplit(text[-1], "\t", fixed = TRUE)
-a <- sapply(list, function(x) x[1])
-b <- sapply(list, function(x) x[2])
-d <- sapply(list, function(x) 1 - (as.numeric(x[3]) / 100))
+text <- readLines(file, n = $LNO + 1, ok = FALSE)[-1]
+a <- vector("character", $LNO)
+b <- vector("character", $LNO)
+d <- vector("numeric", $LNO)
+chunk.n <- 1024 * 1024
+for (chunk in seq_len(ceiling(length(text) / chunk.n))) {
+  sel <- (chunk * chunk.n - chunk.n + 1):min(chunk * chunk.n, length(text))
+  list <- strsplit(text[sel], "\t", fixed = TRUE)
+  a[sel] <- sapply(list, function(x) x[1])
+  b[sel] <- sapply(list, function(x) x[2])
+  d[sel] <- sapply(list, function(x) 1 - (as.numeric(x[3]) / 100))
+}
 save(a, b, d, file = "miga-project.rda")
 
 non_self <- a != b
