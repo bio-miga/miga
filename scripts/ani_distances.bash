@@ -34,7 +34,7 @@ rm "miga-project.txt.lno"
 # R-ify
 cat <<R | R --vanilla
 file <- gzfile("miga-project.txt.gz")
-text <- readLines(file, n = $LNO + 1, ok = FALSE)
+text <- readLines(file, n = $LNO + 1, ok = FALSE)[-1]
 a <- vector("character", $LNO)
 b <- vector("character", $LNO)
 d <- vector("numeric", $LNO)
