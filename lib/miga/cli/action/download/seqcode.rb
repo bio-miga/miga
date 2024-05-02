@@ -32,8 +32,8 @@ module MiGA::Cli::Action::Download::Seqcode
         :seqcode, :'type-genomes', nil, :json, nil, page: current_page
       )
       doc = MiGA::Json.parse(json, contents: true)
-      current_page = doc[:current_page] + 1
-      total_pages  = doc[:total_pages]
+      current_page = doc.dig(:response, :current_page) + 1
+      total_pages  = doc.dig(:response, :total_pages)
 
       doc[:values].each do |name|
         next unless name[:type_material]
