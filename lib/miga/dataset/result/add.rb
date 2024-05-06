@@ -261,10 +261,12 @@ module MiGA::Dataset::Result::Add
   def add_result_distances_nonref(base)
     return nil unless
       result_files_exist?(base, %w[.aai-medoids.tsv .aai.db]) ||
-      result_files_exist?(base, %w[.ani-medoids.tsv .ani.db])
+      result_files_exist?(base, %w[.ani-medoids.tsv .ani.db]) ||
+      result_files_exist?(base, %w[.empty])
 
     add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
+      empty: '.empty',
       aai_medoids: '.aai-medoids.tsv',
       haai_db: '.haai.db',
       aai_db: '.aai.db',

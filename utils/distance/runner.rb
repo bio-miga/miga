@@ -35,7 +35,7 @@ class MiGA::DistanceRunner
 
   # Launch the appropriate analysis
   def go!
-    $stderr.puts "Launching analysis"
+    $stderr.puts 'Launching analysis'
     return if dataset.multi?
 
     Dir.mktmpdir do |tmp_dir|
@@ -68,6 +68,14 @@ class MiGA::DistanceRunner
   # Launch analysis for query datasets
   def go_query!
     $stderr.puts 'Launching analysis for query dataset'
+
+    # Check if the project is empty
+    if ref_project.dataset_ref_active.empty?
+      out_base = File.expand_path(dataset.name, home)
+      File.open("#{out_base}.empty", 'w') { |fh| fh.puts 'Empty ref_project' }
+      return
+    end
+
     # Check if project is ready
     tsk = ref_project.clade? ? [:subclades, :ani] : [:clade_finding, :aai]
     res = ref_project.result(tsk[0])

@@ -29,44 +29,46 @@ blast=no
 blat=no
 diamond=no
 fastani=no
-case $(miga option -P "$PROJECT" -k haai_p) in
-  fastaai)
-    fastaai=yes
-    ;;
-  diamond)
-    diamond=yes
-    aai=yes
-    ;;
-  blast)
-    blast=yes
-    aai=yes
-    ;;
-esac
+if [[ ! -s "${DATASET}.empty" ]] ; then
+  case $(miga option -P "$PROJECT" -k haai_p) in
+    fastaai)
+      fastaai=yes
+      ;;
+    diamond)
+      diamond=yes
+      aai=yes
+      ;;
+    blast)
+      blast=yes
+      aai=yes
+      ;;
+  esac
 
-case $(miga option -P "$PROJECT" -k aai_p) in
-  diamond)
-    diamond=yes
-    aai=yes
-    ;;
-  blast)
-    blast=yes
-    aai=yes
-    ;;
-esac
+  case $(miga option -P "$PROJECT" -k aai_p) in
+    diamond)
+      diamond=yes
+      aai=yes
+      ;;
+    blast)
+      blast=yes
+      aai=yes
+      ;;
+  esac
 
-case $(miga option -P "$PROJECT" -k ani_p) in
-  blast)
-    blast=yes
-    ani=yes
-    ;;
-  blat)
-    blat=yes
-    ani=yes
-    ;;
-  fastani)
-    fastani=yes
-    ;;
-esac
+  case $(miga option -P "$PROJECT" -k ani_p) in
+    blast)
+      blast=yes
+      ani=yes
+      ;;
+    blat)
+      blat=yes
+      ani=yes
+      ;;
+    fastani)
+      fastani=yes
+      ;;
+  esac
+fi
 
 
 miga date > "${DATASET}.done"
