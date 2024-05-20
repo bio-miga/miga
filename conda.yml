@@ -3,6 +3,8 @@ name: miga
 dependencies:
   # General-purpose
   - r-base
+  - r-vegan
+  - r-ape
   - conda-forge::ruby
   - sqlite
   - openjdk
@@ -19,8 +21,10 @@ dependencies:
 
   # Assembly processing
   - hmmer
+  - pyhmmer
   - bedtools
   - prodigal
+  - pyrodigal
   - barrnap
   - trnascan-se
   - krona
@@ -35,3 +39,4 @@ channels:
   - conda-forge
   - bioconda
   - anaconda
+  - r
