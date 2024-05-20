@@ -8,6 +8,7 @@ dependencies:
   - openjdk
   - pip
   - numpy
+  - pigz
 
   # Read processing
   - faqcs
