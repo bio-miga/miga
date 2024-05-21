@@ -31,7 +31,7 @@ FastQ.tag.rb -i "$in1" -p "$b-" -s "/1" -o "$b.1.fastq.gz"
 
 # Multitrim
 CMD="multitrim.py --level 9 --threads $CORES -o $b"
-which -s pigz && CMD="$CMD --zip pigz"
+command -v pigz &>/dev/null && CMD="$CMD --zip pigz"
 if [[ -s "$b.2.fastq.gz" ]] ; then
   # Paired
   $CMD -1 "$b.1.fastq.gz" -2 "$b.2.fastq.gz"

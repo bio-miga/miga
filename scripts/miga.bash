@@ -16,7 +16,7 @@ function exists { [[ -e "$1" ]] ; }
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 
 # Override gzip with pigz (if available)
-if which -s pigz ; then
+if command -v pigz &>/dev/null ; then
   function gzip { pigz -p ${CORES:-2} "$@" ; }
 fi
 
