@@ -59,7 +59,7 @@ if [[ -s $fa ]] ; then
 
   # Gzip
   for x in gff ssu.all.fa rdp.tsv trna.txt ; do
-    [[ -e "${DATASET}.${x}" ]] && gzip -9 -f "${DATASET}.${x}"
+    [[ -e "${DATASET}.${x}" ]] && gzip -9f "${DATASET}.${x}"
   done
 fi
 

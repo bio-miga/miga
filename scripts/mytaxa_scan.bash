@@ -72,7 +72,7 @@ else
         awk "NR==$win" "$DATASET.wintax.genes" | tr "\\t" "\\n" \
           > "$DATASET.reg/$i.ids"
         if [[ "$FAA" == *.gz ]] ; then
-          gzip -c -d "$FAA" \
+          gzip -cd "$FAA" \
             | FastA.filter.pl -q "$DATASET.reg/$i.ids" /dev/stdin \
             > "$DATASET.reg/$i.faa"
         else
@@ -81,8 +81,7 @@ else
         fi
       done
       # Archive regions
-      tar -cf "$DATASET.reg.tar" "$DATASET.reg"
-      gzip -9 "$DATASET.reg.tar"
+      tar -c "$DATASET.reg" | gzip -9c > "$DATASET.reg.tar.gz"
       rm -r "$DATASET.reg"
     fi
 
@@ -91,7 +90,7 @@ else
       [[ -e "$DATASET.$x" ]] && rm "$DATASET.$x"
     done
     [[ -s "$DATASET.mytaxa" && ! -s "$DATASET.mytaxa.gz" ]] \
-      && gzip -9 -f "$DATASET.mytaxa"
+      && gzip -9f "$DATASET.mytaxa"
   fi
 
 fi

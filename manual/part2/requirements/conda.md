@@ -9,7 +9,7 @@ If you don't have Conda, you can follow the
 
 If you prefer to see code in action, the full installation process
 with conda is available as a
-[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/c973df8d63c1b0d2c6ebddc39f3d92fd/miga_1-2_conda_installation.ipynb).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/c973df8d63c1b0d2c6ebddc39f3d92fd).
 
 ## Note for macOS users
 

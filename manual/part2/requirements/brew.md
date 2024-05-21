@@ -2,7 +2,7 @@
 
 If you prefer to see code in action, the full installation process
 with homebrew is available as a
-[Notebook in Google Colab](https://colab.research.google.com/drive/1d4bRsudagAeYqzgmWRicv18c8Y17XEFM).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/5b77ae113e92f2efee5060902eb78a16).
 
 # Installing requirements using Homebrew
 
@@ -36,9 +36,16 @@ Now that you have Homebrew, execute:
 brew tap brewsci/bio
 # In Linux, replace 'temurin' with 'openjdk'
 brew install \
-    r sqlite3 python temurin \
+    r sqlite3 python numpy pigz temurin \
     blast hmmer bedtools prodigal gmp idba mcl krona \
     barrnap diamond fastani faqcs falco seqtk fastp trnascan
+```
+
+Additionally, recent changes in `pip` might break some installations, and
+as such we recommend pre-installing python packages in a brew environment:
+
+```bash
+pip install --break-system-packages pyhmmer pyrodigal
 ```
 
 We also recommend installing the `sqlite3` gem beforehand using the brew

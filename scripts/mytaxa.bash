@@ -86,12 +86,10 @@ else
     ktImportText -o "$DATASET.html" -n biota "$DATASET.mytaxa.krona,$DATASET"
 
     # Gzip and cleanup
-    [[ -e "../../../06.cds/$DATASET.gff2" ]] \
-      && gzip -9 -f "../../../06.cds/$DATASET.gff2"
-    [[ -e "../../../06.cds/$DATASET.gff3" ]] \
-      && gzip -9 -f "../../../06.cds/$DATASET.gff3"
-    gzip -9 -f "$DATASET.mytaxain"
-    gzip -9 -f "$DATASET.blast"
+    for i in "../../../06.cds/$DATASET.gff2" "../../../06.cds/$DATASET.gff3" \
+             "$DATASET.mytaxain" "$DATASET.blast" ; do
+      [[ -e $i ]] && gzip -9f $i
+    done
     rm "$DATASET.daa"
   fi
 

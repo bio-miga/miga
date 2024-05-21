@@ -15,6 +15,11 @@ function exists { [[ -e "$1" ]] ; }
 # Evaluates if the first passed argument is a function
 function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
 
+# Override gzip with pigz (if available)
+if which -s pigz ; then
+  function gzip { pigz -p ${CORES:-2} "$@" ; }
+fi
+
 # Initiate a project-wide run
 function miga_start_project_step {
   local dir="$1"

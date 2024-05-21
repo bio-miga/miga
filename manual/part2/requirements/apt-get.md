@@ -4,7 +4,7 @@
 
 If you prefer to see code in action, the full installation process
 with apt-get is available as a
-[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/78f2f48eadce96bc2dd526fd194fb00a/miga_1-2_apt_installation.ipynb).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/78f2f48eadce96bc2dd526fd194fb00a).
 
 ## Packages
 
@@ -13,7 +13,7 @@ Run:
 ```bash
 sudo apt-get update
 sudo apt-get install \
-  ruby ruby-sqlite3 r-base sqlite3 python3-pip \
+  ruby ruby-sqlite3 r-base sqlite3 python3-pip pigz \
   libcurl4-openssl-dev zlib1g zlib1g-dev \
   ncbi-blast+ hmmer bedtools idba prodigal mcl barrnap \
   diamond-aligner trnascan-se fastp fastani seqtk

@@ -64,7 +64,7 @@ fi
 
 # Gzip
 for ext in gff3 faa fna ; do
-  [[ -e "$DATASET.$ext" ]] && gzip -9 -f "$DATASET.$ext"
+  [[ -e "$DATASET.$ext" ]] && gzip -9f "$DATASET.$ext"
 done
 
 # Finalize
