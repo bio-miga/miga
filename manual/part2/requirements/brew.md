@@ -2,7 +2,7 @@
 
 If you prefer to see code in action, the full installation process
 with homebrew is available as a
-[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/5b77ae113e92f2efee5060902eb78a16).
+[Notebook in Google Colab](https://colab.research.google.com/gist/lmrodriguezr/4af3b345067e862dc7903e4c78ad40ac).
 
 # Installing requirements using Homebrew
 
@@ -24,8 +24,8 @@ version using:
 
 ```bash
 brew install libyaml rbenv
-rbenv install 3.0.1
-rbenv global 3.0.1
+rbenv install 3.3.0
+rbenv global 3.3.0
 ```
 
 ## Packages
