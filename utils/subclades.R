@@ -147,7 +147,7 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
 
   # Classify genomes
   say("Classify => k :", top.n, "| n :", length(labels(ani.d)))
-  is.large <- nn > 3e4
+  is.large <- nn > 1e4
   ani.cl <- pam(ani.d, top.n, variant = "faster", do.swap = !is.large)
   ani.types <- ani.cl$clustering
   ani.medoids <- ani.cl$medoids
