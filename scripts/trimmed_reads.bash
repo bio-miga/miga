@@ -75,6 +75,6 @@ $(seqtk 2>&1 | grep Version | perl -pe 's/.*: //')
 => Fastp
 $(fastp --version 2>&1 | perl -pe 's/^fastp //')
 => Falco
-$(falco -V 2>&1 | tee)
+$(falco -v 2>&1 | tee)
 VERSIONS
 
