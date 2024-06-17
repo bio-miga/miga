@@ -74,15 +74,22 @@ class MiGA::MiGA
     # Estimate timing
     adv_n = n - @_advance_time[:n]
     if total.nil? || @_advance_time[:last].nil? || adv_n.negative?
+      # Initial report
       @_advance_time[:last] = Time.now
       @_advance_time[:n] = n
     elsif adv_n > 0.001 * total
+      # Advance report (if change > 0.1% change and time > 1 second)
       this_time = (Time.now - @_advance_time[:last]).to_f
+      return if this_time < 1.0 && n < total
+
       this_avg = this_time / adv_n
       @_advance_time[:avg] ||= this_avg
       @_advance_time[:avg] = 0.9 * @_advance_time[:avg] + 0.1 * this_avg
       @_advance_time[:last] = Time.now
       @_advance_time[:n] = n
+    else
+      # Final report (if the last update was too small)
+      return if n < total
     end
 
     # Report

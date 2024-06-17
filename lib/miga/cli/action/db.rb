@@ -139,7 +139,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
       MiGA::MiGA.download_file_ftp(ftp, path, file) do |n, size|
         cli.advance("#{path}:", n, size) if cli[:pb]
       end
-      cli.print "\n" if cli[:pb]
+      cli.say '' if cli[:pb]
     end
     file
   end
@@ -225,11 +225,16 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     cli.say 'Checking MD5 digest'
     cli.say "Expected: #{ver[:MD5]}"
     md5 = Digest::MD5.new
+    size = File.size(file)
+    n = 0
     File.open(file, 'rb') do |fh|
       until fh.eof?
-        md5.update fh.read(1024)
+        md5 << fh.read(1024)
+        n += 1024
+        cli.advance('Processed:', [n, size].min, size) if cli[:pb]
       end
     end
+    cli.say '' if cli[:pb]
     dig = md5.hexdigest
     cli.say "Observed: #{dig}"
     raise 'Corrupt file, MD5 does not match' unless dig == ver[:MD5]
