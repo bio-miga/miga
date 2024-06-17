@@ -64,11 +64,12 @@ class MiGA::MiGA
   # The report goes to $stderr iff --verbose
   def advance(step, n = 0, total = nil, bin = true)
     # Initialize advance timing
-    @_advance_time ||= { last: nil, n: 0, avg: nil }
-    if @_advance_time[:n] > n
+    @_advance_time ||= { last: nil, n: 0, avg: nil, total: total }
+    if @_advance_time[:n] > n || total != @_advance_time[:total]
       @_advance_time[:last] = nil
       @_advance_time[:n] = 0
       @_advance_time[:avg]  = nil
+      @_advance_time[:total] = total
     end
 
     # Estimate timing
