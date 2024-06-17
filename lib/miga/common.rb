@@ -88,7 +88,7 @@ class MiGA::MiGA
       @_advance_time[:last] = Time.now
       @_advance_time[:n] = n
     else
-      # Final report (if the last update was too small)
+      # Final report (if the last update was too small) or ignore update
       return if n < total
     end
 
