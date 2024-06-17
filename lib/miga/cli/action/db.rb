@@ -257,7 +257,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
       tmp = File.join(tmp_archive, "#{db_name}.old")
       File.rename(target, tmp)
       File.rename(source, target)
-      File.rm_rf(tmp)
+      FileUtils.rm_rf(tmp)
     else
       File.rename(source, target)
     end

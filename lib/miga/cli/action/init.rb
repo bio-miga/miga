@@ -45,7 +45,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       opt.on(
         '--[no-]optional',
         'Should I try setting up the optional software?',
-        'Automatically sets answers for mytaxa, rdp, and reads'
+        'Automatically sets answers for mytaxa, rdp, and read-processing'
       ) { |v| cli[:optional] = v }
       opt.on(
         '--daemon-type STRING',
