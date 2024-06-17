@@ -10,8 +10,8 @@ class MiGA::Cli::Action::Env < MiGA::Cli::Action
 
   def perform
     puts <<~BASH
-      MIGA="#{MiGA::MiGA.root_path}"
-      MIGA_HOME=${MIGA_HOME:-"$HOME"}
+      export MIGA="#{MiGA::MiGA.root_path}"
+      export MIGA_HOME=${MIGA_HOME:-"$HOME"}
       . "$MIGA_HOME/.miga_rc"
       # Ensure MiGA & submodules are first in PATH
       export PATH="$MIGA/bin:$PATH"

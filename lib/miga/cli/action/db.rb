@@ -80,7 +80,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     cli.puts "# Host: #{manif[:host]}"
     cli.puts "# Manifest last update: #{manif[:last_update]}"
     list_databases(manif) and return
-    db = db_requested(manif)
+    db_sym, db = db_requested(manif)
     list_versions(db) and return
     ver = version_requested(db)
     check_target and return
@@ -88,7 +88,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     # Download and expand
     file = download_file(@ftp, ver[:path], cli[:reuse_archive])
     check_digest(ver, file)
-    unarchive(file)
+    unarchive(file, db_sym.to_s)
     register_database(manif, db, ver)
   end
 
@@ -168,7 +168,7 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     db = manif[:databases][cli[:database]]
     raise 'Cannot find database in this host' if db.nil?
 
-    db
+    [cli[:database], db]
   end
 
   def version_requested(db)
@@ -240,13 +240,28 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
       cli.num_suffix(ver[:size_unarchived], true) + ')'
   end
 
-  def unarchive(file)
+  def unarchive(file, db_name)
     cli.say "Unarchiving #{file}"
+    tmp_archive = File.join(cli[:local], '.TMP_ARCHIVE')
+    FileUtils.mkdir_p(tmp_archive)
     MiGA::MiGA.run_cmd <<~CMD
-      cd #{cli[:local].shellescape} \
+      cd #{tmp_archive.shellescape} \
         && tar -zxf #{file.shellescape} \
         && rm #{file.shellescape}
     CMD
+
+    target = File.join(cli[:local], db_name)
+    source = File.join(tmp_archive, db_name)
+    if Dir.exist?(target)
+      cli.say 'Replacing previous version'
+      tmp = File.join(tmp_archive, "#{db_name}.old")
+      File.rename(target, tmp)
+      File.rename(source, target)
+      File.rm_rf(tmp)
+    else
+      File.rename(source, target)
+    end
+    Dir.unlink(tmp_archive) if Dir.empty?(tmp_archive)
   end
 
   def register_database(manif, db, ver)
