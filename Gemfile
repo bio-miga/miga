@@ -6,4 +6,4 @@ group :test do
   gem 'codeclimate-test-reporter', '~> 1.0'
 end
 
-gem 'rake', '~> 12.0'
+gem 'rake', '~> 13.0'

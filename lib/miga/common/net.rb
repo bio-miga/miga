@@ -49,6 +49,7 @@ module MiGA::Common::Net
     when 'ftp'
       ftp = Net::FTP.new(uri.host)
       ftp.passive = true
+      ftp.resume  = true
       ftp.login
       ftp.chdir(uri.path) unless host.is_a?(URI)
       ftp
@@ -87,7 +88,8 @@ module MiGA::Common::Net
     # Prepare download
     FileUtils.mkdir_p(File.dirname(target)) if target
     filesize = connection.size(file)
-    transferred = 0
+    transferred =
+      target && connection.resume && File.exist?(target) ? File.size(target) : 0
 
     # Get in chunks of 1KiB
     ret = ''

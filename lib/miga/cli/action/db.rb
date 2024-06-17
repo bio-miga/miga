@@ -237,7 +237,9 @@ class MiGA::Cli::Action::Db < MiGA::Cli::Action
     cli.say '' if cli[:pb]
     dig = md5.hexdigest
     cli.say "Observed: #{dig}"
-    raise 'Corrupt file, MD5 does not match' unless dig == ver[:MD5]
+    unless dig == ver[:MD5]
+      raise "Corrupt file, MD5 differs. Remove #{file} before trying again"
+    end
   end
 
   def version_size(ver)
