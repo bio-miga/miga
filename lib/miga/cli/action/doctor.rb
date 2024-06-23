@@ -49,6 +49,7 @@ class MiGA::Cli::Action::Doctor < MiGA::Cli::Action
     # TODO Implement this check:
     # refdb:  ['ref-db', 'Check index format of reference databases'],
     status: ['status', 'Update metadata status of all datasets'],
+    mdfiles:['md-files', 'Remove unregistered files in metadata'],
     db:     ['databases', 'Check integrity of database files'],
     dist:   ['distances', 'Check distance summary tables'],
     bidir:  ['bidirectional', 'Check distances are bidirectional'],

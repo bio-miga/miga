@@ -66,6 +66,24 @@ module MiGA::Cli::Action::Doctor::Operations
   end
 
   ##
+  # Perform md-files operation with MiGA::Cli +cli+
+  def check_mdfiles(cli)
+    cli.say 'Looking for unregistered files in the metadata folder'
+    md = File.join(cli.load_project.path, 'metadata')
+    Dir.each_child(md) do |file|
+      expected_ds = File.basename(file, '.json')
+      next if cli.load_project.dataset_names.include?(expected_ds)
+      file_path = File.join(md, file)
+      if Dir.exist?(file_path)
+        cli.say "  > Ignoring directory: #{file}"
+      else
+        cli.say "  > Removing: #{file}"
+        File.unlink(File.join(md, file))
+      end
+    end
+  end
+
+  ##
   # Perform cds operation with MiGA::Cli +cli+
   def check_cds(cli)
     cli.say 'Looking for unzipped genes or proteins'
