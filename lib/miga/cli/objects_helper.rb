@@ -24,7 +24,7 @@ module MiGA::Cli::ObjectsHelper
       name = self[:dataset]
     end
     d = load_project.dataset(name)
-    raise "Cannot load dataset: #{self[:dataset]}" if !silent && d.nil?
+    raise "Cannot load dataset: #{name}" if !silent && d.nil?
 
     return d
   end
