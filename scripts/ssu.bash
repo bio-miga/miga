@@ -46,16 +46,17 @@ if [[ -s $fa ]] ; then
       >> "${DATASET}.rdp.tsv"
   fi
 
-  # tRNAscan-SE
-  dom_opt="-$(echo "$d" | perl -pe 's/(\S).*/$1/')"
-  out="${DATASET}.trna.txt"
-  # `echo O` is to avoid a hang from a pre-existing output file.
-  # This is better than pre-checking (and removing), because it avoids
-  # the (unlikely) scenario of a file racing (e.g., a file created right
-  # before tRNAscan-SE starts, or a `rm` failure).
-  #
-  # The trailing `|| true` is to treat failure as non-fatal
-  echo O | tRNAscan-SE $dom_opt -o "${DATASET}.trna.txt" -q "$fa" || true
+  # tRNAscan-SE (only if non-multi)
+  if miga ls -P "$PROJECT" -D "$DATASET" --no-multi --silent ; then
+    dom_opt="-$(echo "$d" | perl -pe 's/(\S).*/$1/')"
+    # `echo O` is to avoid a hang from a pre-existing output file.
+    # This is better than pre-checking (and removing), because it avoids
+    # the (unlikely) scenario of a file racing (e.g., a file created right
+    # before tRNAscan-SE starts, or a `rm` failure).
+    #
+    # The trailing `|| true` is to treat failure as non-fatal
+    echo O | tRNAscan-SE $dom_opt -o "${DATASET}.trna.txt" -q "$fa" || true
+  fi
 
   # Gzip
   for x in gff ssu.all.fa rdp.tsv trna.txt ; do

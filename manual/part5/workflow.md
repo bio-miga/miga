@@ -403,7 +403,8 @@ Supported file keys:
 * `gff` (*gz*): GFF v3 file containing the location of detected SSU genes
 * `all_ssu_genes` (*gz*): FastA file containing all the detected SSU genes
 * `classification`: Taxonomic classification with RDP taxonomy
-* `trna_list` (*gz*): Raw-text table with tRNA predictions
+* `trna_list` (*gz*): Raw-text table with tRNA predictions, generated for all
+  genome types (non-multi)
 
 Deprecated file keys (for backwards-compatibility):
 
