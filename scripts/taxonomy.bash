@@ -16,6 +16,7 @@ ruby -I "$MIGA/lib" \
       "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET" run_taxonomy=1
 
 # Finalize
+refproject=no
 fastaai=no
 aai=no
 ani=no
@@ -24,7 +25,9 @@ blat=no
 diamond=no
 fastani=no
 REF_PROJECT=$(miga option -P "$PROJECT" -k ref_project)
-if [[ -S "$REF_PROJECT" ]] ; then
+if [[ -d "$REF_PROJECT" ]] ; then
+  refproject=yes
+
   case $(miga option -P "$REF_PROJECT" -k haai_p) in
     fastaai)
       fastaai=yes
@@ -71,9 +74,17 @@ cat <<VERSIONS \
 => MiGA
 $(miga --version)
 $(
+  if [[ "$refproject" == "yes" ]] ; then
+    echo "=> Reference Project"
+    miga about -P "$REF_PROJECT" -m name
+    echo "=> Reference Project Release"
+    miga about -P "$REF_PROJECT" -m release
+  fi
+)
+$(
   if [[ "$fastaai" == "yes" ]] ; then
     echo "=> FastAAI"
-    fastaai version 2>&1 | perl -pe 's/.*=//'
+    fastaai version 2>&1 | tail -n 1 | perl -pe 's/.*=//'
   fi
 )
 $(

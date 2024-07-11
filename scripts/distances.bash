@@ -79,7 +79,7 @@ $(miga --version)
 $(
   if [[ "$fastaai" == "yes" ]] ; then
     echo "=> FastAAI"
-    fastaai version 2>&1 | perl -pe 's/.*=//'
+    fastaai version 2>&1 | tail -n 1 | perl -pe 's/.*=//'
   fi
 )
 $(
