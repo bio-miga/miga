@@ -9,7 +9,7 @@ module MiGA::Cli::OptHelper
     usage = "Usage: miga #{action.name}"
     usage += ' {operation}' if expect_operation
     usage += ' [options]'
-    usage += ' {FILES...}' if expect_files
+    usage += " {#{files_label || 'FILES'}...}" if expect_files
     opt.banner = "\n#{task_description}\n\n#{usage}\n"
     opt.separator ''
   end

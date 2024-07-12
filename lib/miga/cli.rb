@@ -35,6 +35,10 @@ class MiGA::Cli < MiGA::MiGA
   attr_accessor :expect_files
 
   ##
+  # Label used in the usage instead of FILES if +#expect_files = true+
+  attr_accessor :files_label
+
+  ##
   # Files passed after all other options, if +#expect_files = true+
   attr_accessor :files
 
@@ -145,7 +149,7 @@ class MiGA::Cli < MiGA::MiGA
   ##
   # Set default values in the Hash +hsh+
   def defaults=(hsh)
-    hsh.each { |k, v| @defaults[k] = v }
+    hsh.each { |k, v| @defaults[k.to_sym] = v }
   end
 
   ##
@@ -159,6 +163,12 @@ class MiGA::Cli < MiGA::MiGA
   # Set parsed data
   def []=(k, v)
     @data[k.to_sym] = v
+  end
+
+  ##
+  # Return parsed and default values as a hash
+  def to_h
+    @defaults.merge(@data)
   end
 
   ##

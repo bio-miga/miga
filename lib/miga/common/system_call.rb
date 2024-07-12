@@ -18,7 +18,9 @@ module MiGA::Common::SystemCall
     out_io, spawn_opts[:out] = IO.pipe if opts[:return] == :output
     spawn_opts[:err] = [:child, :out] if opts[:err2out] && spawn_opts[:out]
     opts[:source] = MiGA::MiGA.rc_path if opts[:source] == :miga
-    if opts[:source] && File.exist?(opts[:source])
+    if opts[:source] == :miga_env
+      cmd = "eval \"$(#{File.join(root_path, 'bin', 'miga').shellescape} env)\" && #{cmd}"
+    elsif opts[:source] && File.exist?(opts[:source])
       cmd = ". #{opts[:source].shellescape} && #{cmd}"
     end
 
@@ -76,7 +78,8 @@ module MiGA::Common::SystemCall
   # - err2out: Redirect STDERR to STDOUT
   # - env: Environmental variables as a Hash, keys and values must be strings
   # - source: A file to be sourced before running, or the Symbol +:miga+ to
-  #   source the MiGA configuration file
+  #   source the MiGA configuration file, or the Symbol +:miga_env+ to run
+  #   `eval $(miga env)` beforehand instead
   def run_cmd_opts(opts = {})
     {
       stdout: nil,
