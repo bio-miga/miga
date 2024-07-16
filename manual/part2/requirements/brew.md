@@ -38,7 +38,7 @@ brew tap brewsci/bio
 brew install \
     r sqlite3 python numpy pigz temurin \
     blast hmmer bedtools prodigal gmp idba mcl krona \
-    barrnap diamond fastani faqcs falco seqtk fastp trnascan
+    barrnap diamond fastani faqcs brewsci/bio/falco seqtk fastp trnascan
 ```
 
 Additionally, recent changes in `pip` might break some installations, and
