@@ -23,8 +23,9 @@ module MiGA::Common::Format
   end
 
   ##
-  # Cleans a FastA file in place.
-  def clean_fasta_file(file)
+  # Cleans a FastA file in place, removing all sequences shorter than
+  # +min_len+
+  def clean_fasta_file(file, min_len = 1)
     tmp_fh = nil
     tmp_path = nil
     begin
@@ -39,19 +40,24 @@ module MiGA::Common::Format
         tmp_path = tmp_fh.path
         fh = File.open(file, 'r')
       end
-      buffer = ''.dup
+      next_seq = ['', '']
       fh.each_line do |ln|
         ln.chomp!
         if ln =~ /^>\s*(\S+)(.*)/
           id, df = $1, $2
-          tmp_fh.print buffer.wrap_width(80)
-          buffer = ''.dup
-          tmp_fh.puts ">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}"
+          if next_seq[1].length >= min_len
+            tmp_fh.puts next_seq[0]
+            tmp_fh.print next_seq[1].wrap_width(80)
+          end
+          next_seq = [">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}", '']
         else
-          buffer << ln.gsub(/[^A-Za-z\.\-]/, '')
+          next_seq[1] += ln.gsub(/[^A-Za-z\.\-]/, '')
         end
       end
-      tmp_fh.print buffer.wrap_width(80)
+      if next_seq[1].length >= min_len
+        tmp_fh.puts next_seq[0]
+        tmp_fh.print next_seq[1].wrap_width(80)
+      end
       tmp_fh.close
       fh.close
       FileUtils.mv(tmp_path, file)

@@ -84,7 +84,7 @@ module MiGA::Dataset::Result::Add
     opts[:is_clean] ||= false
     r.clean! if opts[:is_clean]
     unless r.clean?
-      MiGA::MiGA.clean_fasta_file(r.file_path(:largecontigs))
+      MiGA::MiGA.clean_fasta_file(r.file_path(:largecontigs), 1000)
       r.clean!
     end
     r

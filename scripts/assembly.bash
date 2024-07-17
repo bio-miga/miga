@@ -58,7 +58,7 @@ if [[ -s "$DATASET/scaffold.fa" ]] ; then
 else
   ln -s "$DATASET/contig.fa" "$DATASET.AllContigs.fna"
 fi
-FastA.length.pl "$DATASET.AllContigs.fna" | awk '$2>=1000{print $1}' \
+FastA.length.pl "$DATASET.AllContigs.fna" | awk '$2 >= 1000 { print $1 }' \
   | FastA.filter.pl /dev/stdin "$DATASET.AllContigs.fna" \
   > "$DATASET.LargeContigs.fna"
 

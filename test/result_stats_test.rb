@@ -83,7 +83,7 @@ class ResultStatsTest < Test::Unit::TestCase
     # Prepare result
     dir = 'data/05.assembly'
     fa = file_path(dir, '.LargeContigs.fna')
-    File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
+    File.open(fa, 'w') { |fh| fh.puts('>1', 'ACTAC' * 500) }
     touch_done(dir)
     r = dataset.add_result(:assembly)
 
@@ -91,15 +91,29 @@ class ResultStatsTest < Test::Unit::TestCase
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal(1, r[:stats][:contigs])
-    assert_equal([5, 'bp'], r[:stats][:total_length])
+    assert_equal([2500, 'bp'], r[:stats][:total_length])
     assert_equal([40.0, '%'], r[:stats][:g_c_content])
+  end
+
+  def test_large_contigs
+    # Prepare result
+    dir = 'data/05.assembly'
+    fa = file_path(dir, '.LargeContigs.fna')
+    File.open(fa, 'w') { |fh| fh.puts('>1', 'ACTAC' * 50) }
+    touch_done(dir)
+    r = dataset.add_result(:assembly)
+
+    # Test assertions
+    assert_equal({}, r[:stats])
+    r.compute_stats
+    assert_equal(0, r[:stats][:contigs])
   end
 
   def test_cds
     # Prepare result
     dir = 'data/06.cds'
     fa = file_path(dir, '.faa')
-    File.open(fa, 'w') { |fh| fh.puts '>1', 'M' }
+    File.open(fa, 'w') { |fh| fh.puts('>1', 'M' * 500) }
     gff = file_path(dir, '.gff3.gz')
     Zlib::GzipWriter.open(gff) do |fh|
       fh.puts '# Model Data: a=b;transl_table=11;'
@@ -111,7 +125,7 @@ class ResultStatsTest < Test::Unit::TestCase
     assert_equal({}, r[:stats])
     r.compute_stats
     assert_equal(1, r[:stats][:predicted_proteins])
-    assert_equal([1.0, 'aa'], r[:stats][:average_length])
+    assert_equal([500.0, 'aa'], r[:stats][:average_length])
     assert_nil(r[:stats][:coding_density])
     test_assembly
     r.compute_stats
