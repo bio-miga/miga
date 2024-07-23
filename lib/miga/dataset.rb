@@ -177,22 +177,23 @@ class MiGA::Dataset < MiGA::MiGA
   alias is_active? active?
 
   ##
-  # Returns an Array of +how_many+ duples (Arrays) sorted by AAI:
-  # - +0+: A String with the name(s) of the reference dataset.
-  # - +1+: A Float with the AAI.
-  # This function is currently only supported for query datasets when
-  # +ref_project+ is false (default), and only for reference dataset when
-  # +ref_project+ is true. It returns +nil+ if this analysis is not supported.
-  def closest_relatives(how_many = 1, ref_project = false)
-    return nil if (ref? != ref_project) || multi?
+  # Returns an Array of +how_many+ duples (Arrays) sorted by +metric+
+  # (one of +:aai+ or +:ani+):
+  # - +0+: A String with the name(s) of the reference dataset
+  # - +1+: A Float with the AAI/ANI
+  def closest_relatives(how_many = 1, ref_project = false, metric = :aai)
+    return nil if multi?
 
     r = result(ref_project ? :taxonomy : :distances)
     return nil if r.nil?
 
     require 'miga/sqlite'
-    MiGA::SQLite.new(r.file_path(:aai_db)).run(
-      'SELECT seq2, aai FROM aai WHERE seq2 != ? ' \
-      'GROUP BY seq2 ORDER BY aai DESC LIMIT ?', [name, how_many]
+    metric = metric.to_s.downcase.to_sym
+    db_key = :"#{metric}_db"
+    MiGA::SQLite.new(r.file_path(db_key)).run(
+      "SELECT seq2, #{metric} FROM #{metric} WHERE seq2 != ? " \
+      "GROUP BY seq2 ORDER BY #{metric} DESC LIMIT ?",
+      [name, how_many]
     )
   end
 end
