@@ -37,6 +37,7 @@ class MiGA::Cli::Action::Relatives < MiGA::Cli::Action
     cr = []
     cli.load_and_filter_datasets.each do |d|
       d_cr = d.closest_relatives(cli[:how_many], cli[:external], cli[:metric])
+      d_cr ||= []
       cr += d_cr.map { |i| [d.name] + i }
     end
     io = cli[:output].nil? ? $stdout : File.open(cli[:output], 'w')

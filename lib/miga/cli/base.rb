@@ -32,6 +32,7 @@ module MiGA::Cli::Base
     run:         'Execute locally one step analysis producing the given result',
     summary:     'Generate a summary table for the statistics of all datasets',
     next_step:   'Return the next task to run in a dataset or project',
+    relatives:   'List of closest relatives per dataset',
     # Objects (Datasets or Projects)
     edit:        'Edit the metadata of a dataset or project',
     option:      'Get or set options of a dataset or project',
