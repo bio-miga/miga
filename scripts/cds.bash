@@ -16,6 +16,14 @@ if [[ -e "../05.assembly/$DATASET.LargeContigs.fna.gz" \
   miga add_result -P "$PROJECT" -D "$DATASET" -r assembly -f
 fi
 
+# Check if the input assembly is empty
+ASM_LEN=$(grep -v '^>' "../05.assembly/${DATASET}.LargeContigs.fna" \
+            | wc -lc | awk '{ print $2-$1 }')
+if [[ "$ASM_LEN" -lt 1 ]] ; then
+  miga edit -P "$PROJECT" -D "$DATASET" --inactivate "Empty assembly"
+  exit 0
+fi
+
 # Run Prodigal
 TYPE=$(miga ls -P "$PROJECT" -D "$DATASET" -m type | cut -f 2)
 case "$TYPE" in
@@ -27,8 +35,6 @@ case "$TYPE" in
     P_LEN=0
     BEST_CT=0
     PROCEDURE=single
-    ASM_LEN=$(grep -v '^>' "../05.assembly/${DATASET}.LargeContigs.fna" \
-      | wc -lc | awk '{ print $2-$1 }')
     [[ "$ASM_LEN" -lt 2000 ]] && PROCEDURE=meta
     echo "# Codon table selection:" > "${DATASET}.ct.t"
     for ct in 11 4 ; do
