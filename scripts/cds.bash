@@ -26,10 +26,14 @@ case "$TYPE" in
   *)
     P_LEN=0
     BEST_CT=0
+    PROCEDURE=single
+    ASM_LEN=$(grep -v '^>' "../05.assembly/${DATASET}.LargeContigs.fna" \
+      | wc -lc | awk '{ print $2-$1 }')
+    [[ "$ASM_LEN" -lt 2000 ]] && PROCEDURE=meta
     echo "# Codon table selection:" > "${DATASET}.ct.t"
     for ct in 11 4 ; do
       prodigal -a "${DATASET}.faa.$ct" -d "${DATASET}.fna.$ct" \
-        -o "${DATASET}.gff3.$ct" -f gff -q -p single -g "$ct" \
+        -o "${DATASET}.gff3.$ct" -f gff -q -p $PROCEDURE -g "$ct" \
         -i "../05.assembly/${DATASET}.LargeContigs.fna"
       C_LEN=$(grep -v '^>' "${DATASET}.faa.$ct" \
         | perl -pe 's/[^A-Z]//ig' | wc -c | awk '{print $1}')
