@@ -151,7 +151,8 @@ module MiGA::Cli::Action::Doctor::Distances
         end
         raise "Incomplete thread dump: #{file}" unless metric == :end
       end
-      File.open("#{file}.marshal", 'w') { |fh| Marshal.dump(dist, fh) }
+      File.open("#{file}.marshal.tmp", 'w') { |fh| Marshal.dump(dist, fh) }
+      File.rename("#{file}.marshal.tmp", "#{file}.marshal")
     end
     cli.say
 
