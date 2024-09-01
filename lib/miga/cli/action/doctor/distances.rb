@@ -77,8 +77,15 @@ module MiGA::Cli::Action::Doctor::Distances
   def partial_bidir_tmp(project, ref_ds)
     n = ref_ds.size
 
-    # Read data first (threaded)
+    # Check first if a previous run is complete (and recover it)
     tmp = File.join(project.path, 'doctor-bidirectional.tmp')
+    tmp_done = File.join(tmp, 'done.txt')
+    if File.size?(tmp_done) &&
+          File.readlines(tmp_done)[0].chomp.to_i == cli[:threads]
+      return tmp
+    end
+
+    # Read data first (threaded)
     FileUtils.mkdir_p(tmp)
     MiGA::Parallel.process(cli[:threads]) do |thr|
       file = File.join(tmp, "#{thr}.json")
@@ -102,6 +109,8 @@ module MiGA::Cli::Action::Doctor::Distances
       end
     end
 
+    # Save information to indicate that the run is complete and return
+    File.open(tmp_done, 'w') { |fh| fh.puts cli[:threads] }
     return tmp
   end
 
@@ -113,7 +122,14 @@ module MiGA::Cli::Action::Doctor::Distances
     dist = { aai: {}, ani: {} }
     cli[:threads].times do |i|
       cli.advance('Merging:', i + 1, cli[:threads], false)
+
+      next if File.size?(File.join(tmp, "#{i+1}.json.marshal"))
       file = File.join(tmp, "#{i}.json")
+      if File.size?("#{file}.marshal")
+        dist = Marshal.load(File.read("#{file}.marshal"))
+        next
+      end
+
       File.open(file, 'r') do |fh|
         metric = nil
         fh.each do |ln|
@@ -135,6 +151,7 @@ module MiGA::Cli::Action::Doctor::Distances
         end
         raise "Incomplete thread dump: #{file}" unless metric == :end
       end
+      File.open("#{file}.marshal", 'w') { |fh| Marshal.dump(dist, fh) }
     end
     cli.say
 
