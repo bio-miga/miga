@@ -39,17 +39,20 @@ module MiGA::Cli::Action::Doctor::Distances
     project = cli.load_project
     ref_ds = project.each_dataset.select(&:ref?)
 
-    # Read and merge data
+    # Read and write data
     tmp = partial_bidir_tmp(project, ref_ds)
-    dist = merge_bidir_tmp(tmp)
+    fixed_ds = merge_bidir_tmp(tmp)
     FileUtils.rm_rf(tmp)
 
-    # Write missing values (threaded)
-    MiGA::Parallel.distribute(ref_ds, cli[:threads]) do |ds, idx, thr|
-      cli.advance('Datasets:', idx + 1, ref_ds.size, false) if thr == 0
-      save_bidirectional(ds, dist)
+    # Fix tables if needed
+    unless fixed_ds.empty?
+      cli.say ' - Filled datasets: %i' % fixed_ds.size
+      %i[aai_distances ani_distances].each do |res_name|
+        res = cli.load_project.result(res_name) or next
+        cli.say ' - Recalculating tables: %s' % res_name
+        res.recalculate!('Distances updated for bidirectionality').save
+      end
     end
-    cli.say
   end
 
   ##
@@ -70,93 +73,132 @@ module MiGA::Cli::Action::Doctor::Distances
   #---- Auxuliary functions -----
 
   ##
+  # Calculates the number of chunks that should be produced during the
+  # bidirectional checks for +n+ reference datasets (Integer)
+  def partial_bidir_chunks(n)
+    y = [cli[:threads], (n / 1024).ceil].max
+    y = n if y > n
+    y
+  end
+
+  ##
   # Make a temporal directory holding partial bidirectionality reports (one per
   # thread) in a custom multi-JSON format. Requires a MiGA::Project +project+
   # and the iterator of the reference datasets +ref_ds+. Returns the path to the
-  # temporal directory created. Used by +check_bidir+
+  # temporal directory created
   def partial_bidir_tmp(project, ref_ds)
     n = ref_ds.size
+    chunks = partial_bidir_chunks(n)
 
     # Check first if a previous run is complete (and recover it)
     tmp = File.join(project.path, 'doctor-bidirectional.tmp')
-    tmp_done = File.join(tmp, 'done.txt')
+    tmp_done = File.join(tmp, 'read-done.txt')
     if File.size?(tmp_done) &&
-          File.readlines(tmp_done)[0].chomp.to_i == cli[:threads]
+          File.readlines(tmp_done)[0].chomp.to_i == chunks
       return tmp
     end
 
     # Read data first (threaded)
     FileUtils.mkdir_p(tmp)
-    MiGA::Parallel.process(cli[:threads]) do |thr|
-      file = File.join(tmp, "#{thr}.json")
-      fh = File.open(file, 'w')
+    chunks_e = 0 .. chunks - 1
+    MiGA::Parallel.distribute(chunks_e, cli[:threads]) do |chunk, k, thr|
+      cli.advance('Reading:', k, chunks, false) if thr == 0
+      dist = {}
       [:aai, :ani].each do |metric|
-        fh.puts "# #{metric}"
+        dist[metric] = {}
         ref_ds.each_with_index do |ds, idx|
-          if idx % cli[:threads] == thr
-            cli.advance('Reading:', idx + 1, n, false) if thr == 0
+          if idx % chunks == chunk
             row = read_bidirectional(ds, metric)
-            fh.puts "#{ds.name} #{JSON.fast_generate(row)}" unless row.empty?
+            dist[metric][ds.name] = row unless row.empty?
           end
         end
       end
-      fh.puts '# end'
-      fh.flush # necessary for large threaded runs
-      fh.close
-      if thr == 0
-        cli.advance('Reading:', n, n, false)
-        cli.say
-      end
+      file = File.join(tmp, "#{chunk}.marshal")
+      File.open("#{file}.tmp", 'w') { |fh| Marshal.dump(dist, fh) }
+      File.rename("#{file}.tmp", file)
     end
+    cli.advance('Reading:', chunks, chunks, false)
+    cli.say
 
     # Save information to indicate that the run is complete and return
-    File.open(tmp_done, 'w') { |fh| fh.puts cli[:threads] }
+    File.open(tmp_done, 'w') { |fh| fh.puts chunks }
     return tmp
   end
 
   ##
   # Read partial temporal reports of bidirectionality (located in +tmp+), and
-  # return a two-deep hash with the final missingness report by metric (first
-  # key) and dataset name (second key). Used by +check_bidir+
+  # fill databases with missing values. Returns the names of the datasets fixed
+  # as a Set.
   def merge_bidir_tmp(tmp)
-    dist = { aai: {}, ani: {} }
-    cli[:threads].times do |i|
-      cli.advance('Merging:', i + 1, cli[:threads], false)
+    tmp_done = File.join(tmp, 'read-done.txt')
+    chunks = File.readlines(tmp_done)[0].chomp.to_i
 
-      next if File.size?(File.join(tmp, "#{i+1}.json.marshal"))
-      file = File.join(tmp, "#{i}.json")
-      if File.size?("#{file}.marshal")
-        dist = Marshal.load(File.read("#{file}.marshal"))
-        next
-      end
-
-      File.open(file, 'r') do |fh|
-        metric = nil
-        fh.each do |ln|
-          qry, row = ln.chomp.split(' ', 2)
-          row or raise "Unexpected format in #{file}:#{$.}"
-          if qry == '#'
-            metric = row.to_sym
-          else
-            raise "Unrecognized metric: #{metric}" unless dist[metric]
-            JSON.parse(row).each do |sbj, val|
-              dist[metric][qry] ||= {}
-              if dist[metric][sbj]&.include?(qry)
-                dist[metric][sbj].delete(qry) # Already bidirectional
-              else
-                dist[metric][qry][sbj] = val
-              end
-            end
-          end
-        end
-        raise "Incomplete thread dump: #{file}" unless metric == :end
-      end
-      File.open("#{file}.marshal.tmp", 'w') { |fh| Marshal.dump(dist, fh) }
-      File.rename("#{file}.marshal.tmp", "#{file}.marshal")
+    lower_triangle = []
+    chunks.times.each do |i|
+      (0 .. i).to_a.each { |j| lower_triangle << [i, j] }
     end
+    MiGA::Parallel.distribute(lower_triangle, cli[:threads]) do |cell, k, thr|
+      cli.advance('Writing:', k, lower_triangle.size, false) if thr == 0
+      fixed_ds = merge_bidir_tmp_pair(tmp, cell[0], cell[1])
+      File.open(File.join(tmp, "#{cell[0]}-#{cell[1]}.txt"), 'w') do |fh|
+        fixed_ds.each { |ds| fh.puts ds }
+      end
+    end
+    cli.advance('Writing:', lower_triangle.size, lower_triangle.size, false)
     cli.say
+    lower_triangle.map do |cell|
+      Set.new.tap do |y|
+        File.open(File.join(tmp, "#{cell[0]}-#{cell[1]}.txt"), 'r') do |fh|
+          fh.each { |ln| y << ln.chomp }
+        end
+      end
+    end.inject(Set.new, :+)
+  end
 
-    return dist
+  ##
+  # Cross-reference two reports of bidirectionality (located in +tmp+),
+  # identified by indexes +x+ and +y+, and fill databases with missing values.
+  # Returns the names of the fixed datasets as a Set.
+  def merge_bidir_tmp_pair(tmp, x, y)
+    dist_x = Marshal.load(File.read(File.join(tmp, "#{x}.marshal")))
+    if x == y
+      merge_bidir_tmp_cell(dist_x, dist_x)
+    else
+      dist_y = Marshal.load(File.read(File.join(tmp, "#{y}.marshal")))
+      merge_bidir_tmp_cell(dist_x, dist_y) +
+      merge_bidir_tmp_cell(dist_y, dist_x)
+    end
+  end
+
+  ##
+  # Find missing values in a "chunks cell" and fill databases. Returns the names
+  # of the fixed datasets as a Set.
+  def merge_bidir_tmp_cell(dist_x, dist_y)
+    # Find missing values
+    dist = {}
+    datasets = Set.new
+    dist_x.each do |metric, distances_x|
+      dist[metric] = {}
+      distances_x.each do |qry_x, row_x|
+        dist_y[metric].each do |qry_y, row_y|
+          # Ignore if missing in dist_x
+          next unless dist_x[metric][qry_x]&.include?(qry_y)
+          # Ignore if already in dist_y
+          next if dist_y[metric][qry_y]&.include?(qry_x)
+          # Save otherwise
+          dist[metric][qry_x] ||= {}
+          dist[metric][qry_x][qry_y] = dist_x[metric][qry_x][qry_y]
+          datasets << qry_y
+        end
+      end
+    end
+
+    # Save them in databases
+    datasets.each do |ds_name|
+      ds = cli.load_project.dataset(ds_name)
+      save_bidirectional(ds, dist)
+    end
+    datasets
   end
 end
 

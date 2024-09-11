@@ -9,7 +9,7 @@ rescue LoadError
 end
 
 ##
-# Taxonomic classifications in MiGA.
+# JSON I/O utils in MiGA.
 class MiGA::Json < MiGA::MiGA
   class << self
     ##
