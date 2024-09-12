@@ -92,13 +92,15 @@ module MiGA::Cli::Action::Doctor::Distances
 
     # Check first if a previous run is complete (and recover it)
     tmp = File.join(project.path, 'doctor-bidirectional.tmp')
-    tmp_done = File.join(tmp, 'read-done.txt')
-    if File.size?(tmp_done) &&
-          File.readlines(tmp_done)[0].chomp.to_i == chunks
-      return tmp
+    tmp_chunks = File.join(tmp, 'chunks.txt')
+    tmp_chunks_val = [chunks, 0]
+    if File.size?(tmp_chunks)
+      tmp_chunks_val = File.readlines(tmp_chunks).map(&:chomp).map(&:to_i)
     end
+    chunks = tmp_chunks_val[0]
+    FileUtils.rm_rf(tmp) unless tmp_chunks_val[1] == n
 
-    # Read data first (threaded)
+    # Read data (threaded)
     FileUtils.mkdir_p(tmp)
     chunks_e = 0 .. chunks - 1
     MiGA::Parallel.distribute(chunks_e, cli[:threads]) do |chunk, k, thr|
@@ -121,7 +123,7 @@ module MiGA::Cli::Action::Doctor::Distances
     cli.say
 
     # Save information to indicate that the run is complete and return
-    File.open(tmp_done, 'w') { |fh| fh.puts chunks }
+    File.open(tmp_chunks, 'w') { |fh| fh.puts(chunks, n) }
     return tmp
   end
 
@@ -130,7 +132,7 @@ module MiGA::Cli::Action::Doctor::Distances
   # fill databases with missing values. Returns the names of the datasets fixed
   # as a Set.
   def merge_bidir_tmp(tmp)
-    tmp_done = File.join(tmp, 'read-done.txt')
+    tmp_done = File.join(tmp, 'chunks.txt')
     chunks = File.readlines(tmp_done)[0].chomp.to_i
 
     lower_triangle = []
