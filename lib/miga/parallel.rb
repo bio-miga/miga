@@ -21,6 +21,7 @@ class MiGA::Parallel < MiGA::MiGA
     # 3. Index of the acting thread
     def distribute(enum, threads, &blk)
       process(threads) { |thr| thread_enum(enum, threads, thr, &blk) }
+      Process.waitall # <- Just to double-check, but `process` should suffice
     end
 
     ##
