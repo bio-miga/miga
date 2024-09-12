@@ -141,18 +141,22 @@ module MiGA::Cli::Action::Doctor::Distances
     end
     MiGA::Parallel.distribute(lower_triangle, cli[:threads]) do |cell, k, thr|
       cli.advance('Writing:', k, lower_triangle.size, false) if thr == 0
+      done_f = File.join(tmp, "#{cell[0]}-#{cell[1]}.txt")
+      next if File.exist?(done_f)
+
       fixed_ds = merge_bidir_tmp_pair(tmp, cell[0], cell[1])
-      File.open(File.join(tmp, "#{cell[0]}-#{cell[1]}.txt"), 'w') do |fh|
-        fixed_ds.each { |ds| fh.puts ds }
-      end
+      File.open("#{done_f}.tmp", 'w') { |fh| fixed_ds.each { |ds| fh.puts ds } }
+      File.rename("#{done_f}.tmp", done_f)
     end
     cli.advance('Writing:', lower_triangle.size, lower_triangle.size, false)
     cli.say
     lower_triangle.map do |cell|
       Set.new.tap do |y|
-        File.open(File.join(tmp, "#{cell[0]}-#{cell[1]}.txt"), 'r') do |fh|
-          fh.each { |ln| y << ln.chomp }
-        end
+        file = File.join(tmp, "#{cell[0]}-#{cell[1]}.txt")
+        raise MiGA::Error.new(
+          "Expected file missing, probably due to a thread failure: #{file}"
+        ) unless File.exist?(file)
+        File.open(file, 'r') { |fh| fh.each { |ln| y << ln.chomp } }
       end
     end.inject(Set.new, :+)
   end
