@@ -1,30 +1,18 @@
 #!/usr/bin/env ruby
 
-require 'thread'
 require 'miga'
 
 ARGV[1] or abort "Usage: #{$0} path/to/project threads"
 
 p = MiGA::Project.load(ARGV[0])
-dsn = p.dataset_names
-thr = ARGV[1].to_i
+thr = [ARGV[1].to_i, 1].max
 
-m = MiGA::MiGA.new
-m.say 'Cleaning Databases'
+p.say 'Cleaning Databases'
+ds = p.dataset_ref_active
 
-(0..thr - 1).each do |t|
-  fork do
-    dsn.each_with_index do |i, idx|
-      m.advance('Dataset:', idx + 1, dsn.size) if t == 0
-      next unless (idx % thr) == t
-
-      d = p.dataset(i)
-      next unless d.ref? && d.active?
-
-      d.cleanup_distances!
-    end
-  end
+MiGA::Parallel.distribute(ds, thr) do |d, k, t|
+  p.advance('Dataset:', k, ds.size) if t == 0
+  d.cleanup_distances!
 end
-Process.waitall
-m.advance('Dataset:', dsn.size, dsn.size)
-m.say
+p.advance('Dataset:', ds.size, ds.size)
+p.say
