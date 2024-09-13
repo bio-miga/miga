@@ -106,13 +106,13 @@ class MiGA::MiGA
         ''
       else
         left_time = @_advance_time[:avg] * (total - n) / 60 # <- in minutes
-        left_time < 0.01 ? '         ' :
-          left_time < 1 ? ('%.0fs left' % (left_time * 60)) :
+        left_time   < 0.01 ? '' :
+          left_time < 1    ? ('%.0fs left' % (left_time * 60))   :
           left_time > 1440 ? ('%.1fd left' % (left_time / 1440)) :
-          left_time > 60 ? ('%.1fh left' % (left_time / 60)) :
+          left_time > 60   ? ('%.1fh left' % (left_time / 60))   :
           ('%.1fm left' % left_time)
       end
-    $stderr.print("[%s] %s %s %s    \r" % [Time.now, step, adv, left])
+    $stderr.print("[%s] %s %s %-12s   \r" % [Time.now, step, adv, left])
   end
 
   ##

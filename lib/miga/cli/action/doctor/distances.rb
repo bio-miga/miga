@@ -103,7 +103,7 @@ module MiGA::Cli::Action::Doctor::Distances
     # Read data (threaded)
     FileUtils.mkdir_p(tmp)
     chunks_e = 0 .. chunks - 1
-    MiGA::Parallel.distribute(chunks_e, cli[:threads]) do |chunk, k, thr|
+    o = MiGA::Parallel.distribute(chunks_e, cli[:threads]) do |chunk, k, thr|
       cli.advance('Reading:', k, chunks, false) if thr == 0
       dist = {}
       [:aai, :ani].each do |metric|
@@ -121,6 +121,7 @@ module MiGA::Cli::Action::Doctor::Distances
     end
     cli.advance('Reading:', chunks, chunks, false)
     cli.say
+    MiGA::Parallel.assess_success(o)
 
     # Save information to indicate that the run is complete and return
     File.open(tmp_chunks, 'w') { |fh| fh.puts(chunks, n) }
@@ -135,12 +136,12 @@ module MiGA::Cli::Action::Doctor::Distances
     tmp_done = File.join(tmp, 'chunks.txt')
     chunks = File.readlines(tmp_done)[0].chomp.to_i
 
-    lower_triangle = []
+    lower_tr = []
     chunks.times.each do |i|
-      (0 .. i).to_a.each { |j| lower_triangle << [i, j] }
+      (0 .. i).to_a.each { |j| lower_tr << [i, j] }
     end
-    MiGA::Parallel.distribute(lower_triangle, cli[:threads]) do |cell, k, thr|
-      cli.advance('Writing:', k, lower_triangle.size, false) if thr == 0
+    o = MiGA::Parallel.distribute(lower_tr, cli[:threads]) do |cell, k, thr|
+      cli.advance('Writing:', k, lower_tr.size, false) if thr == 0
       done_f = File.join(tmp, "#{cell[0]}-#{cell[1]}.txt")
       next if File.exist?(done_f)
 
@@ -148,9 +149,11 @@ module MiGA::Cli::Action::Doctor::Distances
       File.open("#{done_f}.tmp", 'w') { |fh| fixed_ds.each { |ds| fh.puts ds } }
       File.rename("#{done_f}.tmp", done_f)
     end
-    cli.advance('Writing:', lower_triangle.size, lower_triangle.size, false)
+    cli.advance('Writing:', lower_tr.size, lower_tr.size, false)
     cli.say
-    lower_triangle.map do |cell|
+    MiGA::Parallel.assess_success(o)
+
+    lower_tr.map do |cell|
       Set.new.tap do |y|
         file = File.join(tmp, "#{cell[0]}-#{cell[1]}.txt")
         raise MiGA::Error.new(
