@@ -31,13 +31,13 @@ sudo install FaQCs /usr/bin/ && rm FaQCs
 
 ## Falco
 wget -O falco.tar.gz \
-  "https://github.com/smithlabcode/falco/releases/download/v1.2.1/falco-1.2.1.tar.gz"
+  "https://github.com/smithlabcode/falco/releases/download/v1.2.3/falco-1.2.3.tar.gz"
 tar zxf falco.tar.gz
-( cd falco-1.2.1 \
+( cd falco-1.2.3 \
     && ./configure CXXFLAGS="-O3 -Wall" \
     && make && sudo make install
 ) > /dev/null
-rm -rf falco-1.2.1 falco.tar.gz
+rm -rf falco-1.2.3 falco.tar.gz
 ```
 
 # JAVA VM
