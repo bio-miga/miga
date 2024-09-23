@@ -36,7 +36,7 @@ tar zxf falco.tar.gz
 ( cd falco-1.2.3 \
     && ./configure CXXFLAGS="-O3 -Wall" \
     && make && sudo make install
-) > /dev/null
+)
 rm -rf falco-1.2.3 falco.tar.gz
 ```
 
