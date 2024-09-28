@@ -67,15 +67,15 @@ Metadata entries that trigger specific behaviors in MiGA:
 | min_qual     | Float (or 'no')  | Min. genome quality (or no filter; def: 25)
 | distances_checkpoint | Integer  | Comparisons before storing data (def: 10)
 
-> **{1}** This path can be either absolute or relative to the project's path.
+> **{1}** This path can either be absolute or relative to the project's path
 >
 > **{2}** This is the location of the databases used by
 > [db_project](#dataset-flags). If not set, it is assumed to be the parent
-> folder of the current project.
+> folder of the current project
 >
 > **{3}** Supported values: `blast`, `blat`, `diamond`
 > (only for hAAI and AAI), `fastani` (only for ANI), `no` (only for hAAI),
-> and `fastaai` (only for hAAI).
+> and `fastaai` (only for hAAI)
 >
 > **{4}** One of: `dupont_2012` (default), or `lee_2019`
 
@@ -176,10 +176,13 @@ Metadata entries that trigger specific behaviors in MiGA:
 | Field        | Supported values | Description
 | ------------:|:----------------:|:----------------------------------
 | run_`step`   | Boolean          | Forces running or not `step`
-| db_project   | Path             | Project to use as database
-| dist_req     | Array of String  | Run distances against these datasets*
+| db_project   | Path             | Project to use as database {1}
+| dist_req     | Array of String  | Run distances against these datasets {2}
 
-> **\*** When searching best-matching datasets, include these datasets even if
+> **{1}** By default, it uses its own project as database. The path can be
+> absolute or relative to the parent folder of the project
+> 
+> **{2}** When searching best-matching datasets, include these datasets even if
 > they are not visited using the medoid tree
 
 
