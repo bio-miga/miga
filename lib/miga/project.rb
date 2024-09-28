@@ -143,8 +143,8 @@ class MiGA::Project < MiGA::MiGA
   def option_by_metadata(key)
     case key.to_sym
     when :ref_project, :db_proj_dir
-      y = metadata[key]
-      y = File.expand_path(y, path) if y && y =~ /^[^\/]/
+      y = metadata[key] or return
+      y = File.expand_path(y, path)
       return y
     end
 

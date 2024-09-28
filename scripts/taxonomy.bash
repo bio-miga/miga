@@ -25,6 +25,7 @@ blat=no
 diamond=no
 fastani=no
 REF_PROJECT=$(miga option -P "$PROJECT" -k ref_project)
+
 if [[ -d "$REF_PROJECT" ]] ; then
   refproject=yes
 

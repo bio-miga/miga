@@ -22,6 +22,7 @@ fi
 ruby -I "$MIGA/lib" "$MIGA/utils/distances.rb" "$PROJECT" "$DATASET"
 
 # Finalize
+refproject=no
 fastaai=no
 aai=no
 ani=no
@@ -29,6 +30,10 @@ blast=no
 blat=no
 diamond=no
 fastani=no
+REF_PROJECT=$(miga option -P "$PROJECT" -D "$DATASET" -k db_project)
+
+[[ -d "$REF_PROJECT" ]] && refproject=yes
+
 if [[ ! -s "${DATASET}.empty" ]] ; then
   case $(miga option -P "$PROJECT" -k haai_p) in
     fastaai)
@@ -76,6 +81,14 @@ cat <<VERSIONS \
   | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
 => MiGA
 $(miga --version)
+$(
+  if [[ "$refproject" == "yes" ]] ; then
+    echo "=> Reference Project"
+    miga about -P "$REF_PROJECT" -m name
+    echo "=> Reference Project Release"
+    miga about -P "$REF_PROJECT" -m release
+  fi
+)
 $(
   if [[ "$fastaai" == "yes" ]] ; then
     echo "=> FastAAI"
