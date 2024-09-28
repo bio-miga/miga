@@ -16,6 +16,7 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         run: 'Start the application and stay on top',
         status: 'Show status (PID) of application instances',
         list: 'List all daemons and their status',
+        running: 'List running daemons only',
         terminate: 'Terminate all daemons in the lair and exit'
       }.each { |k, v| opt.separator sprintf('    %*s%s', -33, k, v) }
       opt.separator ''
@@ -93,12 +94,17 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
     case cli.operation.to_sym
     when :terminate
       lair.terminate_daemons
-    when :list
+    when :list, :running
       o = []
       lair.each_daemon do |d|
         o << [d.daemon_name, d.class, d.daemon_home, d.active?, d.last_alive]
       end
-      cli.table(%w[name class path active last_alive], o)
+      if cli.operation.to_sym == :running
+        o.select! { |i| i[3] }.map! { |i| i[0..-3] }
+        cli.table(%w[name class path], o)
+      else
+        cli.table(%w[name class path active last_alive], o)
+      end
     else
       lair.daemon(cli.operation, cli[:daemon_opts])
     end
