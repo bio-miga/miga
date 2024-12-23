@@ -11,7 +11,7 @@ class FormatTest < Test::Unit::TestCase
 
   def test_clean_fasta
     c = ">MyFa|not-good\nACTG123ACTG-XXNN*\n>GoodOne + spaces!\n\nA C T G .\n"
-    cc = ">MyFa|not_good\nACTGACTG-XXNN\n>GoodOne + spaces!\nACTG.\n"
+    cc = ">MyFa|not_good\nACTGACTGXXNN\n>GoodOne + spaces!\nACTG\n"
     f = helper_write_file(c)
     assert_equal(c, File.read(f))
     MiGA::MiGA.clean_fasta_file(f)
