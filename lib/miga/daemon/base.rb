@@ -59,7 +59,7 @@ module MiGA::Daemon::Base
 
   ##
   # Returns the running option +opt+ in jobs for +what+. +what+ can be
-  # +:dataset+ or +:projects+
+  # +:dataset+ or +:project+
   def runopts_for(opt, what)
     runopts(:"#{opt}_#{what}") || runopts(opt)
   end

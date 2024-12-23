@@ -51,7 +51,7 @@ module MiGA::Common::Format
           end
           next_seq = [">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}", '']
         else
-          next_seq[1] += ln.gsub(/[^A-Za-z\.\-]/, '')
+          next_seq[1] += ln.gsub(/[^A-Za-z]/, '')
         end
       end
       if next_seq[1].length >= min_len
