@@ -125,13 +125,20 @@ module MiGA::Cli::Action::Wf
       cli[:ani_p] = 'fastani'
     end
     opt.on(
+      '--only-ani', 'Alias to: --haai-p no --aai-p no',
+      'Use only for collections with expected AAI around or above 85%'
+    ) do
+      cli[:haai_p] = 'no'
+      cli[:aai_p] = 'no'
+    end
+    opt.on(
       '--haai-p STRING',
       'hAAI search engine. One of: blast+, fastaai, blat, diamond, fastaai, no',
       'The default is "no" for clade projects and "fastaai" otherwise'
     ) { |v| cli[:haai_p] = v }
     opt.on(
       '--aai-p STRING',
-      'AAI search engine. One of: blast+, blat, diamond (default)'
+      'AAI search engine. One of: blast+, blat, diamond (default), no'
     ) { |v| cli[:aai_p] = v }
     opt.on(
       '--ani-p STRING',

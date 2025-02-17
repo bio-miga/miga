@@ -142,7 +142,7 @@ module MiGA::Project::Base
     },
     aai_p: {
       desc: 'Value of aai.rb -p on AAI', default: 'diamond', type: String,
-      in: %w[blast+ blast blat diamond]
+      in: %w[blast+ blast blat diamond no]
     },
     ani_p: {
       desc: 'Value of ani.rb -p on ANI', default: 'fastani', type: String,

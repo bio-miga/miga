@@ -183,7 +183,7 @@ class MiGA::Daemon < MiGA::MiGA
   end
 
   ##
-  # Traverse datasets, and returns boolean indicating if at any reference
+  # Traverse datasets, and returns boolean indicating if any reference
   # datasets are incomplete
   def check_datasets
     l_say(2, 'Checking datasets')
@@ -196,11 +196,17 @@ class MiGA::Daemon < MiGA::MiGA
       queue_job(:d, ds)
     end
     unless show_log?
+      @_check_datasets_reported_done ||= false
       n = project.dataset_names.count
-      k = jobs_to_run.size + jobs_running.size
-      k -= 1 unless get_job(:maintenance).nil?
-      advance('Datasets:', n - k, n, false)
-      miga_say if k == 0
+      k = (jobs_to_run + jobs_running).select { |i| !i[:ds].nil? }.size
+      if k > 0
+        advance('Datasets:', n - k, n, false)
+        @_check_datasets_reported_done = false
+      elsif !@_check_datasets_reported_done
+        advance('Datasets:', n, n, false)
+        miga_say
+        @_check_datasets_reported_done = true
+      end
     end
     o
   end

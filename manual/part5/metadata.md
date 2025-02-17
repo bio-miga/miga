@@ -74,8 +74,8 @@ Metadata entries that trigger specific behaviors in MiGA:
 > folder of the current project
 >
 > **{3}** Supported values: `blast`, `blat`, `diamond`
-> (only for hAAI and AAI), `fastani` (only for ANI), `no` (only for hAAI),
-> and `fastaai` (only for hAAI)
+> (only for hAAI and AAI), `fastani` (only for ANI), `no` (only for hAAI and
+> AAI), and `fastaai` (only for hAAI)
 >
 > **{4}** One of: `dupont_2012` (default), or `lee_2019`
 

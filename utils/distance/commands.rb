@@ -60,10 +60,15 @@ module MiGA::DistanceRunner::Commands
   # Note that ANI values may be returned for lower (or failing) AAIs if the
   # value is already stored in the database
   def ani_after_aai(targets, aai_limit = 85.0)
-    # Run AAI and select targets with AAI ≥ aai_limit
-    aai = aai(targets)
-    sbj = aai.each_with_index.map { |i, k| targets[k] if i&.> aai_limit }
-    sbj.compact!
+    sbj =
+      if opts[:aai_p] == 'no'
+        # If we skip AAI, run ANI for all targets
+        targets
+      else
+        # Otherwise, run AAI and select targets with AAI ≥ aai_limit
+        aai = aai(targets)
+        aai.each_with_index.map { |i, k| targets[k] if i&.> aai_limit }.compact
+      end
 
     # Run ANI
     ani(sbj) unless sbj.empty?
