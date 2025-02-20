@@ -31,9 +31,11 @@ module MiGA::Project::Result
   ##
   # Is this +task+ to be bypassed?
   def ignore_task?(task)
-    return true if metadata["run_#{task}"] == false
+    opt = "run_#{task}"
+    return true if metadata[opt] == false
+    return true if option?(opt) && option(opt) == false
 
-    !clade? && @@INCLADE_TASKS.include?(task) && metadata["run_#{task}"] != true
+    !clade? && @@INCLADE_TASKS.include?(task) && metadata[opt] != true
   end
 
   ##
@@ -72,20 +74,21 @@ module MiGA::Project::Result
   ##
   # Add result type +:clade_finding+ at +base+ (no +_opts+ supported).
   def add_result_clade_finding(base, _opts)
+    r = nil
     if result_files_exist?(base, %w[.empty])
       r = MiGA::Result.new("#{base}.json")
       r.add_file(:empty, 'miga-project.empty')
-      return r
-    end
-    return nil unless result_files_exist?(base, %w[.proposed-clades])
-    unless clade? ||
-           result_files_exist?(
-             base, %w[.pdf .classif .medoids .class.tsv .class.nwk]
-           )
-      return nil
+    else
+      return nil unless result_files_exist?(base, %w[.proposed-clades])
+      unless clade? ||
+             result_files_exist?(
+               base, %w[.pdf .classif .medoids .class.tsv .class.nwk]
+             )
+        return nil
+      end
+      r = add_result_iter_clades(base)
     end
 
-    r = add_result_iter_clades(base)
     r.add_file(:aai_dist_rds, 'miga-project.dist.rds')
     r.add_file(:aai_dist_rda, 'miga-project.dist.rda')
     r.add_file(:aai_tree,     'miga-project.aai.nwk')

@@ -154,7 +154,14 @@ module MiGA::Project::Base
     },
     aai_save_rbm: {
       desc: 'Should RBMs be saved for OGS analysis?',
-      default: proc { |project| project.clade? },
+      default: proc do |project|
+        project.clade? && project.option(:aai_p) != 'no'
+      end,
+      in: [true, false]
+    },
+    run_ogs: {
+      desc: 'Should orthologous groups be estimated?',
+      default: proc { |project| project.option(:aai_save_rbm) },
       in: [true, false]
     },
     ogs_identity: {
