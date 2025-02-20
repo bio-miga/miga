@@ -226,8 +226,9 @@ generate_empty_files <- function (out_base) {
   plot(1, t = "n", axes = F)
   legend("center", "No data", bty = "n")
   dev.off()
-  file.create(paste(out_base, ".1.classif", sep = ""))
-  file.create(paste(out_base, ".1.medoids", sep = ""))
+  file.create(paste0(out_base, ".1.classif"))
+  file.create(paste0(out_base, ".1.medoids"))
+  file.create(paste0(out_base, ".empty"))
 }
 
 write_text_report <- function (out_base, ani.d, ani.medoids, ani.types) {
