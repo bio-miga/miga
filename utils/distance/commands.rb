@@ -115,37 +115,37 @@ module MiGA::DistanceRunner::Commands
     f1 = tmp_file('largecontigs.fa')
     return unless File.size?(f1)
 
-    # Run FastANI
-    empty = true
-    File.open(f2 = tmp_file, 'w') do |fh|
-      targets.each do |target|
-        target_asm = target&.result(:assembly)&.file_path(:largecontigs)
-        if target_asm
-          fh.puts target_asm
-          empty = false
+    # Select targets with assemblies
+    target_asm =
+      targets.map do |target|
+        target&.result(:assembly)&.file_path(:largecontigs)
+      end.compact
+
+    # Run FastANI in batches of up to 100 genomes
+    until target_asm.empty?
+      File.open(f2 = tmp_file, 'w') do |fh|
+        target_asm.shift(100).each { |i| fh.puts i }
+      end
+      run_cmd <<~CMD
+                fastANI -q "#{f1}" --rl "#{f2}" -t #{opts[:thr]} \
+                -o "#{f3 = tmp_file}"
+              CMD
+
+      # Retrieve resulting data and save to DB
+      data = {}
+      File.open(f3, 'r') do |fh|
+        fh.each do |ln|
+          row = ln.chomp.split("\t")
+          n2 = File.basename(row[1], '.gz')
+          n2 = File.basename(n2, '.LargeContigs.fna')
+          data[n2] = [row[2].to_f, 0.0, row[3].to_i, row[4].to_i]
         end
       end
-    end
-    return if empty
-    run_cmd <<~CMD
-              fastANI -q "#{f1}" --rl "#{f2}" -t #{opts[:thr]} \
-              -o "#{f3 = tmp_file}"
-            CMD
+      batch_data_to_db(:ani, data)
 
-    # Retrieve resulting data and save to DB
-    data = {}
-    File.open(f3, 'r') do |fh|
-      fh.each do |ln|
-        row = ln.chomp.split("\t")
-        n2 = File.basename(row[1], '.gz')
-        n2 = File.basename(n2, '.LargeContigs.fna')
-        data[n2] = [row[2].to_f, 0.0, row[3].to_i, row[4].to_i]
-      end
+      # Cleanup
+      [f2, f3].each { |i| File.unlink(i) }
     end
-    batch_data_to_db(:ani, data)
-
-    # Cleanup
-    [f2, f3].each { |i| File.unlink(i) }
   end
 
   ##
