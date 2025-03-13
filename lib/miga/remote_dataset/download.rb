@@ -113,7 +113,7 @@ class MiGA::RemoteDataset
         rang = a[pref.size .. -1].to_i .. b[pref.size .. -1].to_i
         ids  = rang.map { |k| "%s%0#{a.size - pref.size}i" % [pref, k] }
       end
-      ids.map do |id|
+      ids.each_slice(10).map do |id|
         download_rest(opts.merge(universe: :ncbi, db: :nuccore, ids: [id]))
       end.join("\n")
     end
