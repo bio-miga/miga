@@ -36,9 +36,11 @@ module MiGA::Cli::Action::Download::Seqcode
       total_pages  = doc.dig(:response, :total_pages)
 
       doc[:values].each do |name|
-        next unless name[:type_material]
-        acc = name[:type_material].values.first
-        db  = name[:type_material].keys.first
+        nt = name[:nomenclatural_type]
+        next unless nt && nt[:class] == 'Genome'
+
+        acc = nt.values.first
+        db  = nt.keys.first
         next unless %i[assembly nuccore].include?(db) # No INSDC genome, ignore
 
         classif = name[:classification] || {}

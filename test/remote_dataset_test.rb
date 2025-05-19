@@ -34,13 +34,15 @@ class RemoteDatasetTest < Test::Unit::TestCase
       assert_equal(
         'ns:ncbi k:Pararnavirae p:Artverviricota c:Revtraviricetes ' \
           'o:Ortervirales f:Retroviridae g:Lentivirus ' \
-          's:Human_immunodeficiency_virus_2',
+          's:Lentivirus_humimdef2 ' \
+          'ds:Human_immunodeficiency_virus_2',
         tx.to_s, msg
       )
       assert_equal(
         'ns:ncbi d: k:Pararnavirae p:Artverviricota c:Revtraviricetes ' \
           'o:Ortervirales f:Retroviridae g:Lentivirus ' \
-          's:Human_immunodeficiency_virus_2 ssp: str: ds:',
+          's:Lentivirus_humimdef2 ssp: str: ' \
+          'ds:Human_immunodeficiency_virus_2',
         tx.to_s(true), msg
       )
       assert_equal('ncbi', tx.namespace, msg)

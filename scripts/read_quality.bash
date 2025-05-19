@@ -24,5 +24,9 @@ cat <<VERSIONS \
   | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
 => MiGA
 $(miga --version)
+=> Multitrim
+version unknown
+=> Falco
+$(falco -v 2>&1 | perl -pe 's/^falco //')
 VERSIONS
 
