@@ -6,4 +6,4 @@
 	url = https://github.com/cruizperez/FastAAI.git
 [submodule "utils/multitrim"]
 	path = utils/multitrim
-	url = https://github.com/KGerhardt/multitrim.git
+	url = https://github.com/bio-miga/multitrim.git
