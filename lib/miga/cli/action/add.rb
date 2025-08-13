@@ -170,7 +170,15 @@ class MiGA::Cli::Action::Add < MiGA::Cli::Action
     r_path = File.expand_path("data/#{r_dir}/#{d.name}", p.path)
     file_type[2].each_with_index do |ext, i|
       gz = file[i] =~ /\.gz/ ? '.gz' : ''
-      FileUtils.cp(file[i], "#{r_path}#{ext}#{gz}")
+      fo = "#{r_path}#{ext}#{gz}"
+      if gz == ''
+        FileUtils.cp(file[i], fo)
+      else
+        MiGA::MiGA.run_cmd(
+          "gzip -cd #{file[i].shellescape} | gzip -c > #{fo.shellescape}",
+          source: :miga_env # <- To load pigz if available
+        )
+      end
       cli.say "  file: #{File.basename(file[i])}"
     end
     File.open("#{r_path}.done", 'w') { |f| f.print Time.now.to_s }
