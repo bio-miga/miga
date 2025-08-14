@@ -67,7 +67,7 @@ $(miga --version)
 => Enveomics Collection: FastQ.tag.rb
 $(FastQ.tag.rb --version | perl -pe 's/.* //')
 => Multitrim
-version unknown
+$(multitrim.py --version | perl -pe 's/.* //')
 => FaQCs
 $(FaQCs --version 2>&1 | perl -pe 's/.*: //')
 => Seqtk
