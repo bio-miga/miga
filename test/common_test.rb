@@ -26,11 +26,13 @@ class CommonTest < Test::Unit::TestCase
     assert_respond_to(MiGA::MiGA, :DEBUG_ON)
     assert_respond_to(MiGA::MiGA, :DEBUG_OFF)
     MiGA::MiGA.DEBUG_TRACE_ON
+    assert(MiGA::MiGA.debug_trace?)
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandadi'
     end
-    assert_match(/Dandadi\n    .*block in test_debug_trace/, err.string)
+    assert_match(/Dandadi\n    .*block in .*test_debug_trace/, err.string)
     MiGA::MiGA.DEBUG_TRACE_OFF
+    assert(!MiGA::MiGA.debug_trace?)
     err = capture_stderr do
       MiGA::MiGA.DEBUG 'Dandada'
     end

@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files << 'README.md'
   s.rdoc_options = %w(lib README.md --main README.md)
   s.rdoc_options << '--title' << s.summary
-  s.add_development_dependency 'rake', '~> 12'
+  s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'test-unit', '~> 3'
   s.add_development_dependency 'assertions', '~> 1'
 end

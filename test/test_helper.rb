@@ -1,9 +1,10 @@
+require_relative 'test_patch'
 require 'simplecov'
 SimpleCov.start
 
 require 'rubygems'
-require 'test/unit'
 require 'assertions'
+require 'test/unit'
 require 'miga/common'
 require 'stringio'
 

@@ -140,7 +140,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
           paths[r[1]] = cli[:"path_to_#{r[1]}"]
           cli.puts "user-provided: #{paths[r[1]]}"
         else
-          path = find_software(r[1])
+          path = find_software(r[1], rc_fh)
           paths[r[1]] = File.expand_path(r[1], path).shellescape
         end
       end
@@ -169,7 +169,7 @@ class MiGA::Cli::Action::Init < MiGA::Cli::Action
       ) == 'yes'
   end
 
-  def find_software(exec)
+  def find_software(exec, rc_fh)
     path = nil
     loop do
       d_path = File.dirname(run_cmd(cli, ['which', exec], raise: false))
