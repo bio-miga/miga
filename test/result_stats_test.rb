@@ -53,7 +53,8 @@ class ResultStatsTest < Test::Unit::TestCase
     r = dataset.add_result(:trimmed_reads)
     assert_equal({}, r.stats)
     r.compute_stats
-    assert_equal({}, r.stats)
+    assert_equal([nil, '%'], r.stats[:a_t_skew])
+    assert_equal(0, r.stats[:reads])
   end
 
   def test_read_quality

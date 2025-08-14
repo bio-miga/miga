@@ -14,7 +14,7 @@ Run:
 sudo apt-get update
 sudo apt-get install \
   ruby ruby-sqlite3 r-base sqlite3 libcurl4-openssl-dev zlib1g zlib1g-dev pigz \
-  ncbi-blast+ hmmer bedtools idba prodigal mcl barrnap diamond-aligner \
+  ncbi-blast+ hmmer bedtools spades prodigal mcl barrnap diamond-aligner \
   fastp fastani trnascan-se seqtk
 ```
 

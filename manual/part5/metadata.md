@@ -179,12 +179,20 @@ Metadata entries that trigger specific behaviors in MiGA:
 | run_`step`   | Boolean          | Forces running or not `step`
 | db_project   | Path             | Project to use as database {1}
 | dist_req     | Array of String  | Run distances against these datasets {2}
+| keep_assembly_graphs | Boolean  | Do not clean assembly graphs {3}
 
 > **{1}** By default, it uses its own project as database. The path can be
 > absolute or relative to the parent folder of the project
 > 
 > **{2}** When searching best-matching datasets, include these datasets even if
 > they are not visited using the medoid tree
+>
+> **{3}** By default: false, meaning that assembly graphs are removed
+
+Any of these dataset flags can also be set as project metadata, which applies to
+all datasets in the project. If both a dataset and a project metadata flag are
+set, dataset flags take precedence. If neither is set, the default values are
+used.
 
 
 ### Dataset Hooks

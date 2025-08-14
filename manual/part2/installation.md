@@ -89,7 +89,7 @@ module load prodigal/2.6.1
 module load bedtools/2.21.0
 module load scythe/0.993
 module load fastqc/0.11.2
-module load idba/1.1.1_kMSS
+module load spades/4.0
 module load hmmer/3.1b1
 
 # Enable MyTaxa

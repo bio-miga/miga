@@ -17,7 +17,7 @@ dependencies:
   - falco
   - seqtk
   - fastp
-  - idba
+  - spades
 
   # Assembly processing
   - hmmer

@@ -14,6 +14,10 @@ class MiGA::Cli::Action::Option < MiGA::Cli::Action
       ) { |v| cli[:key] = v }
       opt.on(
         '--value STRING',
+        '::HIDE::' # Replaced by --set, but aliased for backward compatibility
+      ) { |v| cli[:value] = v }
+      opt.on(
+        '-s', '--set STRING',
         'Value of the option to set (by default, option value is not changed)',
         'Recognized tokens: nil, true, false'
       ) { |v| cli[:value] = v }

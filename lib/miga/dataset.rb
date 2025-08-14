@@ -199,7 +199,9 @@ class MiGA::Dataset < MiGA::MiGA
 
   ##
   # Retrieves the option with name +key+ from the dataset's metadata
-  # extending support to relative paths in +:db_project+
+  # extending support to relative paths in +:db_project+, and for all
+  # other options looks for metadata defined in the project before
+  # returning the default
   def option_by_metadata(key)
     case key.to_sym
     when :db_project
@@ -208,6 +210,8 @@ class MiGA::Dataset < MiGA::MiGA
       y = File.expand_path(y, ref_location)
       return y
     end
+
+    return project.metadata[key] unless project.metadata[key].nil?
 
     super
   end

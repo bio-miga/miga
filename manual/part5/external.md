@@ -47,11 +47,12 @@ control of sequencing data.
 [GitHub: KGerhardt/multitrim](https://github.com/KGerhardt/multitrim), by
 Kenji Gerhardt et al.
 
-## IDBA-UD
+## SPADES
 
-Peng Y. Leung HC, Yiu SM, and Chin FY (2012). IDBA-UD: a de novo assembler for
-single-cell and metagenomic sequencing data with highly uneven depth.
-[Bioinformatics, 28:1420-1428](https://doi.org/10.1093/bioinformatics/bts174).
+Prjibelski A, Antipov D, Meleshko D, Lapidus A,and Korobeynikov A (2020). Using SPAdes De Novo Assembler. [Current Protocols in Bioinformatics](https://doi.org/10.1002/cpbi.102).
+
+Nurk S, Meleshko D, Korobeynikov A, and Pevzner PA (2017). metaSPAdes: a new versatile metagenomic assembler. [Genome Research, 27:824-834](https://doi.org/10.1101/gr.213959.116).
+
 
 ## Prodigal
 

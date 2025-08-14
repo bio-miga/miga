@@ -11,35 +11,18 @@ b=$DATASET
 # Initialize
 miga date > "$DATASET.start"
 
-# FastQ -> FastA
-for s in 1 2 ; do
-  in="../02.trimmed_reads/${b}.${s}.clipped.fastq.gz"
-  [[ -s "$in" ]] \
-    && FastQ.maskQual.rb -i "$in" -o "${b}.${s}.fasta" --fasta --qual 18
-done
-
-# Interpose
-if [[ -e "${b}.2.fasta" ]] ; then
-  FastA.interpose.pl "${b}.CoupledReads.fa" "$b".[12].fasta
-else
-  mv "${b}.1.fasta" "${b}.SingleReads.fa"
-fi
-
-# Gzip
+# Gzip (if needed)
 for x in 1.fasta 2.fasta SingleReads.fa CoupledReads.fa ; do
   in="${b}.${x}"
   [[ -e "$in" ]] && gzip -9f "$in"
 done
 
 # Finalize
+echo 'Using FastQ directly' > "${DATASET}.empty"
 miga date > "${DATASET}.done"
 cat <<VERSIONS \
   | miga add_result -P "$PROJECT" -D "$DATASET" -r "$SCRIPT" -f --stdin-versions
 => MiGA
 $(miga --version)
-=> Enveomics Collection: FastQ.maskQual.rb
-$(FastQ.maskQual.rb --version | perl -pe 's/.* //')
-=> Enveomics Collection: FastA.interpose.pl
-version unknown
 VERSIONS
 

@@ -58,10 +58,12 @@ module MiGA::Dataset::Result::Add
     return nil unless
       result_files_exist?(base, '.CoupledReads.fa') ||
       result_files_exist?(base, '.SingleReads.fa')  ||
-      result_files_exist?(base, %w[.1.fasta .2.fasta])
+      result_files_exist?(base, %w[.1.fasta .2.fasta]) ||
+      result_files_exist?(base, '.empty')
 
     add_files_to_ds_result(
       MiGA::Result.new("#{base}.json"), name,
+      empty: '.empty',
       coupled: '.CoupledReads.fa',
       single: '.SingleReads.fa',
       pair1: '.1.fasta',

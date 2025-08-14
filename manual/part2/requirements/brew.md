@@ -37,7 +37,7 @@ brew tap brewsci/bio
 # In Linux, replace 'temurin' with 'openjdk'
 brew install \
     r sqlite3 python numpy pigz temurin \
-    blast hmmer bedtools prodigal gmp idba mcl krona \
+    blast hmmer bedtools prodigal gmp spades mcl krona \
     barrnap diamond fastani faqcs brewsci/bio/falco seqtk fastp trnascan
 ```
 

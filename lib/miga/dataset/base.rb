@@ -158,6 +158,9 @@ module MiGA::Dataset::Base
     },
     dist_req: {
       desc: 'Run distances against these datasets', type: Array, default: []
+    },
+    keep_assembly_graphs: {
+      desc: 'Do not clean assembly graphs', in: [true, false], default: false
     }
   }
 end

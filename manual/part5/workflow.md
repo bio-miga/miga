@@ -160,7 +160,7 @@ MiGA symbol: `trimmed_fasta`.
 ## Assembly
 
 In this step MiGA assembles trimmed FastA reads using
-[IDBA-UD](external.md#idba-ud).
+[SPADES](external.md#spades).
 
 Supported file keys:
 

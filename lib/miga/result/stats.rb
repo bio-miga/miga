@@ -42,6 +42,10 @@ module MiGA::Result::Stats
     stats
   end
 
+  def compute_stats_trimmed_reads
+    compute_stats_raw_reads
+  end
+
   def compute_stats_trimmed_fasta
     f = self[:files][:coupled].nil? ? file_path(:single) : file_path(:coupled)
     s = MiGA::MiGA.seqs_length(f, :fasta, gc: true, x: true, skew: true)
