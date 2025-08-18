@@ -2,7 +2,7 @@
 
 MiGA requires a system (single computer, cluster, or cloud-computing
 infrastructure) with Linux or MacOS. If you simply want to access projects
-previously processed, all you need is `ruby` 2.7+ and the `miga-base` gem.
+previously processed, all you need is `ruby` 3.1+ and the `miga-base` gem.
 If you want to use MiGA to process your data, please follow these instructions.
 
 MiGA has a relatively long list of requirements, but most of them are easy to
