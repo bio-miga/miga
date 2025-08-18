@@ -12,8 +12,10 @@ db.execute 'create table metadata(' \
   '`name` varchar(256), `field` varchar(256), `value` text)'
 
 def searchable(db, d, k, v)
-  db.execute 'insert into metadata values(?,?,?)',
-             d.name, k.to_s, " #{v.to_s.downcase.gsub(/[^A-Za-z0-9\-]+/, ' ')} "
+  db.execute(
+    'insert into metadata values(?,?,?)',
+    [d.name, k.to_s, " #{v.to_s.downcase.gsub(/[^A-Za-z0-9\-]+/, ' ')} "]
+  )
 end
 
 p.each_dataset do |d|

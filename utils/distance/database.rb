@@ -106,7 +106,7 @@ module MiGA::DistanceRunner::Database
         [n1, n2]
       ).first
     end if File.size?(db)
-    y
+    y.dup
   rescue SQLite3::CorruptException => e
     $stderr.puts "Corrupt database: #{db}"
     raise e
@@ -157,7 +157,7 @@ module MiGA::DistanceRunner::Database
     data = {}
     SQLite3::Database.new(db) do |conn|
       sql = "select seq2, #{table}, sd, n, omega from #{table}"
-      conn.execute(sql).each { |row| data[row.shift] = row }
+      conn.execute(sql).each { |row| r = row.dup; data[r.shift] = r }
     end
     data
   rescue => e
@@ -187,7 +187,7 @@ module MiGA::DistanceRunner::Database
   # Iterates for each entry in +db+
   def foreach_in_db(db, metric, &blk)
     SQLite3::Database.new(db) do |conn|
-      conn.execute("select * from #{metric}").each { |r| blk[r] }
+      conn.execute("select * from #{metric}").each { |r| blk[r.dup] }
     end
   end
 

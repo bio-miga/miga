@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   # Dependencies
   s.add_runtime_dependency 'daemons', '~> 1.3'
   s.add_runtime_dependency 'json', '~> 2'
-  s.add_runtime_dependency 'sqlite3', '~> 1.3'
+  s.add_runtime_dependency 'sqlite3', '~> 2.7'
   s.add_runtime_dependency 'net-http'
   s.add_runtime_dependency 'net-ftp'
   s.add_runtime_dependency 'rubyzip', '~> 2.3'

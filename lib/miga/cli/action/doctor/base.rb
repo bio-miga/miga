@@ -83,8 +83,9 @@ module MiGA::Cli::Action::Doctor::Base
     data = MiGA::SQLite.new(db_file).run(sql) || []
     Hash[
       data.map do |row|
-        k, v = row.shift(2)
-        [k, row.all?(&:zero?) ? v : [v] + row]
+        r = row.dup
+        k, v = r.shift(2)
+        [k, r.all?(&:zero?) ? v : [v] + r]
       end
     ]
   end
