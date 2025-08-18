@@ -19,10 +19,10 @@ echo 'export PATH=$HOME/apps/bin:$PATH' >> ~/.miga_modules
 
 ```bash
 wget -O - \
-  https://github.com/luo-chengwei/MyTaxa/archive/master.tar.gz | tar zx
+  https://github.com/bio-miga/MyTaxa/archive/master.tar.gz | tar zx
 cd MyTaxa-master
 make
-python2 utils/download_db.py
+python3 utils/download_db.py
 echo 'export PATH="'$PWD':$PATH"' >> ~/.miga_modules
 cd ..
 ```
