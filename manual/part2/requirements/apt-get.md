@@ -26,18 +26,18 @@ you can install it in your 64bit Linux machine using:
 ```bash
 ## FaQCs
 wget -O FaQCs \
-  "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.10/FaQCs_linux_x86_64"
+  "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.12/FaQCs_linux_x86_64"
 sudo install FaQCs /usr/bin/ && rm FaQCs
 
 ## Falco
 wget -O falco.tar.gz \
-  "https://github.com/smithlabcode/falco/releases/download/v1.2.3/falco-1.2.3.tar.gz"
+  "https://github.com/smithlabcode/falco/releases/download/v1.2.5/falco-1.2.5.tar.gz"
 tar zxf falco.tar.gz
-( cd falco-1.2.3 \
+( cd falco-1.2.5 \
     && ./configure CXXFLAGS="-O3 -Wall" \
     && make && sudo make install
 )
-rm -rf falco-1.2.3 falco.tar.gz
+rm -rf falco-1.2.5 falco.tar.gz
 ```
 
 # JAVA VM
