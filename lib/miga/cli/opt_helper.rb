@@ -92,22 +92,22 @@ module MiGA::Cli::OptHelper
         opt.on(
           '-r', '--result STRING',
           "#{'(Mandatory) ' if w == :result}Name of the result",
-          'Recognized names for dataset-specific results include:',
-          *MiGA::Dataset.RESULT_DIRS.keys.map { |n| " ~ #{n}" },
-          'Recognized names for project-wide results include:',
-          *MiGA::Project.RESULT_DIRS.keys.map { |n| " ~ #{n}" }
+          '~ Recognized names for dataset-specific results include:',
+          *list_to_paragraph(MiGA::Dataset.RESULT_DIRS.keys),
+          '~ Recognized names for project-wide results include:',
+          *list_to_paragraph(MiGA::Project.RESULT_DIRS.keys)
         ) { |v| self[:result] = v.downcase.to_sym }
       when :result_dataset
         opt.on(
           '-r', '--result STRING',
           '(Mandatory) Name of the result, one of:',
-          *MiGA::Dataset.RESULT_DIRS.keys.map { |n| " ~ #{n}" }
+          *list_to_paragraph(MiGA::Dataset.RESULT_DIRS.keys, indent: 0)
         ) { |v| self[:result] = v.downcase.to_sym }
       when :result_project
         opt.on(
           '-r', '--result STRING',
           '(Mandatory) Name of the result, one of:',
-          *MiGA::Project.RESULT_DIRS.keys.map { |n| " ~ #{n}" }
+          *list_to_paragraph(MiGA::Project.RESULT_DIRS.keys, indent: 0)
         ) { |v| self[:result] = v.downcase.to_sym }
       else
         raise "Internal error: Unrecognized option: #{w}"
@@ -173,5 +173,11 @@ module MiGA::Cli::OptHelper
   def opt_flag(opt, flag, description, sym = nil)
     sym = flag.to_sym if sym.nil?
     opt.on("--#{flag.to_s.tr('_', '-')}", description) { |v| self[sym] = v }
+  end
+
+  def list_to_paragraph(list, width: 50, indent: 2)
+    list.map(&:to_s).join(', ')
+        .scan(/\S.{0,#{width}}\S(?=\s|$)|\S+/).to_a
+        .map { |i| "#{' ' * indent}#{i}" }
   end
 end
