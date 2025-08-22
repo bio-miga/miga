@@ -7,7 +7,7 @@ class MiGA::Cli::Action::Files < MiGA::Cli::Action
   def parse_cli
     cli.defaults = { details: false, json: true }
     cli.parse do |opt|
-      cli.opt_object(opt, [:project, :dataset_opt])
+      cli.opt_object(opt, %i[project dataset_opt result_opt])
       opt.on(
         '-i', '--info',
         'Print additional details for each file'
@@ -21,7 +21,10 @@ class MiGA::Cli::Action::Files < MiGA::Cli::Action
   end
 
   def perform
-    cli.load_project_or_dataset.each_result do |sym, res|
+    obj = cli.load_project_or_dataset
+    res = cli[:result] ? [cli.load_result] : cli.load_project_or_dataset.results
+    res.each do |res|
+      sym = res.key
       cli.puts "#{"#{sym}\tjson\t" if cli[:details]}#{res.path}" if cli[:json]
       res.each_file do |k, f|
         cli.puts "#{"#{sym}\t#{k}\t" if cli[:details]}#{res.dir}/#{f}"

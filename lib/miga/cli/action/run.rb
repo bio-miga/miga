@@ -7,7 +7,7 @@ class MiGA::Cli::Action::Run < MiGA::Cli::Action
   def parse_cli
     cli.defaults = { try_load: false, thr: 1, env: false, check_first: false }
     cli.parse do |opt|
-      cli.opt_object(opt, [:project, :dataset_opt, :result_opt])
+      cli.opt_object(opt, %i[project dataset_opt result_opt])
       opt.on(
         '-t', '--threads INT', Integer,
         "Threads to use in the local run (by default: #{cli[:thr]})"
