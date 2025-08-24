@@ -25,9 +25,8 @@ class MiGA::DistanceRunner
       @ref_project = project
     end
     @opts[:thr] ||= ENV.fetch('CORES') { 1 }.to_i
-    %i[haai_p aai_p ani_p distances_checkpoint aai_save_rbm].each do |m|
-      @opts[m] ||= ref_project.option(m)
-    end
+    %i[haai_p aai_p ani_p distances_checkpoint aai_save_rbm indexing]
+      .each { |m| @opts[m] ||= ref_project.option(m) }
     $stderr.puts "Options: #{opts}"
   end
 
@@ -46,6 +45,27 @@ class MiGA::DistanceRunner
   # Launch analysis for reference datasets
   def go_ref!
     $stderr.puts 'Launching analysis for reference dataset'
+
+    # Check if the project is non-hierarchical
+    case ref_project.option(:indexing)
+    when 'no'
+      # No index? No distance
+      out_base = File.expand_path(dataset.name, home)
+      File.open("#{out_base}.empty", 'w') { |fh| fh.puts 'No indexing' }
+      return
+    when 'gsearch'
+      if project == ref_project
+        # No need to pre-calculate any distances for GSearch indexes
+        out_base = File.expand_path(dataset.name, home)
+        File.open("#{out_base}.empty", 'w') { |fh| fh.puts 'GSearch indexing' }
+        return
+      else
+        # Just keep going, gsearch will override haai_p and aai_p
+      end
+    when 'hierarchical'
+      # Just keep going
+    end
+
     # Initialize databases
     initialize_dbs! true
 

@@ -133,6 +133,11 @@ module MiGA::Project::Base
       desc: 'Maximum p-value to transfer taxonomy', default: 0.1, type: Float,
       in: 0.0..1.0
     },
+    indexing: {
+      desc: 'Approach used to index the collection as database', type: String,
+      default: 'hierarchical',
+      in: %w[hierarchical gsearch no]
+    },
     haai_p: {
       desc: 'Value of aai.rb -p on hAAI', type: String,
       default: proc { |project|
@@ -146,7 +151,7 @@ module MiGA::Project::Base
     },
     ani_p: {
       desc: 'Value of ani.rb -p on ANI', default: 'fastani', type: String,
-      in: %w[blast+ blast blat fastani]
+      in: %w[blast+ blast blat fastani no]
     },
     max_try: {
       desc: 'Maximum number of task attempts', default: 10, type: Integer,

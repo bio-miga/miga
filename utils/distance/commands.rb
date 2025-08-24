@@ -44,6 +44,7 @@ module MiGA::DistanceRunner::Commands
     $stderr.puts "[#{Time.now}] ANI: #{dataset.name} vs #{targets.size} targets"
     empty_vals = targets.map { |_i| nil }
     return empty_vals unless File.size?(tmp_file('largecontigs.fa'))
+    return empty_vals if opts[:ani_p] == 'no'
 
     # Launch comparisons
     sbj = pending_targets(targets, :ani)

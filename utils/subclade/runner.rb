@@ -14,20 +14,21 @@ class MiGA::SubcladeRunner
       @step == :clade_finding ? '01.find.running' : '02.ani.running'
     )
     @opts[:thr] ||= ENV.fetch('CORES') { 2 }.to_i
-    @opts[:run_clades] = @project.option(:run_clades)
-    @opts[:gsp_ani] = @project.option(:gsp_ani)
-    @opts[:gsp_aai] = @project.option(:gsp_aai)
-    @opts[:gsp_metric] = @project.option(:gsp_metric)
+    %i[run_clades gsp_ani gsp_aai gsp_metric indexing].each do |m|
+      @opts[m] = @project.option(m)
+    end
   end
 
   # Launch the appropriate analysis
   def go!
     return if project.type == :metagenomes
 
-    unless @project.dataset_names.any? { |i| @project.dataset(i).ref? }
+    if @opts[:indexing] == 'no' ||
+          !@project.dataset_names.any? { |i| @project.dataset(i).ref? }
       FileUtils.touch(File.join(@home, 'miga-project.empty'))
       return
     end
+
     Dir.chdir home
     Dir.mktmpdir do |tmp_dir|
       @tmp = tmp_dir

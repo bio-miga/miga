@@ -2,6 +2,7 @@
 module MiGA::SubcladeRunner::Pipeline
   # Run species-level clusterings using ANI > 95% / AAI > 90%
   def cluster_species
+    return unless opts[:indexing] == 'hierarchical'
     tasks = {
       ani95: [:ani_distances, opts[:gsp_ani], :ani],
       aai90: [:aai_distances, opts[:gsp_aai], :aai]
@@ -69,6 +70,17 @@ module MiGA::SubcladeRunner::Pipeline
   end
 
   def subclades(metric)
+    case opts[:indexing]
+    when 'no'
+      # Do nothing
+    when 'gsearch'
+      subclades_gsearch(metric)
+    when 'hierarchical'
+      subclades_hierarchical(metric)
+    end
+  end
+
+  def subclades_hierarchical(metric)
     src = File.expand_path('utils/subclades.R', MiGA::MiGA.root_path)
     step = :"#{metric}_distances"
     metric_res = project.result(step) or raise "Incomplete step #{step}"
@@ -80,6 +92,34 @@ module MiGA::SubcladeRunner::Pipeline
     if File.exist? 'miga-project.nwk'
       File.rename('miga-project.nwk', "miga-project.#{metric}.nwk")
     end
+  end
+
+  def subclades_gsearch(metric)
+    tmp_dir = tmp_file('genomes')
+    Dir.mkdir(tmp_dir)
+
+    cmd  = %w[gsearch --pio 2000 --nbthreads] + [opts[:thr].to_s]
+    cmd += %w[tohnsw -k 16 -n 128 --ef 1600 --algo optdens]
+    cmd += %w[--scale_modify_f 0.25 -d] + tmp_dir
+
+    if metric.to_sym == :ani
+      project.dataset_ref_active.each do |ds|
+        f = ds&.result(:assembly)&.file_path(:largecontigs) or next
+        FileUtils.ln_s(f, tmp_dir)
+      end
+      cmd += %w[-s 18000]
+    else
+      project.dataset_ref_active.each do |ds|
+        f = ds&.result(:cds)&.file_path(:proteins) or next
+        FileUtils.ln_s(f, tmp_dir)
+      end
+      cmd += %w[-s 12000 --aa]
+    end
+
+    Dir.mkdir('gsearch.d')
+    Dir.chdir('gsearch.d')
+    run_cmd(cmd)
+    Dir.chdir('..')
   end
 
   def compile
