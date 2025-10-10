@@ -33,6 +33,9 @@ class MiGA::Lair < MiGA::MiGA
   #   them
   # - exclude: Array of project names to be excluded from the lair
   # - exclude_releases: Exclude projects with release metadata from the lair
+  # - max_running: Run a maximum of this many projects at time
+  # - ignore_complete: Ignore projects that are complete based on their datasets
+  #   reported metadata status
   def initialize(path, opts = {})
     @path = File.expand_path(path)
     @options = opts
@@ -45,7 +48,9 @@ class MiGA::Lair < MiGA::MiGA
       name: File.basename(@path),
       dry: false,
       exclude: [],
-      exclude_releases: false
+      exclude_releases: false,
+      max_running: nil,
+      ignore_complete: false
     }.each { |k, v| @options[k] = v if @options[k].nil? }
   end
 
@@ -139,16 +144,19 @@ class MiGA::Lair < MiGA::MiGA
   ##
   # Traverse directories checking MiGA projects
   def check_directories
+    active = 0
     each_project do |project|
+      break if options[:max_running] && active >= options[:max_running]
+
       d = project_daemon(project)
-      next if d.active?
+      d.active? and active += 1 and next
 
       l_alive = d.last_alive
       unless l_alive.nil?
         next if options[:trust_timestamp] && project.metadata.updated < l_alive
         next if l_alive > Time.now - options[:wait_for]
       end
-      launch_daemon(project)
+      launch_daemon(project) && active += 1
     end
   end
 
@@ -156,6 +164,8 @@ class MiGA::Lair < MiGA::MiGA
   # Launch daemon for the MiGA::Project +project+ and returns the corresponding
   # MiGA::Daemon object
   def launch_daemon(project)
+    return if options[:ignore_complete] && project.complete?
+
     say "Launching daemon: #{project.path}"
     daemon = project_daemon(project)
     daemon.runopts(:shutdown_when_done, true) unless options[:keep_inactive]

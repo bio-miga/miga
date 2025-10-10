@@ -34,6 +34,14 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         '--exclude-releases', 'Exclude projects with release metadata'
       ) { |v| cli[:exclude_releases] = v }
       opt.on(
+        '--max-running INT', Integer,
+        'Maximum number of running projects at the same time',
+        'by default, unlimited'
+      ) { |v| cli[:max_running] = v }
+      opt.on(
+        '--ignore-complete', 'Ignore fully-processed projects'
+      ) { |v| cli[:ignore_complete] = v }
+      opt.on(
         '--json PATH',
         'Path to a custom daemon definition in json format'
       ) { |v| cli[:json] = v }
@@ -90,7 +98,7 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
     cli.ensure_par(path: '-p')
     k_opts = %i[
       json latency wait_for keep_inactive trust_timestamp name dry
-      exclude exclude_releases
+      exclude exclude_releases max_running ignore_complete
     ]
     opts = Hash[k_opts.map { |k| [k, cli[k]] }]
     lair = MiGA::Lair.new(cli[:path], opts)

@@ -176,6 +176,16 @@ module MiGA::Project::Dataset
   end
 
   ##
+  # Are all datasets reportedly done based on their status, and the results
+  # from the project complete?
+  #
+  # If you need to actually check all results, use +done_preprocessing?+ instead
+  def complete?
+    each_dataset.all? { |d| d.metadata[:status] != 'incomplete' } &&
+      next_task.nil?
+  end
+
+  ##
   # Returns a two-dimensional matrix (Array of Array) where the first index
   # corresponds to the dataset, the second index corresponds to the dataset
   # task, and the value corresponds to:
