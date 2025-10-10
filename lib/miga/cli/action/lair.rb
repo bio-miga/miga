@@ -64,6 +64,15 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         'Check all results instead of trusting project timestamps'
       ) { |v| cli[:trust_timestamp] = v }
       opt.on(
+        '--system-element',
+        'Default settings for a system element lair (consider --max-running)',
+        'Same as: --no-trust-timestamp --exclude-releases --ignore-complete'
+      ) do |v|
+        cli[:trust_timestamp]  = false
+        cli[:exclude_releases] = true
+        cli[:ignore_complete]  = true
+      end
+      opt.on(
         '--name STRING',
         'A name for the chief daemon process'
       ) { |v| cli[:name] = v }
