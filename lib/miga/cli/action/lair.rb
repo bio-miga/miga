@@ -31,6 +31,9 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
         'Exclude these projects (identified by name) from the lair'
       ) { |v| cli[:exclude] = v }
       opt.on(
+        '--exclude-releases', 'Exclude projects with release metadata'
+      ) { |v| cli[:exclude_releases] = v }
+      opt.on(
         '--json PATH',
         'Path to a custom daemon definition in json format'
       ) { |v| cli[:json] = v }
@@ -86,7 +89,8 @@ class MiGA::Cli::Action::Lair < MiGA::Cli::Action
   def perform
     cli.ensure_par(path: '-p')
     k_opts = %i[
-      json latency wait_for keep_inactive trust_timestamp name dry exclude
+      json latency wait_for keep_inactive trust_timestamp name dry
+      exclude exclude_releases
     ]
     opts = Hash[k_opts.map { |k| [k, cli[k]] }]
     lair = MiGA::Lair.new(cli[:path], opts)

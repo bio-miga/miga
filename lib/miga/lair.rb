@@ -32,6 +32,7 @@ class MiGA::Lair < MiGA::MiGA
   # - dry: Only report when daemons would be launched, but don't actually launch
   #   them
   # - exclude: Array of project names to be excluded from the lair
+  # - exclude_releases: Exclude projects with release metadata from the lair
   def initialize(path, opts = {})
     @path = File.expand_path(path)
     @options = opts
@@ -43,7 +44,8 @@ class MiGA::Lair < MiGA::MiGA
       trust_timestamp: true,
       name: File.basename(@path),
       dry: false,
-      exclude: []
+      exclude: [],
+      exclude_releases: false
     }.each { |k, v| @options[k] = v if @options[k].nil? }
   end
 
@@ -116,8 +118,10 @@ class MiGA::Lair < MiGA::MiGA
       if MiGA::Project.exist? f
         project = MiGA::Project.load(f)
         raise "Cannot load project: #{f}" if project.nil?
+        next if options[:exclude].include?(project.name)
+        next if options[:exclude_releases] && project.metadata[:release]
 
-        yield(project) unless options[:exclude].include?(project.name)
+        yield(project)
       elsif Dir.exist? f
         each_project(f) { |p| yield(p) }
       end
