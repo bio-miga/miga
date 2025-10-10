@@ -181,6 +181,8 @@ module MiGA::Project::Dataset
   #
   # If you need to actually check all results, use +done_preprocessing?+ instead
   def complete?
+    return true if dataset_names.empty?
+
     each_dataset.all? { |d| d.metadata[:status] != 'incomplete' } &&
       next_task.nil?
   end
