@@ -45,7 +45,7 @@ Additionally, recent changes in `pip` might break some installations, and
 as such we recommend pre-installing python packages in a brew environment:
 
 ```bash
-pip install --break-system-packages pyhmmer pyrodigal
+pip install --break-system-packages numpy sqlite3 pyhmmer pyrodigal
 ```
 
 We also recommend installing the `sqlite3` gem beforehand using the brew
