@@ -25,7 +25,7 @@ class FormatTest < Test::Unit::TestCase
     declare_remote_access
     m = MiGA::MiGA
     #o = m.http_request(:get, 'http://uibk.microbial-genomes.org/robots.txt')
-    o = m.http_request(:get, 'http://disc-genomics.uibk.ac.at/miga/robots.txt')
+    o = m.http_request(:get, 'http://aau.microbial-genomes.org/robots.txt')
     o = o.split(/\n/)
     assert_equal(6, o.count)
     assert_equal('#', o[1])
