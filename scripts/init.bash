@@ -2,7 +2,7 @@
 set -e
 
 #=======[ Functions ]
-function ask_user {
+ask_user() {
   local question=$1
   local default=$2
   echo "$question" >&2
@@ -12,7 +12,7 @@ function ask_user {
   echo -n "$user_answer"
 }
 
-function check_req {
+check_req() {
   local bin=$1
   local default
   default=$(dirname "$(which "$bin")")
@@ -26,14 +26,14 @@ function check_req {
   fi
 }
 
-function check_rlib {
+check_rlib() {
   local rlib=$1
   gotit=$(echo "if(require($rlib)) cat('GOT','IT')" | R --vanilla -q 2>&1 \
     | grep -c "GOT IT")
   [[ "$gotit" == "1" ]]
 }
 
-function check_gem {
+check_gem() {
   local gem=$1
   gotit=$(echo "require '$gem'" | ruby 2>/dev/null && echo 1)
   [[ "$gotit" == "1" ]]

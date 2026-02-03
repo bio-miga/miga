@@ -10,7 +10,7 @@ DIR="$PROJECT/data/09.distances/03.ani"
 miga_start_project_step "$DIR"
 
 # Extract values
-function foreach_database_ani {
+foreach_database_ani() {
   local SQL="SELECT seq1, seq2, ani, sd, n, omega from ani;"
   local k=0
   while [[ -n ${DS[$k]} ]] ; do
@@ -19,7 +19,7 @@ function foreach_database_ani {
   done
 }
 
-function ani_tsv {
+ani_tsv() {
   DS=($(miga ls -P "$PROJECT" --ref --no-multi --active))
   echo "a b value sd n omega" | tr " " "\\t"
   foreach_database_ani

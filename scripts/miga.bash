@@ -10,13 +10,13 @@ SCRIPT=${SCRIPT:-"$(basename "$0" .bash)"}
 # Ancillary functions
 
 # Evaluates if the first passed argument is an existing file
-function exists { [[ -e "$1" ]] ; }
+exists() { [[ -e "$1" ]] ; }
 
 # Evaluates if the first passed argument is a function
-function fx_exists { [[ $(type -t "$1") == "function" ]] ; }
+fx_exists() { [[ $(type -t "$1") == "function" ]] ; }
 
 # Initiate a project-wide run
-function miga_start_project_step {
+miga_start_project_step() {
   local dir="$1"
   local dir_r="${dir}.running"
   mkdir -p "$dir"
@@ -26,7 +26,7 @@ function miga_start_project_step {
 }
 
 # Finalize a project-wide run
-function miga_end_project_step {
+miga_end_project_step() {
   local dir="$1"
   local dir_r="${dir}.running"
   cd "$dir"

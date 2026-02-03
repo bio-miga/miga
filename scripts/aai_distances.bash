@@ -10,7 +10,7 @@ DIR="$PROJECT/data/09.distances/02.aai"
 miga_start_project_step "$DIR"
 
 # Extract values
-function foreach_database_aai {
+foreach_database_aai() {
   local SQL="SELECT seq1, seq2, aai, sd, n, omega from aai;"
   local k=0
   while [[ -n ${DS[$k]} ]] ; do
@@ -19,7 +19,7 @@ function foreach_database_aai {
   done
 }
 
-function aai_tsv {
+aai_tsv() {
   DS=($(miga ls -P "$PROJECT" --ref --no-multi --active))
   echo "a b value sd n omega" | tr " " "\\t"
   if [[ ${#DS[@]} -gt 40000 ]] ; then

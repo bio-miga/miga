@@ -20,7 +20,7 @@ class MiGA::Cli::Action::Env < MiGA::Cli::Action
       done
       # Override gzip with pigz (if available)
       if command -v pigz &>/dev/null ; then
-        function gzip { pigz -p ${CORES:-2} "$@" ; }
+        gzip() { pigz -p ${CORES:-2} "$@" ; }
       fi
     BASH
   end
