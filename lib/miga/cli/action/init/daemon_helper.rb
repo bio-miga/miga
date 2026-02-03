@@ -107,10 +107,9 @@ module MiGA::Cli::Action::Init::DaemonHelper
     v[:cmd] = cli.ask_user(
       "How should I launch tasks?\n" \
         "  {{variables}}: script, vars, cpus, log, task_name, miga\n ",
-      "{{vars}} sbatch --partition='#{queue}' --export=ALL " \
+      "{{vars}} sbatch --parsable --partition='#{queue}' --export=ALL " \
         "--nodes=1 --ntasks-per-node={{cpus}} --output='{{log}}' " \
-        "--job-name='{{task_name}}' --mem=9G --time=12:00:00 {{script}} " \
-        "| perl -pe 's/.* //'"
+        "--job-name='{{task_name}}' --mem=9G --time=12:00:00 {{script}}"
     )
     v[:var] = cli.ask_user(
       "How should I pass variables?\n" \
