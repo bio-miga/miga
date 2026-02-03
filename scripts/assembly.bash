@@ -87,7 +87,7 @@ fi
 CMD="$CMD $TYPE_OPT"
 echo "$CMD"
 $CMD || true
-[[ -s "$DATASET/contigs.fa" ]] || exit 1
+[[ -s "$DATASET/contigs.fasta" ]] || exit 1
 
 # Clean
 KEEP_GR=$(miga option -P "$PROJECT" -D "$DATASET" -k keep_assembly_graphs)
