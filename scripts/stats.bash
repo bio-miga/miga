@@ -12,7 +12,7 @@ cd "$DIR"
 miga date > "${DATASET}.start"
 
 # Calculate statistics
-for i in raw_reads trimmed_fasta assembly \
+for i in raw_reads trimmed_reads trimmed_fasta assembly \
          cds essential_genes distances taxonomy ssu ; do
   echo "# $i"
   miga stats --compute-and-save --try-load --ignore-empty \

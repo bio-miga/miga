@@ -24,10 +24,8 @@ Now, install all the required packages using conda:
 
 ```bash
 # Install prerequisites
-curl -Lso miga.yml \
-  "https://raw.githubusercontent.com/bio-miga/miga/main/conda.yml"
-conda env create -f miga.yml
-rm miga.yml
+conda env create \
+  -f "https://raw.githubusercontent.com/bio-miga/miga/main/conda.yml"
 
 # Tell MiGA to activate the proper conda environment
 echo 'eval "$(conda shell.bash hook)" && conda activate miga' > ~/.miga_modules
