@@ -18,6 +18,6 @@ Seqtk (reads)	seqtk		https://github.com/lh3/seqtk
 Fastp (reads)	fastp		https://github.com/OpenGene/fastp
 SPADES (reads)	spades.py	https://ablab.github.io/spades/			Required version: 3+
 Temurin (rdp)	java		https://adoptium.net/				Any Java VM would work
-MyTaxa (mytaxa)	MyTaxa		http://enve-omics.ce.gatech.edu/mytaxa
+MyTaxa (mytaxa)	MyTaxa		http://github.com/bio-miga/mytaxa		Required version: 1.2+
 Krona (mytaxa)	ktImportText	https://github.com/marbl/Krona/wiki
 tRNAscan-SE	tRNAscan-SE	http://trna.ucsc.edu/tRNAscan-SE/		Required version: 2+

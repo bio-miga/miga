@@ -26,14 +26,12 @@ else
             "no such file or directory" >&2
       exit 1
     fi
-    if [[ ! -d "$MT/db" ]] ; then
-      echo "Cannot locate the MyTaxa index: $MT/db:" \
-            "no such file or directory" >&2
+    if [[ ! -d "$MT/db" && ! -d "$MYTAXA_DB" ]] ; then
+      echo "Cannot locate the MyTaxa index: $MT/db" >&2
       exit 1
     fi
     if [[ ! -d "$MT/utils" ]] ; then
-      echo "Cannot locate the MyTaxa utilities: $MT/utils:" \
-            "no such file or directory" >&2
+      echo "Cannot locate the MyTaxa utilities: $MT/utils" >&2
       exit 1
     fi
      
