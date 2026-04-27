@@ -64,12 +64,33 @@ module MiGA::Cli::Action::Init::FilesHelper
 
   def check_mytaxa_scores(paths)
     cli.print 'Looking for MyTaxa scores... '
-    mt = File.dirname(paths['MyTaxa'])
-    unless Dir.exist?(File.join(mt, 'db'))
-      cli.puts "no\nExecute 'python2 #{mt}/utils/download_db.py'"
-      raise 'Incomplete MyTaxa installation'
+    arch    = 'mytaxa_db.tar.gz'
+    mt      = File.dirname(paths['MyTaxa'])
+    mt_db   = File.join(mt, 'db')
+    mt_db_1 = File.join(mt_db, 'ncbiSciNames.lib')
+    miga_db = File.join(ENV['MIGA_HOME'], '.miga_db', 'mytaxa')
+    home_db = File.join(miga_db, 'db')
+    home_db_1 = File.join(home_db, 'ncbiSciNames.lib')
+
+    if File.exist?(home_db_1)
+      cli.puts 'yes'
+    elsif File.exist?(mt_db_1)
+      cli.puts 'yes, sym-linking'
+      FileUtils.mkdir_p(miga_db)
+      File.symlink(mt_db, home_db)
+    else
+      cli.puts 'no, downloading'
+      MiGA::MiGA.download_file_ftp(
+        :miga_dist, arch, File.join(miga_db, arch)
+      ) { |n, size| cli.advance("#{arch}:", n, size) }
+      cmd = <<~CMD
+        cd #{miga_db.shellescape} \
+          && tar zxf #{arch.shellescape} \
+          && rm #{arch.shellescape}
+      CMD
+      run_cmd(cli, cmd, source: nil)
+      cli.puts
     end
-    cli.puts 'yes'
   end
 
   def check_mytaxa_database(paths)

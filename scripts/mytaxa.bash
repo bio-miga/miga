@@ -27,12 +27,21 @@ else
             "no such file or directory" >&2
       exit 1
     fi
-    if [[ ! -d "$MT/db" && ! -d "$MYTAXA_DB" ]] ; then
-      echo "Cannot locate the MyTaxa index: $MT/db" >&2
-      exit 1
+    if [[ -d "$MYTAXA_DB" ]] ; then
+      # Use environmental variable for DB location
+    elif [[ -d "$MIGA_HOME/.miga_db/mytaxa/db" ]] ; then
+      export MYTAXA_DB="$MIGA_HOME/.miga_db/mytaxa/db"
+    elif [[ -d "$MT/db" ]] ; then
+      export MYTAXA_DB="$MT/db"
+    else
+     echo "Cannot locate the MyTaxa scores: rerun 'miga init'" >&2 
+     exit 1
     fi
-    if [[ ! -d "$MT/utils" ]] ; then
-      echo "Cannot locate the MyTaxa utilities: $MT/utils" >&2
+    MT_UTILS="$MT/utils"
+    [[ -n "$CONDA_PREFIX" && ! -d "$MT_UTILS" ]] \
+      && MT_UTILS="$CONDA_PREFIX/share/mytaxa/utils"
+    if [[ ! -d "$MT_UTILS" ]] ; then
+      echo "Cannot locate the MyTaxa utilities: $MT_UTILS" >&2
       exit 1
     fi
      
@@ -52,30 +61,30 @@ else
       && gunzip "../../../06.cds/$DATASET.gff3.gz"
     if [[ -e "../../../06.cds/$DATASET.gff2" ]] ; then
       # GFF2
-      perl "$MT/utils/infile_convert.pl" -f gff2 \
+      perl "$MT_UTILS/infile_convert.pl" -f gff2 \
         "../../../06.cds/$DATASET.gff2" "$DATASET.blast" \
         | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
-      perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
+      perl "$MT_UTILS/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
         -g "../../../06.cds/$DATASET.gff2" -f gff2 \
         -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" \
         -K "$DATASET.mytaxa.krona" -u
     elif [[ -e "../../../06.cds/$DATASET.gff3" ]] ; then
       # GFF3
-      perl "$MT/utils/infile_convert.pl" -f gff3 \
+      perl "$MT_UTILS/infile_convert.pl" -f gff3 \
         "../../../06.cds/$DATASET.gff3" "$DATASET.blast" | sort -k 13 \
         > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
-      perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
+      perl "$MT_UTILS/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
         -g "../../../06.cds/$DATASET.gff3" -f gff3 \
         -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" \
         -K "$DATASET.mytaxa.krona" -u
     else
       # No GFF
-      perl "$MT/utils/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" \
+      perl "$MT_UTILS/infile_convert.pl" -f no "LOREM_IPSUM" "$DATASET.blast" \
         | sort -k 13 > "$DATASET.mytaxain"
       "$MT/MyTaxa" "$DATASET.mytaxain" "$DATASET.mytaxa" "0.5"
-      perl "$MT/utils/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
+      perl "$MT_UTILS/MyTaxa.distribution.pl" -m "$DATASET.mytaxa" \
         -I "$DATASET.mytaxa.innominate" -G "$DATASET.mytaxa.genes" \
         -K "$DATASET.mytaxa.krona" -u
     fi

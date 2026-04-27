@@ -1,5 +1,8 @@
 # Installing the MyTaxa utils
 
+If you followed the instructions for [conda](conda.md), you already have
+all the necessary MyTaxa utils.
+
 **The MyTaxa utilities are optional**, but without them the
 [MyTaxa](../../part5/workflow.md#mytaxa) and
 [MyTaxa scan](../../part5/workflow.md#mytaxa-scan) analyses are disabled.

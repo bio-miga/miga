@@ -28,6 +28,7 @@ dependencies:
   - barrnap
   - trnascan-se
   - krona
+  - mytaxa
 
   # Distances
   - blast

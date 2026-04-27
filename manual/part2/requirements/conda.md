@@ -34,9 +34,3 @@ echo 'eval "$(conda shell.bash hook)" && conda activate miga' > ~/.miga_modules
 . ~/.miga_modules
 ```
 
-## MyTaxa utils
-
-If you want to activate the [MyTaxa](../part5/workflow.md#mytaxa) and
-[MyTaxa Scan](../part5/workflow.md#mytaxa-scan) steps, follow the instructions
-to install the [MyTaxa Utils](mytaxa.md).
-
