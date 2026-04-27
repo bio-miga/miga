@@ -28,10 +28,10 @@ else
       exit 1
     fi
     if [[ -d "$MYTAXA_DB" ]] ; then
-      # Use environmental variable for DB location
-    else if [[ -d "$MIGA_HOME/.miga_db/mytaxa/db" ]] ; then
+      echo "Using MYTAXA_DB=$MYTAXA_DB"
+    elif [[ -d "$MIGA_HOME/.miga_db/mytaxa/db" ]] ; then
       export MYTAXA_DB="$MIGA_HOME/.miga_db/mytaxa/db"
-    else if [[ -d "$MT/db" ]] ; then
+    elif [[ -d "$MT/db" ]] ; then
       export MYTAXA_DB="$MT/db"
     else
      echo "Cannot locate the MyTaxa scores: rerun 'miga init'" >&2 
