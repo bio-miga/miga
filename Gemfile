@@ -7,3 +7,5 @@ group :test do
 end
 
 gem 'rake', '~> 13.0'
+
+gem "csv", "~> 3.3"
