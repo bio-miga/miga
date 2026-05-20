@@ -24,10 +24,11 @@ module MiGA::Common::Format
 
   ##
   # Cleans a FastA file in place, removing all sequences shorter than
-  # +min_len+
+  # +min_len+ and renaming duplicate sequence identifiers
   def clean_fasta_file(file, min_len = 1)
     tmp_fh = nil
     tmp_path = nil
+    names = Set.new
     begin
       if file =~ /\.gz/
         tmp_path = Tempfile.new('MiGA.gz').tap(&:close).path
@@ -45,11 +46,14 @@ module MiGA::Common::Format
         ln.chomp!
         if ln =~ /^>\s*(\S+)(.*)/
           id, df = $1, $2
+          id = id.gsub(/[^A-Za-z0-9_\|\.]/, '_')
+          id = id + '_dup' while names.include?(id)
+          names << id
           if next_seq[1].length >= min_len
             tmp_fh.puts next_seq[0]
             tmp_fh.print next_seq[1].wrap_width(80)
           end
-          next_seq = [">#{id.gsub(/[^A-Za-z0-9_\|\.]/, '_')}#{df}", '']
+          next_seq = [">#{id}#{df}", '']
         else
           next_seq[1] += ln.gsub(/[^A-Za-z]/, '')
         end
