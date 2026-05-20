@@ -118,7 +118,7 @@ module MiGA::Common::Net
   def http_request(method, url, *opts)
     doc = nil
     remote_connection(url).start do |http|
-      res = http.send(method, remote_connection_uri.to_s, *opts)
+      res = http.send(method, remote_connection_uri, *opts)
       if %w[301 302].include?(res.code)
         DEBUG "REDIRECTION #{res.code}: #{res['location']}"
         return http_request(method, res['location'], *opts)
