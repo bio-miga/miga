@@ -26,7 +26,7 @@ you can install it in your 64bit Linux machine using:
 ```bash
 ## FaQCs
 wget -O FaQCs \
-  "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.12/FaQCs_linux_x86_64"
+  "https://github.com/LANL-Bioinformatics/FaQCs/releases/download/2.10/FaQCs_linux_x86_64"
 sudo install FaQCs /usr/bin/ && rm FaQCs
 
 ## Falco
