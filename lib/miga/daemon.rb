@@ -44,7 +44,10 @@ class MiGA::Daemon < MiGA::MiGA
   def initialize(project, json = nil)
     @project = project
     @runopts = {}
-    json ||= File.join(project.path, 'daemon/daemon.json')
+    ddir = File.join(project.path, 'daemon')
+    json ||= File.join(ddir, 'daemon.json')
+    FileUtils.mkdir_p(ddir) unless Dir.exist?(ddir)
+    File.open(json, 'w') { |fh| fh.puts '{}' } unless File.exist?(json)
     default_json = File.expand_path('.miga_daemon.json', ENV['MIGA_HOME'])
     MiGA::Json.parse(
       json, default: File.exist?(default_json) ? default_json : nil
