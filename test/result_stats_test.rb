@@ -68,7 +68,7 @@ class ResultStatsTest < Test::Unit::TestCase
     assert_equal({}, r.stats)
   end
 
-  def test_trimmed_fasta
+  def test_trimmed_fasta_interleaved
     dir = 'data/04.trimmed_fasta'
     fa = file_path(dir, '.CoupledReads.fa')
     File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
@@ -78,6 +78,20 @@ class ResultStatsTest < Test::Unit::TestCase
     r.compute_stats
     assert_equal(1, r[:stats][:reads])
     assert_equal([40.0, '%'], r[:stats][:g_c_content])
+  end
+
+  def test_trimmed_fasta_separate
+    dir = 'data/04.trimmed_fasta'
+    [1, 2].each do |i|
+      fa = file_path(dir, ".#{i}.fasta")
+      File.open(fa, 'w') { |fh| fh.puts '>1', 'ACTAC' }
+    end
+    touch_done(dir)
+    r = dataset.add_result(:trimmed_fasta)
+    assert_equal({}, r[:stats])
+    r.compute_stats
+    assert_equal(1, r[:stats][:read_pairs])
+    assert_equal([40.0, '%'], r[:stats][:forward_g_c_content])
   end
 
   def test_assembly

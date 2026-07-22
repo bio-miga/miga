@@ -51,8 +51,11 @@ else
   mv "$b/unpaired.post_trim_QC_${b}.1.html" \
      "../03.read_quality/${b}.post.1.html"
 fi
-mv "$b/Subsample_Adapter_Detection.stats.txt" \
-  "../03.read_quality/$b.adapters.txt"
+
+if [[ -e "$b/Subsample_Adapter_Detection.stats.txt" ]] ; then
+  mv "$b/Subsample_Adapter_Detection.stats.txt" \
+    "../03.read_quality/$b.adapters.txt"
+fi
 
 # Cleanup
 rm -r "$b"

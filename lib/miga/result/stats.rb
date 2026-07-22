@@ -24,16 +24,18 @@ module MiGA::Result::Stats
 
   private
 
-  def compute_stats_raw_reads
+  def compute_stats_raw_reads(format = :fastq)
     stats = {}
     seq_opts = { gc: true, x: true, skew: true }
     if self[:files][:pair1].nil?
-      s = MiGA::MiGA.seqs_length(file_path(:single), :fastq, seq_opts)
+      return {} if file_path(:single).nil?
+      s = MiGA::MiGA.seqs_length(file_path(:single), format, seq_opts)
       stats = seqs_length_as_stats_hash(s)
     else
       stats = { read_pairs: nil }
       { pair1: :forward, pair2: :reverse }.each do |pair, direction|
-        s = MiGA::MiGA.seqs_length(file_path(pair), :fastq, seq_opts)
+        return {} if file_path(pair).nil?
+        s = MiGA::MiGA.seqs_length(file_path(pair), format, seq_opts)
         seqs_length_as_stats_hash(s).each do |k, v|
           stats[k == :reads ? :read_pairs : :"#{direction}_#{k}"] ||= v
         end
@@ -47,11 +49,15 @@ module MiGA::Result::Stats
   end
 
   def compute_stats_trimmed_fasta
-    f = self[:files][:coupled].nil? ? file_path(:single) : file_path(:coupled)
-    return {} if f.nil?
-
-    s = MiGA::MiGA.seqs_length(f, :fasta, gc: true, x: true, skew: true)
-    seqs_length_as_stats_hash(s)
+    if self[:files][:coupled].nil?
+      # Single- and separate paired-end reads
+      compute_stats_raw_reads(:fasta)
+    else
+      # Interleaved paired-end reads
+      f = file_path(:coupled)
+      s = MiGA::MiGA.seqs_length(f, :fasta, gc: true, x: true, skew: true)
+      seqs_length_as_stats_hash(s)
+    end
   end
 
   def compute_stats_assembly

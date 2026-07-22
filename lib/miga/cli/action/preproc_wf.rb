@@ -10,7 +10,7 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
 
   def parse_cli
     default_opts_for_wf
-    cli.defaults = { mytaxa: false }
+    cli.defaults = { mytaxa: false, assembly: true }
     cli.parse do |opt|
       opt.on(
         '-i', '--input-type STRING',
@@ -18,9 +18,13 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
         *MiGA::Cli::Action::Add.INPUT_TYPES.map { |k, v| "~ #{k}: #{v[0]}" }
       ) { |v| cli[:input_type] = v.downcase.to_sym }
       opt.on(
-        '-m', '--mytaxa_scan',
-        'Perform MyTaxa scan analysis'
+        '-m', '--mytaxa',
+        'Perform MyTaxa/MyTaxa scan analyses'
       ) { |v| cli[:mytaxa] = v }
+      opt.on(
+        '--no-assembly',
+        'Do not assemble the datasets or perform downstream analyses'
+      ) { |v| cli[:assembly] = v }
       opts_for_wf(
         opt, 'Input files as defined by --input-type',
         multi: true, cleanup: false, ncbi: false, project_type: true
@@ -36,14 +40,26 @@ class MiGA::Cli::Action::PreprocWf < MiGA::Cli::Action
     ]
     p_metadata = Hash[norun.map { |i| ["run_#{i}", false] }]
     d_metadata = { run_distances: false }
+    cli[:mytaxa] = false unless cli[:assembly]
     unless cli[:mytaxa]
       d_metadata[:run_mytaxa_scan] = false
       d_metadata[:run_mytaxa] = false
+    end
+    unless cli[:assembly]
+      %w[assembly cds essential_genes ssu].each do |i|
+        d_metadata[:"run_#{i}"] = false
+      end
     end
     p = create_project(cli[:input_type], p_metadata, d_metadata)
 
     # Run
     run_daemon
-    summarize
+    summaries = []
+    if cli[:input_type].to_s =~ /^raw_reads_/
+      summaries += %w[raw_reads trimmed_reads]
+    end
+    summaries += %w[trimmed_fasta] if cli[:input_type].to_s =~ /^trimmed_reads_/
+    summaries += %w[cds assembly essential_genes ssu] if cli[:assembly]
+    summarize(summaries)
   end
 end

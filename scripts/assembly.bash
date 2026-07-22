@@ -52,12 +52,15 @@ CMD="spades.py -o $DATASET -t $CORES"
 TYPE_OPT=""
 case "$(miga ls -P "$PROJECT" -D "$DATASET" -m type | cut -f 2)" in
   "metagenome")
+    # MetaSPADES doesn't support single-end metagenomes, so these datasets
+    # are instead treated as SAGs, which at least doesn't assume uniform
+    # coverage
     TYPE_OPT="--meta" ;;
   "plasmid")
     TYPE_OPT="--plasmid" ;;
   "scgenome")
     TYPE_OPT="--sc" ;;
-  "genome")
+  "popgenome"|"genome")
     TYPE_OPT="--isolate" ;;
   "virome")
     TYPE_OPT="--metaviral" ;;
@@ -69,7 +72,7 @@ if [[ -s "$F1" ]] ; then
     CMD="$CMD -1 $F1 -2 $F2"
   else
     CMD="$CMD -s $F1"
-    [[ "$TYPE_OPT" == "--meta" ]] && TYPE_OPT=""
+    [[ "$TYPE_OPT" == "--meta" ]] && TYPE_OPT="--sc"
   fi
 else
   F1="$TF/${DATASET}.CoupledReads.fa.gz"
@@ -78,7 +81,7 @@ else
     CMD="$CMD --12 $F1"
   elif [[ -s "$F2" ]] ; then
     CMD="$CMD -s $F2"
-    [[ "$TYPE_OPT" == "--meta" ]] && TYPE_OPT=""
+    [[ "$TYPE_OPT" == "--meta" ]] && TYPE_OPT="--sc"
   else
     echo "No input files found to assemble" >&2
     exit 1
