@@ -50,6 +50,28 @@ class MiGA::RemoteDataset
     end
 
     ##
+    # Attempts to download from NCBI Assembly and, if that fails, moves to EMBL
+    # instead. This is the default for SeqCode because some assemblies don't
+    # synchronize fast enough, and in the case of MAGs some never do. This is
+    # also the default for GTDB since it could be affected in the future too,
+    # although at present GTDB only sources data from NCBI. Supported +opts+ are
+    # the same as for +ncbi_asm_get+
+    def ncbi_or_embl_asm_get(opts)
+      begin
+        ncbi_asm_get(opts)
+      rescue
+        # The actual error thrown by `ncbi_asm_get` is rather uniformative and
+        # could change in the future. Right now, the URL resolves correctly, but
+        # the file is corrupted, so the actual error is `Zip::Error`. Hopefully
+        # NCBI will implement an actual 404 Error that can be caught here more
+        # narrowly, but for now it's safer to catch broadly here.
+
+        opts_embl = opts.dup.merge(universe: :ebi, db: :embl)
+        download_get(opts_embl)
+      end
+    end
+
+    ##
     # Download data from NCBI Assembly database using the REST method.
     # Supported +opts+ (Hash) include:
     # +obj+ (mandatory): MiGA::RemoteDataset

@@ -64,8 +64,9 @@ module MiGA::RemoteDataset::Base
     },
     gtdb: {
       dbs: {
-        # This is a dummy entry plugged directly to +ncbi_asm_get+
-        assembly: { stage: :assembly, format: :fasta, getter: :ncbi_asm },
+        assembly: {
+          stage: :assembly, format: :fasta, getter: :ncbi_or_embl_asm
+        },
         # The 'taxon' namespace actually returns a list of genomes (+format+)
         taxon: {
           stage: :metadata, format: :genomes, map_to: [:assembly],
@@ -84,8 +85,9 @@ module MiGA::RemoteDataset::Base
     },
     seqcode: {
       dbs: {
-        # These are dummy entries plugged directly to +ncbi_*_get+
-        assembly: { stage: :assembly, format: :fasta, getter: :ncbi_asm },
+        assembly: {
+          stage: :assembly, format: :fasta, getter: :ncbi_or_embl_asm
+        },
         nuccore:  { stage: :assembly, format: :fasta, getter: :ncbi_gb },
         # This is the list of type genomes
         :'type-genomes' => { stage: :metadata, format: :json }
