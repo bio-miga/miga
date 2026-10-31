@@ -39,19 +39,23 @@ rm "miga-project.txt.lno"
 
 # R-ify
 cat <<R | R --vanilla
-file <- gzfile("miga-project.txt.gz")
-text <- readLines(file, n = $LNO + 1, ok = FALSE)[-1]
+con <- gzfile("miga-project.txt.gz", "r")
+invisible(readLines(con, n = 1))
 a <- vector("character", $LNO)
 b <- vector("character", $LNO)
 d <- vector("numeric", $LNO)
 chunk.n <- 1024 * 1024
-for (chunk in seq_len(ceiling(length(text) / chunk.n))) {
-  sel <- (chunk * chunk.n - chunk.n + 1):min(chunk * chunk.n, length(text))
-  list <- strsplit(text[sel], "\t", fixed = TRUE)
-  a[sel] <- sapply(list, function(x) x[1])
-  b[sel] <- sapply(list, function(x) x[2])
-  d[sel] <- sapply(list, function(x) 1 - (as.numeric(x[3]) / 100))
+for (chunk in seq_len(ceiling($LNO / chunk.n))) {
+  text <- readLines(con, n = chunk.n)
+  if (length(text) == 0) break
+  first <- (chunk - 1) * chunk.n + 1
+  sel <- first:(first + length(text) - 1)
+  list <- strsplit(text, "\t", fixed = TRUE)
+  a[sel] <- vapply(list, "[", character(1), 1)
+  b[sel] <- vapply(list, "[", character(1), 2)
+  d[sel] <- 1 - as.numeric(vapply(list, "[", character(1), 3)) / 100
 }
+close(con)
 save(a, b, d, file = "miga-project.rda")
 
 non_self <- a != b
