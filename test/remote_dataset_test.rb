@@ -357,6 +357,129 @@ class RemoteDatasetTest < Test::Unit::TestCase
     assert_operator(File.size(fna), :>, 100_000)
   end
 
+  # Payload returned by NCBI elink for IDs not recognized in +dbfrom+, which
+  # includes raw newlines within strings (and is therefore invalid JSON)
+  ELINK_NOT_FOUND =
+    '{"header":{"type":"elink","version":"0.3"},"linksets":[{' \
+    '"dbfrom":"nuccore","ids":[],"linksetdbs":[{"dbto":"biosample",' \
+    '"linkname":"nuccore_biosample","ERROR":"NCBI C++ Exception:' + "\n" +
+    '    Error: UNK_MODULE(CException::eInvalid) \"UNK_FILE\", line ' \
+    '18446744073709551615: UNK_FUNC --- ' + "\n" +
+    '"}],"ERROR":"BLOB ID IS NOT IMPLEMENTED"}]}'
+
+  def test_ncbi_map_offline
+    responses = {
+      # ID not recognized in nuccore
+      'GCA_039803745.1' => ELINK_NOT_FOUND,
+      # ID recognized, but the link failed (possibly transient)
+      'M30502.1' => ELINK_NOT_FOUND.sub('"ids":[]', '"ids":["1332355"]'),
+      # Unparseable response
+      'CP005986.1' => '<html>Service unavailable</html>',
+      # Normal responses, with and without links
+      'CP005986.2' =>
+        '{"header":{"type":"elink","version":"0.3"},"linksets":[{' \
+        '"dbfrom":"nuccore","ids":["640840007"],"linksetdbs":[{' \
+        '"dbto":"biosample","linkname":"nuccore_biosample",' \
+        '"links":["2469802"]}]}]}',
+      'M30502.2' =>
+        '{"header":{"type":"elink","version":"0.3"},"linksets":[{' \
+        '"dbfrom":"nuccore","ids":["1332355"]}]}'
+    }
+    calls = []
+    sleeps = 0
+    with_stubbed_class_method(:sleep, ->(*_args) { sleeps += 1 }) do
+      with_stubbed_download(lambda do |universe, db, ids, *_rest|
+        assert_equal(:ncbi_map, universe)
+        assert_equal(:nuccore, db)
+        calls << ids
+        responses[ids]
+      end) do
+        rd = MiGA::RemoteDataset
+
+        # Not found: no retries
+        err = assert_raise(MiGA::RemoteDataMissingError) do
+          rd.ncbi_map('GCA_039803745.1', :nuccore, :biosample)
+        end
+        assert_include(err.message, 'GCA_039803745.1')
+        assert_include(err.message, 'BLOB ID IS NOT IMPLEMENTED')
+        assert_equal(1, calls.size)
+        assert_equal(0, sleeps)
+
+        # Other errors: retry once and fail with a generic RemoteDataError
+        %w[M30502.1 CP005986.1].each do |id|
+          calls.clear
+          sleeps = 0
+          err = assert_raise(MiGA::RemoteDataError) do
+            rd.ncbi_map(id, :nuccore, :biosample)
+          end
+          assert_not_instance_of(MiGA::RemoteDataMissingError, err)
+          assert_include(err.message, id)
+          assert_equal([id, id], calls)
+          assert_equal(1, sleeps)
+        end
+
+        # Normal responses
+        sleeps = 0
+        assert_equal('2469802', rd.ncbi_map('CP005986.2', :nuccore, :biosample))
+        assert_nil(rd.ncbi_map('M30502.2', :nuccore, :biosample))
+        assert_equal(0, sleeps)
+      end
+    end
+  end
+
+  def test_type_status_nuccore_not_found_offline
+    rd = MiGA::RemoteDataset.new('GCA_039803745.1', :nuccore, :ncbi)
+    with_stubbed_download(->(*_args) { ELINK_NOT_FOUND }) do
+      md = { ncbi_nuccore: 'GCA_039803745.1' }
+      assert_equal(md, rd.get_type_status(md))
+    end
+  end
+
+  def test_ncbi_gb_get_efetch_error_offline
+    responses = {
+      'GCA_039803745.1' =>
+        "Error: F a i l e d  t o  u n d e r s t a n d  i d :  " \
+        "G C A _ 0 3 9 8 0 3 7 4 5 . 1 \n\n\n",
+      'M30502.1' => "Error: Something else went wrong\n"
+    }
+    with_stubbed_class_method(:download_rest, ->(opts) {
+      responses[opts[:ids].first]
+    }) do
+      rd = MiGA::RemoteDataset
+      err = assert_raise(MiGA::RemoteDataMissingError) do
+        rd.ncbi_gb_get(ids: ['GCA_039803745.1'], file: tmpfile('a.fna'))
+      end
+      assert_equal(
+        'NCBI nuccore entry not found: GCA_039803745.1 ' \
+        '(efetch: Failed to understand id: GCA_039803745.1)',
+        err.message
+      )
+
+      err = assert_raise(MiGA::RemoteDataError) do
+        rd.ncbi_gb_get(ids: ['M30502.1'], file: tmpfile('b.fna'))
+      end
+      assert_not_instance_of(MiGA::RemoteDataMissingError, err)
+      assert_include(err.message, 'Something else went wrong')
+    end
+  end
+
+  def test_ncbi_map_not_found
+    declare_remote_access
+    assert_raise(MiGA::RemoteDataMissingError) do
+      MiGA::RemoteDataset.ncbi_map('GCA_039803745.1', :nuccore, :biosample)
+    end
+  end
+
+  def test_nuccore_not_found
+    declare_remote_access
+    rd = MiGA::RemoteDataset.new('GCA_039803745.1', :nuccore, :ncbi)
+    err = assert_raise(MiGA::RemoteDataMissingError) do
+      rd.save_to(project, 'wrong_db')
+    end
+    assert_include(err.message, 'GCA_039803745.1')
+    assert_nil(project.dataset('wrong_db'))
+  end
+
   # This test is too expensive (too much time to run it!)
   # def test_net_timeout
   #   declare_remote_access
@@ -370,13 +493,29 @@ class RemoteDatasetTest < Test::Unit::TestCase
   ##
   # Temporarily replace MiGA::RemoteDataset.download with +fun+ while running
   # the given block
-  def with_stubbed_download(fun)
+  def with_stubbed_download(fun, &blk)
+    with_stubbed_class_method(:download, fun, &blk)
+  end
+
+  ##
+  # Temporarily replace the class method +name+ of MiGA::RemoteDataset with
+  # +fun+ while running the given block. Methods inherited by the class (like
+  # +sleep+) can also be stubbed
+  def with_stubbed_class_method(name, fun)
     klass = MiGA::RemoteDataset.singleton_class
-    klass.send(:alias_method, :__orig_download, :download)
-    klass.send(:define_method, :download) { |*args| fun.call(*args) }
+    orig = :"__orig_#{name}"
+    own =
+      klass.method_defined?(name, false) ||
+      klass.private_method_defined?(name, false)
+    klass.send(:alias_method, orig, name) if own
+    klass.send(:define_method, name) { |*args| fun.call(*args) }
     yield
   ensure
-    klass.send(:alias_method, :download, :__orig_download)
-    klass.send(:remove_method, :__orig_download)
+    if own
+      klass.send(:alias_method, name, orig)
+      klass.send(:remove_method, orig)
+    else
+      klass.send(:remove_method, name)
+    end
   end
 end

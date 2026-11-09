@@ -177,6 +177,7 @@ class MiGA::RemoteDataset
     def ncbi_gb_get(opts)
       # Simply use defaults, but ensure that the URL can be properly formed
       o = download_rest(opts.merge(universe: :ncbi, db: :nuccore))
+      ncbi_efetch_check(o, opts[:ids])
       return o unless o.strip.empty?
 
       begin
@@ -198,7 +199,33 @@ class MiGA::RemoteDataset
       end
       ids.each_slice(20).map do |bunch|
         download_rest(opts.merge(universe: :ncbi, db: :nuccore, ids: bunch))
+          .tap { |doc| ncbi_efetch_check(doc, bunch) }
       end.join("\n")
+    end
+
+    ##
+    # Check if +doc+ is an error message returned by NCBI efetch for +ids+
+    # (with HTTP status 200), and raise an exception if so. Unrecognized
+    # IDs raise MiGA::RemoteDataMissingError, and any other error raises
+    # MiGA::RemoteDataError
+    def ncbi_efetch_check(doc, ids)
+      return unless doc =~ /\A\s*Error:/
+
+      # NCBI sometimes spaces out the characters in the message, as in
+      # "F a i l e d  t o  u n d e r s t a n d  i d"
+      msg = doc.strip.sub(/\AError:\s*/, '')
+      msg = msg.gsub(/(?<! ) (?! )/, '') if msg =~ /\A(\S ){3}/
+      msg = msg.gsub(/\s+/, ' ').strip
+      ids = ids.is_a?(Array) ? ids.join(',') : ids.to_s
+
+      if msg =~ /Failed to understand id|not found/i
+        raise MiGA::RemoteDataMissingError.new(
+          "NCBI nuccore entry not found: #{ids} (efetch: #{msg})"
+        )
+      end
+      raise MiGA::RemoteDataError.new(
+        "NCBI efetch failed for nuccore entry #{ids}: #{msg}"
+      )
     end
 
     ##
@@ -273,21 +300,52 @@ class MiGA::RemoteDataset
     ##
     # Looks for the entry +id+ in +dbfrom+, and returns the linked
     # identifier in +db+ (or nil).
+    #
+    # Raises MiGA::RemoteDataMissingError if NCBI doesn't recognize +id+ in
+    # +dbfrom+, or MiGA::RemoteDataError if the response cannot be interpreted
+    # even after one retry
     def ncbi_map(id, dbfrom, db)
+      attempts ||= 0
       doc = download(:ncbi_map, dbfrom, id, :json, nil, db: db)
       return if doc.empty?
 
-      begin
-        tree = MiGA::Json.parse(doc, contents: true)
-      rescue => e
-        sleep 5 # <- Usually caused by busy servers: BLOB ID IS NOT IMPLEMENTED
-        DEBUG "RETRYING after: #{e}"
-        doc = download(:ncbi_map, dbfrom, id, :json, nil, db: db)
-        return if doc.empty?
-        tree = MiGA::Json.parse(doc, contents: true)
+      # NCBI may include raw control characters within strings (e.g., in ERROR
+      # messages), which is invalid JSON, but harmless to replace with spaces
+      tree = MiGA::Json.parse(doc.gsub(/[[:cntrl:]]/, ' '), contents: true)
+      linkset = tree.is_a?(Hash) ? (tree.dig(:linksets, 0) || {}) : {}
+      error = linkset[:ERROR] ||
+        (linkset[:linksetdbs] || []).map { |i| i[:ERROR] }.compact.first
+      if error
+        # Errors with an empty list of IDs indicate that +id+ is not recognized
+        # in +dbfrom+ (e.g., BLOB ID IS NOT IMPLEMENTED), so there's no point
+        # in retrying
+        if (linkset[:ids] || []).empty?
+          raise MiGA::RemoteDataMissingError.new(
+            "NCBI #{dbfrom} entry not found: #{id} " \
+            "(elink: #{error.to_s.squeeze(' ').strip})"
+          )
+        end
+        raise MiGA::RemoteDataError.new(
+          "NCBI elink failed for #{dbfrom} entry #{id}: " \
+          "#{error.to_s.squeeze(' ').strip}"
+        )
       end
 
-      tree&.dig(:linksets, 0, :linksetdbs, 0, :links, 0)
+      linkset.dig(:linksetdbs, 0, :links, 0)
+    rescue MiGA::RemoteDataMissingError
+      raise
+    rescue JSON::ParserError, MiGA::RemoteDataError => e
+      # Any other error in the response is possibly transient (e.g., busy
+      # servers), so retry once before giving up
+      if (attempts += 1) > 1
+        raise e if e.is_a?(MiGA::RemoteDataError)
+        raise MiGA::RemoteDataError.new(
+          "Unexpected response from NCBI elink for #{dbfrom} entry #{id}: #{e}"
+        )
+      end
+      sleep 5
+      DEBUG "RETRYING after: #{e}"
+      retry
     end
 
     ##

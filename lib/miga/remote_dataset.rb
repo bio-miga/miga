@@ -368,11 +368,17 @@ class MiGA::RemoteDataset < MiGA::MiGA
   def get_type_status_ncbi_nuccore(metadata)
     return metadata if metadata[:ncbi_nuccore].nil?
 
-    biosample =
-      self.class.ncbi_map(metadata[:ncbi_nuccore], :nuccore, :biosample)
-    return metadata if biosample.nil?
+    begin
+      biosample =
+        self.class.ncbi_map(metadata[:ncbi_nuccore], :nuccore, :biosample)
+      return metadata if biosample.nil?
 
-    asm = self.class.ncbi_map(biosample, :biosample, :assembly)
+      asm = self.class.ncbi_map(biosample, :biosample, :assembly)
+    rescue MiGA::RemoteDataMissingError => e
+      # Type status is best-effort, missing entries are reported on download
+      MiGA::MiGA.DEBUG "Cannot determine type status: #{e}"
+      return metadata
+    end
     metadata[:ncbi_asm] = asm.to_s unless asm.nil?
     get_type_status_ncbi_asm metadata
   end
