@@ -19,9 +19,6 @@ class MiGA::RemoteDataset
       getter = database_hash[:getter] || :download
       action = database_hash[:method] || universe_hash[:method]
 
-      # Clean IDs
-      ids = 
-
       # Return options
       {
         universe: universe,  db:   db,    ids: ids.is_a?(Array) ? ids : [ids],
@@ -60,11 +57,10 @@ class MiGA::RemoteDataset
       begin
         ncbi_asm_get(opts)
       rescue
-        # The actual error thrown by `ncbi_asm_get` is rather uniformative and
-        # could change in the future. Right now, the URL resolves correctly, but
-        # the file is corrupted, so the actual error is `Zip::Error`. Hopefully
-        # NCBI will implement an actual 404 Error that can be caught here more
-        # narrowly, but for now it's safer to catch broadly here.
+        # Missing or unavailable assemblies are reported by `ncbi_asm_get` as
+        # MiGA::RemoteDataError (or its subclass MiGA::RemoteDataMissingError),
+        # but network errors and other transient failures can surface with
+        # different classes, so it's safer to catch broadly here.
 
         opts_embl = opts.dup.merge(universe: :ebi, db: :embl)
         download_get(opts_embl)
@@ -79,12 +75,25 @@ class MiGA::RemoteDataset
     # +file+ (mandatory): String, assembly saved here
     # +extra+: Hash, passed to download
     # +format+: String, ignored
+    #
+    # Unversioned accessions (e.g., GCA_000175575) are first resolved to their
+    # current version (see +ncbi_asm_resolve_acc+), and the resolved accessions
+    # are registered in the +:ncbi_asm+ metadata entry of +obj+, if any.
+    #
+    # Raises MiGA::RemoteDataMissingError if the downloaded archive is invalid
+    # or doesn't contain any genomic FastA file
     def ncbi_asm_get(opts)
       require 'tempfile'
       require 'zip'
 
+      ids = (opts[:ids].is_a?(Array) ? opts[:ids] : [opts[:ids]])
+      acc = ids.map { |id| ncbi_asm_resolve_acc(id) }
+      if acc != ids && opts[:obj].respond_to?(:metadata)
+        opts[:obj].metadata[:ncbi_asm] = acc.join(',')
+      end
+
       zipped = download(
-        :ncbi_datasets_download, :genome, opts[:ids],
+        :ncbi_datasets_download, :genome, acc,
         :zip, nil, opts[:extra], opts[:obj]
       )
       zip_tmp = Tempfile.new(['asm', '.zip'], encoding: zipped.encoding.to_s)
@@ -92,22 +101,74 @@ class MiGA::RemoteDataset
       zip_tmp.close
 
       o = ''
+      found = false
       ofh = opts[:file] ? File.open(opts[:file], 'w') : nil
-      Zip::File.open(zip_tmp.path) do |zfh|
-        zfh.each do |entry|
-          if entry.file? && entry.name =~ /_genomic\.fna$/
-            DEBUG "Extracting: #{entry.name}"
-            entry.get_input_stream do |ifh|
-              cont = MiGA::MiGA.normalize_encoding(ifh.read).chomp + "\n"
-              ofh&.print(cont)
-              o += cont
+      begin
+        Zip::File.open(zip_tmp.path) do |zfh|
+          zfh.each do |entry|
+            if entry.file? && entry.name =~ /_genomic\.fna$/
+              DEBUG "Extracting: #{entry.name}"
+              found = true
+              entry.get_input_stream do |ifh|
+                cont = MiGA::MiGA.normalize_encoding(ifh.read).chomp + "\n"
+                ofh&.print(cont)
+                o += cont
+              end
             end
           end
         end
+      rescue Zip::Error => e
+        raise MiGA::RemoteDataMissingError.new(
+          "NCBI Datasets returned an invalid archive for #{acc.join(',')} " \
+          "(#{zipped.bytesize} bytes): #{e.message}"
+        )
       end
-      ofh&.close
-      File.unlink(zip_tmp.path)
+      unless found
+        raise MiGA::RemoteDataMissingError.new(
+          "NCBI Datasets returned no genomic sequences for #{acc.join(',')}"
+        )
+      end
       o
+    ensure
+      ofh&.close
+      zip_tmp&.close!
+    end
+
+    ##
+    # Resolve the NCBI Assembly Accession +acc+ to its current versioned
+    # accession using NCBI Datasets if it lacks a version (e.g., GCA_000175575
+    # is resolved to GCA_000175575.2). Any other accession is returned as is.
+    #
+    # Raises MiGA::RemoteDataMissingError if the accession is not found, or
+    # MiGA::RemoteDataError if the response from NCBI cannot be interpreted
+    def ncbi_asm_resolve_acc(acc)
+      return acc unless acc.to_s =~ /\AGC[AF]_\d{9}\z/
+
+      doc = download(:ncbi_datasets_report, :genome, acc, :json)
+      begin
+        report = MiGA::Json.parse(doc, contents: true)
+      rescue => e
+        raise MiGA::RemoteDataError.new(
+          "Cannot resolve NCBI Assembly Accession #{acc}, " \
+          "unexpected response from NCBI Datasets: #{e.message}"
+        )
+      end
+      unless report.is_a?(Hash) && (report.empty? || report.key?(:reports))
+        raise MiGA::RemoteDataError.new(
+          "Cannot resolve NCBI Assembly Accession #{acc}, " \
+          "unexpected response from NCBI Datasets: #{doc[0, 200]}"
+        )
+      end
+
+      entry = (report[:reports] || []).first || {}
+      out = entry[:current_accession] || entry[:accession]
+      if out.nil? || out.empty?
+        raise MiGA::RemoteDataMissingError.new(
+          "NCBI Assembly Accession not found: #{acc}"
+        )
+      end
+      DEBUG "Resolved NCBI Assembly Accession: #{acc} -> #{out}"
+      out
     end
 
     ##

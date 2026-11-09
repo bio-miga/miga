@@ -18,7 +18,7 @@ def uri_safe_join(*parts)
 end
 
 module MiGA::RemoteDataset::Base
-  @@_NCBI_DATASETS = 'https://api.ncbi.nlm.nih.gov/datasets/v2alpha/'
+  @@_NCBI_DATASETS = 'https://api.ncbi.nlm.nih.gov/datasets/v2/'
   @@_EUTILS        = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
   @@_EBI_API       = 'https://www.ebi.ac.uk/Tools/'
   @@_GTDB_API      = 'https://gtdb-api.ecogenomic.org/'
@@ -169,6 +169,21 @@ module MiGA::RemoteDataset::Base
       headers: lambda do |opts|
         {}.tap do |h|
           h['Accept'] = 'application/zip' if opts[:format] == :zip
+          h['api-key'] = ENV['NCBI_API_KEY'] if ENV['NCBI_API_KEY']
+        end
+      end
+    },
+    ncbi_datasets_report: {
+      dbs: { genome: { stage: :metadata, format: :json } },
+      uri: lambda do |opts|
+        uri_safe_join(
+          @@_NCBI_DATASETS, opts[:db], :accession, opts[:ids], :dataset_report
+        )
+      end,
+      method: :get,
+      headers: lambda do |opts|
+        {}.tap do |h|
+          h['Accept'] = 'application/json' if opts[:format] == :json
           h['api-key'] = ENV['NCBI_API_KEY'] if ENV['NCBI_API_KEY']
         end
       end
