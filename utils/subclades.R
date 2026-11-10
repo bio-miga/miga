@@ -124,7 +124,7 @@ subclade_clustering <- function (out_base, thr, ani.d, dist_rds) {
   say("Silhouette")
   k <- min(max(floor(0.005 * nn), 2), 20):min(nn - 1, 100)
   say("- Make cluster")
-  cl <- makeCluster(thr)
+  cl <- makeCluster(min(thr, 8))
   say("- Launch parallel jobs")
   s <- parSapply(
     cl, k,
